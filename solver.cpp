@@ -1,6 +1,5 @@
 #include <iostream>
 #include <Eigen>
-
 #include "reader.h"
 #include "solver.h"
 
@@ -15,18 +14,21 @@ const int z = 2;
 
 MatrixXd constraint_matrix_of_pin(Vector3d a1, Vector3d a2) {
     MatrixXd mat = MatrixXd::Zero(5, 12);
+                             
+    if (a2.isZero()) {
+        o("warning: a2 is zero vector, this causes undefined behaviour");
+        oo("normalized zero vector", a2.normalized().transpose());
+    }
 
     Vector3d u1 = a1.normalized();
     Vector3d u2 = a2.normalized();
     Vector3d plane_normal = u1.cross(u2).normalized();
     // u1p perpenticular to u1 and the normal vector of the plane <u1, u2>
     Vector3d u1p = u1.cross(plane_normal).normalized();
-    Vector3d u2p = u2.cross(plane_normal).normalized();
-
+    // Vector3d u2p = u2.cross(plane_normal).normalized();
     mat.row(0) << 1, 0, 0,      0,  a1[z], -a1[y], -1,  0,  0,      0, -a2[z],  a2[y];
     mat.row(1) << 0, 1, 0, -a1[z],      0,  a1[x],  0, -1,  0,  a2[z],      0, -a2[x];
     mat.row(2) << 0, 0, 1,  a1[y], -a1[x],      0,  0,  0, -1, -a2[y],  a2[x],      0;
-
     // constraints: same angular velocity along u1, and u1_p 
     mat.row(3) << 0, 0, 0, u1[x], u1[y], u1[z], 0, 0, 0, -u1[x], -u1[y], -u1[z];
     mat.row(4) << 0, 0, 0, u1p[x], u1p[y], u1p[z], 0, 0, 0, -u1p[x], -u1p[y], -u1p[z];
@@ -63,6 +65,14 @@ MatrixXd build_constraints_matrix(MatrixX3d P, MatrixX2i E, MatrixX3i pins) {
         // o("get a");
         Vector3d a_a = vertex - mid_a;
         Vector3d a_b = vertex - mid_b;
+        // oo("pin index", i);
+        // oo("e_a", e_a);
+        // oo("e_b", e_b);
+        // oo("pin vertex", vertex.transpose());
+        // oo("mid_a", mid_a.transpose());
+        // oo("mid_b", mid_b.transpose());
+        // oo("a_a", a_a.transpose());
+        // oo("a_b", a_b.transpose());
         // o("compute constraints");
         MatrixXd constraints = constraint_matrix_of_pin(a_a, a_b);
         // o("copy blocks");
@@ -98,62 +108,54 @@ void fix_one_variable(int index, double value, MatrixXd C, VectorXd b, MatrixXd 
     newb << b, value;
 }
 
-bool solve(MatrixXd P, MatrixXi E, MatrixXi pins, int &dof,
-    std::vector<std::pair<int, VectorXd>> &unstable_indices)
+std::string get_name_of_index(int ind) {
+    int e_ind = ind / 6;
+    char vw = (ind % 6 <= 2) ? 'v' : 'w';
+    int vw_ind = ind % 3;
+    char xyz[] = "xyz";
+    char buff[100];
+    snprintf(buff, sizeof(buff), "e%d_%c%c", e_ind, vw, xyz[vw_ind]);
+    std::string ret = buff;
+    return ret;
+}
+
+bool solve(MatrixXd P, MatrixXi E, MatrixXi pins, int &dof, MatrixXd &constraints,
+    std::vector<std::tuple<int, VectorXd, double>> &unstable_indices)
 {
-    MatrixXd C = build_constraints_matrix(P, E, pins);
-    VectorXd b = VectorXd::Zero(C.rows());
+    MatrixXd C_init = build_constraints_matrix(P, E, pins);
+    VectorXd b = VectorXd::Zero(C_init.rows());
     VectorXd vw(6); vw << 0, 0, 0, 0, 0, 0;
-    fix_one_edge(0, vw, C, b);
-    auto C_dcmp = C.fullPivLu();
+    fix_one_edge(0, vw, C_init, b);
+    auto C_dcmp = C_init.fullPivLu();
     auto compute_error = [](MatrixXd A, VectorXd x, VectorXd b) {
-        return (A * x - b).norm() / (b.array() + 1e-8).matrix().norm();
-    };
-    auto get_name_of_index = [](int ind) {
-        int e_ind = ind / 6;
-        char vw = (ind % 6 <= 2) ? 'v' : 'w';
-        int vw_ind = ind % 3;
-        char xyz[] = "xyz";
-        char buff[100];
-        snprintf(buff, sizeof(buff), "e%d_%c%c", e_ind, vw, xyz[vw_ind]);
-        std::string ret = buff;
-        return ret;
+        return (A * x - b).norm() / (b.array() + 1e-9).matrix().norm();
     };
 
-    int rank = C_dcmp.rank();
-    dof = C.cols() - rank;
+    int init_rank = C_dcmp.rank();
+    dof = C_init.cols() - init_rank;
+    bool full_rank = dof == 0;
     VectorXd sol = C_dcmp.solve(b);
-    double error = compute_error(C, sol, b);
-    if (C.cols() > rank) {
-        for (int i = 0; i < C.cols(); i++) {
+    double error = compute_error(C_init, sol, b);
+    if (!full_rank) {
+        for (int i = 0; i < C_init.cols(); i++) {
             MatrixXd C_i;
             VectorXd b_i;
-            fix_one_variable(i, 10, C, b, C_i, b_i);
+            const int push_velocity = 10;
+            fix_one_variable(i, push_velocity, C_init, b, C_i, b_i);
             auto C_decomp = C_i.fullPivHouseholderQr();
             VectorXd x = C_decomp.solve(b_i);
             int rank = C_decomp.rank();
             double err = compute_error(C_i, x, b_i);
-            if (rank == C.cols()) {
-                unstable_indices.emplace_back(i, x);
+
+            if (rank == init_rank + 1) {
+                for (int m = 0; m < x.size(); m++) x(m) = (x(m) < 1e-11 && x(m) > -1e-11) ? 0 : x(m);
+                unstable_indices.emplace_back(i, x, err);
             }
         }
+    } else {
+        oo("stable speed", sol.transpose());
     }
 
+    constraints = C_init;
     return unstable_indices.empty();
 }
-
-// int main() {
-//     MatrixXd P;
-//     MatrixXi E;
-//     MatrixXi pins;
-//     std::vector<int> unstable_indices;
-
-//     trapezoid_data(P, E, pins);
-//     // trapezoid_data(P, E, pins);
-//     // two_triangles_data(P, E, pins);
-//     solve(P, E, pins, unstable_indices);
-//     for (int i = 0; i < unstable_indices.size(); i++) {
-//         o(unstable_indices.at(i));
-//     }
-
-// }

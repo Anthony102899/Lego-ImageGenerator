@@ -1,7 +1,7 @@
 CXX=g++
 PY=python3
 LIBS=-I./libs/eigen/Eigen
-FLAGS=-std=c++11 -g
+FLAGS=-std=c++11
 
 HEADER=reader.h solver.h shifter.h writer.h
 

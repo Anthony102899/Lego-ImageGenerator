@@ -6,7 +6,7 @@
 
 using namespace Eigen;
 
-MatrixXd shift(MatrixXd P, MatrixXi E, VectorXd x_shift, double t) {
+MatrixXd displacement_matrix(MatrixXd P, MatrixXi E, VectorXd x_shift) {
     int items = P.rows();
     std::vector<int> shifted(items, 0);
     MatrixXd D = MatrixXd::Zero(P.rows(), P.cols());
@@ -27,8 +27,25 @@ MatrixXd shift(MatrixXd P, MatrixXi E, VectorXd x_shift, double t) {
         Vector3d delta_a1 = edge_v + edge_w.cross(a1);
         Vector3d delta_a2 = edge_v + edge_w.cross(a2);
 
+        for (int m = 0; m < delta_a1.size(); m++) {
+            delta_a1(m) = (delta_a1(m) < 1e-11 && delta_a1(m) > -1e-11) ? 0 : delta_a1(m);
+            delta_a2(m) = (delta_a2(m) < 1e-11 && delta_a2(m) > -1e-11) ? 0 : delta_a2(m);
+        }
+        oo("shift edge i", i);
+        oo("p1_ind", p1_ind);
+        oo("p2_ind", p2_ind);
+        oo("p1", p1.transpose());
+        oo("p2", p2.transpose());
+        oo("v", edge_v.transpose());
+        oo("w", edge_w.transpose());
+        oo("a1", a1.transpose());
+        oo("a2", a2.transpose());
+        oo("delta_a1", delta_a1.transpose());
+        oo("delta_a2", delta_a2.transpose());
+        o("----------------")
         D.row(p1_ind) += delta_a1;
         D.row(p2_ind) += delta_a2;
+
         shifted[p1_ind] += 1;
         shifted[p2_ind] += 1;
     }
@@ -37,8 +54,14 @@ MatrixXd shift(MatrixXd P, MatrixXi E, VectorXd x_shift, double t) {
         D.row(i) /= shifted.at(i);
     }
 
+    return D;
+}
+
+MatrixXd shift(MatrixXd P, MatrixXi E, VectorXd x_shift, double t) {
+    int items = P.rows();
+    std::vector<int> shifted(items, 0);
+    MatrixXd D = displacement_matrix(P, E, x_shift);
     D = D * t;
     MatrixXd P_new = P + D;
-    // o(P);
     return P_new;
 }

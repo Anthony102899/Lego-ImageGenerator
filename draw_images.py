@@ -41,6 +41,8 @@ def print_points(pts, color, edges):
     pts = list(map(to2d, pts))
     for i, j in edges:
         p, q = pts[i], pts[j]
+        norm = lambda p, q: sum([(i - j) ** 2 for i, j in zip(p, q)]) ** (0.5)
+        print("edge ({}, {}) length {}".format(i, j, norm(p, q)))
         x, y = zip(*map(to2d, (p, q)))
         plt.plot(x, y, c=color)
 
