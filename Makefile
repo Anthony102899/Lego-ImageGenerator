@@ -1,17 +1,24 @@
 CXX=g++
 PY=python3
-LIBS=-I./libs/eigen/Eigen
+LIBS=-I./libs/eigen/Eigen -I$(INCDIR)
 FLAGS=-std=c++11
 
-HEADER=reader.h solver.h shifter.h writer.h
-
 DATADIR=data
+INCDIR=./inc
+SRCDIR=src
+OBJDIR=obj
 IMGDIR=img
-OBJ=reader.o solver.o main.o shifter.o writer.o
+PYDIR=script
+
+_OBJ=reader.o solver.o main.o shifter.o writer.o
+OBJ =$(patsubst %,$(OBJDIR)/%,$(_OBJ))
+
+_HEADER=reader.h solver.h shifter.h writer.h
+HEADER = $(patsubst %,$(INCDIR)/%,$(_HEADER))
 
 default: solver
 
-%.o: %.cpp $(HEADER)
+$(OBJDIR)/%.o: $(SRCDIR)/%.cpp $(HEADER)
 	$(CXX) -c -o $@ $< $(FLAGS) $(LIBS)
 
 solver: $(OBJ)
@@ -21,10 +28,12 @@ $(DATADIR)/%.txt.out: $(DATADIR)/%.txt solver
 	./solver $< 
 
 %.png: $(DATADIR)/%.txt.out
-	$(PY) draw_images.py $<
+	$(PY) ./script/draw_images.py $<
 	mv $@ $(IMGDIR)
 
 .PRECIOUS: $(DATADIR)/%.txt.out
+
+.PHONY: clean
 
 clean:
 	rm -rf *.o solver
