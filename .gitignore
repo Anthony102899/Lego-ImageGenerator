@@ -2,5 +2,6 @@
 .vscode
 *.o
 *.out
+solver
 libs/**
 opencv
