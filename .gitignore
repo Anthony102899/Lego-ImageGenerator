@@ -5,3 +5,4 @@
 solver
 libs/**
 opencv
+__pycache__

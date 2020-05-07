@@ -5,6 +5,8 @@ import numpy as np
 import sys
 import os
 
+from reader import *
+
 if len(sys.argv) < 2:
     in_file = "data/square_with_parallel_bar.txt.out"
 else:
@@ -14,30 +16,11 @@ output = in_file[:-7] + "png"
 _, output_filename = os.path.split(output)
 origin_filename = "data/" + output_filename.split('.')[0] + ".txt"
 
-strings_to_ints = lambda it: list(map(float, it))
 to2d = lambda point: (point[0], point[1])
-
-def read_edge_data_file(filename):
-    with open(filename, "r") as fp:
-        lines = [line.strip() for line in fp.readlines()]
-    ind = lines.index("E")
-    num_edges = int(lines[ind + 1])
-    edges = list(map(
-        lambda l: list(map(int, l.split(" "))),
-        lines[ind + 2: ind + 2 + num_edges]
-    ))
-    return edges
 
 # prepare data
 edges = read_edge_data_file(origin_filename)
-matrices = []
-with open(in_file) as fp:
-    item_num = int(fp.readline().strip())
-    for i in range(item_num):
-        rows, cols = map(int, fp.readline().strip().split(" "))
-        lines = [fp.readline() for _ in range(rows)]
-        points = [strings_to_ints(line.strip().split(" ")) for line in lines]
-        matrices.append(points)
+matrices = read_out_data_file(in_file)
 #%%
 
 def plot_points_3d(pts, color):
