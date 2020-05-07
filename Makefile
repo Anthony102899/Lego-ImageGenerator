@@ -1,7 +1,7 @@
 CXX=g++
 PY=python3
 LIBS=-I./libs/eigen/Eigen -I$(INCDIR)
-FLAGS=-std=c++11 -g
+FLAGS=-std=c++11 -g -Wall
 
 DATADIR=data
 INCDIR=./include

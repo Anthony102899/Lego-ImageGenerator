@@ -15,11 +15,11 @@ const int z = 2;
 MatrixXd constraint_matrix_of_pin(Vector3d a1, Vector3d a2) {
     MatrixXd mat = MatrixXd::Zero(5, 12);
                              
-    if (a2.isZero()) {
+
+    if (a1.isZero() || a2.isZero()) {
         o("warning: a2 is zero vector, this causes undefined behaviour");
         oo("normalized zero vector", a2.normalized().transpose());
     }
-
     Vector3d u1 = a1.normalized();
     Vector3d u2 = a2.normalized();
     Vector3d plane_normal = u1.cross(u2).normalized();
@@ -37,16 +37,22 @@ MatrixXd constraint_matrix_of_pin(Vector3d a1, Vector3d a2) {
 }
 
 MatrixXd constraint_matrix_of_anchor(Vector3d a1, Vector3d a2) {
+    if (a1.isZero() || a2.isZero()) {
+        o("warning: a2 is zero vector, this causes undefined behaviour");
+        oo("normalized zero vector", a2.normalized().transpose());
+    }
+
     Vector3d u1 = a1.normalized();
     Vector3d u2 = a2.normalized();
     Vector3d normal = u1.cross(u2).normalized();
     
-    MatrixXd C_anchor;
+    MatrixXd C_anchor(6, 12);
     MatrixXd C_pin = constraint_matrix_of_pin(a1, a2);
-    RowVectorXd c;
+    RowVectorXd c(12);
     c << 0, 0, 0,  normal[x],  normal[y],  normal[z], 
          0, 0, 0, -normal[x], -normal[y], -normal[z];
     C_anchor << C_pin, c;
+    return C_anchor;
 }
 
 /*

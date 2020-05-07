@@ -100,7 +100,7 @@ int main(int argc, char *argv[]) {
                 o(P);
                 break;
             } else {
-                for (int i = 0; i < unstable_indices.size(); i++) {
+                for (unsigned i = 0; i < unstable_indices.size(); i++) {
                     if (std::get<0>(unstable_indices.at(i)) == significant_index) {
                         s = std::get<1>(unstable_indices.at(i));
                         error = std::get<2>(unstable_indices.at(i));
