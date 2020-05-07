@@ -58,19 +58,19 @@ int main(int argc, char *argv[]) {
                 o(D);
             }
 
-            if (i % 30 == 0 || i < 3) {
+            if (i % 20 == 0 || i < 3) {
                 oo("iter:", i); 
                 hist.push_back(P);
-                Vector3d mid0 = (P.row(E(1, 0)) + P.row(E(1, 1))) / 2.0;
-                Vector3d mid2 = (P.row(E(3, 0)) + P.row(E(3, 1))) / 2.0;
-                double length = (mid0 - mid2).norm();
-                for (int e = 0; e < E.rows(); e++) {
-                    Vector3d p1 = P.row(E(e, 0));
-                    Vector3d p2 = P.row(E(e, 1));
-                    double n = (p1 - p2).norm();
-                    oo(e, n);
-                }
-                oo("mid-length", length);
+                // Vector3d mid0 = (P.row(E(1, 0)) + P.row(E(1, 1))) / 2.0;
+                // Vector3d mid2 = (P.row(E(3, 0)) + P.row(E(3, 1))) / 2.0;
+                // double length = (mid0 - mid2).norm();
+                // for (int e = 0; e < E.rows(); e++) {
+                //     Vector3d p1 = P.row(E(e, 0));
+                //     Vector3d p2 = P.row(E(e, 1));
+                //     double n = (p1 - p2).norm();
+                //     oo(e, n);
+                // }
+                // oo("mid-length", length);
             }
 
             std::vector<std::tuple<int, VectorXd, double>> unstable_indices;

@@ -1,7 +1,7 @@
 CXX=g++
 PY=python3
 LIBS=-I./libs/eigen/Eigen -I$(INCDIR)
-FLAGS=-std=c++11
+FLAGS=-std=c++11 -g
 
 DATADIR=data
 INCDIR=./inc
@@ -18,7 +18,9 @@ HEADER = $(patsubst %,$(INCDIR)/%,$(_HEADER))
 
 default: solver
 
+
 $(OBJDIR)/%.o: $(SRCDIR)/%.cpp $(HEADER)
+	mkdir -p $(OBJDIR)
 	$(CXX) -c -o $@ $< $(FLAGS) $(LIBS)
 
 solver: $(OBJ)
@@ -36,4 +38,4 @@ $(DATADIR)/%.txt.out: $(DATADIR)/%.txt solver
 .PHONY: clean
 
 clean:
-	rm -rf *.o solver
+	rm -rf obj solver
