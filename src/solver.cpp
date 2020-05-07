@@ -36,6 +36,19 @@ MatrixXd constraint_matrix_of_pin(Vector3d a1, Vector3d a2) {
     return mat;
 }
 
+MatrixXd constraint_matrix_of_anchor(Vector3d a1, Vector3d a2) {
+    Vector3d u1 = a1.normalized();
+    Vector3d u2 = a2.normalized();
+    Vector3d normal = u1.cross(u2).normalized();
+    
+    MatrixXd C_anchor;
+    MatrixXd C_pin = constraint_matrix_of_pin(a1, a2);
+    RowVectorXd c;
+    c << 0, 0, 0,  normal[x],  normal[y],  normal[z], 
+         0, 0, 0, -normal[x], -normal[y], -normal[z];
+    C_anchor << C_pin, c;
+}
+
 /*
     Generate the constraints and store them into a matrix
     OUTPUT: Matrix of size (#pin*5 by #E*6), 
@@ -48,10 +61,10 @@ MatrixXd constraint_matrix_of_pin(Vector3d a1, Vector3d a2) {
             the indices into P, of the vertex corresponding to the pin
             the indices into E, of the two edges that pin joins
 */
-MatrixXd build_constraints_matrix(MatrixX3d P, MatrixX2i E, MatrixX3i pins) {
+MatrixXd build_constraints_matrix(MatrixX3d P, MatrixX2i E, MatrixXi pins, MatrixXi anchors) {
     assert(P.cols() == 3 && E.cols() == 2 && pins.cols() == 3);
 
-    MatrixXd mat = MatrixXd::Zero(pins.rows() * 5, E.rows() * 6);
+    MatrixXd mat = MatrixXd::Zero(pins.rows() * 5 + anchors.rows() * 6, E.rows() * 6);
     for (int i = 0; i < pins.rows(); i++) {
         Vector3d vertex = P.row(pins(i, 0));
         int edge_a_index = pins(i, 1);
@@ -82,6 +95,23 @@ MatrixXd build_constraints_matrix(MatrixX3d P, MatrixX2i E, MatrixX3i pins) {
         // o("copy blocks");
         mat.block<5, 6>(i * 5, edge_a_index * 6) = constraints.block<5, 6>(0, 0);
         mat.block<5, 6>(i * 5, edge_b_index * 6) = constraints.block<5, 6>(0, 6);
+    }
+    for (int i = 0; i < anchors.rows(); i++) {
+        Vector3d vertex = P.row(anchors(i, 0));
+        int edge_a_index = anchors(i, 1);
+        int edge_b_index = anchors(i, 2);
+        // o("get edges");
+        Vector2i e_a = E.row(edge_a_index);
+        Vector2i e_b = E.row(edge_b_index);
+        Vector3d mid_a = (P.row(e_a(0)) + P.row(e_a(1))) / 2.0;
+        Vector3d mid_b = (P.row(e_b(0)) + P.row(e_b(1))) / 2.0;
+        Vector3d a_a = vertex - mid_a;
+        Vector3d a_b = vertex - mid_b;
+
+        MatrixXd constraints = constraint_matrix_of_anchor(a_a, a_b);
+        int row_ind = i * 6 + pins.rows() * 5;
+        mat.block<6, 6>(row_ind, edge_a_index * 6) = constraints.block<6, 6>(0, 0);
+        mat.block<6, 6>(row_ind, edge_b_index * 6) = constraints.block<6, 6>(0, 6);
     }
     return mat;
 }
@@ -123,10 +153,10 @@ std::string get_name_of_index(int ind) {
     return ret;
 }
 
-bool solve(MatrixXd P, MatrixXi E, MatrixXi pins, int &dof, MatrixXd &constraints,
+bool solve(MatrixXd P, MatrixXi E, MatrixXi pins, MatrixXi anchors, int &dof, MatrixXd &constraints,
     std::vector<std::tuple<int, VectorXd, double>> &unstable_indices)
 {
-    MatrixXd C_init = build_constraints_matrix(P, E, pins);
+    MatrixXd C_init = build_constraints_matrix(P, E, pins, anchors);
     VectorXd b = VectorXd::Zero(C_init.rows());
     VectorXd vw(6); vw << 0, 0, 0, 0, 0, 0;
     fix_one_edge(0, vw, C_init, b);

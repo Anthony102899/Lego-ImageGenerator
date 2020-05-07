@@ -16,6 +16,7 @@ int main(int argc, char *argv[]) {
     MatrixXd P;
     MatrixXi E;
     MatrixXi pins;
+    MatrixXi anchors;
 
     std::string data_file;
     if (argc < 2) {
@@ -24,7 +25,7 @@ int main(int argc, char *argv[]) {
         data_file = argv[1];
     }
 
-    read_data_file(data_file.c_str(), P, E, pins);
+    read_data_file(data_file.c_str(), P, E, pins, anchors);
     std::string output_filename = data_file.append(".out");
 
     std::vector<MatrixXd> hist;
@@ -33,10 +34,9 @@ int main(int argc, char *argv[]) {
     std::vector<std::tuple<int, VectorXd, double>> unstable_indices;
 
     int dof; MatrixXd C;
-    bool stable = solve(P, E, pins, dof, C, unstable_indices);
+    bool stable = solve(P, E, pins, anchors, dof, C, unstable_indices);
 
     oo("Degree of freedom:", dof);
-
 
     if (stable) {
         o("Stable");
@@ -75,7 +75,7 @@ int main(int argc, char *argv[]) {
 
             std::vector<std::tuple<int, VectorXd, double>> unstable_indices;
             int dof;
-            bool stable = solve(P, E, pins, dof, C, unstable_indices);
+            bool stable = solve(P, E, pins, anchors, dof, C, unstable_indices);
             if (stable) {
                 oo(i, "It's stable now!!");
                 oo("now dof:", dof);

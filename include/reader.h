@@ -7,7 +7,8 @@ bool read_data_file(
     const char *filename, 
     Eigen::MatrixXd &P, 
     Eigen::MatrixXi &E, 
-    Eigen::MatrixXi &pins
+    Eigen::MatrixXi &pins,
+    Eigen::MatrixXi &anchors
 );
 void triangle_data(Eigen::MatrixXd &P, Eigen::MatrixXi &E, Eigen::MatrixXi &pins);
 void square_data(Eigen::MatrixXd &P, Eigen::MatrixXi &E, Eigen::MatrixXi &pins);

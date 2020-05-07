@@ -4,7 +4,7 @@ LIBS=-I./libs/eigen/Eigen -I$(INCDIR)
 FLAGS=-std=c++11 -g
 
 DATADIR=data
-INCDIR=./inc
+INCDIR=./include
 SRCDIR=src
 OBJDIR=obj
 IMGDIR=img
