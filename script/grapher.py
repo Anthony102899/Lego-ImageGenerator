@@ -14,10 +14,16 @@ import reader
 
 class Visualizer(object):
     def __init__(self, point_matrices, edges):
+        point_matrices *= 4
+
         self.app = QtGui.QApplication(sys.argv)
 
-        self.traces = dict()
-        self.t = dict()
+        self.point_matrices = point_matrices
+        self.edges = edges
+        self.edge_traces = dict()
+
+        self.current_index = 0
+
         self.w = gl.GLViewWidget()
         self.w.opts['distance'] = 40
         self.w.setWindowTitle('Visualizer')
@@ -38,35 +44,25 @@ class Visualizer(object):
         self.w.show()
 
 
-        self.n = 50
-        self.m = 1000
-        self.y = np.linspace(-10, 10, self.n)
-        self.x = np.linspace(-10, 10, self.m)
-        self.phase = 0
 
-        point_matrices *= 4
-
-        colors = [pg.glColor(i / len(point_matrices) * 254, 254, 254) for i in range(len(point_matrices))]
-        self.plot_edges(edges, point_matrices[0], colors[0])
-        self.plot_edges(edges, point_matrices[-1], colors[-1])
-        self.plot_locus(point_matrices, colors)
+        self.colors = [pg.glColor(i / len(point_matrices) * 254, 254, 254) for i in range(len(point_matrices))]
+        self.plot_edges(edges, point_matrices[0], self.colors[0])
+        # self.plot_edges(edges, point_matrices[-1], colors[-1])
+        self.plot_locus(point_matrices, self.colors)
 
     def plot_edges(self, edges, points, color):
-        print(color)
-        for e in edges:
+        for i, e in enumerate(edges):
             p1, p2 = points[e[0]], points[e[1]]
             pts = np.vstack([p1, p2])
-            it = gl.GLLinePlotItem(pos=pts, color=color, width=1, antialias=True)
-            self.w.addItem(it)
+            self.edge_traces[i] = gl.GLLinePlotItem(pos=pts, color=color, width=1, antialias=True)
+            self.w.addItem(self.edge_traces[i])
 
     def plot_locus(self, point_matrices, colors):
         if len(point_matrices) <= 1:
             return
         for i, locus in enumerate(point_matrices.transpose([1, 0, 2])):
-            print(i, locus.shape)
             for j in range(len(locus) - 1):
                 seg = locus[j: j + 2,:]
-                print(seg.shape)
                 it = gl.GLLinePlotItem(pos=seg, color=colors[j])
                 self.w.addItem(it)
 
@@ -77,25 +73,21 @@ class Visualizer(object):
     # def set_plotdata(self, name, points, color, width):
     #     self.traces[name].setData(pos=points, color=color, width=width)
 
-    # def update(self):
-    #     for i in range(self.n):
-    #         yi = np.array([self.y[i]] * self.m)
-    #         d = np.sqrt(self.x ** 2 + yi ** 2)
-    #         z = 10 * np.cos(d + self.phase) / (d + 1)
-    #         pts = np.vstack([self.x, yi, z]).transpose()
-    #         self.set_plotdata(
-    #             name=i, points=pts,
-    #             color=pg.glColor((i, self.n * 1.3)),
-    #             width=(i + 1) / 10
-    #         )
-    #         self.phase -= .003
+    def update(self):
+        self.current_index  = (self.current_index + 1) % len(self.point_matrices)
+        points = self.point_matrices[self.current_index]
+        for i, e in enumerate(self.edges):
+            p1, p2 = points[e[0]], points[e[1]]
+            pts = np.vstack([p1, p2])
+            self.edge_traces[i].setData(pos=pts, color=self.colors[self.current_index], width=1)
+
 
     def animation(self):
-        # timer = QtCore.QTimer()
-        # timer.timeout.connect(self.update)
-        # timer.start(20)
+        timer = QtCore.QTimer()
+        timer.timeout.connect(self.update)
+        timer.start(20)
         self.start()
-        # self.update()
+        self.update()
 
 
 # Start Qt event loop unless running in interactive mode.
