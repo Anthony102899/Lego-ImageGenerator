@@ -10,11 +10,10 @@ bool read_data_file(const char *filename,
 ) {
     FILE *fp = fopen(filename, "r");
 
-    char *str;
+    char str[10];
     int row_num;
     int col_num;
-
-
+    printf("Reading %s...\n", filename);
     if (
         fscanf(fp, "%s", str) != EOF && 
         fscanf(fp, "%d", &row_num) != EOF
@@ -81,4 +80,6 @@ bool read_data_file(const char *filename,
 
 
     fclose(fp);
+
+    return true;
 }

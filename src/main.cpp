@@ -26,22 +26,32 @@ int main(int argc, char *argv[]) {
     }
 
     read_data_file(data_file.c_str(), P, E, pins, anchors);
-    std::string output_filename = data_file.append(".out");
+    std::string output_filename = data_file + ".out";
+    std::string direction_filename = data_file + ".drt.out";
 
     std::vector<MatrixXd> hist;
+    std::vector<MatrixXd> init_direction;
     hist.push_back(P);
-
     std::vector<std::tuple<int, VectorXd, double>> unstable_indices;
 
     int dof; MatrixXd C;
     bool stable = solve(P, E, pins, anchors, dof, C, unstable_indices);
 
-    oo("Degree of freedom:", dof);
+    if (!stable) {
+        for (unsigned i = 0; i < unstable_indices.size(); i++) {
+            VectorXd velocity = std::get<1>(unstable_indices[i]);
+            auto P_new = shift(P, E, velocity, 0.001);
+            MatrixXd D = P_new - P;
+            init_direction.push_back(D);
+        }
+        write_matrices(direction_filename.c_str(), init_direction);
+    }
 
     if (stable) {
         o("Stable");
     } else { 
         o("Unstable");
+        oo("Degree of freedom:", dof);
         double step = 2e-5;
         int iter_num = 1000;
 
@@ -54,7 +64,7 @@ int main(int argc, char *argv[]) {
             auto P_new = shift(P, E, s, step);
             MatrixXd D = P_new - P;
             P = P_new;
-            if (i <= 1) {
+            if (i == 0) {
                 o(D);
             }
 

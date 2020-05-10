@@ -12,20 +12,16 @@ const int x = 0;
 const int y = 1;
 const int z = 2;
 
-MatrixXd constraint_matrix_of_pin(Vector3d a1, Vector3d a2) {
+MatrixXd constraint_matrix_of_pin(Vector3d a1, Vector3d a2, Vector3d u1, Vector3d u2) {
     MatrixXd mat = MatrixXd::Zero(5, 12);
                              
 
-    if (a1.isZero() || a2.isZero()) {
-        o("warning: a2 is zero vector, this causes undefined behaviour");
-    }
-    Vector3d u1 = a1.normalized();
-    Vector3d u2 = a2.normalized();
+    // if (a1.isZero() || a2.isZero()) {
+    //     o("warning: a2 is zero vector, this will cause undefined behaviour");
+    // }
+    // Vector3d u1 = a1.normalized();
+    // Vector3d u2 = a2.normalized();
     Vector3d plane_normal = u1.cross(u2).normalized();
-    if (u1.cross(u2).isZero()) {
-        o("warning: u1 x u2 is zero vector, causes undefined behaviour");
-        oo("u1xu2.normalized()", plane_normal.transpose());
-    }
     // u1p perpenticular to u1 and the normal vector of the plane <u1, u2>
     Vector3d u1p = u1.cross(plane_normal).normalized();
     // Vector3d u2p = u2.cross(plane_normal).normalized();
@@ -39,18 +35,13 @@ MatrixXd constraint_matrix_of_pin(Vector3d a1, Vector3d a2) {
     return mat;
 }
 
-MatrixXd constraint_matrix_of_anchor(Vector3d a1, Vector3d a2) {
-    if (a1.isZero() || a2.isZero()) {
-        o("warning: a2 is zero vector, this causes undefined behaviour");
-        oo("normalized zero vector", a2.normalized().transpose());
-    }
-
-    Vector3d u1 = a1.normalized();
-    Vector3d u2 = a2.normalized();
+MatrixXd constraint_matrix_of_anchor(Vector3d a1, Vector3d a2, Vector3d u1, Vector3d u2) {
+    // Vector3d u1 = a1.normalized();
+    // Vector3d u2 = a2.normalized();
     Vector3d normal = u1.cross(u2).normalized();
     
     MatrixXd C_anchor(6, 12);
-    MatrixXd C_pin = constraint_matrix_of_pin(a1, a2);
+    MatrixXd C_pin = constraint_matrix_of_pin(a1, a2, u1, u2);
     RowVectorXd c(12);
     c << 0, 0, 0,  normal[x],  normal[y],  normal[z], 
          0, 0, 0, -normal[x], -normal[y], -normal[z];
@@ -88,6 +79,11 @@ MatrixXd build_constraints_matrix(MatrixX3d P, MatrixX2i E, MatrixXi pins, Matri
         Vector3d a_a = vertex - mid_a;
         Vector3d a_b = vertex - mid_b;
 
+        Vector3d a_vert = P.row(e_a(0));
+        Vector3d b_vert = P.row(e_b(0));
+        Vector3d u_a = a_a.isZero() ? (mid_a - a_vert).normalized() : a_a.normalized();
+        Vector3d u_b = a_b.isZero() ? (mid_b - b_vert).normalized() : a_b.normalized();
+
         // if (edge_a_index == 4 || edge_b_index == 4) {
             // oo("pin index", i);
             // oo("e_a", e_a.transpose());
@@ -100,7 +96,12 @@ MatrixXd build_constraints_matrix(MatrixX3d P, MatrixX2i E, MatrixXi pins, Matri
             // oo("a_a", a_a.transpose());
             // oo("a_b", a_b.transpose());
         // }
-        MatrixXd constraints = constraint_matrix_of_pin(a_a, a_b);
+        if (u_a.cross(u_b).isZero()) {
+            o("warning: u1 x u2 is zero vector, this will cause undefined behaviour");
+            oo("u1xu2.normalized()", u_a.cross(u_b).transpose());
+            oo(edge_a_index, edge_b_index);
+        }
+        MatrixXd constraints = constraint_matrix_of_pin(a_a, a_b, u_a, u_b);
         // o("copy blocks");
         mat.block<5, 6>(i * 5, edge_a_index * 6) = constraints.block<5, 6>(0, 0);
         mat.block<5, 6>(i * 5, edge_b_index * 6) = constraints.block<5, 6>(0, 6);
@@ -117,7 +118,17 @@ MatrixXd build_constraints_matrix(MatrixX3d P, MatrixX2i E, MatrixXi pins, Matri
         Vector3d a_a = vertex - mid_a;
         Vector3d a_b = vertex - mid_b;
 
-        MatrixXd constraints = constraint_matrix_of_anchor(a_a, a_b);
+        Vector3d a_vert = P.row(e_a(0));
+        Vector3d b_vert = P.row(e_b(0));
+        Vector3d u_a = a_a.isZero() ? (mid_a - a_vert).normalized() : a_a.normalized();
+        Vector3d u_b = a_b.isZero() ? (mid_b - b_vert).normalized() : a_b.normalized();
+
+        if (u_a.cross(u_b).isZero()) {
+            o("warning: u1 x u2 is zero vector, this will cause undefined behaviour");
+            oo("u1xu2.normalized()", u_a.cross(u_b).transpose());
+            oo(edge_a_index, edge_b_index);
+        }
+        MatrixXd constraints = constraint_matrix_of_anchor(a_a, a_b, u_a, u_b);
         int row_ind = i * 6 + pins.rows() * 5;
         mat.block<6, 6>(row_ind, edge_a_index * 6) = constraints.block<6, 6>(0, 0);
         mat.block<6, 6>(row_ind, edge_b_index * 6) = constraints.block<6, 6>(0, 6);

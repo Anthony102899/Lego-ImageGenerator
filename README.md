@@ -14,7 +14,7 @@ make square_with_parallel_bar.png
 ```
 Afterwards, find the corresponding image file in `img` folder.
 
-Get 3d plot of the motion by running the script (Python 3 and pyqtgraph required)
+Get 3d plot of the motion by running the script (Python 3, numpy and pyqtgraph required)
 ```
 python3 script/grapher.py data/sqaure_with_parallel.txt.out
 ```
