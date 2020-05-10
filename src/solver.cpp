@@ -12,6 +12,31 @@ const int x = 0;
 const int y = 1;
 const int z = 2;
 
+Matrix<double, 3, 12> shared_linear_velocity(Vector3d a1, Vector3d a2) {
+    Matrix<double, 3, 12> mat;
+    mat.row(0) << 1, 0, 0,      0,  a1[z], -a1[y], -1,  0,  0,      0, -a2[z],  a2[y];
+    mat.row(1) << 0, 1, 0, -a1[z],      0,  a1[x],  0, -1,  0,  a2[z],      0, -a2[x];
+    mat.row(2) << 0, 0, 1,  a1[y], -a1[x],      0,  0,  0, -1, -a2[y],  a2[x],      0;
+    return mat;
+}
+
+MatrixXd constraint_matrix_of_joint(Vector3d a_screw, Vector3d a_nut) {
+    MatrixXd mat = MatrixXd(5, 12);
+    MatrixXd same_linear_velocity = shared_linear_velocity(a_screw, a_nut);
+    
+    if (a_screw.cross(a_nut).isZero()) {
+        o("a_screw and a_nut are parallel");
+    }
+    Vector3d u_screw = a_screw.normalized();
+    Vector3d u_ortho = a_nut.cross(u_screw).normalized();
+    MatrixXd same_angular_velocity(2, 12);
+    same_angular_velocity.row(0) << 
+        0, 0, 0, u_screw[x], u_screw[y], u_screw[z], 0, 0, 0, -u_screw[x], -u_screw[y], -u_screw[z];
+    same_angular_velocity.row(1) << 
+        0, 0, 0, u_ortho[x], u_ortho[y], u_ortho[z], 0, 0, 0, -u_ortho[x], -u_ortho[y], -u_ortho[z];
+    return same_angular_velocity;
+}
+
 MatrixXd constraint_matrix_of_pin(Vector3d a1, Vector3d a2, Vector3d u1, Vector3d u2) {
     MatrixXd mat = MatrixXd::Zero(5, 12);
                              
