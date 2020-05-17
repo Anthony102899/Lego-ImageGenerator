@@ -1,9 +1,9 @@
 import numpy as np
 
-def read_edge_data_file(filename):
+def read_data_file(filename, section):
     with open(filename, "r") as fp:
         lines = [line.strip() for line in fp.readlines()]
-    ind = lines.index("E")
+    ind = lines.index(section)
     num_edges = int(lines[ind + 1])
     edges = list(map(
         lambda l: list(map(int, l.split(" "))),

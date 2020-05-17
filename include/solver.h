@@ -2,11 +2,13 @@
 
 #ifndef SOLVER_H
 #define SOLVER_H
-// Eigen::MatrixXd build_constraints_matrix(
-//     Eigen::MatrixX3d P, 
-//     Eigen::MatrixX2i E, 
-//     Eigen::MatrixX3i pins,
-//     Eigen::MatrixXi);
+Eigen::MatrixXd build_constraints_matrix(
+    Eigen::MatrixXd P,
+    Eigen::MatrixXi E,
+    Eigen::MatrixXi pins,
+    Eigen::MatrixXi anchors
+);
+
 bool solve(
     Eigen::MatrixXd P,
     Eigen::MatrixXi E,

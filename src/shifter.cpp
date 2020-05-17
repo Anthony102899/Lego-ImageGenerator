@@ -51,7 +51,9 @@ MatrixXd displacement_matrix(MatrixXd P, MatrixXi E, VectorXd x_shift) {
     }
 
     for (int i = 0; i < D.rows(); i++) {
-        D.row(i) /= shifted.at(i);
+        if (shifted.at(i)) {
+            D.row(i) /= shifted.at(i);
+        }
     }
 
     return D;

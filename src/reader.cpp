@@ -56,6 +56,7 @@ bool read_data_file(const char *filename,
     }
 
 
+    printf("Finished reading data\n");
     fclose(fp);
 
     return true;

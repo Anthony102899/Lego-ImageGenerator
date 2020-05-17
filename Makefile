@@ -1,7 +1,8 @@
 CXX=g++
 PY=python3
-LIBS=-I./libs/eigen/Eigen -I$(INCDIR)
-FLAGS=-std=c++11 -g -Wall -O2
+INC=-I./libs/eigen/Eigen -I$(INCDIR) -I${GUROBI_HOME}/include
+CFLAGS=-std=c++11 -g -Wall -O2
+LIBS=-L/opt/gurobi902/linux64/lib -lgurobi_c++ -lgurobi90
 
 DATADIR=data
 INCDIR=./include
@@ -10,10 +11,10 @@ OBJDIR=obj
 IMGDIR=img
 PYDIR=script
 
-_OBJ=reader.o solver.o main.o shifter.o writer.o
+_OBJ=reader.o solver.o shifter.o writer.o gurobi_solver.o
 OBJ =$(patsubst %,$(OBJDIR)/%,$(_OBJ))
 
-_HEADER=reader.h solver.h shifter.h writer.h
+_HEADER=reader.h solver.h shifter.h writer.h gurobi_solver.h
 HEADER = $(patsubst %,$(INCDIR)/%,$(_HEADER))
 
 default: solver
@@ -21,10 +22,13 @@ default: solver
 
 $(OBJDIR)/%.o: $(SRCDIR)/%.cpp $(HEADER)
 	mkdir -p $(OBJDIR)
-	$(CXX) -c -o $@ $< $(FLAGS) $(LIBS)
+	$(CXX) -c -o $@ $< $(CFLAGS) $(INC)
 
-solver: $(OBJ)
-	$(CXX) -o $@ $^ $(FLAGS) $(LIBS)
+solver: $(SRCDIR)/main.cpp $(OBJ)
+	$(CXX) -o $@ $^ $(CFLAGS) $(INC) $(LIBS)
+
+gurobi_solver: $(SRCDIR)/gurobi_main.cpp $(OBJ)
+	$(CXX) -o $@ $^ $(CFLAGS) $(INC) $(LIBS)
 
 $(DATADIR)/%.txt.out: $(DATADIR)/%.txt solver
 	./solver $< 

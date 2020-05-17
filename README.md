@@ -3,7 +3,7 @@ LEGO Solver
 
 Usage
 -------
-To compile the program. First edit variable (`LIBS`) for the path to Eigen in `makefile` as appropriate.
+To compile the program. First edit variable (`INC`) for the path to Eigen in `makefile` as appropriate (the root of Eigen installation).
 Then,
 ```
 make
@@ -18,3 +18,13 @@ Get 3d plot of the motion by running the script (Python 3, numpy and pyqtgraph r
 ```
 python3 script/grapher.py data/sqaure_with_parallel.txt.out
 ```
+
+Dependencies
+------------
+- `*.cpp`
+  - Eigen
+- `gurobi_solver.cpp`
+  - Gurobi (9.0)
+- `*.py`
+  - Python 3
+  - numpy, matplotlib, pyqtgraph

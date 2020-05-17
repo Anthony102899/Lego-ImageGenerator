@@ -20,7 +20,7 @@ int main(int argc, char *argv[]) {
 
     std::string data_file;
     if (argc < 2) {
-        data_file = "data/sqaure.txt";
+        data_file = "data/square.txt";
     } else {
         data_file = argv[1];
     }
@@ -38,12 +38,25 @@ int main(int argc, char *argv[]) {
     bool stable = solve(P, E, pins, anchors, dof, C, unstable_indices);
 
     if (!stable) {
+        MatrixXd V(unstable_indices.size(), E.rows() * 6 + 1);
+        MatrixXd Ds(unstable_indices.size(), P.rows() * 3);
         for (unsigned i = 0; i < unstable_indices.size(); i++) {
             VectorXd velocity = std::get<1>(unstable_indices[i]);
             auto P_new = shift(P, E, velocity, 0.001);
             MatrixXd D = P_new - P;
-            init_direction.push_back(D);
+            if (!D.isZero()) {
+                init_direction.push_back(D);
+            } else {
+                oo("zero displacement", std::get<0>(unstable_indices[i]));
+            }
+            oo(std::get<0>(unstable_indices[i]) / 6, std::get<0>(unstable_indices[i]) % 6);
+            V(i, 0) = std::get<0>(unstable_indices[i]);
+            D.resizeLike(Ds.row(i));
+            Ds.row(i) = D;
+            V.row(i).segment(1, E.rows() * 6) = velocity;
         }
+        // o(V);
+        oo("displacement matrix rank", Ds.fullPivHouseholderQr().rank());
         write_matrices(direction_filename.c_str(), init_direction);
     }
 
@@ -52,12 +65,13 @@ int main(int argc, char *argv[]) {
     } else { 
         o("Unstable");
         oo("Degree of freedom:", dof);
+        oo("Number of dummy variables:", unstable_indices.size());
         double step = 2e-5;
         int iter_num = 1000;
 
         int significant_index; VectorXd s; double error;
         std::tie(significant_index, s, error) = unstable_indices.at(0);
-        oo("Initial speed", s.transpose());
+        oo("Velocity vector", s.transpose());
 
         for (int i = 0; i < iter_num; i++) {
 
@@ -65,7 +79,7 @@ int main(int argc, char *argv[]) {
             MatrixXd D = P_new - P;
             P = P_new;
             if (i == 0) {
-                o(D);
+                o(P_new);
             }
 
             if (i % 20 == 0 || i < 3) {
