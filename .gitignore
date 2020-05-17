@@ -3,7 +3,10 @@
 *.o
 *.out
 *.drt
-solver
 libs/**
 opencv
 __pycache__
+
+# exectuables
+solver
+gurobi_solver

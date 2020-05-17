@@ -8,6 +8,8 @@ import pyqtgraph.opengl as gl
 import pyqtgraph as pg
 import numpy as np
 import sys, os
+from itertools import product
+import random
 
 import reader
 
@@ -48,13 +50,17 @@ class Visualizer(object):
         # self.plot_edges(edges, point_matrices[-1], colors[-1])
         self.plot_locus(point_matrices, self.colors)
 
-        # init_pts = matrices[0]
-        # for direction in directions:
-        #     end_pts = init_pts + direction
-        #     for (s, e) in zip(init_pts, end_pts):
-        #         pts = np.vstack([s, e])
-        #         it = gl.GLLinePlotItem(pos=pts)
-        #         self.w.addItem(it)
+        base_value = [20, 50, 90, 130, 175, 220, 254]
+        random.shuffle(base_value)
+        dir_colors = list(product(base_value, base_value, base_value))[::-1]
+        init_pts = matrices[0]
+        for i, direction in enumerate(directions):
+            print(i)
+            end_pts = init_pts + direction
+            for (s, e) in zip(init_pts, end_pts):
+                pts = np.vstack([s, e])
+                it = gl.GLLinePlotItem(pos=pts, color=pg.glColor(*dir_colors[i]))
+                self.w.addItem(it)
 
 
     def plot_edges(self, edges, points, color):

@@ -12,22 +12,36 @@ const int x = 0;
 const int y = 1;
 const int z = 2;
 
-MatrixXd constraint_matrix_of_pin(Vector3d a1, Vector3d a2, Vector3d u1, Vector3d u2) {
-    MatrixXd mat = MatrixXd::Zero(5, 12);
-                             
-
-    // if (a1.isZero() || a2.isZero()) {
-    //     o("warning: a2 is zero vector, this will cause undefined behaviour");
-    // }
-    // Vector3d u1 = a1.normalized();
-    // Vector3d u2 = a2.normalized();
-    Vector3d plane_normal = u1.cross(u2).normalized();
-    // u1p perpenticular to u1 and the normal vector of the plane <u1, u2>
-    Vector3d u1p = u1.cross(plane_normal).normalized();
-    // Vector3d u2p = u2.cross(plane_normal).normalized();
+Matrix<double, 3, 12> shared_linear_velocity(Vector3d a1, Vector3d a2) {
+    Matrix<double, 3, 12> mat;
     mat.row(0) << 1, 0, 0,      0,  a1[z], -a1[y], -1,  0,  0,      0, -a2[z],  a2[y];
     mat.row(1) << 0, 1, 0, -a1[z],      0,  a1[x],  0, -1,  0,  a2[z],      0, -a2[x];
     mat.row(2) << 0, 0, 1,  a1[y], -a1[x],      0,  0,  0, -1, -a2[y],  a2[x],      0;
+    return mat;
+}
+
+MatrixXd constraint_matrix_of_joint(Vector3d a_screw, Vector3d a_nut, Vector3d u_screw, Vector3d u_nut) {
+    MatrixXd mat = MatrixXd(5, 12);
+    MatrixXd same_linear_velocity = shared_linear_velocity(a_screw, a_nut);
+    
+    Vector3d u_ortho = u_nut.cross(u_screw).normalized();
+    MatrixXd same_angular_velocity(2, 12);
+    same_angular_velocity.row(0) << 
+        0, 0, 0, u_nut[x], u_nut[y], u_nut[z], 0, 0, 0, -u_nut[x], -u_nut[y], -u_nut[z];
+    same_angular_velocity.row(1) << 
+        0, 0, 0, u_ortho[x], u_ortho[y], u_ortho[z], 0, 0, 0, -u_ortho[x], -u_ortho[y], -u_ortho[z];
+    
+    mat << same_linear_velocity, same_angular_velocity;
+    return mat;
+}
+
+MatrixXd constraint_matrix_of_pin(Vector3d a1, Vector3d a2, Vector3d u1, Vector3d u2) {
+    MatrixXd mat = MatrixXd::Zero(5, 12);
+                             
+    Vector3d plane_normal = u1.cross(u2).normalized();
+    // u1p perpenticular to u1 and the normal vector of the plane <u1, u2>
+    Vector3d u1p = u1.cross(plane_normal).normalized();
+    mat.block<3, 12>(0, 0) = shared_linear_velocity(a1, a2);
     // constraints: same angular velocity along u1, and u1_p 
     mat.row(3) << 0, 0, 0, u1[x], u1[y], u1[z], 0, 0, 0, -u1[x], -u1[y], -u1[z];
     mat.row(4) << 0, 0, 0, u1p[x], u1p[y], u1p[z], 0, 0, 0, -u1p[x], -u1p[y], -u1p[z];
@@ -61,7 +75,7 @@ MatrixXd constraint_matrix_of_anchor(Vector3d a1, Vector3d a2, Vector3d u1, Vect
             the indices into P, of the vertex corresponding to the pin
             the indices into E, of the two edges that pin joins
 */
-MatrixXd build_constraints_matrix(MatrixX3d P, MatrixX2i E, MatrixXi pins, MatrixXi anchors) {
+MatrixXd build_constraints_matrix(MatrixXd P, MatrixXi E, MatrixXi pins, MatrixXi anchors) {
     assert(P.cols() == 3 && E.cols() == 2 && pins.cols() == 3);
 
     MatrixXd mat = MatrixXd::Zero(pins.rows() * 5 + anchors.rows() * 6, E.rows() * 6);
@@ -84,24 +98,27 @@ MatrixXd build_constraints_matrix(MatrixX3d P, MatrixX2i E, MatrixXi pins, Matri
         Vector3d u_a = a_a.isZero() ? (mid_a - a_vert).normalized() : a_a.normalized();
         Vector3d u_b = a_b.isZero() ? (mid_b - b_vert).normalized() : a_b.normalized();
 
-        // if (edge_a_index == 4 || edge_b_index == 4) {
-            // oo("pin index", i);
-            // oo("e_a", e_a.transpose());
-            // oo("e_b", e_b.transpose());
-            // oo("pin vertex", vertex.transpose());
-            // oo("mid_a", mid_a.transpose());
-            // oo("mid_b", mid_b.transpose());
-            // oo("b1", P.row(e_b(0)).transpose());
-            // oo("b2", P.row(e_b(1)).transpose());
-            // oo("a_a", a_a.transpose());
-            // oo("a_b", a_b.transpose());
+        // if (i == 6 || i == 7 || i == 14 || i == 15) {
+        //     oo("pin index", i);
+        //     oo("e_a", e_a.transpose());
+        //     oo("e_b", e_b.transpose());
+        //     oo("pin vertex", vertex.transpose());
+        //     oo("mid_a", mid_a.transpose());
+        //     oo("edge_a_0", P.row(e_a(0)));
+        //     oo("edge_a_1", P.row(e_a(1)));
+        //     oo("mid_b", mid_b.transpose());
+        //     oo("edge_b_0", P.row(e_b(0)));
+        //     oo("edge_b_1", P.row(e_b(1)));
+        //     oo("a_a", a_a.transpose());
+        //     oo("a_b", a_b.transpose());
         // }
         if (u_a.cross(u_b).isZero()) {
             o("warning: u1 x u2 is zero vector, this will cause undefined behaviour");
             oo("u1xu2.normalized()", u_a.cross(u_b).transpose());
             oo(edge_a_index, edge_b_index);
         }
-        MatrixXd constraints = constraint_matrix_of_pin(a_a, a_b, u_a, u_b);
+        // MatrixXd constraints = constraint_matrix_of_pin(a_a, a_b, u_a, u_b);
+        MatrixXd constraints = constraint_matrix_of_joint(a_a, a_b, u_a, u_b);
         // o("copy blocks");
         mat.block<5, 6>(i * 5, edge_a_index * 6) = constraints.block<5, 6>(0, 0);
         mat.block<5, 6>(i * 5, edge_b_index * 6) = constraints.block<5, 6>(0, 6);
@@ -189,7 +206,7 @@ bool solve(MatrixXd P, MatrixXi E, MatrixXi pins, MatrixXi anchors, int &dof, Ma
     dof = C_init.cols() - init_rank;
     bool full_rank = dof == 0;
     VectorXd sol = C_dcmp.solve(b);
-    double error = compute_error(C_init, sol, b);
+    // double error = compute_error(C_init, sol, b);
     if (!full_rank) {
         for (int i = 0; i < C_init.cols(); i++) {
             MatrixXd C_i;

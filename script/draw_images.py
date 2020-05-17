@@ -30,6 +30,36 @@ def plot_edges_2d(pts, color, edges):
         x, y = zip(*map(to2d, (p, q)))
         plt.plot(x, y, c=color)
 
+def find_rotation(n_start, n_end):
+    v = np.cross(n_start, n_end)
+    cosine = np.dot(n_start, n_end)
+    sm = np.array(
+        [
+            [    0, -v[3],  v[2]],
+            [ v[3],     0, -v[1]],
+            [-v[2],  v[1],     0]
+        ]
+    )
+    rot = np.identity(3) + sm + np.cross(sm, sm) / (1 + cosine)
+    return rot
+
+
+def plot_circle_3d(center, radius, normal):
+    thetas = np.linspace(0, 2 * np.pi, 20)
+    x = np.cos(thetas)
+    y = np.sin(thetas)
+    z = 0
+    circle = np.hstack([x, y, z])
+    # rotation * [0 0 1] = normal
+    z_axis = np.array([0, 0, 1])
+    rotation = find_rotation(z_axis, normal)
+    rotated_circle = np.apply_along_axis(lambda row: np.cross(rotation, row.T).T, 0, circle)
+    translated_circle = rotated_circle + center
+    x, y, z = zip(*translated_circle)
+    plt.plot(x, y, z)
+
+def plot_pins_3d(pts, edges, pins):
+    
 
 #%%
 if len(sys.argv) < 2:
