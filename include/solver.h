@@ -9,6 +9,12 @@ Eigen::MatrixXd build_constraints_matrix(
     Eigen::MatrixXi anchors
 );
 
+void fix_one_edge(
+    int index, 
+    Eigen::VectorXd vw, 
+    Eigen::MatrixXd &C, 
+    Eigen::VectorXd &b);
+
 bool solve(
     Eigen::MatrixXd P,
     Eigen::MatrixXi E,
