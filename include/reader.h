@@ -10,4 +10,5 @@ bool read_data_file(
     Eigen::MatrixXi &pins,
     Eigen::MatrixXi &anchors
 );
+
 #endif
