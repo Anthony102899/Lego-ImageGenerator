@@ -76,7 +76,6 @@ MatrixXd constraint_matrix_of_anchor(Vector3d a1, Vector3d a2, Vector3d u1, Vect
             the indices into E, of the two edges that pin joins
 */
 MatrixXd build_constraints_matrix(MatrixXd P, MatrixXi E, MatrixXi pins, MatrixXi anchors) {
-    assert(P.cols() == 3 && E.cols() == 2 && pins.cols() == 3);
 
     MatrixXd mat = MatrixXd::Zero(pins.rows() * 5 + anchors.rows() * 6, E.rows() * 6);
     for (int i = 0; i < pins.rows(); i++) {

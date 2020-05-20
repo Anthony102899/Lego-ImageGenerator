@@ -25,9 +25,10 @@ int main(int argc, char *argv[]) {
     MatrixXd C = build_constraints_matrix(P, E, pins, anchors);
     VectorXd b = VectorXd::Zero(C.rows());
 
-    // fix_one_edge(0, Eigen::VectorXd::Zero(6), C, b);
+    fix_one_edge(0, Eigen::VectorXd::Zero(6), C, b);
 
-    solve_by_gurobi(C, b, P, E);
+    bool verbose = false;
+    solveUsingL1Norm(C, b, P, E, verbose);
 
     return 0;
 }
