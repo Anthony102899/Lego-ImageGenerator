@@ -9,12 +9,13 @@ INCDIR=./include
 SRCDIR=src
 OBJDIR=obj
 IMGDIR=img
+LOGDIR=log
 PYDIR=script
 
-_OBJ=reader.o solver.o shifter.o writer.o gurobi_solver.o
+_OBJ=reader.o solver.o shifter.o writer.o gurobi_solver.o coordinator.o
 OBJ =$(patsubst %,$(OBJDIR)/%,$(_OBJ))
 
-_HEADER=reader.h solver.h shifter.h writer.h gurobi_solver.h
+_HEADER=reader.h solver.h shifter.h writer.h gurobi_solver.h coordinator.h
 HEADER = $(patsubst %,$(INCDIR)/%,$(_HEADER))
 
 default: solver
@@ -37,9 +38,12 @@ $(DATADIR)/%.txt.out: $(DATADIR)/%.txt solver
 	$(PY) ./script/draw_images.py $<
 	mv $@ $(IMGDIR)
 
+%.log: $(DATADIR)/%.txt gurobi_solver
+	./gurobi_solver $< > $@
+
 .PRECIOUS: $(DATADIR)/%.txt.out
 
-.PHONY: clean
+.PHONY: clean archive all
 
 clean:
 	rm -rf obj solver

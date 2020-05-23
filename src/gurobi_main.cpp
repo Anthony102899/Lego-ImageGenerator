@@ -1,6 +1,8 @@
 #include "gurobi_solver.h"
 #include "reader.h"
 #include "solver.h"
+#include "coordinator.h"
+
 #include "gurobi_c++.h" 
 #include <iostream>
 
@@ -28,7 +30,13 @@ int main(int argc, char *argv[]) {
     fix_one_edge(0, Eigen::VectorXd::Zero(6), C, b);
 
     bool verbose = false;
-    solveUsingL1Norm(C, b, P, E, verbose);
+    GurobiSolver solver(C, b, P, E, verbose);
+
+    std::vector<ObjSolPair> pairs = solveUsingL1Norm(solver, 0.01, 0.0001);
+
+    for (unsigned i = 0; i < pairs.size(); i++) {
+        std::cout << pairs.at(i).first << std::endl;
+    }
 
     return 0;
 }

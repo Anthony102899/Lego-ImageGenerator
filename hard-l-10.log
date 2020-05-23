@@ -1,0 +1,25 @@
+Reading data/hard-l-10.txt...
+read P, row 5
+read E, row 3
+read a, row 3
+Finished reading data
+Matrix P (5, 3), E (3, 2), pins (0, 0), anchors (3, 3)
+Academic license - for non-commercial use only
+Edge 0 0[0]: 0
+Edge 0 1[1]: 0
+Edge 1 0[0]: 0.0135035
+v0x 0 v0y 0 v0z 0 w0x 0 w0y 0 w0z 0
+v1x 0.00610806 v1y 0.011573 v1z 0 w1x 0 w1y 0 w1z 0.000835513
+v2x 0.00305399 v2y 0.00703974 v2z 0 w2x 0 w2y 0 w2z 0.00175726
+Edge 1 1[2]: 0.0601734
+v0x 0 v0y 0 v0z 0 w0x 0 w0y 0 w0z 0
+v1x -0.00459325 v1y -0.0279464 v1z 0 w1x 0 w1y 0 w1z -0.00552675
+v2x -0.00229679 v2y -0.0222634 v2z 0 w2x 0 w2y 0 w2z -0.00522854
+Edge 2 0[3]: 0.0135035
+v0x 0 v0y 0 v0z 0 w0x 0 w0y 0 w0z 0
+v1x -0.00129671 v1y 0.00416938 v1z 0 w1x 0 w1y 0 w1z 0.000835959
+v2x -0.00435105 v2y -0.000364129 v2z 0 w2x 0 w2y 0 w2z 0.00175766
+Edge 2 1[4]: 0.0524094
+v0x 0 v0y 0 v0z 0 w0x 0 w0y 0 w0z 0
+v1x -0.00419626 v1y -0.0273432 v1z 0 w1x 0 w1y 0 w1z -0.00533578
+v2x -0.0030516 v2y -0.0226278 v2z 0 w2x 0 w2y 0 w2z -0.00534599

@@ -2,6 +2,7 @@
 .vscode
 *.o
 *.out
+./*.log
 *.drt
 libs/**
 opencv

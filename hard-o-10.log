@@ -1,0 +1,39 @@
+Reading data/hard-o-10.txt...
+read P, row 6
+read E, row 4
+read a, row 4
+Finished reading data
+Matrix P (6, 3), E (4, 2), pins (0, 0), anchors (4, 3)
+Academic license - for non-commercial use only
+Edge 0 0[0]: 0
+Edge 0 1[1]: 0
+Edge 1 0[0]: 0.0126491
+v0x 0 v0y 0 v0z 0 w0x 0 w0y 0 w0z 0
+v1x 0.00632457 v1y 0.00632696 v1z 0 w1x 0 w1y 0 w1z 4.82941e-07
+v2x 0.00158106 v2y 0.00948931 v2z 0 w2x 0 w2y 0 w2z 0.00158158
+v3x 0.00395276 v3y 0.00474395 v3z 0 w3x 0 w3y 0 w3z 0.00158151
+Edge 1 1[2]: 0.0816088
+v0x 0 v0y 0 v0z 0 w0x 0 w0y 0 w0z 0
+v1x -0.00220839 v1y -0.0395789 v1z 0 w1x 0 w1y 0 w1z -0.0079643
+v2x 0.000979371 v2y -0.0180128 v2z 0 w2x 0 w2y 0 w2z -0.00330835
+v3x -0.000614497 v3y -0.00625058 v3z 0 w3x 0 w3y 0 w3z -0.0051466
+Edge 2 0[1]: 0.0126491
+v0x 0 v0y 0 v0z 0 w0x 0 w0y 0 w0z 0
+v1x -0.00158106 v1y 0.00948931 v1z 0 w1x 0 w1y 0 w1z 0.00158158
+v2x -0.00632457 v2y 0.00632696 v2z 0 w2x 0 w2y 0 w2z 4.82941e-07
+v3x -0.00395276 v3y 0.00474395 v3z 0 w3x 0 w3y 0 w3z 0.00158151
+Edge 2 1[3]: 0.0816088
+v0x 0 v0y 0 v0z 0 w0x 0 w0y 0 w0z 0
+v1x -0.000979371 v1y -0.0180128 v1z 0 w1x 0 w1y 0 w1z -0.00330835
+v2x 0.00220839 v2y -0.0395789 v2z 0 w2x 0 w2y 0 w2z -0.0079643
+v3x 0.000614497 v3y -0.00625058 v3z 0 w3x 0 w3y 0 w3z -0.0051466
+Edge 3 0[4]: 0.0174642
+v0x 0 v0y 0 v0z 0 w0x 0 w0y 0 w0z 0
+v1x 0.00400703 v1y 0.0215042 v1z 0 w1x 0 w1y 0 w1z 0.0037287
+v2x 0.00171433 v2y 0.0215042 v2z 0 w2x 0 w2y 0 w2z 0.0037287
+v3x 0.00572155 v3y 0.00944985 v3z 0 w3x 0 w3y 0 w3z 0.00458563
+Edge 3 1[5]: 0.0174642
+v0x 0 v0y 0 v0z 0 w0x 0 w0y 0 w0z 0
+v1x -0.00171433 v1y 0.0215042 v1z 0 w1x 0 w1y 0 w1z 0.0037287
+v2x -0.00400703 v2y 0.0215042 v2z 0 w2x 0 w2y 0 w2z 0.0037287
+v3x -0.00572155 v3y 0.00944985 v3z 0 w3x 0 w3y 0 w3z 0.00458563
