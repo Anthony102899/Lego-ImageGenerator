@@ -1,6 +1,6 @@
 CXX=g++
 PY=python3
-INC=-I./libs/eigen/Eigen -I$(INCDIR) -I${GUROBI_HOME}/include
+INC=-I./libs/eigen/Eigen -I$(INCDIR) -I${GUROBI_HOME}/include -I./libs
 CFLAGS=-std=c++14 -g -Wall -O2
 LIBS=-L/opt/gurobi902/linux64/lib -lgurobi_c++ -lgurobi90
 
