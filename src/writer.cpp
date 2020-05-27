@@ -72,7 +72,7 @@ void writeJsonToFile(std::string filename, json j) {
         fo << j;
         fo.close();
     } else {
-        std::cerr << "something went wrong when writing json" << std::endl;
+        std::cerr << "something went wrong when opening the json file for writing" << std::endl;
     }
 }
 

@@ -33,6 +33,10 @@ int main(int argc, char *argv[]) {
         outDir += (outDir[-1] == '/' ? "" : "/");
     }
     
+    cerr << "Running ";
+    for (int i = 0; i < 3; i++) 
+        cerr << argv[i] << " ";
+    cerr << endl;
 
     read_data_file(dataFile.c_str(), P, E, pins, anchors);
 
@@ -45,8 +49,11 @@ int main(int argc, char *argv[]) {
     GurobiSolver solver(C, b, P, E, verbose);
 
     double epsilon = 0.01;
+    double lb = 1e-6;
+    double ub = 1e-2;
+    cerr << "lb ~ " << lb << " ub ~ " << ub << endl;
 
-    Eigen::VectorXd costRange = Eigen::VectorXd::LinSpaced(100, 1e-6, 1e-3);
+    Eigen::VectorXd costRange = Eigen::VectorXd::LinSpaced(100, lb, ub);
     vector<double> costs = vector<double>(costRange.data(), costRange.data() + 100);
     vector<double> epsilons(100, 0.01);
     vector<vector<ObjSolPair>> pairs2d;

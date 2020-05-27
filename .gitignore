@@ -11,3 +11,7 @@ __pycache__
 # exectuables
 solver
 gurobi_solver
+
+# auto-generated
+output
+data/auto

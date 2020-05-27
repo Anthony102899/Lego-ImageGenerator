@@ -1,0 +1,15 @@
+P
+{n}
+0 0 0
+0 3 0
+10 0 0
+{points}
+E
+{m}
+0 1
+0 2
+{edges}
+anchors
+{num_anchors}
+0 0 1
+{anchors}
