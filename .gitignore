@@ -1,17 +1,17 @@
+# development tools
 .vs
 .vscode
-*.o
-*.out
-./*.log
-*.drt
-libs/**
-opencv
 __pycache__
 
 # exectuables
 solver
 gurobi_solver
 
-# auto-generated
+# auto-generated files
 output
 data/auto
+*.o
+*.out
+*.drt
+./*.log
+libs/**

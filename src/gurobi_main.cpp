@@ -6,11 +6,12 @@
 
 #include "gurobi_c++.h" 
 #include <iostream>
+#include <string>
 
 using namespace std;
 
 // declaration
-string formatOutputName(string dataName, string outDir);
+string formatOutputName(string dataName, string outDir, double eps, double cost);
 
 int main(int argc, char *argv[]) {
     Eigen::MatrixXd P;
@@ -19,24 +20,26 @@ int main(int argc, char *argv[]) {
     Eigen::MatrixXi anchors;
 
     string dataFile;
-    string outDir;
-    if (argc < 2) {
-        dataFile = "data/square.txt";
-    } else {
-        dataFile = argv[1];
+    string outFile;
+    double eps;
+    double cost;
+    bool   verbose;
+    if (argc < 5) {
+        cerr << "Usage: gurobi_solver datafile outfile epsilon cost" << endl;
+        exit(1);
     }
+    dataFile = argv[1];
+    outFile  = argv[2];
+    eps      = std::stod(argv[3]);
+    cost     = std::stod(argv[4]);
+    verbose  = argc > 5 && std::stoi(argv[5]) != 0;
 
-    if (argc < 3) { 
-        outDir = "./"; 
-    } else {
-        outDir = argv[2];
-        outDir += (outDir[-1] == '/' ? "" : "/");
+    if (verbose) {
+        cerr << "gurobi solver running";
+        for (int i = 0; i < argc; i++) 
+            cerr << argv[i] << " ";
+        cerr << endl;
     }
-    
-    cerr << "Running ";
-    for (int i = 0; i < 3; i++) 
-        cerr << argv[i] << " ";
-    cerr << endl;
 
     read_data_file(dataFile.c_str(), P, E, pins, anchors);
 
@@ -45,30 +48,25 @@ int main(int argc, char *argv[]) {
 
     fix_one_edge(0, Eigen::VectorXd::Zero(6), C, b);
 
-    bool verbose = false;
     GurobiSolver solver(C, b, P, E, verbose);
 
-    double epsilon = 0.01;
-    double lb = 1e-6;
-    double ub = 1e-2;
-    cerr << "lb ~ " << lb << " ub ~ " << ub << endl;
+    auto pairs = solveUsingL1Norm(solver, eps, cost);
+    // string name = formatOutputName(dataFile, outDir, eps, cost);
 
-    Eigen::VectorXd costRange = Eigen::VectorXd::LinSpaced(100, lb, ub);
-    vector<double> costs = vector<double>(costRange.data(), costRange.data() + 100);
-    vector<double> epsilons(100, 0.01);
-    vector<vector<ObjSolPair>> pairs2d;
-
-    for (int i = 0; i < costRange.size(); i++) {
-        double cost = costs[i];
-        pairs2d.push_back(solveUsingL1Norm(solver, 0.01, cost));
-    }
-    string name = formatOutputName(dataFile, outDir);
-    writeObjSolPairs2dJson(name, epsilons, costs, pairs2d);
+    json result = parseObjSolPairsToJson(pairs);
+    json setting;
+    setting["epsilon"] = eps;
+    setting["cost"] = cost;
+    setting["file"] = dataFile;
+    json out;
+    out["setting"] = setting;
+    out["result"] = result;
+    writeJsonToFile(outFile, out);
 
     return 0;
 }
 
-string formatOutputName(string dataName, string outDir) {
+string formatOutputName(string dataName, string outDir, double eps, double cost) {
 
     string s = dataName;
     size_t pos = 0;
@@ -77,8 +75,12 @@ string formatOutputName(string dataName, string outDir) {
         s.erase(0, pos + deli.length());
     }
 
+    outDir += (outDir.back() != '/') ? "/" : "";
+
     ostringstream stringStream;
     stringStream << outDir << s
+                 << "_eps_" << eps
+                 << "_cost_" << cost
                  << ".json";
     return stringStream.str();
 }

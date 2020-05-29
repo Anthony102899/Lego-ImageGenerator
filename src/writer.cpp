@@ -2,11 +2,6 @@
 #include <fstream>
 #include "writer.h"
 
-#include <nlohmann/json.hpp>
-using json = nlohmann::json;
-
-json parseObjSolPairsToJson(std::vector<ObjSolPair> pairs);
-void writeJsonToFile(std::string filename, json j);
 
 void writeMatrices(const char *filename, std::vector<Eigen::MatrixXd> matrices) {
     FILE *fp = fopen(filename, "w");
@@ -26,28 +21,6 @@ void writeMatrices(const char *filename, std::vector<Eigen::MatrixXd> matrices) 
         }
     }
     fclose(fp);
-}
-
-void writeObjSolPairs2dJson(
-    std::string filename,
-    std::vector<double> epsilons,
-    std::vector<double> costs, 
-    std::vector<std::vector<ObjSolPair>> pairs2d) 
-{
-    json j;
-    assert(epsilons.size() == costs.size() && costs.size() == pairs2d.size());
-
-    for (unsigned i = 0; i < epsilons.size(); i++) {
-        auto &pairs = pairs2d[i];
-        json item;
-        item["data"] = parseObjSolPairsToJson(pairs);
-        item["eps"] = epsilons[i];
-        item["cost"] = costs[i];
-
-        j.push_back(item);
-    }
-    
-    writeJsonToFile(filename, j);
 }
 
 json parseObjSolPairsToJson(std::vector<ObjSolPair> pairs) {
@@ -72,7 +45,9 @@ void writeJsonToFile(std::string filename, json j) {
         fo << j;
         fo.close();
     } else {
-        std::cerr << "something went wrong when opening the json file for writing" << std::endl;
+        std::cerr << "something went wrong when opening the json file " 
+                  << filename 
+                  << " for writing" << std::endl;
     }
 }
 
