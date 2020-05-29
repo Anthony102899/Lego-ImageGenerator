@@ -117,9 +117,7 @@ anchors
 1 0 2
 ```
 
-Note that the vertex for a pin/anchor is not necessarily one of the two vertices of the joining edge.
-
-Note that in the following example, edge 2 (vertex 3, 4) joins 0 and 1 by two anchors, but no neither vertex 3 or 4 is the vertex of other beams.
+Note that the vertex for a pin/anchor is not necessarily one of the two vertices of the joining edge. In the following example, edge 2 (vertex 3, 4) joins 0 and 1 by two anchors, but no neither vertex 3 or 4 is the vertex of other beams.
 
 ```
 P
