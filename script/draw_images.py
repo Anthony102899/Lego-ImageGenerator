@@ -57,8 +57,6 @@ def plot_circle_3d(center, radius, normal):
     translated_circle = rotated_circle + center
     x, y, z = zip(*translated_circle)
     plt.plot(x, y, z)
-
-def plot_pins_3d(pts, edges, pins):
     
 
 #%%
@@ -74,7 +72,7 @@ origin_filename = "data/" + output_filename.split('.')[0] + ".txt"
 to2d = lambda point: (point[0], point[1])
 
 # prepare data
-edges = read_edge_data_file(origin_filename)
+edges = read_data_file(origin_filename, "E")
 matrices = read_out_data_file(in_file)
 maxval, minval = np.max(matrices), np.min(matrices)
 
@@ -99,9 +97,9 @@ for i, mat in enumerate(matrices):
 
 plt.savefig(output_filename)
 
-direction_data_file = in_file[:-3] + "drt.out"
-directions = read_out_data_file(direction_data_file)
-direction_png = output_filename[:-3] + "drt.png"
+# direction_data_file = in_file[:-3] + "drt.out"
+# directions = read_out_data_file(direction_data_file)
+# direction_png = output_filename[:-3] + "drt.png"
 
 # plt.clf()
 # fig = plt.figure()
