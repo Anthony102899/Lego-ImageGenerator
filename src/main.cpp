@@ -57,7 +57,7 @@ int main(int argc, char *argv[]) {
         }
         // o(V);
         oo("displacement matrix rank", Ds.fullPivHouseholderQr().rank());
-        write_matrices(direction_filename.c_str(), init_direction);
+        writeMatrices(direction_filename.c_str(), init_direction);
     }
 
     if (stable) {
@@ -136,7 +136,7 @@ int main(int argc, char *argv[]) {
 
     }
 
-    write_matrices(output_filename.c_str(), hist);
+    writeMatrices(output_filename.c_str(), hist);
 
     return 0;
 }

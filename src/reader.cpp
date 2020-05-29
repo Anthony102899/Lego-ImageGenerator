@@ -40,34 +40,6 @@ bool read_data_file(const char *filename,
         if (str[0] == 'a') read_one_section<int>(fp, anchors, "%d", row_num, 3);
     }
 
-    // if (
-    //     fscanf(fp, "%s", str) != EOF && 
-    //     fscanf(fp, "%d", &row_num) != EOF
-    // ) {
-    //     read_section(P, double, "%lf", row_num, 3);
-    // }
-    
-    // if (
-    //     fscanf(fp, "%s", str) != EOF && 
-    //     fscanf(fp, "%d", &row_num) != EOF
-    // ) {
-    //     read_section(E, int, "%d", row_num, 2);
-    // }
-
-    // if (
-    //     fscanf(fp, "%s", str) != EOF &&
-    //     fscanf(fp, "%d", &row_num) != EOF 
-    // ) {
-    //     read_section(pins, int, "%d", row_num, 3);
-    // }
-
-    // if (
-    //     fscanf(fp, "%s", str) != EOF &&
-    //     fscanf(fp, "%d", &row_num) != EOF 
-    // ) {
-    //     read_section(anchors, int, "%d", row_num, 3);
-    // }
-
 
     printf("Finished reading data\n");
     printf("Matrix P (%d, %d), E (%d, %d), pins (%d, %d), anchors (%d, %d)\n",
