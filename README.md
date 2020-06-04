@@ -13,11 +13,7 @@ make new-triangle.png
 ```
 The above invokes the solver and utilizes a python script to visualize the motion using `matplotlib` (so make sure it's installed beforehand). The plot will be saved in the root directory.
 
-Additionally, run the script to get a 3d plot of the motion (numpy and pyqtgraph required)
-```
-make square_with_parallel_bar.png
-python3 script/grapher.py data/output/disattached-square.txt.out
-```
+Analogously, to run `solver` on some new input data, the most convenient way is, prepare the data file according to the specm say `new-lego.txt` and put it in the `data/object` directory, then run `make new-lego.png`
 
 Dependencies
 ------------
