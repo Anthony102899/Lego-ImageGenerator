@@ -3,30 +3,33 @@ LEGO Solver
 
 Usage
 -------
-To compile the program. First edit variable (`INC`) for the path to Eigen in `makefile` as appropriate (the root of Eigen installation).
-Then,
+### Linear Solver - `solver`
 ```
-make
+make cpp/solver
 ```
-To get the motion of a certain shape, find the data file in `data` directory, for example `disattached-square.txt`. Then,
+`solver` takes the data file as input, generates the matrices along the motion of the object, and write them to a file. To get the motion of a certain shape, find the data file in `data/object` directory, for example `disattached-square.txt`. Then,
 ```
 make square_with_parallel_bar.png
 ```
-Afterwards, find the corresponding image file in `img` folder.
+The above invokes the solver and utilizes a python script to visualize the motion using `matplotlib` (so make sure it's installed beforehand). The plot will be saved in the root directory.
 
-Get 3d plot of the motion by running the script (Python 3, numpy and pyqtgraph required)
+Additionally, run the script to get a 3d plot of the motion (numpy and pyqtgraph required)
 ```
-python3 script/grapher.py data/disattached-square.txt.out
+make square_with_parallel_bar.png
+python3 script/grapher.py data/output/disattached-square.txt.out
 ```
 
 Dependencies
 ------------
-- `*.cpp`
+- `solver`
   - Eigen
-- `gurobi_solver.cpp`
+- `gurobi_solver`
+  - Eigen
   - [Gurobi (9.0)](https://www.gurobi.com/) (not open-source, you might need a proper license from them)
+- `constraint_matrix_extractor`
+  - Eigen
 - `*.py`
-  - Python 3
+  - Python 3.7+
   - numpy, matplotlib, pyqtgraph
 
 Data File Spec
@@ -50,12 +53,12 @@ number_of_edges
 vertex_1a_index_into_P vertex_1b_index_into_P
 vertex_2a_index_into_P vertex_2b_index_into_P
 ...
-pins
+pins                  # Optional 
 number_of_pins
 vertex_index_of_joint pin_end_edge_index beam_end_edge_index
 vertex_index_of_joint pin_end_edge_index beam_end_edge_index
 ...
-anchors
+anchors               # Optional
 number_of_anchors
 vertex_index_of_joint pin_end_edge_index beam_end_edge_index
 vertex_index_of_joint pin_end_edge_index beam_end_edge_index

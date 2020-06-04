@@ -12,6 +12,8 @@ MODELDIR=data/model
 _CPP_EXECUTABLES=solver gurobi_solver constraint_matrix_extractor
 CPP_EXECUTABLES=$(patsubst %,cpp/%,$(_CPP_EXECUTABLES))
 
+all: $(CPP_EXECUTABLES)
+
 cpp/solver: 
 	cd cpp && $(MAKE) solver
 
