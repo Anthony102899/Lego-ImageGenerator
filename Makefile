@@ -1,49 +1,42 @@
 CXX=g++
 PY=python3
-INC=-I./libs/eigen/Eigen -I$(INCDIR) -I${GUROBI_HOME}/include -I./libs
-CFLAGS=-std=c++14 -g -Wall -O2
-LIBS=-L/opt/gurobi902/linux64/lib -lgurobi_c++ -lgurobi90
+MAKE=make
 
 DATADIR=data
-INCDIR=./include
-SRCDIR=src
-OBJDIR=obj
 IMGDIR=img
-LOGDIR=log
 PYDIR=script
-
-_OBJ=reader.o solver.o shifter.o writer.o gurobi_solver.o coordinator.o
-OBJ =$(patsubst %,$(OBJDIR)/%,$(_OBJ))
-
-_HEADER=reader.h solver.h shifter.h writer.h gurobi_solver.h coordinator.h
-HEADER = $(patsubst %,$(INCDIR)/%,$(_HEADER))
-
-default: solver
+OUTPUTDIR=data/output
+MODELDIR=data/model
 
 
-$(OBJDIR)/%.o: $(SRCDIR)/%.cpp $(HEADER)
-	mkdir -p $(OBJDIR)
-	$(CXX) -c -o $@ $< $(CFLAGS) $(INC)
+_CPP_EXECUTABLES=solver gurobi_solver constraint_matrix_extractor
+CPP_EXECUTABLES=$(patsubst %,cpp/%,$(_CPP_EXECUTABLES))
 
-solver: $(SRCDIR)/main.cpp $(OBJ)
-	$(CXX) -o $@ $^ $(CFLAGS) $(INC) $(LIBS)
+all: $(CPP_EXECUTABLES)
 
-gurobi_solver: $(SRCDIR)/gurobi_main.cpp $(OBJ)
-	$(CXX) -o $@ $^ $(CFLAGS) $(INC) $(LIBS)
+cpp/solver: 
+	cd cpp && $(MAKE) solver
 
-$(DATADIR)/%.txt.out: $(DATADIR)/%.txt solver
-	./solver $< 
+cpp/gurobi_solver:
+	cd cpp && $(MAKE) gurobi_solver
 
-%.png: $(DATADIR)/%.txt.out
+cpp/constraint_matrix_extractor:
+	cd cpp && $(MAKE) constraint_matrix_extractor 
+
+$(OUTPUTDIR)/%.txt.out: $(MODELDIR)/%.txt cpp/solver
+	./cpp/solver $< 
+
+%.png: $(OUTPUTDIR)/%.txt.out
+	mkdir -p $(OUTPUTDIR)
 	$(PY) ./script/draw_images.py $<
-	mv $@ $(IMGDIR)
 
-%.log: $(DATADIR)/%.txt gurobi_solver
-	./gurobi_solver $< > $@
+%.log: $(MODELDIR)/%.txt cpp/gurobi_solver
+	./cpp/gurobi_solver $< > $@
 
-.PRECIOUS: $(DATADIR)/%.txt.out
-
-.PHONY: clean archive all
+.PRECIOUS: $(OUTPUTDIR)/%.txt.out
 
 clean:
-	rm -rf obj solver
+	cd cpp && $(MAKE) clean
+
+.PHONY:
+	clean
