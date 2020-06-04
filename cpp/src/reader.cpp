@@ -3,7 +3,7 @@
 using namespace Eigen;
 
 template <class Ty>
-bool read_one_section(FILE *fp, Eigen::Matrix<Ty, -1, -1> &M, const char read_template[], int row_num, int col_num) {
+bool readOneSection(FILE *fp, Eigen::Matrix<Ty, -1, -1> &M, const char read_template[], int row_num, int col_num) {
     M.resize(row_num, col_num);
     for (int i = 0; i < row_num; i++) {
         for (int j = 0; j < col_num; j++) {
@@ -34,10 +34,10 @@ bool readDataFile(const char *filename,
         fscanf(fp, "%d", &row_num) != EOF
     ) {
         printf("read %c, row %d\n", str[0], row_num);
-        if (str[0] == 'P') read_one_section<double>(fp, P, "%lf", row_num, 3);
-        if (str[0] == 'E') read_one_section<int>(fp, E, "%d", row_num, 2);
-        if (str[0] == 'p') read_one_section<int>(fp, pins, "%d", row_num, 3);
-        if (str[0] == 'a') read_one_section<int>(fp, anchors, "%d", row_num, 3);
+        if (str[0] == 'P') readOneSection<double>(fp, P, "%lf", row_num, 3);
+        if (str[0] == 'E') readOneSection<int>(fp, E, "%d", row_num, 2);
+        if (str[0] == 'p') readOneSection<int>(fp, pins, "%d", row_num, 3);
+        if (str[0] == 'a') readOneSection<int>(fp, anchors, "%d", row_num, 3);
     }
 
 

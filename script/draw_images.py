@@ -61,13 +61,13 @@ def plot_circle_3d(center, radius, normal):
 
 #%%
 if len(sys.argv) < 2:
-    in_file = "data/square_with_parallel_bar.txt.out"
+    in_file = "data/output/square_with_parallel_bar.txt.out"
 else:
     in_file = sys.argv[1]
     
 output = in_file[:-7] + "png"
 _, output_filename = os.path.split(output)
-origin_filename = "data/" + output_filename.split('.')[0] + ".txt"
+origin_filename = os.path.join("data", "object", output_filename.split('.')[0] + ".txt") 
 
 to2d = lambda point: (point[0], point[1])
 

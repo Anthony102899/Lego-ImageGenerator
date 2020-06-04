@@ -2,14 +2,14 @@
 
 #ifndef SOLVER_H
 #define SOLVER_H
-Eigen::MatrixXd build_constraints_matrix(
+Eigen::MatrixXd buildConstraintMatrix(
     Eigen::MatrixXd P,
     Eigen::MatrixXi E,
     Eigen::MatrixXi pins,
     Eigen::MatrixXi anchors
 );
 
-void fix_one_edge(
+void fixOneEdge(
     int index, 
     Eigen::VectorXd vw, 
     Eigen::MatrixXd &C, 

@@ -3,21 +3,25 @@ LEGO Solver
 
 Usage
 -------
+
+First thing first, clone the repo and init submodules (Eigen3.3.7)
+```
+git clone --recurse-submodules
+// OR if you already cloned without initializing submodules...
+git submodule update --init --recursive
+```
+
 ### Linear Solver - `solver`
 ```
 make cpp/solver
 ```
-`solver` takes the data file as input, generates the matrices along the motion of the object, and write them to a file. To get the motion of a certain shape, find the data file in `data/object` directory, for example `disattached-square.txt`. Then,
+`solver` takes the data file as input, generates the matrices along the motion of the object, and write them to a file. To get the motion of a certain shape, find the data file in `data/object` directory, for example `new-triangle.txt`. Then,
 ```
-make square_with_parallel_bar.png
+make new-triangle.png
 ```
 The above invokes the solver and utilizes a python script to visualize the motion using `matplotlib` (so make sure it's installed beforehand). The plot will be saved in the root directory.
 
-Additionally, run the script to get a 3d plot of the motion (numpy and pyqtgraph required)
-```
-make square_with_parallel_bar.png
-python3 script/grapher.py data/output/disattached-square.txt.out
-```
+Analogously, to run `solver` on some new input data, the most convenient way is, prepare the data file according to the specm say `new-lego.txt` and put it in the `data/object` directory, then run `make new-lego.png`
 
 Dependencies
 ------------

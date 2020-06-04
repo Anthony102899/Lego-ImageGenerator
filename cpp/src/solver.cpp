@@ -12,7 +12,7 @@ const int x = 0;
 const int y = 1;
 const int z = 2;
 
-Matrix<double, 3, 12> shared_linear_velocity(Vector3d a1, Vector3d a2) {
+Matrix<double, 3, 12> sharedLinearVelocity(Vector3d a1, Vector3d a2) {
     Matrix<double, 3, 12> mat;
     mat.row(0) << 1, 0, 0,      0,  a1[z], -a1[y], -1,  0,  0,      0, -a2[z],  a2[y];
     mat.row(1) << 0, 1, 0, -a1[z],      0,  a1[x],  0, -1,  0,  a2[z],      0, -a2[x];
@@ -20,9 +20,9 @@ Matrix<double, 3, 12> shared_linear_velocity(Vector3d a1, Vector3d a2) {
     return mat;
 }
 
-MatrixXd constraint_matrix_of_joint(Vector3d a_screw, Vector3d a_nut, Vector3d u_screw, Vector3d u_nut) {
+MatrixXd constraintMatrixOfJoint(Vector3d a_screw, Vector3d a_nut, Vector3d u_screw, Vector3d u_nut) {
     MatrixXd mat = MatrixXd(5, 12);
-    MatrixXd same_linear_velocity = shared_linear_velocity(a_screw, a_nut);
+    MatrixXd same_linear_velocity = sharedLinearVelocity(a_screw, a_nut);
     
     Vector3d u_ortho = u_nut.cross(u_screw).normalized();
     MatrixXd same_angular_velocity(2, 12);
@@ -35,13 +35,13 @@ MatrixXd constraint_matrix_of_joint(Vector3d a_screw, Vector3d a_nut, Vector3d u
     return mat;
 }
 
-MatrixXd constraint_matrix_of_pin(Vector3d a1, Vector3d a2, Vector3d u1, Vector3d u2) {
+MatrixXd constraintMatrixOfPin(Vector3d a1, Vector3d a2, Vector3d u1, Vector3d u2) {
     MatrixXd mat = MatrixXd::Zero(5, 12);
                              
     Vector3d plane_normal = u1.cross(u2).normalized();
     // u1p perpenticular to u1 and the normal vector of the plane <u1, u2>
     Vector3d u1p = u1.cross(plane_normal).normalized();
-    mat.block<3, 12>(0, 0) = shared_linear_velocity(a1, a2);
+    mat.block<3, 12>(0, 0) = sharedLinearVelocity(a1, a2);
     // constraints: same angular velocity along u1, and u1_p 
     mat.row(3) << 0, 0, 0, u1[x], u1[y], u1[z], 0, 0, 0, -u1[x], -u1[y], -u1[z];
     mat.row(4) << 0, 0, 0, u1p[x], u1p[y], u1p[z], 0, 0, 0, -u1p[x], -u1p[y], -u1p[z];
@@ -49,13 +49,13 @@ MatrixXd constraint_matrix_of_pin(Vector3d a1, Vector3d a2, Vector3d u1, Vector3
     return mat;
 }
 
-MatrixXd constraint_matrix_of_anchor(Vector3d a1, Vector3d a2, Vector3d u1, Vector3d u2) {
+MatrixXd constraintMatrixOfAnchor(Vector3d a1, Vector3d a2, Vector3d u1, Vector3d u2) {
     // Vector3d u1 = a1.normalized();
     // Vector3d u2 = a2.normalized();
     Vector3d normal = u1.cross(u2).normalized();
     
     MatrixXd C_anchor(6, 12);
-    MatrixXd C_pin = constraint_matrix_of_pin(a1, a2, u1, u2);
+    MatrixXd C_pin = constraintMatrixOfPin(a1, a2, u1, u2);
     RowVectorXd c(12);
     c << 0, 0, 0,  normal[x],  normal[y],  normal[z], 
          0, 0, 0, -normal[x], -normal[y], -normal[z];
@@ -75,7 +75,7 @@ MatrixXd constraint_matrix_of_anchor(Vector3d a1, Vector3d a2, Vector3d u1, Vect
             the indices into P, of the vertex corresponding to the pin
             the indices into E, of the two edges that pin joins
 */
-MatrixXd build_constraints_matrix(MatrixXd P, MatrixXi E, MatrixXi pins, MatrixXi anchors) {
+MatrixXd buildConstraintMatrix(MatrixXd P, MatrixXi E, MatrixXi pins, MatrixXi anchors) {
 
     MatrixXd mat = MatrixXd::Zero(pins.rows() * 5 + anchors.rows() * 6, E.rows() * 6);
     for (int i = 0; i < pins.rows(); i++) {
@@ -117,7 +117,7 @@ MatrixXd build_constraints_matrix(MatrixXd P, MatrixXi E, MatrixXi pins, MatrixX
             oo(edge_a_index, edge_b_index);
         }
         // MatrixXd constraints = constraint_matrix_of_pin(a_a, a_b, u_a, u_b);
-        MatrixXd constraints = constraint_matrix_of_joint(a_a, a_b, u_a, u_b);
+        MatrixXd constraints = constraintMatrixOfJoint(a_a, a_b, u_a, u_b);
         // o("copy blocks");
         mat.block<5, 6>(i * 5, edge_a_index * 6) = constraints.block<5, 6>(0, 0);
         mat.block<5, 6>(i * 5, edge_b_index * 6) = constraints.block<5, 6>(0, 6);
@@ -144,7 +144,7 @@ MatrixXd build_constraints_matrix(MatrixXd P, MatrixXi E, MatrixXi pins, MatrixX
             oo("u1xu2.normalized()", u_a.cross(u_b).transpose());
             oo(edge_a_index, edge_b_index);
         }
-        MatrixXd constraints = constraint_matrix_of_anchor(a_a, a_b, u_a, u_b);
+        MatrixXd constraints = constraintMatrixOfAnchor(a_a, a_b, u_a, u_b);
         int row_ind = i * 6 + pins.rows() * 5;
         mat.block<6, 6>(row_ind, edge_a_index * 6) = constraints.block<6, 6>(0, 0);
         mat.block<6, 6>(row_ind, edge_b_index * 6) = constraints.block<6, 6>(0, 6);
@@ -152,7 +152,7 @@ MatrixXd build_constraints_matrix(MatrixXd P, MatrixXi E, MatrixXi pins, MatrixX
     return mat;
 }
 
-void fix_one_edge(int index, VectorXd vw, MatrixXd &C, VectorXd &b) {
+void fixOneEdge(int index, VectorXd vw, MatrixXd &C, VectorXd &b) {
     MatrixXd newC(C.rows() + 6, C.cols());
     VectorXd newb(C.rows() + 6);
 
@@ -169,7 +169,7 @@ void fix_one_edge(int index, VectorXd vw, MatrixXd &C, VectorXd &b) {
     b = newb;
 }
 
-void fix_one_variable(int index, double value, MatrixXd C, VectorXd b, MatrixXd &newC, VectorXd &newb) {
+void fixOneVariable(int index, double value, MatrixXd C, VectorXd b, MatrixXd &newC, VectorXd &newb) {
     newC.resize(C.rows() + 1, C.cols());
     newb.resize(C.rows() + 1);
     RowVectorXd new_row = RowVectorXd::Zero(C.cols());
@@ -178,7 +178,7 @@ void fix_one_variable(int index, double value, MatrixXd C, VectorXd b, MatrixXd 
     newb << b, value;
 }
 
-std::string get_name_of_index(int ind) {
+std::string getNameofIndex(int ind) {
     int e_ind = ind / 6;
     char vw = (ind % 6 <= 2) ? 'v' : 'w';
     int vw_ind = ind % 3;
@@ -192,10 +192,10 @@ std::string get_name_of_index(int ind) {
 bool solve(MatrixXd P, MatrixXi E, MatrixXi pins, MatrixXi anchors, int &dof, MatrixXd &constraints,
     std::vector<std::tuple<int, VectorXd, double>> &unstable_indices)
 {
-    MatrixXd C_init = build_constraints_matrix(P, E, pins, anchors);
+    MatrixXd C_init = buildConstraintMatrix(P, E, pins, anchors);
     VectorXd b = VectorXd::Zero(C_init.rows());
     VectorXd vw(6); vw << 0, 0, 0, 0, 0, 0;
-    fix_one_edge(0, vw, C_init, b);
+    fixOneEdge(0, vw, C_init, b);
     auto C_dcmp = C_init.fullPivLu();
     auto compute_error = [](MatrixXd A, VectorXd x, VectorXd b) {
         return (A * x - b).norm();
@@ -211,7 +211,7 @@ bool solve(MatrixXd P, MatrixXi E, MatrixXi pins, MatrixXi anchors, int &dof, Ma
             MatrixXd C_i;
             VectorXd b_i;
             const int push_velocity = 10;
-            fix_one_variable(i, push_velocity, C_init, b, C_i, b_i);
+            fixOneVariable(i, push_velocity, C_init, b, C_i, b_i);
             auto C_decomp = C_i.fullPivHouseholderQr();
             VectorXd x = C_decomp.solve(b_i);
             int rank = C_decomp.rank();
