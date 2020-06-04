@@ -6,7 +6,7 @@
 
 using namespace Eigen;
 
-MatrixXd displacement_matrix(MatrixXd P, MatrixXi E, VectorXd x_shift) {
+MatrixXd displacementMatrix(MatrixXd P, MatrixXi E, VectorXd x_shift) {
     int items = P.rows();
     std::vector<int> shifted(items, 0);
     MatrixXd D = MatrixXd::Zero(P.rows(), P.cols());
@@ -62,7 +62,7 @@ MatrixXd displacement_matrix(MatrixXd P, MatrixXi E, VectorXd x_shift) {
 MatrixXd shift(MatrixXd P, MatrixXi E, VectorXd x_shift, double t) {
     int items = P.rows();
     std::vector<int> shifted(items, 0);
-    MatrixXd D = displacement_matrix(P, E, x_shift);
+    MatrixXd D = displacementMatrix(P, E, x_shift);
     D = D * t;
     MatrixXd P_new = P + D;
     return P_new;

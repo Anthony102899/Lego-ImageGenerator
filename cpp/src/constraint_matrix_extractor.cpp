@@ -19,7 +19,7 @@ int main(int argc, char *argv[]) {
 
     readDataFile(object.c_str(), P, E, pins, anchors);
 
-    Eigen::MatrixXd C = build_constraints_matrix(P, E, pins, anchors);
+    Eigen::MatrixXd C = buildConstraintMatrix(P, E, pins, anchors);
 
     writeMatrixToCsv(mat, C);
 }

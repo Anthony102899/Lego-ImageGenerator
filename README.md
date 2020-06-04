@@ -7,9 +7,9 @@ Usage
 ```
 make cpp/solver
 ```
-`solver` takes the data file as input, generates the matrices along the motion of the object, and write them to a file. To get the motion of a certain shape, find the data file in `data/object` directory, for example `disattached-square.txt`. Then,
+`solver` takes the data file as input, generates the matrices along the motion of the object, and write them to a file. To get the motion of a certain shape, find the data file in `data/object` directory, for example `new-triangle.txt`. Then,
 ```
-make square_with_parallel_bar.png
+make new-triangle.png
 ```
 The above invokes the solver and utilizes a python script to visualize the motion using `matplotlib` (so make sure it's installed beforehand). The plot will be saved in the root directory.
 

@@ -37,35 +37,34 @@ int main(int argc, char *argv[]) {
     int dof; MatrixXd C;
     bool stable = solve(P, E, pins, anchors, dof, C, unstable_indices);
 
-    if (!stable) {
-        MatrixXd V(unstable_indices.size(), E.rows() * 6 + 1);
-        MatrixXd Ds(unstable_indices.size(), P.rows() * 3);
-        for (unsigned i = 0; i < unstable_indices.size(); i++) {
-            VectorXd velocity = std::get<1>(unstable_indices[i]);
-            auto P_new = shift(P, E, velocity, 0.001);
-            MatrixXd D = P_new - P;
-            if (!D.isZero()) {
-                init_direction.push_back(D);
-            } else {
-                oo("zero displacement", std::get<0>(unstable_indices[i]));
-            }
-            oo(std::get<0>(unstable_indices[i]) / 6, std::get<0>(unstable_indices[i]) % 6);
-            V(i, 0) = std::get<0>(unstable_indices[i]);
-            D.resizeLike(Ds.row(i));
-            Ds.row(i) = D;
-            V.row(i).segment(1, E.rows() * 6) = velocity;
-        }
-        // o(V);
-        oo("displacement matrix rank", Ds.fullPivHouseholderQr().rank());
-        writeMatrices(direction_filename.c_str(), init_direction);
-    }
+    // if (!stable) {
+    //     MatrixXd V(unstable_indices.size(), E.rows() * 6 + 1);
+    //     MatrixXd Ds(unstable_indices.size(), P.rows() * 3);
+    //     for (unsigned i = 0; i < unstable_indices.size(); i++) {
+    //         VectorXd velocity = std::get<1>(unstable_indices[i]);
+    //         auto P_new = shift(P, E, velocity, 0.001);
+    //         MatrixXd D = P_new - P;
+    //         if (!D.isZero()) {
+    //             init_direction.push_back(D);
+    //         } else {
+    //             oo("zero displacement", std::get<0>(unstable_indices[i]));
+    //         }
+    //         V(i, 0) = std::get<0>(unstable_indices[i]);
+    //         D.resizeLike(Ds.row(i));
+    //         Ds.row(i) = D;
+    //         V.row(i).segment(1, E.rows() * 6) = velocity;
+    //     }
+    //     // o(V);
+    //     oo("displacement matrix rank", Ds.fullPivHouseholderQr().rank());
+    //     writeMatrices(direction_filename.c_str(), init_direction);
+    // }
 
     if (stable) {
         o("Stable");
     } else { 
-        o("Unstable");
+        o("Could be unstable");
         oo("Degree of freedom:", dof);
-        oo("Number of dummy variables:", unstable_indices.size());
+        oo("Number of non-fixed variables:", unstable_indices.size());
         double step = 2e-5;
         int iter_num = 1000;
 

@@ -6,7 +6,7 @@ DATADIR=data
 IMGDIR=img
 PYDIR=script
 OUTPUTDIR=data/output
-MODELDIR=data/model
+MODELDIR=data/object
 
 
 _CPP_EXECUTABLES=solver gurobi_solver constraint_matrix_extractor
@@ -25,6 +25,7 @@ cpp/constraint_matrix_extractor:
 
 $(OUTPUTDIR)/%.txt.out: $(MODELDIR)/%.txt cpp/solver
 	./cpp/solver $< 
+	mv $(MODELDIR)/*.out $(OUTPUTDIR)
 
 %.png: $(OUTPUTDIR)/%.txt.out
 	mkdir -p $(OUTPUTDIR)

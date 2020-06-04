@@ -97,7 +97,7 @@ if __name__ ==  "__main__":
     hist = worker.find_vulnerable_constraint(0.01, 1000)
 
     hist.sort(key=lambda t: t[1], reverse=True)
-    # print(hist[:5])
+    print(hist[:2])
 
     from collections import Counter
     print(Counter([h[0] for h in hist]).items())

@@ -43,10 +43,10 @@ int main(int argc, char *argv[]) {
 
     readDataFile(dataFile.c_str(), P, E, pins, anchors);
 
-    Eigen::MatrixXd C = build_constraints_matrix(P, E, pins, anchors);
+    Eigen::MatrixXd C = buildConstraintMatrix(P, E, pins, anchors);
     Eigen::VectorXd b = Eigen::VectorXd::Zero(C.rows());
 
-    fix_one_edge(0, Eigen::VectorXd::Zero(6), C, b);
+    fixOneEdge(0, Eigen::VectorXd::Zero(6), C, b);
 
     GurobiSolver solver(C, b, P, E, verbose);
 
