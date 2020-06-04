@@ -3,6 +3,14 @@ LEGO Solver
 
 Usage
 -------
+
+First thing first, clone the repo and init submodules (Eigen3.3.7)
+```
+git clone --recurse-submodules
+// OR if you already cloned without initializing submodules...
+git submodule update --init --recursive
+```
+
 ### Linear Solver - `solver`
 ```
 make cpp/solver
