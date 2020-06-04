@@ -31,13 +31,36 @@ Dependencies
 
 Data File Spec
 -----------------------
-Data files (extension `.txt`) specify the input data to the solver program. They are archived in [`data/archive/`](./data/archive), e.g, [`data/archive/hard-u-10.txt`](./data/archive/hard-u-10.txt).
+Data files (extension `.txt`) specify the input data to the solver program. They are archived in [`data/object/`](./data/object), e.g, [`data/object/hard-u-10.txt`](./data/object/hard-u-10.txt).
 
 A data file is made up of different sections.
 - `P` Points/Vertice (Compulsory)
 - `E` Edges (Compulsory)
 - `pins` Pins (Optional)
 - `anchors` Anchors (Optional)
+
+```
+P
+number_of_vertices
+v0_x v0_y v0_z
+v1_x v1_y v1_z
+...
+E
+number_of_edges
+vertex_1a_index_into_P vertex_1b_index_into_P
+vertex_2a_index_into_P vertex_2b_index_into_P
+...
+pins
+number_of_pins
+vertex_index_of_joint pin_end_edge_index beam_end_edge_index
+vertex_index_of_joint pin_end_edge_index beam_end_edge_index
+...
+anchors
+number_of_anchors
+vertex_index_of_joint pin_end_edge_index beam_end_edge_index
+vertex_index_of_joint pin_end_edge_index beam_end_edge_index
+...
+```
 
 ### `P` Points/Vertices
 
@@ -46,7 +69,7 @@ The next line contains a single integer *n*, indicating the number of vertices i
 Each line contains 3 floating point numbers, indicating the *x*, *y*, *z* coordinates of the point.
 Coordinates are seperated by one whitespace, in either normal decimal notation or scientific notation. 
 
-Here comes a example from `data/archive/hard-u-5.txt`, the data file contains 4 vertices. Their coordinates are `(0, 0, 0), (0, 1, 0), (5, 0, 0), (5, 1, 0)`. Note that the 4 vertices are in the xy-plane.
+Here comes a example from `data/object/hard-u-5.txt`, the data file contains 4 vertices. Their coordinates are `(0, 0, 0), (0, 1, 0), (5, 0, 0), (5, 1, 0)`. Note that the 4 vertices are in the xy-plane.
 ```
 P
 4
@@ -63,7 +86,7 @@ This section starts with a line with a single character `E`.
 The next line contains a single integer *n*, indicating the number of edges in the data file. Follows *n* lines representing *n* edges.
 Each line represents an edge that connects two vertices, containing a pair of integers, each of which is the index into the list of vertices as defined in (`P`). Index starting from 0. 
 
-Still take `data/archive/hard-u-5.txt` as an example as is shown below. The file has 3 edges, they join points 0, 1 `(0, 0, 0)` and `(0, 1, 0)`, points 0 `(0, 0, 0)`, 2 `(5, 0, 0)` and points 1 `(0, 1, 0)`, 3 `(5, 0, 0)`, respectively.
+Still take `hard-u-5.txt` as an example as is shown below. The file has 3 edges, they join points 0, 1 `(0, 0, 0)` and `(0, 1, 0)`, points 0 `(0, 0, 0)`, 2 `(5, 0, 0)` and points 1 `(0, 1, 0)`, 3 `(5, 0, 0)`, respectively.
 ```
 ...
 E
@@ -101,7 +124,7 @@ pins
 ```
 In each of the next *n* lines, we use an integer triplet `a b c` to represent the joint. `a` is an index into the list of vertices. The vertex is where the connections happens. `b` and `c` are indices into the list of edges, indicating the two edges connected by the pin/anchor. 
 
-Note that the order of `b` and `c` matters in `pins`. Recall that a `pin` represents the insertion that a LEGO technic pin into a LEGO technic beam. The edge for the  *pin end* end shall be put in the place of `b`, whereas the edge for the beam shall be in place of `c`. Geometrically, beam `c` could only rotate with respect `b` An example is shown below,
+Note that the order of `b` and `c` matters in `pins`. Recall that a `pin` represents the insertion that a LEGO technic pin into a LEGO technic beam. The edge for the  **pin end** end shall be put in the place of `b`, whereas the edge for the beam shall be in place of `c`. Geometrically, beam `c` could only rotate with respect `b` An example is shown below,
 
 ![pin-example](./img/pin-example.png)
 
