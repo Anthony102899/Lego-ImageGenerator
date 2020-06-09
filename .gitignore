@@ -1,6 +1,7 @@
 # development tools
 .vs
 .vscode
+.idea
 __pycache__
 
 # exectuables
