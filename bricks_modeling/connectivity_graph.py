@@ -23,17 +23,10 @@ class ConnectivityGraph:
 
             for m in range(0, len(brick_i_conn_points)):
                 for n in range(0, len(brick_j_conn_points)):
-                    cpoint_m = brick_i_conn_points[m]
-                    cpoint_n = brick_j_conn_points[n]
-                    type = compute_conn_type(cpoint_m, cpoint_n)
+                    cpoints_m = brick_i_conn_points[m]
+                    cpoints_n = brick_j_conn_points[n]
+                    type = compute_conn_type(cpoints_m, cpoints_n)
                     if type is not None:
-                        print(
-                            cpoint_m.pos,
-                            cpoint_m.orient,
-                            cpoint_n.pos,
-                            cpoint_n.orient,
-                            type,
-                        )
                         self.edges.append(
                             {
                                 "type": type.name,
@@ -63,7 +56,7 @@ class ConnectivityGraph:
             nodes.append(
                 {
                     "translation": brick.get_translation(),
-                    "orientation": [
+                    "orientation":
                         [
                             brick.trans_matrix[0, 0],
                             brick.trans_matrix[0, 1],
@@ -74,8 +67,7 @@ class ConnectivityGraph:
                             brick.trans_matrix[2, 0],
                             brick.trans_matrix[2, 1],
                             brick.trans_matrix[2, 2],
-                        ]
-                    ],
+                        ],
                 }
             )
 
