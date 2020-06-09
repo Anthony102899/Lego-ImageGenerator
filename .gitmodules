@@ -1,3 +1,0 @@
-[submodule "cpp/libs/eigen3.3.7"]
-	path = cpp/libs/eigen3.3.7
-	url = https://gitlab.com/libeigen/eigen.git
