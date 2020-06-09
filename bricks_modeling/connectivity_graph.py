@@ -56,7 +56,7 @@ class ConnectivityGraph:
             nodes.append(
                 {
                     "translation": brick.get_translation(),
-                    "orientation": [
+                    "orientation":
                         [
                             brick.trans_matrix[0, 0],
                             brick.trans_matrix[0, 1],
@@ -67,8 +67,7 @@ class ConnectivityGraph:
                             brick.trans_matrix[2, 0],
                             brick.trans_matrix[2, 1],
                             brick.trans_matrix[2, 2],
-                        ]
-                    ],
+                        ],
                 }
             )
 
