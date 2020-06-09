@@ -6,7 +6,7 @@ import open3d as o3d
 from bricks_modeling.connections.conn_type import compute_conn_type
 
 """
-To use a graph to discribe a LEGO structure
+To use a graph to describe a LEGO structure
 """
 
 
@@ -62,11 +62,7 @@ class ConnectivityGraph:
             brick = self.bricks[i]
             nodes.append(
                 {
-                    "translation": [
-                        brick.trans_matrix[0, 3],
-                        brick.trans_matrix[2, 3],
-                        brick.trans_matrix[2, 3],
-                    ],
+                    "translation": brick.get_translation(),
                     "orientation": [
                         [
                             brick.trans_matrix[0, 0],
