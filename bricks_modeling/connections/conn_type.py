@@ -27,7 +27,7 @@ def compute_conn_type(c_point1: CPoint, c_point2: CPoint):
                 return None
     elif (
         abs(np.linalg.norm(c_point1.pos - c_point2.pos) - 1.0) < 0
-    ):  # detect the case of contact
+    ):  # detect the case of inter-blocking
         # TODO: add connection types of brick inter-blocking
         print("unsupported connection type")
         return None
