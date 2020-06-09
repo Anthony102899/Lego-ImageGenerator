@@ -7,7 +7,7 @@ from bricks_modeling.connections.conn_type import compute_conn_type
 To use a graph to discribe a LEGO structure
 '''
 
-class ConstructionGraph():
+class ConnectivityGraph():
 
     def __init__(self, bricks):
         self.bricks = bricks
