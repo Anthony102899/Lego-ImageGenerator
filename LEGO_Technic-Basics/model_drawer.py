@@ -1,8 +1,8 @@
 import open3d as o3d
-from Abstract.Abstract_parts import Points, Edges, Anchors, Pins, Line, hash_for_edge
+from Abstract.Abstract_parts import Points, Edges, Anchors, Pins, Line, hash_for_edge, Axles
 
 
-def draw(points: Points, edges: Edges, anchors: Anchors, pins: Pins):
+def draw(points: Points, edges: Edges, anchors: Anchors, pins: Pins, axles:Axles):
     points_to_draw = []
     for point in points.points:
         points_to_draw.append(point[0].tolist())
@@ -20,12 +20,20 @@ def draw(points: Points, edges: Edges, anchors: Anchors, pins: Pins):
         flag = 0
         for pin in pins.pins:
             if edges.edegs_to_index[hash_for_edge(edge)] == pin[1]:
-                print(pin)
-                colors.append([1,0,0])
+                print(f"draw pin{pin}")
+                #colors.append([1,0,0])
                 flag = 1
-                break
+                #break
+        for axle in axles.axles:
+            if edges.edegs_to_index[hash_for_edge(edge)] == axle[2]:
+                print(f"draw axle{axle}")
+                flag = 2
         if flag == 0:
             colors.append([0,0,0])
+        elif flag == 1:
+            colors.append([1,0,0])
+        elif flag == 2:
+            colors.append([0,1,0])
 
 
     #colors = [[1, 0, 0] for i in range(len(edges_to_draw))]

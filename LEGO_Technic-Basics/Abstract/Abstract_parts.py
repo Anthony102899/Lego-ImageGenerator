@@ -106,6 +106,19 @@ class Pins():
         for pin in self.pins:
             print(f"pin is at point {pin[0]}, edge {pin[1]} insert in edge {pin[2]}")
 
+class Axles():
+    def __init__(self):
+        self.axles = []
+
+    def add(self, edge1, edge2, axle, points: Points, edges: Edges):
+        axle_index = points.get_point_index(axle)
+        edge1_index = edges.get_edge_idnex(edge1[0],edge1[1], points)
+        edge2_index = edges.get_edge_idnex(edge2[0],edge2[1], points)
+        self.axles.append([axle_index, edge1_index, edge2_index])
+
+    def print(self):
+        for pin in self.axles:
+            print(f"axle is at point {pin[0]}, edge {pin[1]} insert in edge {pin[2]}")
 
 class Anchors():
     def __init__(self):
