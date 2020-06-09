@@ -21,9 +21,18 @@ def compute_conn_type(c_point1: CPoint, c_point2: CPoint):
                 ConnPointType.PIN,
             }:
                 return ConnType.HOLE_PIN
+            elif {c_point1.type, c_point2.type} == {
+                    ConnPointType.CROSS_HOLE,
+                    ConnPointType.AXLE,
+                }:
+                    return ConnType.CROSS_AXLE
+            elif {c_point1.type, c_point2.type} == {
+                    ConnPointType.HOLE,
+                    ConnPointType.AXLE,
+                }:
+                    return ConnType.HOLE_AXLE
             else:
-                # TODO: add more connection types
-                print("unsupported connection type")
+                input("unsupported connection type!!!") # let program stop here
                 return None
     elif (
         abs(np.linalg.norm(c_point1.pos - c_point2.pos) - 1.0) < 0
