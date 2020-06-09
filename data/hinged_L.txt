@@ -1,7 +1,59 @@
-P
-2
-0 0 1 0 0 0
-0 1 0 1.57079632679 0 0
-E
-1
-hinge (0 0 0 1 0 0) (0 0 0 1 0 0)
+{
+   "nodes":[
+      {
+         "translation":[
+            0,
+            0,
+            1
+         ],
+         "orientation":[
+            0,
+            0,
+            0
+         ]
+      },
+      {
+         "translation":[
+            0,
+            1,
+            0
+         ],
+         "orientation":[
+            1.57079632679,
+            0,
+            0
+         ]
+      }
+   ],
+   "edges":[
+      {
+         "type":"hinge",
+         "node_indices":[
+            0,
+            1
+         ],
+         "properties":{
+            "contact_point_1":[
+               0,
+               0,
+               0
+            ],
+            "contact_orient_1":[
+               1,
+               0,
+               0
+            ],
+            "contact_point_2":[
+               0,
+               0,
+               0
+            ],
+            "contact_orient_2":[
+               1,
+               0,
+               0
+            ]
+         }
+      }
+   ]
+}
