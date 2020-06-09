@@ -12,9 +12,10 @@ class StructureGraph():
     def __init__(self, bricks):
         self.bricks = bricks
         self.edges = []
+        self.build_graph_from_bricks()
 
     def build_graph_from_bricks(self):
-        for b_i, b_j in itertools.combinations(list(range(0, len(bricks))), 2):
+        for b_i, b_j in itertools.combinations(list(range(0, len(self.bricks))), 2):
             brick_i_conn_points = self.bricks[b_i].get_current_conn_points()
             brick_j_conn_points = self.bricks[b_j].get_current_conn_points()
 
