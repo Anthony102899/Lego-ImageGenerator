@@ -38,6 +38,12 @@ class BrickInstance:
     def reset_transformation(self):
         self.trans_matrix = np.identity(4, dtype=float)
 
+    def vector_to_world(self, vec: np.ndarray) -> np.ndarray:
+        return (self.trans_matrix @ np.append(vec, 0))[:3]
+
+    def point_to_world(self, point: np.ndarray) -> np.ndarray:
+        return (self.trans_matrix @ np.append(point, 1))[:3]
+
     def get_current_conn_points(self):
         conn_points = []
 
