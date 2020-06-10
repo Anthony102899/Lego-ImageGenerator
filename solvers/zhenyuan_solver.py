@@ -8,7 +8,9 @@ from bricks_modeling.file_IO.model_reader import read_bricks_from_file
 from bricks_modeling.bricks.brickinstance import BrickInstance
 
 if __name__ == "__main__":
-    bricks: List[BrickInstance] = read_bricks_from_file("./data/LEGO_models/full_models/cube7.ldr")
+    bricks: List[BrickInstance] = read_bricks_from_file(
+        "./data/LEGO_models/full_models/cube7.ldr"
+    )
     graph = ConnectivityGraph(bricks)
 
     print(graph.to_json())
