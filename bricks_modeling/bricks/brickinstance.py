@@ -2,6 +2,7 @@ import numpy as np
 
 from bricks_modeling.bricks.bricktemplate import BrickTemplate
 from bricks_modeling.connections.connpoint import CPoint
+import util.geometry_util as geo_util
 
 
 class BrickInstance:
@@ -38,26 +39,12 @@ class BrickInstance:
     def reset_transformation(self):
         self.trans_matrix = np.identity(4, dtype=float)
 
-    def vector_to_world(self, vec: np.ndarray) -> np.ndarray:
-        return (self.trans_matrix @ np.append(vec, 0))[:3]
-
-    def point_to_world(self, point: np.ndarray) -> np.ndarray:
-        return (self.trans_matrix @ np.append(point, 1))[:3]
-
     def get_current_conn_points(self):
         conn_points = []
 
         for cp in self.template.c_points:
-            # print(self.trans_matrix[:3,:3])
-            # print(cp.orient)
-            conn_point_orient = np.dot(self.trans_matrix[:3, :3], cp.orient)
-            # print(conn_point_orient)
-            conn_point_position = np.reshape(
-                np.dot(self.trans_matrix[:3, :3], np.reshape(cp.pos, (3, 1))), (1, 3)
-            )
-            conn_point_position = conn_point_position + np.reshape(
-                self.trans_matrix[:3, 3:4], (1, 3)
-            )
+            conn_point_orient = geo_util.vec_local2world(self.trans_matrix[:3, :3], cp.orient)
+            conn_point_position = geo_util.point_local2world(self.trans_matrix[:3, :3], self.trans_matrix[:3, 3], cp.pos)
             conn_points.append(CPoint(conn_point_position, conn_point_orient, cp.type))
-            # print(f"cp pos{conn_point_position}")
+
         return conn_points
