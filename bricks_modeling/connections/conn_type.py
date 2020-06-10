@@ -11,6 +11,7 @@ class ConnType(enum.Enum):
     HOLE_AXLE = 2  # to insert an axle into a circular hole
     CROSS_AXLE = 3  # to insert an axle into a cross-shaped hole
     BLOCK = 4  # movement constraint bt inter-blocking
+    STUD_TUBE = 5  # to insert a stud on a regular brick into a tube
 
 
 def compute_conn_type(c_point1: CPoint, c_point2: CPoint):
@@ -22,17 +23,22 @@ def compute_conn_type(c_point1: CPoint, c_point2: CPoint):
             }:
                 return ConnType.HOLE_PIN
             elif {c_point1.type, c_point2.type} == {
-                    ConnPointType.CROSS_HOLE,
-                    ConnPointType.AXLE,
-                }:
-                    return ConnType.CROSS_AXLE
+                ConnPointType.CROSS_HOLE,
+                ConnPointType.AXLE,
+            }:
+                return ConnType.CROSS_AXLE
             elif {c_point1.type, c_point2.type} == {
-                    ConnPointType.HOLE,
-                    ConnPointType.AXLE,
-                }:
-                    return ConnType.HOLE_AXLE
+                ConnPointType.HOLE,
+                ConnPointType.AXLE,
+            }:
+                return ConnType.HOLE_AXLE
+            elif {c_point1.type, c_point2.type} == {
+                ConnPointType.STUD,
+                ConnPointType.TUBE,
+            }:
+                return ConnType.STUD_TUBE
             else:
-                input("unsupported connection type!!!") # let program stop here
+                input("unsupported connection type!!!")  # let program stop here
                 return None
     elif (
         abs(np.linalg.norm(c_point1.pos - c_point2.pos) - 1.0) < 0

@@ -17,7 +17,11 @@ def read_bricks_from_file(file_path):
         line_content = line.rstrip().split(" ")
 
         """Detect The following lines are for another subparts"""
-        if len(line_content)>1 and line_content[0] == "0" and "Sub" in line_content[1]:
+        if (
+            len(line_content) > 1
+            and line_content[0] == "0"
+            and "Sub" in line_content[1]
+        ):
             subTurn = line_content[1] + ".ldr"
             print(f"Notice This is a subgraph for {line_content[1]}:")
             continue
