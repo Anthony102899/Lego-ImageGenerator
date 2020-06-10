@@ -8,7 +8,7 @@ from util.debugger import MyDebugger
 
 
 def get_all_brick_templates():
-    with open("./bricks_modeling/database/regular_brick_database.json") as f:
+    with open("./bricks_modeling/database/brick_database.json") as f:
         data = json.load(f)
 
     brick_templates = []

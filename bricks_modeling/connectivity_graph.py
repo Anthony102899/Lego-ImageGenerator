@@ -2,6 +2,7 @@ import itertools
 import json
 
 import open3d as o3d
+import copy
 
 from bricks_modeling.connections.conn_type import compute_conn_type
 
@@ -73,8 +74,15 @@ class ConnectivityGraph:
         return json.dumps({"nodes": nodes, "edges": self.edges})
 
     def show(self):
-        # TODO: show nodes as balls, and show edges in different colors
+        # TODO: show edges in different colors
+
+        sphere = o3d.geometry.TriangleMesh.create_sphere(radius=1.0, resolution=2)
+        sphere.compute_vertex_normals()
+        sphere.paint_uniform_color([0.9, 0.1, 0.1])
+
         points = [b.get_translation() for b in self.bricks]
+
+        spheres = [copy.deepcopy(sphere).translate(b.get_translation()) for b in self.bricks]
         lines = [e["node_indices"] for e in self.edges]
         colors = [[1, 0, 0] for i in range(len(lines))]
         line_set = o3d.geometry.LineSet(
@@ -82,4 +90,6 @@ class ConnectivityGraph:
             lines=o3d.utility.Vector2iVector(lines),
         )
         line_set.colors = o3d.utility.Vector3dVector(colors)
-        o3d.visualization.draw_geometries([line_set])
+        mesh_frame = o3d.geometry.TriangleMesh.create_coordinate_frame(
+            size=20, origin=[0, 0, 0])
+        o3d.visualization.draw_geometries([mesh_frame, line_set]+spheres)
