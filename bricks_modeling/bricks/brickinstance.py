@@ -47,11 +47,11 @@ class BrickInstance:
             conn_point_orient = np.dot(self.trans_matrix[:3, :3], cp.orient)
             # print(conn_point_orient)
             conn_point_position = np.reshape(
-                np.dot(self.trans_matrix[:3, :3], np.reshape(cp.pos, (3, 1))), (1, 3)
+                np.dot(self.trans_matrix[:3, :3], 20 * np.reshape(cp.pos, (3, 1))), (1, 3)
             )
             conn_point_position = conn_point_position + np.reshape(
-                self.trans_matrix[:3, 3:4] / 20, (1, 3)
+                self.trans_matrix[:3, 3:4], (1, 3)
             )
             conn_points.append(CPoint(conn_point_position, conn_point_orient, cp.type))
-
+            print(f"cp pos{conn_point_position}")
         return conn_points
