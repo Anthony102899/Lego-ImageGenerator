@@ -59,5 +59,5 @@ class BrickInstance:
                 self.trans_matrix[:3, 3:4], (1, 3)
             )
             conn_points.append(CPoint(conn_point_position, conn_point_orient, cp.type))
-            print(f"cp pos{conn_point_position}")
+            # print(f"cp pos{conn_point_position}")
         return conn_points

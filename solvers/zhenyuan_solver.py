@@ -24,8 +24,8 @@ if __name__ == "__main__":
         contact_pt_a = edge["properties"]["contact_point_1"]
         contact_pt_b = edge["properties"]["contact_point_2"]
 
-        world_a = brick_a.trans_matrix @ np.append(contact_pt_a, 1)
-        world_b = brick_b.trans_matrix @ np.append(contact_pt_b, 1)
+        world_a = brick_a.point_to_world(contact_pt_a)
+        world_b = brick_b.point_to_world(contact_pt_b)
         print("a", world_a, "b", world_b)
 
     #     world_contact_pt_a = transform_point(
