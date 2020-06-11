@@ -1,6 +1,6 @@
 from typing import List
 
-from bricks.brickinstance import BrickInstance
+from bricks_modeling.bricks.brickinstance import BrickInstance
 
 
 def write_bricks_to_file(bricks: List[BrickInstance], file_path):

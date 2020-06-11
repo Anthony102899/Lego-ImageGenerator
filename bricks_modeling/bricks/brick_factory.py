@@ -18,7 +18,7 @@ def get_all_brick_templates():
         for connPoint in brick["connPoint"]:
             cpoints.append(
                 CPoint(
-                    pos=[i*20 for i in connPoint["pos"]],
+                    pos=connPoint["pos"],
                     orient=connPoint["orient"],
                     type=stringToType[connPoint["type"]],
                 )

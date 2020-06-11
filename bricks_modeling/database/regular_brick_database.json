@@ -1,0 +1,10 @@
+[
+  {"id": "3005","connPoint": [{"pos": [0,2,0],"orient": [0,1,0],"type": "stud"},
+                              {"pos": [0,-22,0],"orient": [0,-1,0],"type": "tube"}]},
+  {"id": "3065","connPoint": [{"pos": [10,2,0],"orient": [0,1,0],"type": "stud"},
+                              {"pos": [10,-22,0],"orient": [0,-1,0],"type": "tube"},
+                              {"pos": [-10,2,0],"orient": [0,1,0],"type": "stud"},
+                              {"pos": [-10,-22,0],"orient": [0,-1,0],"type": "tube"}]},
+  {"id": "3024","connPoint": [{"pos": [0,2,0],"orient": [0,1,0],"type": "stud"},
+                              {"pos": [0,-6,0],"orient": [0,-1,0],"type": "tube"}]}
+]

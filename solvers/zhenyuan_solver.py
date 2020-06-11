@@ -14,11 +14,9 @@ from gurobipy import GRB
 
 # for prototyping
 if __name__ == "__main__":
-<<<<<<< Updated upstream
-    bricks: List[BrickInstance] = read_bricks_from_file("./data/LEGO_models/full_models/cube7.ldr")
-    graph = ConnectivityGraph(bricks)
-=======
-    bricks = read_bricks_from_file("./data/LEGO_models/full_models/cube7.ldr")
+    bricks: List[BrickInstance] = read_bricks_from_file(
+        "./data/LEGO_models/full_models/cube7.ldr"
+    )
     graph  = ConnectivityGraph(bricks)
 
     num_nodes = len(graph.bricks)
@@ -83,7 +81,6 @@ if __name__ == "__main__":
             [0, cos_z, -sin_z],
             [0, sin_z,  cos_z]
         ]
->>>>>>> Stashed changes
 
         # rotation = _matmul(_matmul(yaw, pitch), roll)
 

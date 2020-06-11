@@ -42,8 +42,12 @@ class BrickInstance:
         conn_points = []
 
         for cp in self.template.c_points:
-            conn_point_orient = geo_util.vec_local2world(self.trans_matrix[:3, :3], cp.orient)
-            conn_point_position = geo_util.point_local2world(self.trans_matrix[:3, :3], self.trans_matrix[:3, 3], cp.pos)
+            conn_point_orient = geo_util.vec_local2world(
+                self.trans_matrix[:3, :3], cp.orient
+            )
+            conn_point_position = geo_util.point_local2world(
+                self.trans_matrix[:3, :3], self.trans_matrix[:3, 3], cp.pos
+            )
             conn_points.append(CPoint(conn_point_position, conn_point_orient, cp.type))
 
         return conn_points
