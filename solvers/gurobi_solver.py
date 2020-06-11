@@ -64,8 +64,6 @@ if __name__ == "__main__":
         cos_y, sin_y = vars[node_ind, "cos_phi_y"], vars[node_ind, "sin_phi_y"]
         cos_z, sin_z = vars[node_ind, "cos_phi_z"], vars[node_ind, "sin_phi_z"]
 
-        print(cos_x, sin_x)
-
         yaw = [
             [cos_x, -sin_x, 0],
             [sin_x,  cos_x, 0],
