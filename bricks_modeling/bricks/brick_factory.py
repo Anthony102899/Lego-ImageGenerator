@@ -1,4 +1,5 @@
 import json
+from os import path
 
 from bricks_modeling.bricks.brickinstance import BrickInstance
 from bricks_modeling.bricks.bricktemplate import BrickTemplate
@@ -8,7 +9,8 @@ from util.debugger import MyDebugger
 
 
 def get_all_brick_templates():
-    with open("../database/brick_database.json") as f:
+    database_file = path.join(path.dirname(path.dirname(__file__)), "database", "brick_database.json")
+    with open(database_file) as f:
         data = json.load(f)
 
     brick_templates = []
