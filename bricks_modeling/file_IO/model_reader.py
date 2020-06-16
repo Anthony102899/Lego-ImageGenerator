@@ -8,18 +8,6 @@ from bricks_modeling.file_IO import model_writer
 from util.debugger import MyDebugger
 
 
-def rot_matrix_from_A_to_B(A, B):
-    cross = np.cross(A, B)
-    dot = np.dot(A, B)
-    angle = math.acos(dot)
-    rotation_axes = cross / np.linalg.norm(cross)
-    M = np.array([[0, -rotation_axes[2], rotation_axes[1]],
-                  [rotation_axes[2], 0, -rotation_axes[0]],
-                  [-rotation_axes[1], rotation_axes[0], 0]])
-    if np.linalg.norm(cross) == 0:
-        return np.identity(3, dtype=float)
-    return np.identity(3, dtype=float) + math.sin(angle) * M + (1 - math.cos(angle)) * np.dot(M, M)
-
 def read_bricks_from_file(file_path):
     f = open(file_path, "r")
 
@@ -103,7 +91,7 @@ def read_bricks_from_file(file_path):
                 brickInstance.translate(trans_matrix[:3, 3:4])
 
                 '''Following code is for connecting points debugging'''
-                for cp in brickInstance.get_current_conn_points():
+                '''for cp in brickInstance.get_current_conn_points():
                     #print(f"Connecting point position:{cp.pos}")
                     #print(f"Connecting point orientation:{cp.orient}")
 
@@ -112,7 +100,7 @@ def read_bricks_from_file(file_path):
                     testbrickinstance.rotate(rot_matrix_from_A_to_B(brick_templates[template_ids.index("18654")].c_points[0].orient, cp.orient))
                     testbrickinstance.translate(cp.pos)
                     #print(f"rotation matrix is: {testbrickinstance.trans_matrix}")
-                    bricks.append(testbrickinstance)
+                    bricks.append(testbrickinstance)'''
 
                 bricks.append(brickInstance)
                 print(f"brick {brickInstance.template.id} processing done")
@@ -121,8 +109,3 @@ def read_bricks_from_file(file_path):
     f.close()
 
     return bricks
-
-if __name__ == "__main__":
-    debugger = MyDebugger("test")
-    bricks = read_bricks_from_file("../../data/LEGO_models/full_models/gear_Lshape_beam.ldr")
-    model_writer.write_bricks_to_file(bricks, debugger.file_path("model.ldr"))
