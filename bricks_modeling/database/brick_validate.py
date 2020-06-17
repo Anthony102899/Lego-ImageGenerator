@@ -9,7 +9,7 @@ import numpy as np
 
 if __name__ == "__main__":
     debugger = MyDebugger("test")
-    brick_templates, template_ids = get_all_brick_templates()
+    brick_templates, template_ids = get_all_brick_templates(brick_database = ["regular_brick_database_2.json"])
 
     for template in brick_templates:
         brickInstance = BrickInstance(template, np.identity(4, dtype=float), 15)
