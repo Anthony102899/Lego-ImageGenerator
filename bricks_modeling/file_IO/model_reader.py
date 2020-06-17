@@ -90,18 +90,6 @@ def read_bricks_from_file(file_path):
                 # print(f"translate is{trans_matrix[:3, 3:4]}")
                 brickInstance.translate(trans_matrix[:3, 3:4])
 
-                '''Following code is for connecting points debugging'''
-                '''for cp in brickInstance.get_current_conn_points():
-                    #print(f"Connecting point position:{cp.pos}")
-                    #print(f"Connecting point orientation:{cp.orient}")
-
-                    testbrickinstance = BrickInstance(brick_templates[template_ids.index("18654")], np.identity(4, dtype=float), color)
-
-                    testbrickinstance.rotate(rot_matrix_from_A_to_B(brick_templates[template_ids.index("18654")].c_points[0].orient, cp.orient))
-                    testbrickinstance.translate(cp.pos)
-                    #print(f"rotation matrix is: {testbrickinstance.trans_matrix}")
-                    bricks.append(testbrickinstance)'''
-
                 bricks.append(brickInstance)
                 print(f"brick {brickInstance.template.id} processing done")
             else:

@@ -10,15 +10,25 @@ class ConnPointType(enum.Enum):
     STUD = 6
     TUBE = 7
 
-
 stringToType = {
     "hole": ConnPointType.HOLE,
-    "pin": ConnPointType.PIN,
+    "pin" : ConnPointType.PIN,
     "axle": ConnPointType.AXLE,
     "cross_hole": ConnPointType.CROSS_HOLE,
     "solid": ConnPointType.SOLID,
-    "stud": ConnPointType.STUD,
-    "tube": ConnPointType.TUBE,
+    "stud" : ConnPointType.STUD,
+    "tube" : ConnPointType.TUBE,
+}
+
+# TODO: different conn maps to different bricks
+typeToBrick = {
+    ConnPointType.HOLE :       ("18654.dat", [0,1,0]),
+    ConnPointType.PIN :        ("18654.dat", [0,1,0]),
+    ConnPointType.AXLE :       ("18654.dat", [0,1,0]),
+    ConnPointType.CROSS_HOLE : ("18654.dat", [0,1,0]),
+    ConnPointType.SOLID :      ("18654.dat", [0,1,0]),
+    ConnPointType.STUD  :      ("stud.dat", [0,1,0]),
+    ConnPointType.TUBE  :      ("box5.dat", [0,1,0])
 }
 
 if __name__ == "__main__":
