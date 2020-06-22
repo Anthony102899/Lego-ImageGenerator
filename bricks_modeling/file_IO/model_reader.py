@@ -1,3 +1,4 @@
+import copy
 import math
 
 import numpy as np
@@ -8,121 +9,188 @@ from bricks_modeling.file_IO import model_writer
 from util.debugger import MyDebugger
 
 
-def rot_matrix_from_A_to_B(A, B):
-    cross = np.cross(A, B)
-    dot = np.dot(A, B)
-    angle = math.acos(dot)
-    rotation_axes = cross / np.linalg.norm(cross)
-    M = np.array([[0, -rotation_axes[2], rotation_axes[1]],
-                  [rotation_axes[2], 0, -rotation_axes[0]],
-                  [-rotation_axes[1], rotation_axes[0], 0]])
-    if np.linalg.norm(cross) == 0:
-        return np.identity(3, dtype=float)
-    return np.identity(3, dtype=float) + math.sin(angle) * M + (1 - math.cos(angle)) * np.dot(M, M)
+class File():
+    def __init__(self):
+        self.name = ""
+        self.father_file = None
+        self.internal_file =  []
+        self.bricks = []
+        self.trans_matrix_for_internal_file = []
 
-def read_bricks_from_file(file_path):
+
+def read_a_brick(bricks, line_content, brick_templates, template_ids):
+    brick_id = line_content[-1][0:-4]
+    if brick_id in template_ids:
+        # processing brick color
+        color = int(line_content[1])
+
+        # processing the transformation matrix
+        brick_idx = template_ids.index(brick_id)
+        trans_matrix = np.identity(4, dtype=float)
+
+        new_translate = np.zeros((3, 1))
+        for j in range(3):
+            new_translate[j] = float(line_content[j + 2])
+
+        new_rotation = np.identity(3, dtype=float)
+        for j in range(9):
+            new_rotation[j // 3][j % 3] = float(line_content[j + 5])
+
+        brickInstance = BrickInstance(brick_templates[brick_idx], np.identity(4, dtype=float),
+                                      color)
+        brickInstance.rotate(new_rotation)
+        brickInstance.translate(new_translate)
+        bricks.append(brickInstance)
+
+def read_files(file_path):
     f = open(file_path, "r")
-
-    brick_templates, template_ids = get_all_brick_templates()
-    bricks = []
-    transfrom_for_subs = {}
-    transfrom_for_subs["origin"] = np.identity(4, dtype=float)
-    subTurn = "origin"
+    files = []
 
     for line in f.readlines():
         line_content = line.rstrip().split(" ")
-
-        """Detect The following lines are for another subparts"""
-        if (
-            len(line_content) > 1
-            and line_content[0] == "0"
-            and "Sub" in line_content[1]
-        ):
-            subTurn = line_content[1] + ".ldr"
-            print(f"Notice This is a subgraph for {line_content[1]}:")
+        if len(line_content) < 3:
             continue
+        if line_content[0] == "0" and line_content[1] == "FILE":
+            file_name = ""
 
-        """Detect new delcared subparts"""
-        if line_content[0] == "1":
-            if "Sub" in line_content[-1]:
-                print(f"Notice a declared subgraph for {line_content[-1]}")
+            for j in range(2, len(line_content)):
+                file_name = file_name + line_content[j] + " "
+                files.append(file_name)
 
-                new_trans_matrix = np.identity(4, dtype=float)
-                for i in range(3):
-                    new_trans_matrix[i][3] = float(line_content[i + 2])
-                for i in range(9):
-                    new_trans_matrix[i // 3][i % 3] = float(line_content[i + 5])
+    #print(f"now all files are {files}")
 
-                this_trans_matrix = np.identity(4, dtype=float)
-                this_trans_matrix[:3, :3] = np.dot(
-                    transfrom_for_subs[subTurn][:3, :3], new_trans_matrix[:3, :3]
-                )  # Rotation
-                this_trans_matrix[:3, 3:4] = (
-                    np.dot(
-                        transfrom_for_subs[subTurn][:3, :3], new_trans_matrix[:3, 3:4]
-                    )
-                    + transfrom_for_subs[subTurn][:3, 3:4]
-                )  # Translation
-                transfrom_for_subs[line_content[-1]] = this_trans_matrix
+    return files
 
-                continue
+def read_graph_from_file(file_path):
+    f = open(file_path, "r")
 
-            """Detect the declaration of a brick"""
+    brick_templates, template_ids = get_all_brick_templates()
+    files_name = read_files(file_path)
+    lines = f.readlines()
+    Files = []
+    i = 0
+    while i < len(lines):
+        line_content = lines[i].rstrip().split(" ")
+        if line_content[0] == "0" and line_content[1] == "FILE":
+            file_name = ""
+
+            for j in range(2, len(line_content)):
+                file_name = file_name + line_content[j] + " "
+
+            print(f"Notice a new file {file_name}")
+            new_file = File()
+            new_file.name = file_name
+            Files.append(new_file)
+            i+=1
+            while i < len(lines):
+                line_content = lines[i].rstrip().split(" ")
+                if len(line_content) < 3:
+                    i+=1
+                    continue
+
+                if line_content[0] == "0" and line_content[1] == "FILE":
+                    #print(f"a different File ")
+                    break
+
+                if line_content[0] == "1" :
+                    file_name = ""
+
+                    for j in range(14, len(line_content)):
+                        file_name = file_name + line_content[j] + " "
+
+                    if file_name not in files_name:
+                        read_a_brick(new_file.bricks, line_content,brick_templates,template_ids)
+                        i+=1
+                        continue
+                    elif file_name in files_name:
+                        print(f"Notice a internal file {file_name} for {new_file.name}")
+                        new_file.internal_file.append(file_name)
+                        trans_matrix_for_this = np.identity(4, dtype=float)
+                        new_translate = np.zeros((3, 1))
+                        for j in range(3):
+                            new_translate[j] = float(line_content[j + 2])
+
+                        new_rotation = np.identity(3, dtype=float)
+                        for j in range(9):
+                            new_rotation[j // 3][j % 3] = float(line_content[j + 5])
+
+                        trans_matrix_for_this[:3, 3:4] = new_translate
+                        trans_matrix_for_this[:3, :3] = new_rotation
+
+                        new_file.trans_matrix_for_internal_file.append(trans_matrix_for_this)
+                        i += 1
+                        continue
+                i += 1
+
+    return Files
+
+
+def find_nodes(Files):
+    nodes = []
+    for file in Files:
+        flag = 0
+        for file2 in Files:
+            for filename in file2.internal_file:
+                if file.name == filename:
+                    flag = 1
+        if flag == 0:
+            nodes.append(file.name)
+    return nodes
+
+def read_bricks_from_a_file(bricks, file, trans_matrix):
+    for bricktemplate in file.bricks:
+        brick = copy.deepcopy(bricktemplate)
+        brick.rotate(trans_matrix[:3,:3])
+        brick.trans_matrix[:3, 3:4] = np.dot(trans_matrix[:3,:3], brick.trans_matrix[:3, 3:4])
+        brick.translate(trans_matrix[:3, 3:4])
+        bricks.append(brick)
+
+def find_file_by_name(files, name):
+    for file in files:
+        if file.name == name:
+            return file
+
+    #print("no such file name")
+    return None
+
+def read_file_from_startfile(bricks, file,trans_matrix,files):
+    #print(f"read bricks from {file.name}")
+    read_bricks_from_a_file(bricks, file, trans_matrix)
+    if len(file.internal_file) == 0:
+        print(f"no internal file for {file.name}")
+        return 1
+    else:
+        print(f"{file.name} has {len(file.internal_file)} internal files")
+        for i in range(len(file.internal_file)):
+            #print(f"now handling{file.internal_file[i]}")
+            internal_file = find_file_by_name(files, file.internal_file[i])
+            #print(f"file's name {internal_file.name}")
+            new_trans_matrix = np.identity(4, dtype=float)
+            new_trans_matrix[:3,:3] = np.dot(trans_matrix[:3,:3],(file.trans_matrix_for_internal_file[i])[:3,:3])
+            new_trans_matrix[:3, 3:4] = np.dot(trans_matrix[:3,:3], (file.trans_matrix_for_internal_file[i])[:3, 3:4]) + trans_matrix[:3, 3:4]
+            read_file_from_startfile(bricks, internal_file, new_trans_matrix,files)
+
+def read_bricks_from_graph(bricks,files):
+    nodes = find_nodes(files)
+    print(nodes)
+    for file_name in nodes:
+        file = find_file_by_name(files, file_name)
+        read_file_from_startfile(bricks, file, np.identity(4, dtype=float), files)
+
+def read_bricks_from_file(file_path):
+    brick_templates, template_ids = get_all_brick_templates()
+    bricks = []
+    if "mpd" in file_path:
+        files = read_graph_from_file(file_path)
+        read_bricks_from_graph(bricks, files)
+    elif "ldr" in file_path:
+        f = open(file_path, "r")
+        for line in f.readlines():
+            line_content = line.rstrip().split(" ")
             brick_id = line_content[-1][0:-4]
             if brick_id in template_ids:
-
-                # processing brick color
-                color = int(line_content[1])
-
-                # processing the transformation matrix
-                brick_idx = template_ids.index(brick_id)
-                trans_matrix = np.identity(4, dtype=float)
-                new_translate = np.zeros((3, 1))
-
-                for i in range(3):
-                    new_translate[i] = float(line_content[i + 2])
-
-                new_rotation = np.identity(3, dtype=float)
-                for i in range(9):
-                    new_rotation[i // 3][i % 3] = float(line_content[i + 5])
-
-                trans_matrix[:3, 3:4] = (
-                    np.dot(transfrom_for_subs[subTurn][:3, :3], new_translate)
-                    + transfrom_for_subs[subTurn][:3, 3:4]
-                )
-                trans_matrix[:3, :3] = np.dot(
-                    transfrom_for_subs[subTurn][:3, :3], new_rotation
-                )
-                brickInstance = BrickInstance(
-                    brick_templates[brick_idx], np.identity(4, dtype=float), color
-                )
-
-                # print(f"rotate{trans_matrix[:3,:3]}")
-                brickInstance.rotate(trans_matrix[:3, :3])
-                # print(f"translate is{trans_matrix[:3, 3:4]}")
-                brickInstance.translate(trans_matrix[:3, 3:4])
-
-                '''Following code is for connecting points debugging'''
-                for cp in brickInstance.get_current_conn_points():
-                    #print(f"Connecting point position:{cp.pos}")
-                    #print(f"Connecting point orientation:{cp.orient}")
-
-                    testbrickinstance = BrickInstance(brick_templates[template_ids.index("18654")], np.identity(4, dtype=float), color)
-
-                    testbrickinstance.rotate(rot_matrix_from_A_to_B(brick_templates[template_ids.index("18654")].c_points[0].orient, cp.orient))
-                    testbrickinstance.translate(cp.pos)
-                    #print(f"rotation matrix is: {testbrickinstance.trans_matrix}")
-                    bricks.append(testbrickinstance)
-
-                bricks.append(brickInstance)
-                print(f"brick {brickInstance.template.id} processing done")
-            else:
-                print(f"unrecognized brick, ID: {line_content[-1]}")
-    f.close()
-
+                read_a_brick(bricks, line_content,brick_templates,template_ids)
+    else:
+        print(f"unsupported file")
     return bricks
 
-if __name__ == "__main__":
-    debugger = MyDebugger("test")
-    bricks = read_bricks_from_file("../../data/LEGO_models/full_models/gear_Lshape_beam.ldr")
-    model_writer.write_bricks_to_file(bricks, debugger.file_path("model.ldr"))

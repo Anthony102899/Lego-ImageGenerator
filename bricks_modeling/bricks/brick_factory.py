@@ -8,10 +8,13 @@ from bricks_modeling.connections.connpointtype import stringToType
 from util.debugger import MyDebugger
 
 
-def get_all_brick_templates():
-    database_file = path.join(path.dirname(path.dirname(__file__)), "database", "brick_database.json")
-    with open(database_file) as f:
-        data = json.load(f)
+def get_all_brick_templates(brick_database = ["technic_brick_database.json", "regular_brick_database.json", "regular_brick_database_2.json"]):
+    data = []
+    for data_base in brick_database:
+        database_file = path.join(path.dirname(path.dirname(__file__)), "database", data_base)
+        with open(database_file) as f:
+            temp = json.load(f)
+            data.extend(temp)
 
     brick_templates = []
     template_ids = []
