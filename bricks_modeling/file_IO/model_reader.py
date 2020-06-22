@@ -172,10 +172,13 @@ def read_file_from_startfile(bricks, file,trans_matrix,files):
 
 def read_bricks_from_graph(bricks,files):
     nodes = find_nodes(files)
-    print(nodes)
+    '''print(nodes)
     for file_name in nodes:
         file = find_file_by_name(files, file_name)
-        read_file_from_startfile(bricks, file, np.identity(4, dtype=float), files)
+        read_file_from_startfile(bricks, file, np.identity(4, dtype=float), files)'''
+    file = find_file_by_name(files, nodes[0])
+    read_file_from_startfile(bricks, file, np.identity(4, dtype=float), files)
+
 
 def read_bricks_from_file(file_path):
     brick_templates, template_ids = get_all_brick_templates()
