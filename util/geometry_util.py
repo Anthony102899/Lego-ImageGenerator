@@ -3,7 +3,6 @@ import math
 from numpy import linalg as LA
 from typing import List
 
-
 def vec_local2world(rot_mat: np.ndarray, local_vec: np.ndarray) -> np.ndarray:
     return np.dot(rot_mat, local_vec)
 

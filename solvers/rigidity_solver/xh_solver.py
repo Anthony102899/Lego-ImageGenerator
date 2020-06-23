@@ -10,7 +10,7 @@ import copy
 from typing import List
 import itertools
 from numpy import linalg as LA
-
+from numpy.linalg import matrix_rank
 
 def show_graph(points: List[np.array], edges: List[List]):
     sphere = o3d.geometry.TriangleMesh.create_sphere(radius=1.0, resolution=2)
@@ -123,6 +123,10 @@ if __name__ == "__main__":
     # print(A)
     M = A.transpose().dot(K).dot(A)
     np.set_printoptions(threshold=np.inf)
-    print(M)
+    # print(M)
+    print(matrix_rank(M))
 
+    C = geo_util.eigen(M)
+    for e in C:
+        print(e[0])
     show_graph(points, all_edges)
