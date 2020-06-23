@@ -9,6 +9,7 @@ import open3d as o3d
 import copy
 from typing import List
 import itertools
+from numpy import linalg as LA
 
 
 def show_graph(points: List[np.array], edges:List[List]):
@@ -34,6 +35,19 @@ def show_graph(points: List[np.array], edges:List[List]):
     o3d.visualization.draw_geometries([mesh_frame, line_set] + spheres)
 
 
+def get_crystal_vertices(contact_pt: np.array, contact_orient: np.array):
+    p0 = contact_pt
+    p1 = contact_pt + 5 * contact_orient
+    p2 = contact_pt - 5 * contact_orient
+    p_vec1, p_vec2 = geo_util.get_perpendicular_vecs(p1 - p2)
+    p3 = contact_pt + 5 * p_vec1
+    p4 = contact_pt - 5 * p_vec1
+    p5 = contact_pt + 5 * p_vec2
+    p6 = contact_pt - 5 * p_vec2
+
+    return [p0, p1, p2, p3, p4, p5, p6]
+
+
 if __name__ == "__main__":
     debugger = MyDebugger("test")
     bricks = read_bricks_from_file("./data/full_models/hinged_L.ldr")
@@ -43,7 +57,10 @@ if __name__ == "__main__":
     points = []
     points_on_brick = {i: [] for i in range(len(bricks))}
     contraint_point_pairs = []
-    # TODO: collect all the degree one nodes here
+    feature_points_on_brick = {i: None for i in range(len(bricks))}
+
+    for idx, b in enumerate(bricks):
+        feature_points_on_brick[idx] = b.template.deg1_cpoint_indices()
 
     #### sampling variables on contact points
     for edge in structure_graph.edges:
@@ -53,37 +70,58 @@ if __name__ == "__main__":
             contact_pt = edge["properties"]["contact_point"]
             contact_orient = edge["properties"]["contact_orient"]
 
+            feature_points_on_brick[bi].remove(edge["cpoint_indices"][0])
+            feature_points_on_brick[bj].remove(edge["cpoint_indices"][1])
+
             point_idx_base = len(points)
 
-            p0 = contact_pt
-            p1 = contact_pt + 5 * contact_orient
-            p2 = contact_pt - 5 * contact_orient
-
-            p_vec1, p_vec2 = geo_util.get_perpendicular_vecs(p1-p2)
-            p3 = contact_pt + 5 * p_vec1
-            p4 = contact_pt - 5 * p_vec1
-            p5 = contact_pt + 5 * p_vec2
-            p6 = contact_pt - 5 * p_vec2
+            p = get_crystal_vertices(contact_pt, contact_orient)
 
             for i in range(7):
-                exec(f"points.append(p{i})")
+                exec(f"points.append(p[{i}])")
                 points_on_brick[bi].append(point_idx_base + i)
             for i in range(7):
-                exec(f"points.append(p{i})")
+                exec(f"points.append(p[{i}])")
                 points_on_brick[bj].append(point_idx_base + 7 + i)
 
             contraint_point_pairs.append((point_idx_base+0, point_idx_base+7+0))
             contraint_point_pairs.append((point_idx_base + 1, point_idx_base + 7 + 1))
             contraint_point_pairs.append((point_idx_base + 2, point_idx_base + 7 + 2))
 
-    #### TODO: add additional sample points, by detecting if the connection points are already sampled
-
-
+    #### add additional sample points, by detecting if the connection points are already sampled
+    for brick_id, c_id_set in feature_points_on_brick.items():
+        brick = bricks[brick_id]
+        for c_id in c_id_set:
+            c_point = brick.get_current_conn_points()[c_id]
+            contact_pt = c_point.pos
+            contact_orient = c_point.orient
+            p = get_crystal_vertices(contact_pt, contact_orient)
+            point_idx_base = len(points)
+            for i in range(7):
+                exec(f"points.append(p[{i}])")
+                points_on_brick[brick_id].append(point_idx_base + i)
 
     self_support_pairs = []
     for value in points_on_brick.values():
         self_support_pairs.extend(list(itertools.combinations(value, 2)))
 
+    print(points_on_brick)
 
+    all_edges = contraint_point_pairs + self_support_pairs
 
-    show_graph(points, contraint_point_pairs + self_support_pairs)
+    K = np.empty([len(all_edges), len(all_edges)])
+    A = np.empty([len(all_edges), len(points)])
+    for idx, edge in enumerate(all_edges):
+        e_1 = edge[0]
+        e_2 = edge[1]
+        distance = max(1, LA.norm(points[e_1] - points[e_2]))
+        K[e_1][e_2] = 1/distance
+        K[e_2][e_1] = 1 / distance
+        A[idx][e_1] = 1
+        A[idx][e_2] = -1
+
+    # print(K)
+    # print(A)
+    M = A.transpose().dot(K).dot(A)
+    print(M)
+    show_graph(points, all_edges)
