@@ -48,7 +48,7 @@ def get_crystal_vertices(contact_pt: np.array, contact_orient: np.array):
 
 if __name__ == "__main__":
     debugger = MyDebugger("test")
-    bricks = read_bricks_from_file("./data/full_models/hinged_L.ldr")
+    bricks = read_bricks_from_file("./data/full_models/triangle.ldr")
     write_bricks_to_file(bricks, file_path=debugger.file_path("test.ldr"), debug=False)
     structure_graph = ConnectivityGraph(bricks)
 
@@ -103,11 +103,9 @@ if __name__ == "__main__":
     for value in points_on_brick.values():
         self_support_pairs.extend(list(itertools.combinations(value, 2)))
 
-    print(points_on_brick)
-
     all_edges = contraint_point_pairs + self_support_pairs
 
-    K = np.zeros([3*len(points), 3*len(points)])
+    K = np.zeros([3*len(points), 3*len(points)], dtype=np.float64)
     for edge in all_edges:
         p1, p2 = edge[0], edge[1]
         k = 1 / max(1, LA.norm(points[p1] - points[p2]))
@@ -121,7 +119,8 @@ if __name__ == "__main__":
             K[pd1][pd2] -= k
             K[pd2][pd1] -= k
 
-    print(matrix_rank(K))
+    print("problem dimemsion:", K.shape[0])
+    print("matrix rank:", matrix_rank(K))
 
     C = geo_util.eigen(K)
     for e in C:
