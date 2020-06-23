@@ -1,32 +1,58 @@
 import numpy as np
 import math
-
+from numpy import linalg as LA
 from typing import List
 
-# TODO: to add function annotation
 def vec_local2world(rot_mat: np.ndarray, local_vec: np.ndarray) -> np.ndarray:
     return np.dot(rot_mat, local_vec)
 
 
-# TODO: to add function annotation
 def point_local2world(
     rot_mat: np.ndarray, translation: np.ndarray, local_point: np.ndarray
 ) -> np.ndarray:
     return np.dot(rot_mat, local_point) + translation
 
+
 def rot_matrix_from_vec_a_to_b(a, b):
     cross = np.cross(a, b)
-    if np.linalg.norm(cross) == 0: # parallel
+    if np.linalg.norm(cross) == 0:  # parallel
         return np.identity(3, dtype=float)
     else:
         dot = np.dot(a, b)
         angle = math.acos(dot)
         rotation_axes = cross / np.linalg.norm(cross)
-        M = np.array([[0, -rotation_axes[2], rotation_axes[1]],
-                      [rotation_axes[2], 0, -rotation_axes[0]],
-                      [-rotation_axes[1], rotation_axes[0], 0]])
+        M = np.array(
+            [
+                [0, -rotation_axes[2], rotation_axes[1]],
+                [rotation_axes[2], 0, -rotation_axes[0]],
+                [-rotation_axes[1], rotation_axes[0], 0],
+            ]
+        )
 
-        return np.identity(3, dtype=float) + math.sin(angle) * M + (1 - math.cos(angle)) * np.dot(M, M)
+        return (
+            np.identity(3, dtype=float)
+            + math.sin(angle) * M
+            + (1 - math.cos(angle)) * np.dot(M, M)
+        )
+
+def get_perpendicular_vec(vec: np.array) -> np.array:
+    assert LA.norm(vec) > 0
+    perp_vec = None
+    if abs(vec[0]) > 1e-10:
+        perp_vec = np.array([(-vec[1] - vec[2]) / vec[0], 1, 1])
+    elif abs(vec[1]) > 1e-10:
+        perp_vec = np.array([1, (-vec[0] - vec[2]) / vec[1], 1])
+    else:
+        perp_vec = np.array([1, 1, (-vec[0] - vec[1]) / vec[2]])
+
+    return perp_vec / LA.norm(perp_vec)
+
+
+def get_perpendicular_vecs(vec: np.array) -> np.array:
+    vec1 = get_perpendicular_vec(vec)
+    vec2 = np.cross(vec1, vec / LA.norm(vec))
+    return vec1, vec2
+
 
 def points_span_dim(points: np.ndarray) -> bool:
     """
@@ -41,13 +67,14 @@ def points_span_dim(points: np.ndarray) -> bool:
     rank = np.linalg.matrix_rank(points)
 
     if rank == 1:
-        column_comp = np.all(points == points[0,:], axis=0) # compare the entries columnwise
-        if np.all(column_comp): # all rows are identical to the first row
+        column_comp = np.all(points == points[0, :], axis=0)  # compare the entries columnwise
+        if np.all(column_comp):  # all rows are identical to the first row
             return 0
         else:
             return 1
 
     return min(rank, 3)
+
 
 def eigen(matrix: np.ndarray) -> List:
     """
@@ -56,7 +83,7 @@ def eigen(matrix: np.ndarray) -> List:
     Wrapper of np.linalg.eig
     """
     w, v = np.linalg.eig(matrix)
-    
+
     eigen_pairs = sorted(
         list(zip(w, v)),
         key=lambda pair: pair[0]

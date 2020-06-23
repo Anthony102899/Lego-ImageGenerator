@@ -33,19 +33,14 @@ class ConnectivityGraph:
                         self.edges.append(
                             {
                                 "type": type.name,
-                                "node_indices": [b_i, b_j],
+                                "node_indices": (b_i, b_j),
+                                "cpoint_indices": (m, n),
                                 "properties": {
-                                    "contact_point_1": self.bricks[b_i]
-                                    .template.c_points[m]
+                                    "contact_point": self.bricks[b_i]
+                                    .get_current_conn_points()[m]
                                     .pos,
-                                    "contact_orient_1": self.bricks[b_i]
-                                    .template.c_points[m]
-                                    .orient,
-                                    "contact_point_2": self.bricks[b_j]
-                                    .template.c_points[n]
-                                    .pos,
-                                    "contact_orient_2": self.bricks[b_j]
-                                    .template.c_points[n]
+                                    "contact_orient": self.bricks[b_i]
+                                    .get_current_conn_points()[m]
                                     .orient,
                                 },
                             }
@@ -72,7 +67,6 @@ class ConnectivityGraph:
                     ],
                 }
             )
-        
 
         return json.dumps({"nodes": nodes, "edges": self.edges}, cls=NumpyArrayEncoder)
 
@@ -86,7 +80,8 @@ class ConnectivityGraph:
         points = [b.get_translation().tolist() for b in self.bricks]
 
         spheres = [
-            copy.deepcopy(sphere).translate(b.get_translation().tolist()) for b in self.bricks
+            copy.deepcopy(sphere).translate(b.get_translation().tolist())
+            for b in self.bricks
         ]
         lines = [e["node_indices"] for e in self.edges]
         colors = [[1, 0, 0] for i in range(len(lines))]
