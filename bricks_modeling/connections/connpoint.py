@@ -7,13 +7,13 @@ from util.geometry_util import rot_matrix_from_vec_a_to_b
 class CPoint:
     def __init__(self, pos, orient, type: ConnPointType):
         # local position of this connection point
-        self.pos = pos
+        self.pos: np.ndarray = np.array(pos, dtype=np.float64)
         # local orientation of this connection point
-        self.orient = orient
+        self.orient: np.ndarray = np.array(orient, dtype=np.float64)
         # type (hole, pin, axle, or axle hole)
         self.type = type
 
-    def to_ldraw(self):
+    def to_ldraw(self) -> str:
         rot_mat = rot_matrix_from_vec_a_to_b(typeToBrick[self.type][1], self.orient)
         text = (
                 f"1 5 {self.pos[0]} {self.pos[1]} {self.pos[2]} "
