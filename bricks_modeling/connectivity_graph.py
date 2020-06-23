@@ -1,10 +1,12 @@
 import itertools
 import json
+import numpy as np
 
 import open3d as o3d
 import copy
 
 from bricks_modeling.connections.conn_type import compute_conn_type
+from util.json_encoder import NumpyArrayEncoder
 
 """
 To use a graph to describe a LEGO structure
@@ -65,8 +67,9 @@ class ConnectivityGraph:
                     ],
                 }
             )
+        
 
-        return json.dumps({"nodes": nodes, "edges": self.edges})
+        return json.dumps({"nodes": nodes, "edges": self.edges}, cls=NumpyArrayEncoder)
 
     def show(self):
         # TODO: show edges in different colors
@@ -75,10 +78,10 @@ class ConnectivityGraph:
         sphere.compute_vertex_normals()
         sphere.paint_uniform_color([0.9, 0.1, 0.1])
 
-        points = [b.get_translation() for b in self.bricks]
+        points = [b.get_translation().tolist() for b in self.bricks]
 
         spheres = [
-            copy.deepcopy(sphere).translate(b.get_translation()) for b in self.bricks
+            copy.deepcopy(sphere).translate(b.get_translation().tolist()) for b in self.bricks
         ]
         lines = [e["node_indices"] for e in self.edges]
         colors = [[1, 0, 0] for i in range(len(lines))]
