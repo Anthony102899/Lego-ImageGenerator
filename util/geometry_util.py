@@ -1,6 +1,7 @@
 import numpy as np
 import math
 from numpy import linalg as LA
+from typing import List
 
 
 def vec_local2world(rot_mat: np.ndarray, local_vec: np.ndarray) -> np.ndarray:
@@ -35,7 +36,6 @@ def rot_matrix_from_vec_a_to_b(a, b):
             + (1 - math.cos(angle)) * np.dot(M, M)
         )
 
-
 def get_perpendicular_vec(vec: np.array) -> np.array:
     assert LA.norm(vec) > 0
     perp_vec = None
@@ -68,9 +68,7 @@ def points_span_dim(points: np.ndarray) -> bool:
     rank = np.linalg.matrix_rank(points)
 
     if rank == 1:
-        column_comp = np.all(
-            points == points[0, :], axis=0
-        )  # compare the entries columnwise
+        column_comp = np.all(points == points[0, :], axis=0)  # compare the entries columnwise
         if np.all(column_comp):  # all rows are identical to the first row
             return 0
         else:
@@ -79,24 +77,15 @@ def points_span_dim(points: np.ndarray) -> bool:
     return min(rank, 3)
 
 
-if __name__ == "__main__":
-    for i in range(10):
-        a = np.random.rand(3)
-        b = get_perpendicular_vec(a)
-        print(a, b)
-        print(a.dot(b))
+def eigen(matrix: np.ndarray) -> List:
+    """
+    Compute eigenvalues/vectors, return a list of eigenvalue/vectors, sorted by the eigenvalue ascendingly
+    """
+    w, v = np.linalg.eig(matrix)
 
-    a = np.array([1, 0, 0])
-    b = get_perpendicular_vec(a)
-    print(a, b)
-    print(a.dot(b))
+    eigen_pairs = sorted(
+        list(zip(w, v)),
+        key=lambda pair: pair[0]
+    )
 
-    a = np.array([0, 5, 0])
-    b = get_perpendicular_vec(a)
-    print(a, b)
-    print(a.dot(b))
-
-    a = np.array([0, 0, 36])
-    b = get_perpendicular_vec(a)
-    print(a, b)
-    print(a.dot(b))
+    return eigen_pairs
