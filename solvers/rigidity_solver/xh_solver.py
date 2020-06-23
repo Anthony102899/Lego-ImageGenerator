@@ -48,7 +48,7 @@ def get_crystal_vertices(contact_pt: np.array, contact_orient: np.array):
 
 if __name__ == "__main__":
     debugger = MyDebugger("test")
-    bricks = read_bricks_from_file("./data/full_models/hinged_L.ldr")
+    bricks = read_bricks_from_file("./data/single_part/2780.dat")
     write_bricks_to_file(bricks, file_path=debugger.file_path("test.ldr"), debug=False)
     structure_graph = ConnectivityGraph(bricks)
 
@@ -103,30 +103,26 @@ if __name__ == "__main__":
     for value in points_on_brick.values():
         self_support_pairs.extend(list(itertools.combinations(value, 2)))
 
-    print(points_on_brick)
-
     all_edges = contraint_point_pairs + self_support_pairs
 
-    K = np.zeros([len(all_edges) * 3, len(all_edges) * 3])
-    A = np.zeros([len(all_edges) * 3, len(points) * 3])
-    for idx, edge in enumerate(all_edges):
+    K = np.zeros([3*len(points), 3*len(points)], dtype=np.float64)
+    for edge in all_edges:
         p1, p2 = edge[0], edge[1]
-        distance = max(1, LA.norm(points[p1] - points[p2]))
+        k = 1 / max(1, LA.norm(points[p1] - points[p2]))
         for dim in range(3):
-            A[idx * 3 + dim][p1 * 3 + dim] = 1
-            A[idx * 3 + dim][p2 * 3 + dim] = -1
-            K[idx * 3 + dim][idx * 3 + dim] = 1 / distance
-            K[idx * 3 + dim][idx * 3 + dim] = 1 / distance
-            K[idx * 3 + dim][idx * 3 + dim] = 1 / distance
+            pd1 = p1 * 3 + dim
+            pd2 = p2 * 3 + dim
+            # the square terms
+            K[pd1][pd1] += k
+            K[pd2][pd2] += k
+            # the x_i*x_j terms
+            K[pd1][pd2] -= k
+            K[pd2][pd1] -= k
 
-    # print(K)
-    # print(A)
-    M = A.transpose().dot(K).dot(A)
-    np.set_printoptions(threshold=np.inf)
-    # print(M)
-    print(matrix_rank(M))
+    print("problem dimemsion:", K.shape[0])
+    print("matrix rank:", matrix_rank(K))
 
-    C = geo_util.eigen(M)
+    C = geo_util.eigen(K)
     for e in C:
         print(e[0])
     show_graph(points, all_edges)
