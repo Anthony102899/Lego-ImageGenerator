@@ -73,6 +73,10 @@ def read_graph_from_file(file_path):
     while i < len(lines):
         line_content = lines[i].rstrip().split(" ")
 
+        if len(line_content) < 2:
+            i += 1
+            continue
+
         if not(line_content[0] == "0" and line_content[1] == "FILE") and not(line_content[0] == "1" and len(line_content) == 15):
             i+=1
             continue
