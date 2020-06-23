@@ -2,12 +2,9 @@ import numpy as np
 import math
 from numpy import linalg as LA
 
-# TODO: to add function annotation
 def vec_local2world(rot_mat: np.ndarray, local_vec: np.ndarray) -> np.ndarray:
     return np.dot(rot_mat, local_vec)
 
-
-# TODO: to add function annotation
 def point_local2world(
     rot_mat: np.ndarray, translation: np.ndarray, local_point: np.ndarray
 ) -> np.ndarray:
@@ -48,6 +45,11 @@ def get_perpendicular_vec(vec: np.array) -> np.array:
         perp_vec =  np.array([1, 1, (-vec[0] - vec[1]) / vec[2]])
 
     return perp_vec/LA.norm(perp_vec)
+
+def get_perpendicular_vecs(vec: np.array) -> np.array:
+    vec1 = get_perpendicular_vec(vec)
+    vec2 = np.cross(vec1, vec/LA.norm(vec))
+    return vec1, vec2
 
 def points_span_dim(points: np.ndarray) -> bool:
     """
