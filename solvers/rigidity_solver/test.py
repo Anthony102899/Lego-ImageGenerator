@@ -12,7 +12,7 @@ import itertools
 from numpy import linalg as LA
 from numpy.linalg import matrix_rank
 
-def rigidity_matrix(points: np.ndarray, edges: np.ndarray, dim: int):
+def rigidity_matrix(points: np.ndarray, edges: np.ndarray, dim: int) -> np.ndarray:
     """
     points: (n, d) array, n points in a d-dimensional space
     edges : (m, 2) array, m edges, store indices of the points they join
@@ -24,9 +24,9 @@ def rigidity_matrix(points: np.ndarray, edges: np.ndarray, dim: int):
     # constructing the rigidity matrix R
     R = np.zeros((m, dim * n))
     for i, (p_ind, q_ind) in enumerate(edges):
-        p_minus_q = points[p_ind, :] - points[q_ind, :]
-        R[i, q_ind * dim: (q_ind + 1) * dim] =  p_minus_q
-        R[i, p_ind * dim: (p_ind + 1) * dim] = -p_minus_q
+        q_minus_p = points[q_ind, :] - points[p_ind, :]
+        R[i, q_ind * dim: (q_ind + 1) * dim] =  q_minus_p
+        R[i, p_ind * dim: (p_ind + 1) * dim] = -q_minus_p
     
     return R
 
@@ -77,8 +77,8 @@ if __name__ == "__main__":
 
     points_degenerated = np.array([
         [0, 0],
-        [1, 1],
-        [2, 2]
+        [0.5, 1],
+        [1, 2]
     ])
     R_degen = rigidity_matrix(points_degenerated, edges, 2)
     print(matrix_rank(R_degen.T @ R_degen))
