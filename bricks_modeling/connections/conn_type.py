@@ -38,7 +38,8 @@ def compute_conn_type(c_point1: CPoint, c_point2: CPoint):
             }:
                 return ConnType.STUD_TUBE
             else:
-                input("unsupported connection type!!!")  # let program stop here
+                print("unsupported connection type!!!")
+                print(c_point1.type.name, c_point2.type.name)
                 return None
     elif (
         abs(np.linalg.norm(c_point1.pos - c_point2.pos) - 1.0) < 0
