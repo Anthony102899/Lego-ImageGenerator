@@ -31,31 +31,23 @@ graph = ConnectivityGraph(bricks)
 num_nodes = len(graph.bricks)
 num_edges = len(graph.edges)
 
+
 def build_rotation_for_node(vars, node_ind):
-    phi = vars[node_ind * 6 + 3: node_ind * 6 + 6]
+    phi = vars[node_ind * 6 + 3 : node_ind * 6 + 6]
     sin_x, sin_y, sin_z = np.sin(phi)
     cos_x, cos_y, cos_z = np.cos(phi)
-    yaw = np.array([
-        [cos_x, -sin_x, 0],
-        [sin_x, cos_x, 0],
-        [0, 0, 1]
-    ], dtype=np.double)
-    pitch = np.array([
-        [cos_y, 0, sin_y],
-        [0, 1, 0],
-        [-sin_y, 0, cos_y]
-    ], dtype=np.double)
-    roll = np.array([
-        [1, 0, 0],
-        [0, cos_z, -sin_z],
-        [0, sin_z, cos_z]
-    ], dtype=np.double)
+    yaw = np.array([[cos_x, -sin_x, 0], [sin_x, cos_x, 0], [0, 0, 1]], dtype=np.double)
+    pitch = np.array(
+        [[cos_y, 0, sin_y], [0, 1, 0], [-sin_y, 0, cos_y]], dtype=np.double
+    )
+    roll = np.array([[1, 0, 0], [0, cos_z, -sin_z], [0, sin_z, cos_z]], dtype=np.double)
 
     vars_rotation = yaw @ pitch @ roll
     return vars_rotation
 
+
 def build_translation_for_node(vars, node_ind):
-    return vars[node_ind * 6: node_ind * 6 + 3]
+    return vars[node_ind * 6 : node_ind * 6 + 3]
 
 
 def build_initial_transform(brick):
@@ -66,8 +58,10 @@ def build_initial_transform(brick):
 
     return _transform
 
+
 def norm_sq(arr):
     return np.dot(arr, arr)
+
 
 def edge_cost(edge_ind, vars):
     edge = graph.edges[edge_ind]
@@ -95,6 +89,7 @@ def cost(vars):
 
     return ec.sum()
 
+
 if __name__ == "__main__":
     print("gradient solver")
 
@@ -108,5 +103,3 @@ if __name__ == "__main__":
 
         gradient = grad_cost(vars)
         print(gradient)
-
-

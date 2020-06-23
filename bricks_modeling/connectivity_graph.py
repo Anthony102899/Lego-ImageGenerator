@@ -67,7 +67,6 @@ class ConnectivityGraph:
                     ],
                 }
             )
-        
 
         return json.dumps({"nodes": nodes, "edges": self.edges}, cls=NumpyArrayEncoder)
 
@@ -81,7 +80,8 @@ class ConnectivityGraph:
         points = [b.get_translation().tolist() for b in self.bricks]
 
         spheres = [
-            copy.deepcopy(sphere).translate(b.get_translation().tolist()) for b in self.bricks
+            copy.deepcopy(sphere).translate(b.get_translation().tolist())
+            for b in self.bricks
         ]
         lines = [e["node_indices"] for e in self.edges]
         colors = [[1, 0, 0] for i in range(len(lines))]

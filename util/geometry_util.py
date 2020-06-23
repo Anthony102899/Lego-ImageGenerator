@@ -2,8 +2,10 @@ import numpy as np
 import math
 from numpy import linalg as LA
 
+
 def vec_local2world(rot_mat: np.ndarray, local_vec: np.ndarray) -> np.ndarray:
     return np.dot(rot_mat, local_vec)
+
 
 def point_local2world(
     rot_mat: np.ndarray, translation: np.ndarray, local_point: np.ndarray
@@ -38,18 +40,20 @@ def get_perpendicular_vec(vec: np.array) -> np.array:
     assert LA.norm(vec) > 0
     perp_vec = None
     if abs(vec[0]) > 1e-10:
-        perp_vec =  np.array([(-vec[1] - vec[2]) / vec[0], 1, 1])
+        perp_vec = np.array([(-vec[1] - vec[2]) / vec[0], 1, 1])
     elif abs(vec[1]) > 1e-10:
-        perp_vec =  np.array([1, (-vec[0] - vec[2]) / vec[1], 1])
+        perp_vec = np.array([1, (-vec[0] - vec[2]) / vec[1], 1])
     else:
-        perp_vec =  np.array([1, 1, (-vec[0] - vec[1]) / vec[2]])
+        perp_vec = np.array([1, 1, (-vec[0] - vec[1]) / vec[2]])
 
-    return perp_vec/LA.norm(perp_vec)
+    return perp_vec / LA.norm(perp_vec)
+
 
 def get_perpendicular_vecs(vec: np.array) -> np.array:
     vec1 = get_perpendicular_vec(vec)
-    vec2 = np.cross(vec1, vec/LA.norm(vec))
+    vec2 = np.cross(vec1, vec / LA.norm(vec))
     return vec1, vec2
+
 
 def points_span_dim(points: np.ndarray) -> bool:
     """
@@ -64,8 +68,10 @@ def points_span_dim(points: np.ndarray) -> bool:
     rank = np.linalg.matrix_rank(points)
 
     if rank == 1:
-        column_comp = np.all(points == points[0,:], axis=0) # compare the entries columnwise
-        if np.all(column_comp): # all rows are identical to the first row
+        column_comp = np.all(
+            points == points[0, :], axis=0
+        )  # compare the entries columnwise
+        if np.all(column_comp):  # all rows are identical to the first row
             return 0
         else:
             return 1

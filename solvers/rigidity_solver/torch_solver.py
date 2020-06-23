@@ -28,32 +28,29 @@ graph = ConnectivityGraph(bricks)
 num_nodes = len(graph.bricks)
 num_edges = len(graph.edges)
 
+
 def build_transformation_from_node(vars, node_ind):
     brick = graph.bricks[node_ind]
 
-    d   = vars[node_ind * 6    : node_ind * 6 + 3]
-    phi = vars[node_ind * 6 + 3: node_ind * 6  + 6]
+    d = vars[node_ind * 6 : node_ind * 6 + 3]
+    phi = vars[node_ind * 6 + 3 : node_ind * 6 + 6]
     sin_x, sin_y, sin_z = torch.sin(phi)
     cos_x, cos_y, cos_z = torch.cos(phi)
 
-    yaw = torch.tensor([
-        [cos_x, -sin_x, 0],
-        [sin_x, cos_x, 0],
-        [0, 0, 1]
-    ], dtype=torch.double)
-    pitch = torch.tensor([
-        [cos_y, 0, sin_y],
-        [0, 1, 0],
-        [-sin_y, 0, cos_y]
-    ], dtype=torch.double)
-    roll = torch.tensor([
-        [1, 0, 0],
-        [0, cos_z, -sin_z],
-        [0, sin_z, cos_z]
-    ], dtype=torch.double)
+    yaw = torch.tensor(
+        [[cos_x, -sin_x, 0], [sin_x, cos_x, 0], [0, 0, 1]], dtype=torch.double
+    )
+    pitch = torch.tensor(
+        [[cos_y, 0, sin_y], [0, 1, 0], [-sin_y, 0, cos_y]], dtype=torch.double
+    )
+    roll = torch.tensor(
+        [[1, 0, 0], [0, cos_z, -sin_z], [0, sin_z, cos_z]], dtype=torch.double
+    )
 
     vars_rotation = yaw.matmul(pitch).matmul(roll)
-    rotation = vars_rotation.matmul(torch.tensor(brick.get_rotation(), dtype=torch.double))
+    rotation = vars_rotation.matmul(
+        torch.tensor(brick.get_rotation(), dtype=torch.double)
+    )
     translation = d + torch.tensor(brick.get_translation(), dtype=torch.double)
     print(node_ind, translation, d)
 
@@ -61,9 +58,9 @@ def build_transformation_from_node(vars, node_ind):
 
     return _transform
 
+
 def norm_sq(tensor: Tensor):
     return torch.dot(tensor, tensor)
-
 
 
 def cost(vars):
@@ -88,6 +85,7 @@ def cost(vars):
     c = costs.sum()
 
     return c
+
 
 if __name__ == "__main__":
     print("torch solver")

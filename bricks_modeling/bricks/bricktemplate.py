@@ -15,7 +15,7 @@ class BrickTemplate:
         if isinstance(other, BrickTemplate):
             return self.id == other.id
         return False
-    
+
     def deg1_cpoint_indices(self) -> Set[int]:
         """
         return a set of the indices of the c_points that have exactly one c_point having 1 lego distance to it
@@ -23,6 +23,7 @@ class BrickTemplate:
         Note: '1 lego distance' is hard-coded as 20 here temporarily, which stands for a beam.
         """
         from itertools import combinations
+
         deg_count = [0 for _ in range(len(self.c_points))]
         lego_dist = 20
         tol = 1e-6
@@ -30,7 +31,9 @@ class BrickTemplate:
         point_positions = [pt.pos for pt in self.c_points]
         # iterate over all pairs of conn_points of the instance
         for (i, p), (j, q) in combinations(enumerate(point_positions), 2):
-            if -tol < np.linalg.norm(p - q) - lego_dist < tol: # if distance within tolerance
+            if (
+                -tol < np.linalg.norm(p - q) - lego_dist < tol
+            ):  # if distance within tolerance
                 deg_count[i] += 1
                 deg_count[j] += 1
 

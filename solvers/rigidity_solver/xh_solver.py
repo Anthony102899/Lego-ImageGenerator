@@ -12,16 +12,14 @@ import itertools
 from numpy import linalg as LA
 
 
-def show_graph(points: List[np.array], edges:List[List]):
+def show_graph(points: List[np.array], edges: List[List]):
     sphere = o3d.geometry.TriangleMesh.create_sphere(radius=1.0, resolution=2)
     sphere.compute_vertex_normals()
     sphere.paint_uniform_color([0.9, 0.1, 0.1])
 
     points = [p for p in points]
 
-    spheres = [
-        copy.deepcopy(sphere).translate(p) for p in points
-    ]
+    spheres = [copy.deepcopy(sphere).translate(p) for p in points]
     lines = [e for e in edges]
     colors = [[1, 0, 0] for i in range(len(lines))]
     line_set = o3d.geometry.LineSet(
@@ -84,7 +82,7 @@ if __name__ == "__main__":
                 exec(f"points.append(p[{i}])")
                 points_on_brick[bj].append(point_idx_base + 7 + i)
 
-            contraint_point_pairs.append((point_idx_base+0, point_idx_base+7+0))
+            contraint_point_pairs.append((point_idx_base + 0, point_idx_base + 7 + 0))
             contraint_point_pairs.append((point_idx_base + 1, point_idx_base + 7 + 1))
             contraint_point_pairs.append((point_idx_base + 2, point_idx_base + 7 + 2))
 
@@ -109,19 +107,22 @@ if __name__ == "__main__":
 
     all_edges = contraint_point_pairs + self_support_pairs
 
-    K = np.empty([len(all_edges), len(all_edges)])
-    A = np.empty([len(all_edges), len(points)])
+    K = np.zeros([len(all_edges) * 3, len(all_edges) * 3])
+    A = np.zeros([len(all_edges) * 3, len(points) * 3])
     for idx, edge in enumerate(all_edges):
-        e_1 = edge[0]
-        e_2 = edge[1]
-        distance = max(1, LA.norm(points[e_1] - points[e_2]))
-        K[e_1][e_2] = 1/distance
-        K[e_2][e_1] = 1 / distance
-        A[idx][e_1] = 1
-        A[idx][e_2] = -1
+        p1, p2 = edge[0], edge[1]
+        distance = max(1, LA.norm(points[p1] - points[p2]))
+        for dim in range(3):
+            A[idx * 3 + dim][p1 * 3 + dim] = 1
+            A[idx * 3 + dim][p2 * 3 + dim] = -1
+            K[idx * 3 + dim][idx * 3 + dim] = 1 / distance
+            K[idx * 3 + dim][idx * 3 + dim] = 1 / distance
+            K[idx * 3 + dim][idx * 3 + dim] = 1 / distance
 
     # print(K)
     # print(A)
     M = A.transpose().dot(K).dot(A)
+    np.set_printoptions(threshold=np.inf)
     print(M)
+
     show_graph(points, all_edges)
