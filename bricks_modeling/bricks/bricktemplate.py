@@ -7,7 +7,7 @@ from typing import Set
 
 
 class BrickTemplate:
-    def __init__(self, c_points, ldraw_id: str):
+    def __init__(self, c_points: CPoint, ldraw_id: str):
         self.c_points = c_points
         self.id = ldraw_id
 
@@ -39,13 +39,6 @@ class BrickTemplate:
 
 
 if __name__ == "__main__":
-    cpoints = [
-        CPoint(np.array([0, 0, 20]), np.array([0, 1, 0]), ConnPointType.AXLE),
-        CPoint(np.array([0, 0, 0]), np.array([0, 1, 0]), ConnPointType.AXLE),
-        CPoint(np.array([0, 20, 0]), np.array([0, 1, 0]), ConnPointType.AXLE),
-    ]
-    brick = BrickTemplate(cpoints, ldraw_id="32523.dat")
-    print(brick.deg1_cpoint_indices())
     cpoints = [
         CPoint(np.array([0, 0, -1]), np.array([0, 1, 0]), ConnPointType.AXLE),
         CPoint(np.array([0, 0, 0]), np.array([0, 1, 0]), ConnPointType.AXLE),
