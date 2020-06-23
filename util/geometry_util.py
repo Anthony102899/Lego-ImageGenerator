@@ -52,6 +52,8 @@ def points_span_dim(points: np.ndarray) -> bool:
 def eigen(matrix: np.ndarray) -> List:
     """
     Compute eigenvalues/vectors, return a list of eigenvalue/vectors, sorted by the eigenvalue ascendingly
+
+    Wrapper of np.linalg.eig
     """
     w, v = np.linalg.eig(matrix)
     
