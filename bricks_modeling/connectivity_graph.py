@@ -33,17 +33,11 @@ class ConnectivityGraph:
                                 "type": type.name,
                                 "node_indices": [b_i, b_j],
                                 "properties": {
-                                    "contact_point_1": self.bricks[b_i]
-                                    .template.c_points[m]
+                                    "contact_point": self.bricks[b_i]
+                                    .get_current_conn_points()[m]
                                     .pos,
-                                    "contact_orient_1": self.bricks[b_i]
-                                    .template.c_points[m]
-                                    .orient,
-                                    "contact_point_2": self.bricks[b_j]
-                                    .template.c_points[n]
-                                    .pos,
-                                    "contact_orient_2": self.bricks[b_j]
-                                    .template.c_points[n]
+                                    "contact_orient": self.bricks[b_i]
+                                    .get_current_conn_points()[m]
                                     .orient,
                                 },
                             }
