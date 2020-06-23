@@ -12,6 +12,24 @@ import itertools
 from numpy import linalg as LA
 from numpy.linalg import matrix_rank
 
+def rigidity_matrix(points: np.ndarray, edges: np.ndarray, dim: int):
+    """
+    points: (n, d) array, n points in a d-dimensional space
+    edges : (m, 2) array, m edges, store indices of the points they join
+    dim   : int, dimension order
+    """
+    assert len(points.shape) == 2 and points.shape[1] == dim
+    n, m = len(points), len(edges)
+
+    # constructing the rigidity matrix R
+    R = np.zeros((m, dim * n))
+    for i, (p_ind, q_ind) in enumerate(edges):
+        p_minus_q = points[p_ind, :] - points[q_ind, :]
+        R[i, q_ind * dim: (q_ind + 1) * dim] =  p_minus_q
+        R[i, p_ind * dim: (p_ind + 1) * dim] = -p_minus_q
+    
+    return R
+
 def show_graph(points: List[np.array], edges: List[List]):
     sphere = o3d.geometry.TriangleMesh.create_sphere(radius=1.0, resolution=2)
     sphere.compute_vertex_normals()
@@ -33,41 +51,34 @@ def show_graph(points: List[np.array], edges: List[List]):
     o3d.visualization.draw_geometries([mesh_frame, line_set] + spheres)
 
 
-def get_crystal_vertices(contact_pt: np.array, contact_orient: np.array):
-    p0 = contact_pt
-    p1 = contact_pt + 5 * contact_orient
-    p2 = contact_pt - 5 * contact_orient
-    p_vec1, p_vec2 = geo_util.get_perpendicular_vecs(p1 - p2)
-    p3 = contact_pt + 5 * p_vec1
-    p4 = contact_pt - 5 * p_vec1
-    p5 = contact_pt + 5 * p_vec2
-    p6 = contact_pt - 5 * p_vec2
-
-    return [p0, p1, p2, p3, p4, p5, p6]
-
 
 if __name__ == "__main__":
-    all_edges = [(0,1),(0,2),(1,2)]
-    point_num = 3
-    dim = 2
+    points = np.array([
+        [0, 0],
+        [0, 1],
+        [1, 0]
+    ]) 
+    edges = np.array([
+        [0, 1],
+        [0, 2],
+        [1, 2]
+    ])
 
-    K = np.zeros([dim * point_num, dim * point_num], dtype=np.float64)
-    for edge in all_edges:
-        p1, p2 = edge[0], edge[1]
-        k = 1
-        for d in range(dim):
-            pd1 = p1 * dim + d
-            pd2 = p2 * dim + d
-            # the square terms
-            K[pd1][pd1] += k
-            K[pd2][pd2] += k
-            # the x_i*x_j terms
-            K[pd1][pd2] -= k
-            K[pd2][pd1] -= k
+    R = rigidity_matrix(points, edges, 2)
 
-    print("problem dimemsion:", K.shape[0])
-    print("matrix rank:", matrix_rank(K))
+    print(matrix_rank(R.T @ R))
 
-    C = geo_util.eigen(K)
-    for e in C:
-        print(e[0])
+    points_3d = np.hstack(
+        (points, np.zeros((len(points), 1)))
+    )
+    R_3d = rigidity_matrix(points_3d, edges, 3)
+
+    print(matrix_rank(R_3d.T @ R_3d))
+
+    points_degenerated = np.array([
+        [0, 0],
+        [1, 1],
+        [2, 2]
+    ])
+    R_degen = rigidity_matrix(points_degenerated, edges, 2)
+    print(matrix_rank(R_degen.T @ R_degen))
