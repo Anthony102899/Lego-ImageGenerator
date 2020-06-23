@@ -48,7 +48,7 @@ def get_crystal_vertices(contact_pt: np.array, contact_orient: np.array):
 
 if __name__ == "__main__":
     debugger = MyDebugger("test")
-    bricks = read_bricks_from_file("./data/full_models/triangle.ldr")
+    bricks = read_bricks_from_file("./data/single_part/2780.dat")
     write_bricks_to_file(bricks, file_path=debugger.file_path("test.ldr"), debug=False)
     structure_graph = ConnectivityGraph(bricks)
 
