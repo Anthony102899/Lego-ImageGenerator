@@ -43,6 +43,7 @@ if __name__ == "__main__":
     points = []
     points_on_brick = {i: [] for i in range(len(bricks))}
     contraint_point_pairs = []
+    # TODO: collect all the degree one nodes here
 
     #### sampling variables on contact points
     for edge in structure_graph.edges:
@@ -75,7 +76,7 @@ if __name__ == "__main__":
             contraint_point_pairs.append((point_idx_base + 1, point_idx_base + 7 + 1))
             contraint_point_pairs.append((point_idx_base + 2, point_idx_base + 7 + 2))
 
-    #### TODO: add additional sample points
+    #### TODO: add additional sample points, by detecting if the connection points are already sampled
 
 
 

@@ -31,7 +31,8 @@ class ConnectivityGraph:
                         self.edges.append(
                             {
                                 "type": type.name,
-                                "node_indices": [b_i, b_j],
+                                "node_indices": (b_i, b_j),
+                                "cpoint_indices": (m, n),
                                 "properties": {
                                     "contact_point": self.bricks[b_i]
                                     .get_current_conn_points()[m]
