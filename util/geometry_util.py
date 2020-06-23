@@ -1,6 +1,8 @@
 import numpy as np
 import math
 
+from typing import List
+
 # TODO: to add function annotation
 def vec_local2world(rot_mat: np.ndarray, local_vec: np.ndarray) -> np.ndarray:
     return np.dot(rot_mat, local_vec)
@@ -46,3 +48,16 @@ def points_span_dim(points: np.ndarray) -> bool:
             return 1
 
     return min(rank, 3)
+
+def eigen(matrix: np.ndarray) -> List:
+    """
+    Compute eigenvalues/vectors, return a list of eigenvalue/vectors, sorted by the eigenvalue ascendingly
+    """
+    w, v = np.linalg.eig(matrix)
+    
+    eigen_pairs = sorted(
+        list(zip(w, v)),
+        key=lambda pair: pair[0]
+    )
+
+    return eigen_pairs
