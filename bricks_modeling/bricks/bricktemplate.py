@@ -16,15 +16,14 @@ class BrickTemplate:
             return self.id == other.id
         return False
     
-    def deg1_cpoints_indices(self) -> Set[int]:
+    def deg1_cpoint_indices(self) -> Set[int]:
         """
         return a set of the indices of the c_points that have exactly one c_point having 1 lego distance to it
 
         Note: '1 lego distance' is hard-coded as 20 here temporarily, which stands for a beam.
         """
         from itertools import combinations
-        from collections import defaultdict
-        deg_count = defaultdict(lambda: 0)
+        deg_count = [0 for _ in range(len(self.c_points))]
         lego_dist = 20
         tol = 1e-6
 
@@ -35,11 +34,18 @@ class BrickTemplate:
                 deg_count[i] += 1
                 deg_count[j] += 1
 
-        deg1set = {ind for ind, count in deg_count.items() if count == 1}
+        deg1set = {ind for ind, count in enumerate(deg_count) if count == 1}
         return deg1set
 
 
 if __name__ == "__main__":
+    cpoints = [
+        CPoint(np.array([0, 0, 20]), np.array([0, 1, 0]), ConnPointType.AXLE),
+        CPoint(np.array([0, 0, 0]), np.array([0, 1, 0]), ConnPointType.AXLE),
+        CPoint(np.array([0, 20, 0]), np.array([0, 1, 0]), ConnPointType.AXLE),
+    ]
+    brick = BrickTemplate(cpoints, ldraw_id="32523.dat")
+    print(brick.deg1_cpoint_indices())
     cpoints = [
         CPoint(np.array([0, 0, -1]), np.array([0, 1, 0]), ConnPointType.AXLE),
         CPoint(np.array([0, 0, 0]), np.array([0, 1, 0]), ConnPointType.AXLE),

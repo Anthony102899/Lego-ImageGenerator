@@ -4,6 +4,9 @@ from bricks_modeling.connectivity_graph import ConnectivityGraph
 from util.debugger import MyDebugger
 from bricks_modeling.bricks.brick_factory import get_all_brick_templates
 from bricks_modeling.bricks.brickinstance import BrickInstance
+from bricks_modeling.bricks.bricktemplate import BrickTemplate
+from bricks_modeling.connections.connpoint import CPoint
+from bricks_modeling.connections.connpointtype import ConnPointType
 import numpy as np
 
 

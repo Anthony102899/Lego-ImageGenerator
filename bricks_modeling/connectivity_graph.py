@@ -56,17 +56,17 @@ class ConnectivityGraph:
             brick = self.bricks[i]
             nodes.append(
                 {
-                    "translation": brick.get_translation(),
+                    "translation": brick.get_translation().tolist(),
                     "orientation": [
-                        brick.trans_matrix[0, 0],
-                        brick.trans_matrix[0, 1],
-                        brick.trans_matrix[0, 2],
-                        brick.trans_matrix[1, 0],
-                        brick.trans_matrix[1, 1],
-                        brick.trans_matrix[1, 2],
-                        brick.trans_matrix[2, 0],
-                        brick.trans_matrix[2, 1],
-                        brick.trans_matrix[2, 2],
+                        brick.trans_matrix[0, 0].tolist(),
+                        brick.trans_matrix[0, 1].tolist(),
+                        brick.trans_matrix[0, 2].tolist(),
+                        brick.trans_matrix[1, 0].tolist(),
+                        brick.trans_matrix[1, 1].tolist(),
+                        brick.trans_matrix[1, 2].tolist(),
+                        brick.trans_matrix[2, 0].tolist(),
+                        brick.trans_matrix[2, 1].tolist(),
+                        brick.trans_matrix[2, 2].tolist(),
                     ],
                 }
             )
