@@ -29,12 +29,11 @@ class BrickInstance:
             trans_vec, (3, 1)
         )
 
+    def get_rotation(self):
+        return self.trans_matrix[:3, :3]
+
     def get_translation(self):
-        return [
-            self.trans_matrix[0][3],
-            self.trans_matrix[1][3],
-            self.trans_matrix[2][3],
-        ]
+        return self.trans_matrix[:3, 3]
 
     def reset_transformation(self):
         self.trans_matrix = np.identity(4, dtype=float)

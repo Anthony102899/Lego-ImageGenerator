@@ -3,14 +3,14 @@ import math
 from numpy import linalg as LA
 
 # TODO: to add function annotation
-def vec_local2world(rot_mat: np.ndarray, local_vec: np.ndarray):
+def vec_local2world(rot_mat: np.ndarray, local_vec: np.ndarray) -> np.ndarray:
     return np.dot(rot_mat, local_vec)
 
 
 # TODO: to add function annotation
 def point_local2world(
     rot_mat: np.ndarray, translation: np.ndarray, local_point: np.ndarray
-):
+) -> np.ndarray:
     return np.dot(rot_mat, local_point) + translation
 
 
@@ -48,6 +48,28 @@ def get_perpendicular_vec(vec: np.array) -> np.array:
         perp_vec =  np.array([1, 1, (-vec[0] - vec[1]) / vec[2]])
 
     return perp_vec/LA.norm(perp_vec)
+
+def points_span_dim(points: np.ndarray) -> bool:
+    """
+    points: shape(n, 3)
+    If the points spans a
+        i) 0D space (the points are identical), return 0
+        i) 1D space (on the same line), return 1
+        ii) 2D space (on the same plane), return 2
+        iii) higher-than-2D space, return 3
+    """
+    assert len(np.shape(points)) == 2 and np.shape(points)[1] == 3
+    rank = np.linalg.matrix_rank(points)
+
+    if rank == 1:
+        column_comp = np.all(points == points[0,:], axis=0) # compare the entries columnwise
+        if np.all(column_comp): # all rows are identical to the first row
+            return 0
+        else:
+            return 1
+
+    return min(rank, 3)
+
 
 if __name__ == "__main__":
     for i in range(10):
