@@ -12,7 +12,7 @@ import numpy as np
 
 
 if __name__ == "__main__":
-    debugger = MyDebugger("test")
+    debugger = MyDebugger("brick_validate")
     brick_templates, template_ids = get_all_brick_templates()
 
     for template in brick_templates:
@@ -22,10 +22,3 @@ if __name__ == "__main__":
             file_path=debugger.file_path(f"{template.id}_test.ldr"),
             debug=True,
         )
-
-    matrix = np.array([
-        [1, 0, 1],
-        [0, 2, 0],
-        [0, 0, 3]
-    ], dtype=np.float64)
-    print(eigen(matrix))
