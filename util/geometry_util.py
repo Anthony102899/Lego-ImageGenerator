@@ -87,10 +87,10 @@ def eigen(matrix: np.ndarray, symmetric: bool) -> List:
         assert np.allclose(matrix, matrix.T)
 
     eig_func = np.linalg.eigh if symmetric else np.linalg.eig
-    w, v = eig_func(matrix)
+    w, V = eig_func(matrix)
 
     eigen_pairs = sorted(
-        list(zip(w, v)),
+        list(zip(w, V.T)),
         key=lambda pair: pair[0]
     )
 

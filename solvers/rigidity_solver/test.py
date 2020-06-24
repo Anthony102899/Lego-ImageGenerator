@@ -30,55 +30,35 @@ def rigidity_matrix(points: np.ndarray, edges: np.ndarray, dim: int) -> np.ndarr
     
     return R
 
-def show_graph(points: List[np.array], edges: List[List]):
-    sphere = o3d.geometry.TriangleMesh.create_sphere(radius=1.0, resolution=2)
-    sphere.compute_vertex_normals()
-    sphere.paint_uniform_color([0.9, 0.1, 0.1])
-
-    points = [p for p in points]
-
-    spheres = [copy.deepcopy(sphere).translate(p) for p in points]
-    lines = [e for e in edges]
-    colors = [[1, 0, 0] for i in range(len(lines))]
-    line_set = o3d.geometry.LineSet(
-        points=o3d.utility.Vector3dVector(points),
-        lines=o3d.utility.Vector2iVector(lines),
-    )
-    line_set.colors = o3d.utility.Vector3dVector(colors)
-    mesh_frame = o3d.geometry.TriangleMesh.create_coordinate_frame(
-        size=20, origin=[0, 0, 0]
-    )
-    o3d.visualization.draw_geometries([mesh_frame, line_set] + spheres)
-
-
 
 if __name__ == "__main__":
     points = np.array([
         [0, 0],
         [0, 1],
         [1, 0]
-    ]) 
+    ]) * 20 + 5
     edges = np.array([
         [0, 1],
         [0, 2],
         [1, 2]
     ])
 
-    R = rigidity_matrix(points, edges, 2)
-
-    print(matrix_rank(R.T @ R))
-
-    points_3d = np.hstack(
+    points = np.hstack(
         (points, np.zeros((len(points), 1)))
     )
-    R_3d = rigidity_matrix(points_3d, edges, 3)
 
-    print(matrix_rank(R_3d.T @ R_3d))
+    from solvers.rigidity_solver.xh_solver import show_graph
+    from util.geometry_util import eigen
 
-    points_degenerated = np.array([
-        [0, 0],
-        [0.5, 1],
-        [1, 2]
-    ])
-    R_degen = rigidity_matrix(points_degenerated, edges, 2)
-    print(matrix_rank(R_degen.T @ R_degen))
+    R = rigidity_matrix(points, edges, 3)
+    M = R.T @ R
+    pairs = eigen(M, symmetric=True)
+
+    print("variable number", M.shape[1])
+    print("matrix rank", matrix_rank(M))
+
+    for i in range(M.shape[1]):
+        print(pairs[i][1].reshape((-1, 3)))
+    
+    for i in range(6, 9):
+        show_graph(points, [], pairs[i][1].reshape((-1, 3)))
