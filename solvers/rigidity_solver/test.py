@@ -30,6 +30,18 @@ def rigidity_matrix(points: np.ndarray, edges: np.ndarray, dim: int) -> np.ndarr
     
     return R
 
+def spring_energy_matrix(points: np.ndarray, edges: np.ndarray, dim: int) -> np.ndarray:
+    A = np.zeros(len(edges)* dim, len(points) * dim)
+    K = np.zeros(len(edges)* dim, len(edges)* dim)
+    for idx, e in enumerate(edges):
+        for d in range(dim):
+            A[3*idx+d][3*e[0]+d] = 1
+            A[3*idx+d][3*e[1]+d] = -1
+
+    for i in range(len(edges)):
+        K[i][i] = 1 # set as the same material for now
+
+    return A.T @ K @ A
 
 if __name__ == "__main__":
     points = np.array([
