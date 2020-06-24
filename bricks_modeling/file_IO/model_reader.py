@@ -74,14 +74,16 @@ def read_graph_from_file(file_path):
         line_content = lines[i].rstrip().split(" ")
 
         if len(line_content) < 2:
+            #print(f"too small length for {lines[i]}, pass")
             i += 1
             continue
 
-        if not(line_content[0] == "0" and line_content[1] == "FILE") and not(line_content[0] == "1" and len(line_content) == 15):
+        elif not(line_content[0] == "0" and line_content[1] == "FILE") and not(line_content[0] == "1" and len(line_content) == 15):
+            #print(f"this is not a file declaration, continue finding line:{lines[i]}")
             i+=1
             continue
 
-        if line_content[0] == "0" and line_content[1] == "FILE" or (line_content[0] == "1" and len(line_content) == 15):
+        elif line_content[0] == "0" and line_content[1] == "FILE" or (line_content[0] == "1" and len(line_content) == 15):
             if line_content[0] == "0" and line_content[1] == "FILE":
                 file_name = ""
 
@@ -92,24 +94,28 @@ def read_graph_from_file(file_path):
                 new_file = File()
                 new_file.name = file_name
                 Files.append(new_file)
+                i += 1
             elif line_content[0] == "1":
                 file_name = "main"
                 print(f"Notice a new file {file_name}")
                 new_file = File()
                 new_file.name = file_name
                 Files.append(new_file)
-            i += 1
+            else:
+                print(f"Warning, unknown condition for {lines[i]}")
+
             while i < len(lines):
                 line_content = lines[i].rstrip().split(" ")
                 if len(line_content) < 3:
+                    print(f"too small length for {lines[i]}, pass")
                     i += 1
                     continue
 
-                if line_content[0] == "0" and line_content[1] == "FILE":
-                    # print(f"a different File ")
+                elif line_content[0] == "0" and line_content[1] == "FILE":
+                    print(f"Notice this is not a brick, so treat it as file line: {lines[i]}")
                     break
 
-                if line_content[0] == "1":
+                elif line_content[0] == "1":
                     file_name = ""
 
                     for j in range(14, len(line_content)):
@@ -117,10 +123,11 @@ def read_graph_from_file(file_path):
 
                     if file_name not in files_name:
                         read_a_brick(new_file.bricks, line_content, brick_templates, template_ids)
+                        print(f"Notice a brick {file_name} for {new_file.name} line:{lines[i]}")
                         i += 1
                         continue
                     elif file_name in files_name:
-                        print(f"Notice a internal file {file_name} for {new_file.name}")
+                        print(f"Notice a internal file {file_name} for {new_file.name} line: {lines[i]}")
                         new_file.internal_file.append(file_name)
                         trans_matrix_for_this = np.identity(4, dtype=float)
                         new_translate = np.zeros((3, 1))
@@ -137,10 +144,12 @@ def read_graph_from_file(file_path):
                         new_file.trans_matrix_for_internal_file.append(trans_matrix_for_this)
                         i += 1
                         continue
-
-                i += 1
-
-        #i += 1
+                else:
+                    #print(f"unknown condition for{lines[i]}")
+                    i += 1
+        else:
+            #print(f"unknown condition for{lines[i]}")
+            i += 1
 
     return Files
 
@@ -198,18 +207,16 @@ def read_file_from_startfile(bricks, file, trans_matrix, files):
 
 def read_bricks_from_graph(bricks, files):
     nodes = find_nodes(files)
-    '''print(nodes)
-    for file_name in nodes:
-        file = find_file_by_name(files, file_name)
-        read_file_from_startfile(bricks, file, np.identity(4, dtype=float), files)'''
     file = find_file_by_name(files, nodes[0])
     read_file_from_startfile(bricks, file, np.identity(4, dtype=float), files)
 
 
 def read_bricks_from_file(file_path):
-    brick_templates, template_ids = get_all_brick_templates()
     bricks = []
     files = read_graph_from_file(file_path)
     read_bricks_from_graph(bricks, files)
     return bricks
+
+
+
 
