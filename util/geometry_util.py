@@ -16,7 +16,7 @@ def point_local2world(
 def rot_matrix_from_vec_a_to_b(a, b):
     cross = np.cross(a, b)
     if np.linalg.norm(cross) == 0:  # parallel
-        if (a == cross).all():
+        if (a == b).all():
             return np.identity(3, dtype=float)
         return -np.identity(3, dtype=float)
     else:
