@@ -76,13 +76,18 @@ def points_span_dim(points: np.ndarray) -> bool:
     return min(rank, 3)
 
 
-def eigen(matrix: np.ndarray) -> List:
+def eigen(matrix: np.ndarray, symmetric: bool) -> List:
     """
     Compute eigenvalues/vectors, return a list of eigenvalue/vectors, sorted by the eigenvalue ascendingly
+        symmetric: a boolean that indicates the input matrix is symmetric
 
-    Wrapper of np.linalg.eig
+    Note: if the matrix is symmetric (Hermitian), the eigenvectors shall be real
     """
-    w, v = np.linalg.eig(matrix)
+    if symmetric: 
+        assert np.allclose(matrix, matrix.T)
+
+    eig_func = np.linalg.eigh if symmetric else np.linalg.eig
+    w, v = eig_func(matrix)
 
     eigen_pairs = sorted(
         list(zip(w, v)),

@@ -98,6 +98,7 @@ if __name__ == "__main__":
                     points_on_brick[bi].append(len(points) - 1)
                     exec(f"points.append(p[{i}])")
                     points_on_brick[bj].append(len(points) - 1)
+    
 
     #### add additional sample points, by detecting if the connection points are already sampled
     for brick_id, c_id_set in feature_points_on_brick.items():
@@ -126,14 +127,14 @@ if __name__ == "__main__":
         R[i, q_idx * 3: (q_idx + 1) * 3] =  q_minus_p
         R[i, p_idx * 3: (p_idx + 1) * 3] = -q_minus_p
 
-    M = R.T @ R
+    M: np.ndarray = R.T @ R
 
     print("problem dimemsion:", M.shape[0])
     print("matrix rank:", matrix_rank(M))
 
-    C = geo_util.eigen(M)
-    for e in C:
-        print(e[0])
-        print(e[1])
+    C = geo_util.eigen(M, symmetric=True)
 
-    show_graph(points, [], C[1][1].reshape((-1, 3)))
+    print(C[0])
+
+
+    # show_graph(points, [], C[1][1].reshape((-1, 3)))
