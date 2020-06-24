@@ -134,7 +134,7 @@ if __name__ == "__main__":
 
     C = geo_util.eigen(M, symmetric=True)
 
-    print(C[0])
+    print(C[0][1].shape)
+    print(C[1][1].shape)
 
-
-    # show_graph(points, [], C[1][1].reshape((-1, 3)))
+    show_graph(points, [], C[1][1].reshape((-1, 3)))
