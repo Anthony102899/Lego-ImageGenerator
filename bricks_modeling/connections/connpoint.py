@@ -18,9 +18,10 @@ class CPoint:
         for i in range(3):
             if typeToBrick[self.type][1][i] != 0:
                 scale_mat[i][i] *= typeToBrick[self.type][3]
-        matrix = scale_mat
+
         rot_mat = rot_matrix_from_vec_a_to_b(typeToBrick[self.type][1], self.orient)
-        matrix = matrix @ rot_mat
+        matrix = rot_mat
+        matrix = matrix @ scale_mat
         offset = rot_mat @ np.array(typeToBrick[self.type][2])
         text = (
             f"1 5 {self.pos[0] + offset[0]} {self.pos[1] + offset[1]} {self.pos[2] + offset[2]} "
