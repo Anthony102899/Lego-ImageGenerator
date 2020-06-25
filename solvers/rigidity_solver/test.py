@@ -51,26 +51,59 @@ if __name__ == "__main__":
     ]) * 20 + 5
     edges = np.array([
         [0, 1],
-        [0, 2],
-        [1, 2]
+        [1, 2],
+        [2, 0]
     ])
 
-    points = np.hstack(
-        (points, np.zeros((len(points), 1)))
-    )
+    # points = np.hstack(
+    #     (points, np.zeros((len(points), 1)))
+    # )
 
     from solvers.rigidity_solver.xh_solver import show_graph
     from util.geometry_util import eigen
+    norm = np.linalg.norm
+    normalized = lambda v: v / norm(v)
 
-    R = rigidity_matrix(points, edges, 3)
-    M = R.T @ R
-    pairs = eigen(M, symmetric=True)
+    A = np.array([
+        [1, -1, 0],
+        [0, 1, -1],
+        [-1, 0, 1],
+    ])
+    A = np.array([
+        [1, 0, -1, 0, 0, 0],
+        [0, 1, 0, -1, 0, 0],
+        [0, 0, 1, 0, -1, 0],
+        [0, 0, 0, 1, 0, -1],
+        [-1, 0, 0, 0, 1, 0],
+        [0, -1, 0, 0, 0, 1],
+    ])
+    print(A)
 
-    print("variable number", M.shape[1])
-    print("matrix rank", matrix_rank(M))
+    n = np.array([
+        normalized(points[0] - points[1]),
+        normalized(points[1] - points[2]),
+        normalized(points[2] - points[0]),
+    ])
+    print(n)
+    Ne = np.diag(n.reshape((-1,)))
+    Ne[0, 1] = n[0, 1]
+    Ne[1, 0] = n[0, 0]
+    Ne[2, 3] = n[1, 1]
+    Ne[3, 2] = n[1, 0]
+    Ne[4, 5] = n[2, 1]
+    Ne[5, 4] = n[2, 0]
+    print(Ne)
+    N = np.diag(n.reshape((-1, ))) @ Ne
+    print(N)
 
-    for i in range(M.shape[1]):
+    K = np.identity(6)
+    Q = A.T @ N.T @ K @ N @ A
+
+    pairs = eigen(Q, symmetric=True)
+
+    print("variable number", Q.shape[1])
+    print("matrix rank", matrix_rank(Q))
+
+    for i in range(Q.shape[1]):
         print(pairs[i][1].reshape((-1, 3)))
     
-    for i in range(6, 9):
-        show_graph(points, [], pairs[i][1].reshape((-1, 3)))
