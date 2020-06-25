@@ -1,4 +1,5 @@
 import enum
+import math
 
 
 class ConnPointType(enum.Enum):
@@ -21,15 +22,15 @@ stringToType = {
     "tube": ConnPointType.TUBE,
 }
 
-# TODO: different conn maps to different bricks
+# property: (debug brick, orientation, offset of the center, scale along the orientation)
 typeToBrick = {
-    ConnPointType.HOLE: ("18654.dat", [0, 1, 0]),
-    ConnPointType.PIN: ("18654.dat", [0, 1, 0]),
-    ConnPointType.AXLE: ("18654.dat", [0, 1, 0]),
-    ConnPointType.CROSS_HOLE: ("18654.dat", [0, 1, 0]),
-    ConnPointType.SOLID: ("18654.dat", [0, 1, 0]),
-    ConnPointType.STUD: ("stud.dat", [0, 1, 0]),
-    ConnPointType.TUBE: ("box5.dat", [0, 1, 0]),
+    ConnPointType.HOLE: ("18654.dat", [0, 1, 0], [0,0,0], 1,[0, 1, 0]),
+    ConnPointType.PIN: ("4274.dat", [0, 1, 0], [10,0,0],1,[0, 1, 0]),
+    ConnPointType.AXLE : ("3704.dat", [0,1,0],[0,0,0] ,0.5,[1, 0, 0]),
+    ConnPointType.CROSS_HOLE: ("axle.dat", [0, 1, 0], [0,-10,0],20,[0, 1, 0]),
+    ConnPointType.SOLID: ("18654.dat", [0, 1, 0],[0,0,0],1,[0, 1, 0]),
+    ConnPointType.STUD: ("stud.dat", [0, 1, 0],[0,2,0],1,[0, 1, 0]),
+    ConnPointType.TUBE: ("box5.dat", [0, 1, 0],[0,0.5,0],1,[0, 1, 0]),
 }
 
 if __name__ == "__main__":
