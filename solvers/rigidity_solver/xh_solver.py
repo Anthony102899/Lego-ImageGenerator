@@ -15,7 +15,7 @@ import util.geometry_util as geo_util
 
 def show_graph(points: List[np.array], edges: List[List], vectors: List[np.array]):
     assert len(points) == len(vectors)
-    sphere = o3d.geometry.TriangleMesh.create_sphere(radius=1.0, resolution=2)
+    sphere = o3d.geometry.TriangleMesh.create_sphere(radius=0.5, resolution=2)
 
     sphere.compute_vertex_normals()
     sphere.paint_uniform_color([0.9, 0.1, 0.1])
@@ -28,7 +28,7 @@ def show_graph(points: List[np.array], edges: List[List], vectors: List[np.array
         vec = vectors[idx]
         rot_mat = geo_util.rot_matrix_from_vec_a_to_b([0,0,1],vec)
         vec_len = LA.norm(vec)
-        arrow = o3d.geometry.TriangleMesh.create_arrow(cylinder_radius=0.2, cone_radius=0.35, cylinder_height=5*vec_len, cone_height=4* vec_len,resolution=3)
+        arrow = o3d.geometry.TriangleMesh.create_arrow(cylinder_radius=0.2, cone_radius=0.35, cylinder_height=10*vec_len, cone_height=8* vec_len,resolution=3)
         arrows.append(copy.deepcopy(arrow).translate(p).rotate(rot_mat, center = p))
 
     lines = [e for e in edges]
@@ -59,7 +59,7 @@ def get_crystal_vertices(contact_pt: np.array, contact_orient: np.array):
 
 if __name__ == "__main__":
     debugger = MyDebugger("test")
-    bricks = read_bricks_from_file("./data/full_models/test_single_brick.ldr")
+    bricks = read_bricks_from_file("./data/full_models/Lshape_pin_beam.ldr")
     write_bricks_to_file(bricks, file_path=debugger.file_path("test_single_brick.ldr"), debug=False)
     structure_graph = ConnectivityGraph(bricks)
 
@@ -81,8 +81,8 @@ if __name__ == "__main__":
             contact_pt = edge["properties"]["contact_point"]
             contact_orient = edge["properties"]["contact_orient"]
 
-            feature_points_on_brick[bi].remove(edge["cpoint_indices"][0])
-            feature_points_on_brick[bj].remove(edge["cpoint_indices"][1])
+            feature_points_on_brick[bi].discard(edge["cpoint_indices"][0])
+            feature_points_on_brick[bj].discard(edge["cpoint_indices"][1])
 
             point_idx_base = len(points)
 
