@@ -193,7 +193,7 @@
                               {"pos": [-40,0,0],"orient": [0,0.5,0],"type": "axle"},
                               {"pos": [-60,0,0],"orient": [0,0.5,0],"type": "axle"},
                               {"pos": [-80,0,0],"orient": [0,0.5,0],"type": "axle"}]},
-  {"id": "63869","connPoint": [{"pos": [0,0,0],"orient": [10,0,0],"type": "cross_hole"},
+  {"id": "63869","connPoint": [{"pos": [0,0,0],"orient": [1,0,0],"type": "cross_hole"},
                               {"pos": [0,20,0],"orient": [0,0,1],"type": "hole"},
                               {"pos": [20,20,0],"orient": [0,0,1],"type": "hole"},
                               {"pos": [-20,20,0],"orient": [0,0,1],"type": "hole"}]},
