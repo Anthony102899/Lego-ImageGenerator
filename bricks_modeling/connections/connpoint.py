@@ -14,13 +14,20 @@ class CPoint:
         self.type = type
 
     def to_ldraw(self) -> str:
+        scale_mat = np.identity(3)
+        for i in range(3):
+            if typeToBrick[self.type][1][i] != 0:
+                scale_mat[i][i] *= typeToBrick[self.type][3]
+
         rot_mat = rot_matrix_from_vec_a_to_b(typeToBrick[self.type][1], self.orient)
+        matrix = rot_mat
+        matrix = matrix @ scale_mat
         offset = rot_mat @ np.array(typeToBrick[self.type][2])
         text = (
             f"1 5 {self.pos[0] + offset[0]} {self.pos[1] + offset[1]} {self.pos[2] + offset[2]} "
-            + f"{rot_mat[0][0]} {rot_mat[0][1]} {rot_mat[0][2]} "
-            + f"{rot_mat[1][0]} {rot_mat[1][1]} {rot_mat[1][2]} "
-            + f"{rot_mat[2][0]} {rot_mat[2][1]} {rot_mat[2][2]} "
+            + f"{matrix[0][0]} {matrix[0][1]} {matrix[0][2]} "
+            + f"{matrix[1][0]} {matrix[1][1]} {matrix[1][2]} "
+            + f"{matrix[2][0]} {matrix[2][1]} {matrix[2][2]} "
             + typeToBrick[self.type][0]
         )
         return text
