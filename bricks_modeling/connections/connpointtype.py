@@ -26,7 +26,7 @@ typeToBrick = {
     ConnPointType.HOLE: ("18654.dat", [0, 1, 0]),
     ConnPointType.PIN: ("4274.dat", [0, 1, 0]),
     ConnPointType.AXLE : ("3704.dat", [0,1,0]),
-    ConnPointType.CROSS_HOLE: ("18654.dat", [0, 1, 0]),
+    ConnPointType.CROSS_HOLE: ("axle.dat", [0, 1, 0]),
     ConnPointType.SOLID: ("18654.dat", [0, 1, 0]),
     ConnPointType.STUD: ("stud.dat", [0, 1, 0]),
     ConnPointType.TUBE: ("box5.dat", [0, 1, 0]),
