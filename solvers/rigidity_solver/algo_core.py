@@ -10,7 +10,9 @@ import copy
 from typing import List
 import itertools
 from numpy import linalg as LA
+from numpy.linalg import inv
 from numpy.linalg import matrix_rank
+from scipy.linalg import polar
 
 def rigidity_matrix(points: np.ndarray, edges: np.ndarray, dim: int) -> np.ndarray:
     """
@@ -56,6 +58,21 @@ def spring_energy_matrix(points: np.ndarray, edges: np.ndarray, dim : int = 3) -
 
     return A.T @ P.T @ K @ P @ A
 
+def tranform_matrix_fitting(points_start, points_end, dim = 3):
+    assert len(points_start) == len(points_end)
+    A = np.zeros((len(points_start) * dim, dim*dim + dim))
+    b = points_end.reshape(-1)
+    for row, p in enumerate(points):
+        for i in range(dim):
+            A[row*dim+i][dim*i:dim*i+dim] = p.T
+            A[row * dim + i][i-dim] = 1
+
+    Q = inv(A.T @ A) @ A.T @ b
+    T = Q[-dim:]
+    M = Q[:dim*dim].reshape(dim, dim)
+
+    return M, T
+
 if __name__ == "__main__":
     points = np.array([
         [0, 0],
@@ -72,6 +89,18 @@ if __name__ == "__main__":
     from util.geometry_util import eigen
 
     pairs = eigen(M, symmetric=True)
+    for p in pairs:
+        print("======")
+        print(p[0])
+        points_before = points
+        points_after = points_before + 1*p[1].reshape(-1,2)
+        R, T = tranform_matrix_fitting(points, points_after, dim=2)
+        for i, p in enumerate(points_before):
+            print("--")
+            u, p = polar(R)
+            print(u) # the rotation part
+            print(p) # the sheer, scaling, and other deforming parts
+
 
     print("variable number", M.shape[1])
     print("matrix rank", matrix_rank(M))
