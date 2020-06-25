@@ -24,8 +24,8 @@ if __name__ == "__main__":
         )
 
     matrix = np.array([
-        [1, 0, 1],
-        [0, 2, 0],
+        [0, 1, 0],
+        [1, 2, 0],
         [0, 0, 3]
     ], dtype=np.float64)
-    print(eigen(matrix))
+    print(eigen(matrix, symmetric=True))

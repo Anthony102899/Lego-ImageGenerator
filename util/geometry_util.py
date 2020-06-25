@@ -88,9 +88,10 @@ def eigen(matrix: np.ndarray, symmetric: bool) -> List:
 
     eig_func = np.linalg.eigh if symmetric else np.linalg.eig
     w, V = eig_func(matrix)
+    V_normalized = map(lambda v: v / np.linalg.norm(v), V.T)
 
     eigen_pairs = sorted(
-        list(zip(w, V.T)),
+        list(zip(w, V_normalized)),
         key=lambda pair: pair[0]
     )
 
