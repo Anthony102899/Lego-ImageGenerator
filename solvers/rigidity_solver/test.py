@@ -97,7 +97,7 @@ if __name__ == "__main__":
     print(N)
 
     K = np.identity(6)
-    Q = A.T @  K @  A
+    Q = A.T @ N.T @ K @ N @ A
 
     pairs = eigen(Q, symmetric=True)
 
