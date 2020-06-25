@@ -6,6 +6,9 @@ LEGO Solver
 - `solvers` folder: solvers for LEGO rigidity analysis (to be implemented).
 - `data` folder: to store LEGO models, and the ConnectivityGraph
 
-## Dependency:
+## Dependency
 - open3d
 - json
+
+## Debugger
+Everytime you run the program with `util.debugger.MyDebugger` instantiated, a folder will be created in the `debugger` folder under the root directory, with folder name `yyyy-mm-dd_hh-mm-ss_XXX`. Relevant run-time result and files will be stored in the folder.
