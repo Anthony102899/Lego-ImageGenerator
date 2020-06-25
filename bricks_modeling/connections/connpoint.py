@@ -16,7 +16,7 @@ class CPoint:
     def to_ldraw(self) -> str:
         scale_mat = np.identity(3)
         for i in range(3):
-            if typeToBrick[self.type][1][i] != 0:
+            if typeToBrick[self.type][4][i] != 0:
                 scale_mat[i][i] *= typeToBrick[self.type][3]
 
         rot_mat = rot_matrix_from_vec_a_to_b(typeToBrick[self.type][1], self.orient)
