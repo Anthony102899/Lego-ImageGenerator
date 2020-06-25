@@ -18,3 +18,4 @@ if __name__ == "__main__":
             file_path=debugger.file_path(f"{template.id}_test.ldr"),
             debug=True,
         )
+
