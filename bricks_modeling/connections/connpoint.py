@@ -15,8 +15,9 @@ class CPoint:
 
     def to_ldraw(self) -> str:
         rot_mat = rot_matrix_from_vec_a_to_b(typeToBrick[self.type][1], self.orient)
+        offset = rot_mat @ np.array(typeToBrick[self.type][2])
         text = (
-            f"1 5 {self.pos[0]} {self.pos[1]} {self.pos[2]} "
+            f"1 5 {self.pos[0] + offset[0]} {self.pos[1] + offset[1]} {self.pos[2] + offset[2]} "
             + f"{rot_mat[0][0]} {rot_mat[0][1]} {rot_mat[0][2]} "
             + f"{rot_mat[1][0]} {rot_mat[1][1]} {rot_mat[1][2]} "
             + f"{rot_mat[2][0]} {rot_mat[2][1]} {rot_mat[2][2]} "
