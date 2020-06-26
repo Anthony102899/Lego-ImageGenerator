@@ -9,7 +9,7 @@ from bricks_modeling.file_IO import model_writer
 from util.debugger import MyDebugger
 
 
-class File():
+class File:
     def __init__(self, name):
         self.name = name
         self.father_file = None
@@ -33,7 +33,7 @@ class File():
         self.internal_file.append(get_file_or_brick_name(line_content))
         self.trans_matrix_for_internal_file.append(trans_matrix_for_internal_file)
 
-    def read_a_brick(self,line_content, brick_templates, template_ids):
+    def read_a_brick(self, line_content, brick_templates, template_ids):
         brick_id = line_content[-1][0:-4]
         if brick_id in template_ids:
             # processing brick color
@@ -49,8 +49,9 @@ class File():
             for j in range(9):
                 rotation[j // 3][j % 3] = float(line_content[j + 5])
 
-            brickInstance = BrickInstance(brick_templates[brick_idx], np.identity(4, dtype=float),
-                                          color)
+            brickInstance = BrickInstance(
+                brick_templates[brick_idx], np.identity(4, dtype=float), color
+            )
             brickInstance.rotate(rotation)
             brickInstance.translate(translate)
             self.bricks.append(brickInstance)
@@ -58,7 +59,7 @@ class File():
             print(f"cannot find {brick_id} in database")
 
 
-class File_Tree():
+class File_Tree:
     def __init__(self):
         self.files = []
 
@@ -73,6 +74,7 @@ class File_Tree():
                 return file
         print("Error, no such file name")
         return None
+
 
 def read_files_name(file_path):
     f = open(file_path, "r")
@@ -93,9 +95,10 @@ def read_files_name(file_path):
 
     return files_name
 
+
 def get_file_or_brick_name(line_content):
 
-    if line_content[0] == "1": # must be a brick declaration or parts quotation
+    if line_content[0] == "1":  # must be a brick declaration or parts quotation
 
         if len(line_content) < 15:
 
@@ -107,7 +110,9 @@ def get_file_or_brick_name(line_content):
                 file_name = file_name + line_content[j] + " "
             return file_name
 
-    if line_content[0] == "0" and line_content[1] == "FILE": # must be a parts declaration
+    if (
+        line_content[0] == "0" and line_content[1] == "FILE"
+    ):  # must be a parts declaration
         if len(line_content) < 3:
             print(f"Cannot find brick or file name in {line_content}")
             return ""
@@ -119,13 +124,19 @@ def get_file_or_brick_name(line_content):
 
 
 def is_brick_declaration(line_content, files_name):
-    return line_content[0] == "1" and get_file_or_brick_name(line_content) not in files_name
+    return (
+        line_content[0] == "1"
+        and get_file_or_brick_name(line_content) not in files_name
+    )
+
 
 def is_parts_declaration(line_content, files_name):
     return line_content[0] == "0" and get_file_or_brick_name(line_content) in files_name
 
+
 def is_parts_quotation(line_content, files_name):
     return line_content[0] == "1" and get_file_or_brick_name(line_content) in files_name
+
 
 def read_tree_from_file(file_path):
     f = open(file_path, "r")
@@ -137,7 +148,7 @@ def read_tree_from_file(file_path):
     for line in lines:
         line_content = line.rstrip().split(" ")
         if len(line_content) < 2:
-            #print(f"too small length for {line}, pass")
+            # print(f"too small length for {line}, pass")
             continue
         elif is_parts_declaration(line_content, files_name):
             file_name = get_file_or_brick_name(line_content)
@@ -147,16 +158,20 @@ def read_tree_from_file(file_path):
             current_file = new_file
         elif is_brick_declaration(line_content, files_name):
             if current_file == None:
-                print(f"Notice there is no file but a brick delaration happens, so create a file named main")
+                print(
+                    f"Notice there is no file but a brick delaration happens, so create a file named main"
+                )
                 new_file = File("main")
                 file_tree.files.append(new_file)
                 current_file = new_file
             brick_name = get_file_or_brick_name(line_content)
             print(f"Notice a brick:{brick_name} for file:{current_file.name}")
-            current_file.read_a_brick(line_content,brick_templates,template_ids)
-        elif is_parts_quotation(line_content,files_name):
+            current_file.read_a_brick(line_content, brick_templates, template_ids)
+        elif is_parts_quotation(line_content, files_name):
             internal_file_name = get_file_or_brick_name(line_content)
-            print(f"Notice a internal file{internal_file_name} for current file :{current_file.name}")
+            print(
+                f"Notice a internal file{internal_file_name} for current file :{current_file.name}"
+            )
             current_file.add_an_internal_file(line_content)
         else:
             print(f"unknown condition for line:{line}")
@@ -180,7 +195,9 @@ def read_bricks_from_a_file(bricks, file, trans_matrix):
     for bricktemplate in file.bricks:
         brick = copy.deepcopy(bricktemplate)
         brick.rotate(trans_matrix[:3, :3])
-        brick.trans_matrix[:3, 3:4] = np.dot(trans_matrix[:3, :3], brick.trans_matrix[:3, 3:4])
+        brick.trans_matrix[:3, 3:4] = np.dot(
+            trans_matrix[:3, :3], brick.trans_matrix[:3, 3:4]
+        )
         brick.translate(trans_matrix[:3, 3:4])
         bricks.append(brick)
 
@@ -206,15 +223,21 @@ def read_file_from_rootfile(bricks, file, trans_matrix, files):
             internal_file = find_file_by_name(files, file.internal_file[i])
             # print(f"file's name {internal_file.name}")
             new_trans_matrix = np.identity(4, dtype=float)
-            new_trans_matrix[:3, :3] = np.dot(trans_matrix[:3, :3], (file.trans_matrix_for_internal_file[i])[:3, :3])
-            new_trans_matrix[:3, 3:4] = np.dot(trans_matrix[:3, :3],
-                                               (file.trans_matrix_for_internal_file[i])[:3, 3:4]) + trans_matrix[:3,
-                                                                                                    3:4]
+            new_trans_matrix[:3, :3] = np.dot(
+                trans_matrix[:3, :3], (file.trans_matrix_for_internal_file[i])[:3, :3]
+            )
+            new_trans_matrix[:3, 3:4] = (
+                np.dot(
+                    trans_matrix[:3, :3],
+                    (file.trans_matrix_for_internal_file[i])[:3, 3:4],
+                )
+                + trans_matrix[:3, 3:4]
+            )
             read_file_from_rootfile(bricks, internal_file, new_trans_matrix, files)
 
 
 def read_bricks_from_graph(bricks, file_tree):
-    #nodes = find_roots(files)
+    # nodes = find_roots(files)
     file = file_tree.find_root()
     read_file_from_rootfile(bricks, file, np.identity(4, dtype=float), file_tree.files)
 
@@ -226,12 +249,7 @@ def read_bricks_from_file(file_path):
     return bricks
 
 
-#if __name__ == "__main__":
-    #bricks = read_bricks_from_file("../../data/full_models/miniheads/standard.mpd")
-    #debugger = MyDebugger("test")
-    #model_writer.write_bricks_to_file(bricks, debugger.file_path("model.ldr"))
-
-
-
-
-
+# if __name__ == "__main__":
+# bricks = read_bricks_from_file("../../data/full_models/miniheads/standard.mpd")
+# debugger = MyDebugger("test")
+# model_writer.write_bricks_to_file(bricks, debugger.file_path("model.ldr"))

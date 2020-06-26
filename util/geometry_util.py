@@ -3,6 +3,7 @@ import math
 from numpy import linalg as LA
 from typing import List
 
+
 def vec_local2world(rot_mat: np.ndarray, local_vec: np.ndarray) -> np.ndarray:
     return np.dot(rot_mat, local_vec)
 
@@ -37,6 +38,7 @@ def rot_matrix_from_vec_a_to_b(a, b):
             + (1 - math.cos(angle)) * np.dot(M, M)
         )
 
+
 def get_perpendicular_vec(vec: np.array) -> np.array:
     assert LA.norm(vec) > 0
     perp_vec = None
@@ -69,7 +71,9 @@ def points_span_dim(points: np.ndarray) -> bool:
     rank = np.linalg.matrix_rank(points)
 
     if rank == 1:
-        column_comp = np.all(points == points[0, :], axis=0)  # compare the entries columnwise
+        column_comp = np.all(
+            points == points[0, :], axis=0
+        )  # compare the entries columnwise
         if np.all(column_comp):  # all rows are identical to the first row
             return 0
         else:
@@ -85,16 +89,13 @@ def eigen(matrix: np.ndarray, symmetric: bool) -> List:
 
     Note: if the matrix is symmetric (Hermitian), the eigenvectors shall be real
     """
-    if symmetric: 
+    if symmetric:
         assert np.allclose(matrix, matrix.T)
 
     eig_func = np.linalg.eigh if symmetric else np.linalg.eig
     w, V = eig_func(matrix)
     V_normalized = map(lambda v: v / np.linalg.norm(v), V.T)
 
-    eigen_pairs = sorted(
-        list(zip(w, V_normalized)),
-        key=lambda pair: pair[0]
-    )
+    eigen_pairs = sorted(list(zip(w, V_normalized)), key=lambda pair: pair[0])
 
     return eigen_pairs
