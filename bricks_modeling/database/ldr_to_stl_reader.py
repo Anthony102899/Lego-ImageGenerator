@@ -4,40 +4,52 @@ from os import path
 from bricks_modeling.bricks.brick_factory import get_all_brick_templates
 
 '''
-    You need perl environment to run main
+    1.You need perl environment to run main, install perl for your device, and then install the perl plugin for pycharm and REBOOT(important).
+    
+    2.When you add a new brick in the database, you can run main to update the stl database.
+    
+    3.This program is slow (around 1 minute), need further modification if needed.
+    
+    4. Note: in parts file, there is also a "s" directory containing ldrs, so the stl directory follows this convention.
+      
 '''
 def get_file_name_in_a_directory(file_dir) -> []:
     file_Names=[]
     for files in os.listdir(file_dir):
-        #print(files)
-        if os.path.splitext(files)[1] == '.dat':
+        if os.path.splitext(files)[1] == '.dat' or os.path.splitext(files)[1] == '.stl': #Get file name end wtih dat or stl
             file_Names.append(os.path.splitext(files)[0])
     return file_Names
 
-def convert_ldr_to_stl(ldr_file_name, ldr_directory, stl_directory):
+def convert_ldr_to_stl(ldr_file_name, ldr_directory, stl_directory, debug):
     #ldr_file_name must under ldr_directory
     brick_templates, template_ids = get_all_brick_templates()
-    if ldr_file_name in template_ids:
+    if (debug):
+        if ldr_file_name in template_ids:
+            if ldr_file_name in get_file_name_in_a_directory(stl_directory):
+                print(f"{ldr_file_name} in {stl_directory}")
+            else:
+                print(f"{ldr_file_name} not in {stl_directory}")
+        return
+    if ldr_file_name in template_ids and ldr_file_name not in get_file_name_in_a_directory(stl_directory):
         os.system(f'perl ldraw2stl/bin/dat2stl --file {ldr_directory +"/"+ ldr_file_name + ".dat"} --ldrawdir ./ldraw > {stl_directory + "/" + ldr_file_name}.stl')
-        print(f"file{ldr_file_name} pass")
+        print(f"new file{ldr_file_name}.stl has been created")
 
 
-def convert_ldrs_to_stls(ldr_file_names:[], ldr_directory, stl_directory):
-    for ldr_file_name in ldr_file_names:
-        convert_ldr_to_stl(ldr_file_name,ldr_directory,stl_directory)
+def convert_ldrs_to_stls(ldr_directory, stl_directory, debug=False):
+    for ldr_file_name in get_file_name_in_a_directory(ldr_directory):
+        convert_ldr_to_stl(ldr_file_name,ldr_directory, stl_directory, debug)
 
 if __name__ == "__main__":
-    '''
-        Note: in parts file, there is also a "s" directory containing ldrs, so the stl directory follows this convention
-    '''
+
     LEGO_parts_direcotry = os.path.join(path.dirname(__file__) ,"ldraw" ,"parts")
     LEGO_single_parts_direcotry = os.path.join(path.dirname(__file__) ,"ldraw" ,"parts","s")
 
     stl_directory = os.path.join(path.dirname(__file__) ,"stl")
     stl_directory_s = os.path.join(path.dirname(__file__), "stl","s")
 
-    file_names_in_parts = get_file_name_in_a_directory(LEGO_parts_direcotry)#file name in lego-solver/bricks_modeling/database\ldraw\parts
-    file_names_in_parts_s = get_file_name_in_a_directory(LEGO_single_parts_direcotry)#lego-solver/bricks_modeling/database\ldraw\parts\s
+    print("Updating stl directory, this may last for a minute")
 
-    convert_ldrs_to_stls(file_names_in_parts, LEGO_parts_direcotry, stl_directory)
-    convert_ldrs_to_stls(file_names_in_parts_s,LEGO_single_parts_direcotry,stl_directory_s)
+    convert_ldrs_to_stls(LEGO_parts_direcotry, stl_directory)
+    convert_ldrs_to_stls(LEGO_single_parts_direcotry, stl_directory_s)
+
+    print("stl directory up to date")
