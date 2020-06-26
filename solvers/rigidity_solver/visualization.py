@@ -15,7 +15,6 @@ import util.geometry_util as geo_util
 from solvers.rigidity_solver.algo_core import spring_energy_matrix
 
 
-
 def show_graph(points: List[np.array], edges: List[List], vectors: List[np.array]):
     assert len(points) == len(vectors)
     sphere = o3d.geometry.TriangleMesh.create_sphere(radius=0.5, resolution=2)
@@ -29,11 +28,17 @@ def show_graph(points: List[np.array], edges: List[List], vectors: List[np.array
     arrows = []
     for idx, p in enumerate(points):
         vec = vectors[idx]
-        rot_mat = geo_util.rot_matrix_from_vec_a_to_b([0,0,1],vec)
+        rot_mat = geo_util.rot_matrix_from_vec_a_to_b([0, 0, 1], vec)
         vec_len = LA.norm(vec)
         if vec_len > 0:
-            arrow = o3d.geometry.TriangleMesh.create_arrow(cylinder_radius=0.2, cone_radius=0.35, cylinder_height=10*vec_len, cone_height=8* vec_len,resolution=3)
-            arrows.append(copy.deepcopy(arrow).translate(p).rotate(rot_mat, center = p))
+            arrow = o3d.geometry.TriangleMesh.create_arrow(
+                cylinder_radius=0.2,
+                cone_radius=0.35,
+                cylinder_height=10 * vec_len,
+                cone_height=8 * vec_len,
+                resolution=3,
+            )
+            arrows.append(copy.deepcopy(arrow).translate(p).rotate(rot_mat, center=p))
 
     lines = [e for e in edges]
     colors = [[1, 0, 0] for i in range(len(lines))]

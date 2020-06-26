@@ -19,8 +19,10 @@ import solvers.rigidity_solver.visualization as vis
 
 if __name__ == "__main__":
     debugger = MyDebugger("test")
-    bricks = read_bricks_from_file("./data/full_models/test_single_brick.ldr")
-    write_bricks_to_file(bricks, file_path=debugger.file_path("test_single_brick.ldr"), debug=False)
+    bricks = read_bricks_from_file("./data/full_models/hinged_L.ldr")
+    write_bricks_to_file(
+        bricks, file_path=debugger.file_path("test_single_brick.ldr"), debug=False
+    )
     structure_graph = ConnectivityGraph(bricks)
     points, edges = structure_sampling(structure_graph)
 
@@ -31,4 +33,4 @@ if __name__ == "__main__":
 
     C = geo_util.eigen(M, symmetric=True)
 
-    vis.show_graph(points, [], C[1][1].reshape((-1, 3)))
+    vis.show_graph(points, edges, C[1][1].reshape((-1, 3)))
