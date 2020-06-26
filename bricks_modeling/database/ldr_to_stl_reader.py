@@ -29,14 +29,17 @@ def convert_ldr_to_stl(ldr_file_name, ldr_directory, stl_directory, debug):
     brick_templates, template_ids = get_all_brick_templates()
     if debug:
         if ldr_file_name in template_ids:
-            if ldr_file_name in get_file_name_in_a_directory_with_suffix(stl_directory, ".stl"):
+            if ldr_file_name in get_file_name_in_a_directory_with_suffix(
+                stl_directory, ".stl"
+            ):
                 print(f"{ldr_file_name} in {stl_directory}")
             else:
                 print(f"{ldr_file_name} not in {stl_directory}")
         return
     if (
         ldr_file_name in template_ids
-        and ldr_file_name not in get_file_name_in_a_directory_with_suffix(stl_directory,'.stl')
+        and ldr_file_name
+        not in get_file_name_in_a_directory_with_suffix(stl_directory, ".stl")
     ):
         os.system(
             f'perl ldraw2stl/bin/dat2stl --file {ldr_directory +"/"+ ldr_file_name + ".dat"} --ldrawdir ./ldraw > {stl_directory + "/" + ldr_file_name}.stl'
@@ -45,7 +48,9 @@ def convert_ldr_to_stl(ldr_file_name, ldr_directory, stl_directory, debug):
 
 
 def convert_ldrs_to_stls(ldr_directory, stl_directory, debug=False):
-    for ldr_file_name in get_file_name_in_a_directory_with_suffix(ldr_directory, '.dat'):
+    for ldr_file_name in get_file_name_in_a_directory_with_suffix(
+        ldr_directory, ".dat"
+    ):
         convert_ldr_to_stl(ldr_file_name, ldr_directory, stl_directory, debug)
 
 
