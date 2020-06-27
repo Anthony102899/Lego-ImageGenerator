@@ -1,6 +1,13 @@
 from bricks_modeling.bricks.brickinstance import BrickInstance
 from bricks_modeling.connections.conn_type import compute_conn_type
-import itertools
+from bricks_modeling.connections.connpointtype import ConnPointType
+
+connect_type = [
+    {ConnPointType.HOLE, ConnPointType.PIN},
+    {ConnPointType.CROSS_HOLE, ConnPointType.AXLE},
+    {ConnPointType.HOLE, ConnPointType.AXLE},
+    {ConnPointType.STUD, ConnPointType.TUBE}
+    ]
 
 """ Returns immediate possible aligns using "align_tile" for "base_brick" """
 def get_all_tiles(base_brick: BrickInstance, align_tile: BrickInstance):
@@ -14,16 +21,19 @@ def get_all_tiles(base_brick: BrickInstance, align_tile: BrickInstance):
 
     ls = [(x,y) for x in range(base_cpoint_num) for y in range(align_cpoint_num)]
     for base_cpoint_idx,align_cpoint_idx in ls:
-        print("base cpoint num: ",base_cpoint_idx,"  align cpoint num: ",align_cpoint_idx)
-        cpoint_base = base_cpoints[base_cpoint_idx]
-        cpoint_align = base_cpoints[align_cpoint_idx]
+        align_tag = (base_cpoint_idx, align_cpoint_idx, cpoint_base.type, cpoint_align.type)
+        cpoint_base = base_cpoints[base_cpoint_idx]  # cpoint of base
+        cpoint_align = base_cpoints[align_cpoint_idx]  # cpoint of align
+        
+        if {cpoint_base.type, cpoint_align.type} not in connect_type:
+            continue
+        align_tags.append(align_tag)
         
         """
-        1. determine whether they can connect
-            2. get transformation
-            3. result_tiles.append(new_tile)
-        4. else continue
+        2. get transformation
+        3. result_tiles.append(new_tile)
         """        
+        print(align_tag)
     return result_tiles
 
 """ Return a list of "num_rings" neighbours of brick "base_brick" """
