@@ -2,12 +2,21 @@ from bricks_modeling.bricks.brickinstance import BrickInstance
 from bricks_modeling.connections.conn_type import compute_conn_type
 from bricks_modeling.connections.connpointtype import ConnPointType
 
+import numpy as np
+
 connect_type = [
     {ConnPointType.HOLE, ConnPointType.PIN},
     {ConnPointType.CROSS_HOLE, ConnPointType.AXLE},
     {ConnPointType.HOLE, ConnPointType.AXLE},
     {ConnPointType.STUD, ConnPointType.TUBE}
     ]
+
+def get_matrix():
+    # TODO: get transformation
+    return np.identity(4)
+
+def get_new_tile(base: BrickInstance, trans_mat):
+    return BrickInstance(base.template, trans_mat, base.color)
 
 """ Returns immediate possible aligns using "align_tile" for "base_brick" """
 def get_all_tiles(base_brick: BrickInstance, align_tile: BrickInstance):
@@ -21,19 +30,24 @@ def get_all_tiles(base_brick: BrickInstance, align_tile: BrickInstance):
 
     ls = [(x,y) for x in range(base_cpoint_num) for y in range(align_cpoint_num)]
     for base_cpoint_idx,align_cpoint_idx in ls:
-        align_tag = (base_cpoint_idx, align_cpoint_idx, cpoint_base.type, cpoint_align.type)
         cpoint_base = base_cpoints[base_cpoint_idx]  # cpoint of base
-        cpoint_align = base_cpoints[align_cpoint_idx]  # cpoint of align
+        cpoint_align = align_cpoints[align_cpoint_idx]  # cpoint of align
+        align_tag = (base_cpoint_idx, align_cpoint_idx, cpoint_base.type, cpoint_align.type)
         
         if {cpoint_base.type, cpoint_align.type} not in connect_type:
             continue
-        align_tags.append(align_tag)
+    
+        # TODO: add parameters
+        trans_mat = get_matrix()
         
-        """
-        2. get transformation
-        3. result_tiles.append(new_tile)
-        """        
-        print(align_tag)
+        new_tile = get_new_tile(base_brick, trans_mat)
+        new_cpoints = new_tile.get_current_conn_points()
+        cpoint_new_tile = new_cpoints[align_cpoint_idx]  # cpoint of transformed align brick
+        type_conn = compute_conn_type(cpoint_base, cpoint_new_tile)
+
+        if type_conn is not None:
+            result_tiles.append(new_tile)
+            align_tags.append(align_tag)
     return result_tiles
 
 """ Return a list of "num_rings" neighbours of brick "base_brick" """
