@@ -67,7 +67,7 @@ def tranform_matrix_fitting(points_start, points_end, dim=3):
     assert len(points_start) == len(points_end)
     A = np.zeros((len(points_start) * dim, dim * dim + dim))
     b = points_end.reshape(-1)
-    for row, p in enumerate(points):
+    for row, p in enumerate(points_start):
         for i in range(dim):
             A[row * dim + i][dim * i : dim * i + dim] = p.T
             A[row * dim + i][i - dim] = 1
@@ -80,8 +80,8 @@ def tranform_matrix_fitting(points_start, points_end, dim=3):
 
 
 if __name__ == "__main__":
-    points = np.array([[0, 0], [0, 1], [1, 0]]) * 20 + 5
-    edges = np.array([[0, 1], [1, 2], [2, 0]])
+    points = np.array([[0, 0], [0, 1], [1,1], [1, 0]]) * 20 + 5
+    edges = np.array([[0, 1], [1, 2],[2,3], [3, 1]])
 
     M = spring_energy_matrix(points, edges, dim=2)
     from util.geometry_util import eigen

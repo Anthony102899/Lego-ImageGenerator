@@ -83,4 +83,4 @@ def structure_sampling(structure_graph: ConnectivityGraph):
     for value in points_on_brick.values():
         edges.extend(list(itertools.combinations(value, 2)))
 
-    return points, edges
+    return np.array(points), edges, points_on_brick
