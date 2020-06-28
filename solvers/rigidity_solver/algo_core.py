@@ -51,8 +51,8 @@ def spring_energy_matrix(
         assert LA.norm(edge_vec) > 1e-6
         normalized_edge_vec = normalized(edge_vec)
         P[idx][idx * dim : idx * dim + dim] = normalized_edge_vec.T
-        # K[idx][idx] = 1/LA.norm(edge_vec)  # set as the same material for now
-        K[idx][idx] = 1  # set as the same material for now
+        K[idx][idx] = 1/LA.norm(edge_vec)  # set as the same material for now
+        # K[idx][idx] = 1  # set as the same material for now
 
     # forming A
     for idx, e in enumerate(edges):
@@ -78,12 +78,15 @@ def tranform_matrix_fitting(points_start, points_end, dim=3):
 
     return M, T
 
-
 if __name__ == "__main__":
     points = np.array([[0, 0], [0, 1], [1,1], [1, 0]]) * 20 + 5
     edges = np.array([[0, 1], [1, 2],[2,3], [3, 1]])
 
+    # points = np.array([[0, 0], [0, 1], [1, 0]]) * 20 + 5
+    # edges = np.array([[0, 1], [1, 2], [2, 0]])
+
     M = spring_energy_matrix(points, edges, dim=2)
+    # M = zhenyuan_method()
     from util.geometry_util import eigen
 
     pairs = eigen(M, symmetric=True)
