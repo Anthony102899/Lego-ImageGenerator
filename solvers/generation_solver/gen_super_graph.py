@@ -6,8 +6,8 @@ from bricks_modeling.file_IO.model_writer import write_bricks_to_file
 tile_set = read_bricks_from_file("./data/single_part/3005.ldr")  # a list of bricks
 
 if __name__ == '__main__':
-    data = []
     debugger = MyDebugger("test")
-    for num_rings in range(1,2):
+    for num_rings in range(1,4):
         tiles = form_complete_graph(num_rings, base_tile=tile_set[0], tile_set=tile_set)  # including base tile
-        write_bricks_to_file(tiles, file_path=debugger.file_path(f"test.ldr"), debug=True,)
+        write_bricks_to_file(tiles, file_path=debugger.file_path(f"test{num_rings}.ldr"), debug=True)
+        print("\n")
