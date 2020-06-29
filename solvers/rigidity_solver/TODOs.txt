@@ -3,9 +3,9 @@ better visualization
 -> [LZY] better visualization
 -> [ZY] lego to mesh
 -> [XH] debug current method, warping method
-extra: sampling method,
+extra: sampling method
 
 validate more of the current hinge joint
 to optimize the sampling method for hinge joint
 to adopt more joints
-to adopt collision
+to adopt inter-blocking
