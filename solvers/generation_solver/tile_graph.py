@@ -18,42 +18,50 @@ rot = np.array([
 ])
 
 def get_rotation(cpoint_align, n, cpoint_base):
+    align_orient = cpoint_align.orient
+    base_orient = cpoint_base.orient
     align_direction = typeToBrick[cpoint_align.type][1]  # original cpoint orient recorded
     #print("  3.1 align_direction = ",align_direction)
-    #print("  3.2 orient of base and align = ", cpoint_base.orient,"   ",cpoint_align.orient)
-    cross = np.cross(align_direction, cpoint_align.orient)
+    #print("  3.2 orient of base and align = ", base_orient,"   ",align_orient)
+    cross = np.cross(align_direction, align_orient)
     if np.linalg.norm(cross) == 0:
         orient_rot = np.identity(4)
         orient_rot_idx = -1
     else:
-        orient_rot_idx = (np.where((align_direction + cpoint_align.orient) == 0))[0][0]
+        orient_rot_idx = (np.where((align_direction + align_orient) == 0))[0][0]
         orient_rot = rot[orient_rot_idx]
     #print("  3.3 original rotation = \n",orient_rot, "  (", orient_rot_idx,")")
 
-    cross = np.cross(cpoint_base.orient, cpoint_align.orient)
+    cross = np.cross(base_orient, align_orient)
     #print("  3.4 cross of base and align = ", cross)
+    dif_index = (np.where(base_orient + align_orient == 0))[0][0]
     if np.linalg.norm(cross) == 0:
         cal_rotation = np.identity(4)
     else:
-        x = cpoint_base.orient + cpoint_align.orient
-        dif_index = (np.where(x == 0))[0][0]
-        #print("  3.5 index = ", dif_index, "   (", cpoint_base.orient + cpoint_align.orient)
+        #print("  3.5 dif index = ", dif_index, "   (", base_orient + align_orient)
         cal_rotation = - rot[dif_index]
-    self_rot = rot[(np.nonzero(cpoint_base.orient))[0][0]]
-    
-    #print("  3.6 calculated rotation = \n", cal_rotation)
+    self_rot = rot[(np.nonzero(align_direction))[0][0]]
+    #print("  3.6 self rot axis = ", (np.nonzero(align_direction))[0][0])
+    #print("      self rot mat = \n", self_rot)
+    #print("  3.7 calculated rotation = \n", cal_rotation)
     rotation = orient_rot @ cal_rotation
     if n == 0:
+        #print("case 0!")
         return rotation
     if n == 1:
+        #print("case 1!")
         return rotation @ self_rot
+    #print("case 2!")
     return rotation @ (self_rot @ self_rot)
 
 def get_matrix(cpoint_base, cpoint_align, base_brick: BrickInstance, i):
     translation = np.identity(4)
     rotation = get_rotation(cpoint_align, i, cpoint_base)
+    #print("\n3. rotation = \n",rotation)
     trans_vec = np.append(cpoint_base.pos, 1) - (np.append(cpoint_align.pos, 1) @ rotation)
+    #print("\n4. trans vec = ",trans_vec)
     translation[:,3] = trans_vec
+    #print("4. translation = \n", translation)
     return translation @ rotation
 
 """ returns a new brick instance """
@@ -89,7 +97,6 @@ def get_all_tiles(base_brick: BrickInstance, align_tile: BrickInstance, color: i
             new_tile = get_new_tile(align_tile, trans_mat, color)  # brick instance, new tile based on "align_tile"
             result_tiles.append(new_tile)
             align_tags.append(align_tag)
-    #print("align tag = \n", align_tags)
     return result_tiles
 
 """ Returns True if the brick is already in list """
@@ -105,10 +112,10 @@ def check_repeatability(elem: BrickInstance, result_tiles: list):
     elem_cpoints = elem.get_current_conn_points()
     elem_cpoints_info = list(map(lambda cp: [list(cp.pos), cp.type], elem_cpoints))  # (#cpoints in elem * 2)
     elem_cpoints_info.sort()
-    
+            
     for cp_info in cpoints_info:
         cp_info.sort()
-        if (np.array(cp_info) == np.array(elem_cpoints_info)).all():  # all cpoints in one input equal elem's
+        if np.array((np.array(cp_info) == np.array(elem_cpoints_info))).all():  # all cpoints in one input equal elem's
             #print("duplicate brick!")
             return True
             
