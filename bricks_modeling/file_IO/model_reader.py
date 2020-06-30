@@ -7,6 +7,7 @@ from bricks_modeling.bricks.brick_factory import get_all_brick_templates
 from bricks_modeling.bricks.brickinstance import BrickInstance
 from bricks_modeling.file_IO import model_writer
 from util.debugger import MyDebugger
+from bricks_modeling.bricks.bricktemplate import BrickTemplate
 
 
 class File:
@@ -33,21 +34,22 @@ class File:
         self.internal_file.append(get_file_or_brick_name(line_content))
         self.trans_matrix_for_internal_file.append(trans_matrix_for_internal_file)
 
-    def read_a_brick(self, line_content, brick_templates, template_ids):
+    def read_a_brick(self, line_content, brick_templates, template_ids, read_fake_brick = False):
         brick_id = line_content[-1][0:-4]
-        if brick_id in template_ids:
-            # processing brick color
-            color = int(line_content[1])
+        # processing brick color
+        color = int(line_content[1])
 
+        translate = np.zeros((3, 1))
+        for j in range(3):
+            translate[j] = float(line_content[j + 2])
+
+        rotation = np.identity(3, dtype=float)
+        for j in range(9):
+            rotation[j // 3][j % 3] = float(line_content[j + 5])
+
+        if brick_id in template_ids:
             # processing the transformation matrix
             brick_idx = template_ids.index(brick_id)
-            translate = np.zeros((3, 1))
-            for j in range(3):
-                translate[j] = float(line_content[j + 2])
-
-            rotation = np.identity(3, dtype=float)
-            for j in range(9):
-                rotation[j // 3][j % 3] = float(line_content[j + 5])
 
             brickInstance = BrickInstance(
                 brick_templates[brick_idx], np.identity(4, dtype=float), color
@@ -57,6 +59,13 @@ class File:
             self.bricks.append(brickInstance)
         else:
             print(f"cannot find {brick_id} in database")
+            if read_fake_brick:
+                brickInstance = BrickInstance(
+                    BrickTemplate([], brick_id), np.identity(4, dtype=float), color
+                )
+                brickInstance.rotate(rotation)
+                brickInstance.translate(translate)
+                self.bricks.append(brickInstance)
 
 
 class File_Tree:
@@ -138,7 +147,7 @@ def is_parts_quotation(line_content, files_name):
     return line_content[0] == "1" and get_file_or_brick_name(line_content) in files_name
 
 
-def read_tree_from_file(file_path):
+def read_tree_from_file(file_path, read_fake_bricks = False):
     f = open(file_path, "r")
     brick_templates, template_ids = get_all_brick_templates()
     files_name = read_files_name(file_path)
@@ -166,7 +175,7 @@ def read_tree_from_file(file_path):
                 current_file = new_file
             brick_name = get_file_or_brick_name(line_content)
             print(f"Notice a brick:{brick_name} for file:{current_file.name}")
-            current_file.read_a_brick(line_content, brick_templates, template_ids)
+            current_file.read_a_brick(line_content, brick_templates, template_ids, read_fake_bricks)
         elif is_parts_quotation(line_content, files_name):
             internal_file_name = get_file_or_brick_name(line_content)
             print(
@@ -242,9 +251,9 @@ def read_bricks_from_graph(bricks, file_tree):
     read_file_from_rootfile(bricks, file, np.identity(4, dtype=float), file_tree.files)
 
 
-def read_bricks_from_file(file_path):
+def read_bricks_from_file(file_path, read_fake_bricks = False):
     bricks = []
-    file_tree = read_tree_from_file(file_path)
+    file_tree = read_tree_from_file(file_path, read_fake_bricks)
     read_bricks_from_graph(bricks, file_tree)
     return bricks
 

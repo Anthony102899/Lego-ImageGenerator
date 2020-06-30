@@ -1,5 +1,5 @@
 import numpy as np
-
+from numpy import linalg as LA
 from bricks_modeling.connections.connpointtype import ConnPointType, typeToBrick
 from util.geometry_util import rot_matrix_from_vec_a_to_b
 
@@ -12,6 +12,12 @@ class CPoint:
         self.orient: np.ndarray = np.array(orient, dtype=np.float64)
         # type (hole, pin, axle, or axle hole)
         self.type = type
+
+    def __eq__(self, other):
+        """Overrides the default implementation"""
+        if isinstance(other, CPoint) and self.type == other.type and LA.norm(self.pos-other.pos)<1e-5 and LA.norm(self.orient-other.orient)<1e-5:
+            return True
+        return False
 
     def to_ldraw(self) -> str:
         scale_mat = np.identity(3)
