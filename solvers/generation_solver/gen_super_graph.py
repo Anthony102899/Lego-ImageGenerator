@@ -3,7 +3,7 @@ from solvers.generation_solver.tile_graph import form_complete_graph
 from util.debugger import MyDebugger
 from bricks_modeling.file_IO.model_writer import write_bricks_to_file
 
-tile_set = read_bricks_from_file("./data/single_part/3004.ldr")  # a list of bricks
+tile_set = read_bricks_from_file("./data/super_graph/3004.ldr")  # a list of bricks
 
 if __name__ == '__main__':
     debugger = MyDebugger("test")
