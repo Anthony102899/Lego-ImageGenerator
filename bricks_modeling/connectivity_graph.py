@@ -79,10 +79,10 @@ class ConnectivityGraph:
 
         points = [b.get_translation().tolist() for b in self.bricks]
 
-        spheres = [
-            copy.deepcopy(sphere).translate(b.get_translation().tolist())
-            for b in self.bricks
-        ]
+        spheres = o3d.geometry.TriangleMesh()
+        for b in self.bricks:
+            spheres += copy.deepcopy(sphere).translate(b.get_translation().tolist())
+
         lines = [e["node_indices"] for e in self.edges]
         colors = [[1, 0, 0] for i in range(len(lines))]
         line_set = o3d.geometry.LineSet(
@@ -93,4 +93,4 @@ class ConnectivityGraph:
         mesh_frame = o3d.geometry.TriangleMesh.create_coordinate_frame(
             size=20, origin=[0, 0, 0]
         )
-        o3d.visualization.draw_geometries([mesh_frame, line_set] + spheres)
+        o3d.visualization.draw_geometries([mesh_frame, line_set, spheres])
