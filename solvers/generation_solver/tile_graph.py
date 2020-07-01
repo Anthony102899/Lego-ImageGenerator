@@ -1,5 +1,4 @@
 from bricks_modeling.bricks.brickinstance import BrickInstance
-from bricks_modeling.connections.conn_type import compute_conn_type
 from bricks_modeling.connections.connpointtype import ConnPointType, typeToBrick
 from util.geometry_util import rot_matrix_from_vec_a_to_b
 
@@ -21,8 +20,6 @@ def get_rotation(cpoint_align, n, cpoint_base):
     align_orient = cpoint_align.orient
     base_orient = cpoint_base.orient
     align_direction = typeToBrick[cpoint_align.type][1]  # original cpoint orient recorded
-    #print("  3.1 align_direction = ",align_direction)
-    #print("  3.2 orient of base and align = ", base_orient,"   ",align_orient)
     cross = np.cross(align_direction, align_orient)
     if np.linalg.norm(cross) == 0:
         orient_rot = np.identity(4)
@@ -30,39 +27,40 @@ def get_rotation(cpoint_align, n, cpoint_base):
     else:
         orient_rot_idx = (np.where((align_direction + align_orient) == 0))[0][0]
         orient_rot = rot[orient_rot_idx]
-    #print("  3.3 original rotation = \n",orient_rot, "  (", orient_rot_idx,")")
 
     cross = np.cross(base_orient, align_orient)
-    #print("  3.4 cross of base and align = ", cross)
-    dif_index = (np.where(base_orient + align_orient == 0))[0][0]
     if np.linalg.norm(cross) == 0:
         cal_rotation = np.identity(4)
     else:
+        dif_index = (np.where(base_orient + align_orient == 0))[0][0]
         #print("  3.5 dif index = ", dif_index, "   (", base_orient + align_orient)
-        cal_rotation = - rot[dif_index]
-    self_rot = rot[(np.nonzero(align_direction))[0][0]]
-    #print("  3.6 self rot axis = ", (np.nonzero(align_direction))[0][0])
-    #print("      self rot mat = \n", self_rot)
-    #print("  3.7 calculated rotation = \n", cal_rotation)
+        cal_rotation = rot[dif_index]
+    self_rot = rot[(np.nonzero(base_orient))[0][0]]
     rotation = orient_rot @ cal_rotation
     if n == 0:
-        #print("case 0!")
+        print("\ncase 0")
         return rotation
     if n == 1:
-        #print("case 1!")
+        print("\ncase 1")
         return rotation @ self_rot
-    #print("case 2!")
+    print("\ncase 2")
     return rotation @ (self_rot @ self_rot)
 
 def get_matrix(cpoint_base, cpoint_align, base_brick: BrickInstance, i):
     translation = np.identity(4)
     rotation = get_rotation(cpoint_align, i, cpoint_base)
-    #print("\n3. rotation = \n",rotation)
-    trans_vec = np.append(cpoint_base.pos, 1) - (np.append(cpoint_align.pos, 1) @ rotation)
-    #print("\n4. trans vec = ",trans_vec)
+    #print("4. rotation = \n",rotation)
+    rot_3d = rotation[0:3]
+    rot_3d = rot_3d[:,0:3]
+    new_orient = rot_3d @ (np.transpose(cpoint_align.orient))
+    new_orient = np.transpose(new_orient)
+    cross = np.cross(new_orient, cpoint_base.orient)
+    align_pos_T = np.transpose(np.append(cpoint_align.pos, 1))
+    new_align_pos = rotation @ align_pos_T
+    new_align_pos = np.transpose(new_align_pos)
+    trans_vec = np.append(cpoint_base.pos, 1) - new_align_pos
     translation[:,3] = trans_vec
-    #print("4. translation = \n", translation)
-    return translation @ rotation
+    return translation @ rotation, np.linalg.norm(cross) < 1e-9
 
 """ returns a new brick instance """
 def get_new_tile(align: BrickInstance, trans_mat, color: int):
@@ -88,15 +86,23 @@ def get_all_tiles(base_brick: BrickInstance, align_tile: BrickInstance, color: i
             #print("\ntype of base and align: ",cpoint_base.type, "  ",cpoint_align.type,"  (! cannot connect)")
             continue
         align_tag = (base_cpoint_idx, align_cpoint_idx, cpoint_base.type, cpoint_align.type)
-        #print("\n1. pos of base and align: ",cpoint_base.pos, "    ",cpoint_align.pos)
-        #print("2. orient of base and align: ",cpoint_base.orient, "    ",cpoint_align.orient)
+        print("\n1. pos of base and align: ",cpoint_base.pos, "    ",cpoint_align.pos)
+        #print("2. type of base and align: ",cpoint_base.type, "    ",cpoint_align.type)
+        #print("3. orient of base and align: ",cpoint_base.orient, "    ",cpoint_align.orient)
         
         for i in range(3):
-            trans_mat = get_matrix(cpoint_base, cpoint_align, base_brick, i)
+            trans_mat, connect = get_matrix(cpoint_base, cpoint_align, base_brick, i)
             #print("3. transformation =\n",trans_mat)
             new_tile = get_new_tile(align_tile, trans_mat, color)  # brick instance, new tile based on "align_tile"
-            result_tiles.append(new_tile)
-            align_tags.append(align_tag)
+            new_cp = new_tile.get_current_conn_points()
+            #print("5. orient of new tile cps", new_cp[0].orient,"  ",new_cp[1].orient)
+            #print("6. test: cross = ", cross)
+            #print("connect = ",connect)
+            if connect:
+                result_tiles.append(new_tile)
+                align_tags.append(align_tag)
+            else:
+                print("not connected!!")
     return result_tiles
 
 """ Returns True if the brick is already in list """
