@@ -19,6 +19,10 @@ rot = np.array([
 def get_rotation(cpoint_align, n, cpoint_base):
     align_orient = cpoint_align.orient
     base_orient = cpoint_base.orient
+    base_direction = typeToBrick[cpoint_base.type][1]  # original base cpoint orient recorded
+    orient_rot = np.identity(4)
+    """
+    TODO: test below
     align_direction = typeToBrick[cpoint_align.type][1]  # original cpoint orient recorded
     cross = np.cross(align_direction, align_orient)
     if np.linalg.norm(cross) == 0:
@@ -27,24 +31,23 @@ def get_rotation(cpoint_align, n, cpoint_base):
     else:
         orient_rot_idx = (np.where((align_direction + align_orient) == 0))[0][0]
         orient_rot = rot[orient_rot_idx]
-
+    """
     cross = np.cross(base_orient, align_orient)
     if np.linalg.norm(cross) == 0:
         cal_rotation = np.identity(4)
     else:
         dif_index = (np.where(base_orient + align_orient == 0))[0][0]
-        #print("  3.5 dif index = ", dif_index, "   (", base_orient + align_orient)
         cal_rotation = rot[dif_index]
-    self_rot = rot[(np.nonzero(base_orient))[0][0]]
+    self_rot = rot[(np.nonzero(base_direction))[0][0]]
     rotation = orient_rot @ cal_rotation
     if n == 0:
-        print("\ncase 0")
+        #print("case 0\n")
         return rotation
     if n == 1:
-        print("\ncase 1")
+        #print("case 1\n")
         return rotation @ self_rot
-    print("\ncase 2")
-    return rotation @ (self_rot @ self_rot)
+    #print("case 2\n")
+    return rotation @ ((self_rot @ self_rot))
 
 def get_matrix(cpoint_base, cpoint_align, base_brick: BrickInstance, i):
     translation = np.identity(4)
@@ -56,8 +59,7 @@ def get_matrix(cpoint_base, cpoint_align, base_brick: BrickInstance, i):
     new_orient = np.transpose(new_orient)
     cross = np.cross(new_orient, cpoint_base.orient)
     align_pos_T = np.transpose(np.append(cpoint_align.pos, 1))
-    new_align_pos = rotation @ align_pos_T
-    new_align_pos = np.transpose(new_align_pos)
+    new_align_pos = np.transpose(rotation @ align_pos_T)
     trans_vec = np.append(cpoint_base.pos, 1) - new_align_pos
     translation[:,3] = trans_vec
     return translation @ rotation, np.linalg.norm(cross) < 1e-9
@@ -83,33 +85,21 @@ def get_all_tiles(base_brick: BrickInstance, align_tile: BrickInstance, color: i
         cpoint_align = align_cpoints[align_cpoint_idx]  # one cpoint of align
         
         if {cpoint_base.type, cpoint_align.type} not in connect_type:  # cannot connect
-            #print("\ntype of base and align: ",cpoint_base.type, "  ",cpoint_align.type,"  (! cannot connect)")
             continue
         align_tag = (base_cpoint_idx, align_cpoint_idx, cpoint_base.type, cpoint_align.type)
-        print("\n1. pos of base and align: ",cpoint_base.pos, "    ",cpoint_align.pos)
-        #print("2. type of base and align: ",cpoint_base.type, "    ",cpoint_align.type)
-        #print("3. orient of base and align: ",cpoint_base.orient, "    ",cpoint_align.orient)
         
         for i in range(3):
             trans_mat, connect = get_matrix(cpoint_base, cpoint_align, base_brick, i)
-            #print("3. transformation =\n",trans_mat)
             new_tile = get_new_tile(align_tile, trans_mat, color)  # brick instance, new tile based on "align_tile"
-            new_cp = new_tile.get_current_conn_points()
-            #print("5. orient of new tile cps", new_cp[0].orient,"  ",new_cp[1].orient)
-            #print("6. test: cross = ", cross)
-            #print("connect = ",connect)
             if connect:
                 result_tiles.append(new_tile)
                 align_tags.append(align_tag)
-            else:
-                print("not connected!!")
     return result_tiles
 
 """ Returns True if the brick is already in list """
 def check_repeatability(elem: BrickInstance, result_tiles: list):
     tile_pos = list(map(lambda brick: list(brick.trans_matrix[:,3][:3]), result_tiles))  # a list of positions (#tiles * 3)
     elem_pos = list(elem.trans_matrix[:,3][:3])  # elem position (1 * 3)
-    #print("\nelem pos = ", np.array(elem_pos))
     if list(elem_pos) not in list(tile_pos):
         return False
     result_tiles_idx = list(filter(lambda brick: (elem_pos == brick.trans_matrix[:,3][:3]).all(), result_tiles))  # filtered list of input bricks
