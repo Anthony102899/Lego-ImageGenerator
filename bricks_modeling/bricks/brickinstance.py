@@ -20,7 +20,7 @@ class BrickInstance:
                 self_c_points = self.get_current_conn_points()
                 other_c_points = other.get_current_conn_points()
                 if len(self_c_points) > 0:
-                    return self_c_points == other_c_points
+                    return self_c_points == other_c_points or self_c_points == other_c_points.reverse()
                 else:
                     return False
 
