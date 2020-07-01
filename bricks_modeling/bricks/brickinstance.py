@@ -11,6 +11,21 @@ class BrickInstance:
         self.trans_matrix = trans_matrix
         self.color = color
 
+    def __eq__(self, other):
+        """Overrides the default implementation"""
+        if isinstance(other, BrickInstance) and self.template.id == other.template.id:
+            if np.max(self.trans_matrix - other.trans_matrix) - np.min(self.trans_matrix - other.trans_matrix) < 1e-6:
+                return True
+            else:
+                self_c_points = self.get_current_conn_points()
+                other_c_points = other.get_current_conn_points()
+                if len(self_c_points) > 0:
+                    return self_c_points == other_c_points or self_c_points == other_c_points.reverse()
+                else:
+                    return False
+
+        return False
+
     def to_ldraw(self):
         text = (
             f"1 {self.color} {self.trans_matrix[0][3]} {self.trans_matrix[1][3]} {self.trans_matrix[2][3]} "
