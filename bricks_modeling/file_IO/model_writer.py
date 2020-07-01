@@ -13,4 +13,4 @@ def write_bricks_to_file(bricks: List[BrickInstance], file_path, debug=False):
         ldr_content = ldr_content + "\n" + conn_point
     file.write(ldr_content)
     file.close()
-    print(f"file {file_path} written!")
+    print(f"file {file_path} saved!")
