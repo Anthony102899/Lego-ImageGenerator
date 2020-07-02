@@ -5,11 +5,13 @@ from util.geometry_util import rot_matrix_from_vec_a_to_b
 
 #### abstraction of a point on a LEGO bricks, which can be either a hole, a pin, or an axle,
 class CPoint:
-    def __init__(self, pos, orient, type: ConnPointType):
+    def __init__(self, pos, orient, bi_orient, type: ConnPointType):
         # local position of this connection point
         self.pos: np.ndarray = np.array(pos, dtype=np.float64)
         # local orientation of this connection point
         self.orient: np.ndarray = np.array(orient, dtype=np.float64)
+        # axis-aligned vector that perpendicular to the orient
+        self.bi_orient: np.ndarray = np.array(bi_orient, dtype=np.float64)
         # type (hole, pin, axle, or axle hole)
         self.type = type
 

@@ -6,7 +6,8 @@ from bricks_modeling.bricks.bricktemplate import BrickTemplate
 from bricks_modeling.connections.connpoint import CPoint
 from bricks_modeling.connections.connpointtype import stringToType
 from util.debugger import MyDebugger
-
+from util.geometry_util import gen_lateral_vec
+import numpy as np
 
 def get_all_brick_templates(
     brick_database=[
@@ -33,6 +34,7 @@ def get_all_brick_templates(
                 CPoint(
                     pos=connPoint["pos"],
                     orient=connPoint["orient"],
+                    bi_orient=gen_lateral_vec(np.array(connPoint["orient"])),
                     type=stringToType[connPoint["type"]],
                 )
             )

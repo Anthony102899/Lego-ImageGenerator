@@ -7,11 +7,11 @@ tile_set = read_bricks_from_file("./data/super_graph/3004.ldr")  # a list of bri
 
 if __name__ == "__main__":
     debugger = MyDebugger("test")
-    for num_rings in range(1, 3):
-        tiles = form_complete_graph(
+    for num_rings in range(1, 2):
+        tiles = form_complete_graph( #TODO: random orient the base_tile to test
             num_rings, base_tile=tile_set[0], tile_set=tile_set
         )  # including base tile
-        print(f"number of tiles neighbours in ring{num_rings}", len(tiles))
+        print(f"number of tiles neighbours in ring{num_rings}:", len(tiles))
         write_bricks_to_file(
             tiles, file_path=debugger.file_path(f"test{num_rings}.ldr")
         )

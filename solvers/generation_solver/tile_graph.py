@@ -36,32 +36,41 @@ def get_rotation(cpoint_align, n, cpoint_base):
     return rotation
 
 
-def get_matrix(cpoint_base, cpoint_align, base_brick: BrickInstance, i):
-    translation = np.identity(4)
-    rotation = get_rotation(cpoint_align, i, cpoint_base)
-    rot_3d = rotation[:3, :3]  # 3*3 matrix
-    new_align_pos = rotation @ np.append(cpoint_align.pos, 1)
-    translation[:, 3] = np.append(cpoint_base.pos, 1) - new_align_pos
-    new_orient = rot_3d @ cpoint_align.orient
-    same = np.linalg.norm(new_orient - cpoint_base.orient) < 1e-9
-    return (
-        translation @ rotation,
-        (np.linalg.norm(np.cross(new_orient, cpoint_base.orient)) < 1e-9),
-        same == 1,
-    )
+def get_major_orient_matrices(cpoint_base, cpoint_align):
+    transformation = np.identity(4)
+
+    rotation = rot_matrix_from_vec_a_to_b(cpoint_align.orient, cpoint_base.orient)
+    rotation = rot_matrix_from_vec_a_to_b(rotation @ cpoint_align.bi_orient, rotation @ cpoint_base.bi_orient) @ rotation
+
+    new_align_pos = rotation @ cpoint_align.pos
+    transformation[:3, 3] = cpoint_base.pos - new_align_pos
+
+    transformation[:3, :3] = rotation
+
+    return [transformation]
 
 
 """ returns a new brick instance """
-
-
 def get_new_tile(align: BrickInstance, trans_mat, color: int):
     return BrickInstance(align.template, trans_mat, color)
 
 
+# def get_matrix(cpoint_base, cpoint_align, base_brick: BrickInstance, i):
+#     translation = np.identity(4)
+#     rotation = get_rotation(cpoint_align, i, cpoint_base)
+#     rot_3d = rotation[:3, :3]  # 3*3 matrix
+#     new_align_pos = rotation @ np.append(cpoint_align.pos, 1)
+#     translation[:, 3] = np.append(cpoint_base.pos, 1) - new_align_pos
+#     new_orient = rot_3d @ cpoint_align.orient
+#     same = np.linalg.norm(new_orient - cpoint_base.orient) < 1e-9
+#     return (
+#         translation @ rotation,
+#         (np.linalg.norm(np.cross(new_orient, cpoint_base.orient)) < 1e-9),
+#         same == 1,
+#     )
+
 """ Returns immediate possible aligns using "align_tile" for "base_brick" """
-
-
-def get_all_tiles(base_brick: BrickInstance, align_tile: BrickInstance, color: int):
+def generate_all_neighbor_tiles(base_brick: BrickInstance, align_tile: BrickInstance, color: int):
     result_tiles = []
     base_cpoints = base_brick.get_current_conn_points()  # a list of cpoints in base
     align_cpoints = align_tile.get_current_conn_points()  # a list of cpoints in align
@@ -73,18 +82,14 @@ def get_all_tiles(base_brick: BrickInstance, align_tile: BrickInstance, color: i
         cpoint_align = align_cpoints[align_cpoint_idx]  # one cpoint of align
 
         if {cpoint_base.type, cpoint_align.type} in connect_type:  # can connect
-            for i in range(12):  # 3 direction, each has four rotations
-                trans_mat, connect, same = get_matrix(
-                    cpoint_base, cpoint_align, base_brick, i
-                )
-                new_tile = get_new_tile(
-                    align_tile, trans_mat, color
-                )  # brick instance, new tile based on "align_tile"
-                if connect and not (
-                    connect_type.index({cpoint_base.type, cpoint_align.type}) == 2
-                    and same == 0
-                ):
-                    result_tiles.append(new_tile)
+            matrices = get_major_orient_matrices(
+                cpoint_base, cpoint_align
+            )
+            for trans_mat in matrices:  # 6 possible orientations of the normal
+                # TODO: get the 4 possible orientation here
+                new_tile = BrickInstance(align_tile.template, trans_mat, color)
+                result_tiles.append(new_tile)
+
     return result_tiles
 
 
@@ -137,7 +142,7 @@ def form_complete_graph(num_rings: int, base_tile: BrickInstance, tile_set: list
             print(f"last ring {last_ring_idx}")
             last_brick = last_ring.pop(0)  # brick instance in previous ring
             for align_tile in tile_set:  # brick instance to be aligned
-                neighbour_tiles = get_all_tiles(
+                neighbour_tiles = generate_all_neighbor_tiles(
                     base_brick=last_brick, align_tile=align_tile, color=i + 1
                 )  # a list of neighbour bricks of "base_brick"
                 for elem in neighbour_tiles:
