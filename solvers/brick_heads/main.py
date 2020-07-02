@@ -6,14 +6,18 @@ import os
 
 if __name__ == "__main__":
     debugger = MyDebugger("test")
-    template_bricks = read_bricks_from_file("./data/brickheads/template.ldr", read_fake_bricks = True)
+    template_bricks = read_bricks_from_file(
+        "./data/brickheads/template.ldr", read_fake_bricks=True
+    )
 
     total_bricks = template_bricks
 
     test_dir = "./data/brickheads/components/"
     for file_name in os.listdir(test_dir):
         addition_bricks = []
-        modifier_bricks = read_bricks_from_file(test_dir + file_name, read_fake_bricks=True)
+        modifier_bricks = read_bricks_from_file(
+            test_dir + file_name, read_fake_bricks=True
+        )
         for b in modifier_bricks:
             if b.template.id == "92593":
                 print("a")

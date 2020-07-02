@@ -39,7 +39,9 @@ def show_graph(points: List[np.array], edges: List[List], vectors: List[np.array
                     cone_height=8 * vec_len,
                     resolution=3,
                 )
-                arrows.append(copy.deepcopy(arrow).translate(p).rotate(rot_mat, center=p))
+                arrows.append(
+                    copy.deepcopy(arrow).translate(p).rotate(rot_mat, center=p)
+                )
 
     lines = [e for e in edges]
     colors = [[1, 0, 0] for i in range(len(lines))]

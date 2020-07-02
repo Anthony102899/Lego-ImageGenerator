@@ -4,7 +4,7 @@ import os.path
 import getopt
 from os import path
 
-'''
+"""
 
     I do not understand this code, but it works.
 
@@ -12,7 +12,7 @@ from os import path
 
     while inside while, very similar to what I did before......
     
-'''
+"""
 
 #!/usr/bin/env python
 #
@@ -35,8 +35,7 @@ from os import path
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-
-'''def print_help():
+"""def print_help():
     print
     "Usage: " + os.path.basename(sys.argv[0]) + " [OPTIONS] filein.stl"
     print
@@ -99,14 +98,14 @@ for opt, value in optlist:
     else:
         print("Unhandled option")
         print_help()
-'''
+"""
 useFast = True
+
 
 def stl2obj(stlfilename, objfilename):
 
     pointList = []
     facetList = []
-
 
     def GetPointId(point, list):
         global useFast
@@ -118,7 +117,6 @@ def stl2obj(stlfilename, objfilename):
         list.append(point)
         # obj start to count at 1
         return len(list)
-
 
     # start reading the STL file
     stlfile = open(stlfilename, "r")
@@ -161,7 +159,8 @@ def stl2obj(stlfilename, objfilename):
 
     objfile.close()
 
-#if __name__ == "__main__":
-    #stl_file = os.path.join(path.dirname(__file__),"2431.stl")
-    #obj_file = os.path.join(path.dirname(__file__),"2431.obj")
-    #stl2obj(stl_file, obj_file)
+
+# if __name__ == "__main__":
+# stl_file = os.path.join(path.dirname(__file__),"2431.stl")
+# obj_file = os.path.join(path.dirname(__file__),"2431.obj")
+# stl2obj(stl_file, obj_file)

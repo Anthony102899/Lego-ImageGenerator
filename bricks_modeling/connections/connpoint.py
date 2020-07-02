@@ -15,7 +15,12 @@ class CPoint:
 
     def __eq__(self, other):
         """Overrides the default implementation"""
-        if isinstance(other, CPoint) and self.type == other.type and LA.norm(self.pos-other.pos)<1e-5 and LA.norm(self.orient-other.orient)<1e-5:
+        if (
+            isinstance(other, CPoint)
+            and self.type == other.type
+            and LA.norm(self.pos - other.pos) < 1e-5
+            and LA.norm(self.orient - other.orient) < 1e-5
+        ):
             return True
         return False
 
