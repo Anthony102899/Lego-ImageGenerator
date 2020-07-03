@@ -99,8 +99,6 @@ def get_new_tile(align: BrickInstance, trans_mat, color: int):
 #     )
 
 """ Returns immediate possible aligns using "align_tile" for "base_brick" """
-
-
 def generate_all_neighbor_tiles(
     base_brick: BrickInstance, align_tile: BrickInstance, color: int
 ):
@@ -111,13 +109,14 @@ def generate_all_neighbor_tiles(
     for cpoint_base, cpoint_align in iter.product(base_cpoints, align_cpoints):
 
         if {cpoint_base.type, cpoint_align.type} in connect_type:  # can connect
+            # get all possible rotation matrices
             matrices = get_orient_matrices(cpoint_base, cpoint_align)
-
             for trans_mat in matrices:  # 2 possible orientations consistent with the normal
                 new_tile = BrickInstance(align_tile.template, trans_mat, color)
                 result_tiles.append(new_tile)
 
             # TODO: check collision with base_brick here
+
     return result_tiles
 
 

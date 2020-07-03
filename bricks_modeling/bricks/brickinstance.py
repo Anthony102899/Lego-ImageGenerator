@@ -34,12 +34,9 @@ class BrickInstance:
 
         return False
 
-    def collide(self, other: BrickInstance):
-        cpoint_self = self.get_current_conn_points()
-        cpoint_other = other.get_current_conn_points()
-        for c_self, c_other in iter.product(cpoint_self, cpoint_other):
-            pass
-
+    # TODO: finish this function
+    def collide(self, other):
+        pass
 
     def to_ldraw(self):
         text = (

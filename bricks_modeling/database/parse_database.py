@@ -25,7 +25,7 @@ if __name__ == "__main__":
     database_file = path.join(
         path.dirname(path.dirname(__file__)),
         "database",
-        "regular_brick_database_2.json",
+        "regular_brick_database.json",
     )
     with open(database_file) as f:
         data = json.load(f)
