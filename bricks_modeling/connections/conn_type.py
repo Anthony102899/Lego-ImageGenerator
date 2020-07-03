@@ -13,7 +13,6 @@ class ConnType(enum.Enum):
     BLOCK = 4  # movement constraint bt inter-blocking
     STUD_TUBE = 5  # to insert a stud on a regular brick into a tube
 
-
 def compute_conn_type(c_point1: CPoint, c_point2: CPoint):
     if np.linalg.norm(c_point1.pos - c_point2.pos) < 1e-9:
         if np.linalg.norm(np.cross(c_point1.orient, c_point2.orient)) < 1e-9:

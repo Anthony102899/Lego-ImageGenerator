@@ -3,6 +3,7 @@ import numpy as np
 from bricks_modeling.bricks.bricktemplate import BrickTemplate
 from bricks_modeling.connections.connpoint import CPoint
 import util.geometry_util as geo_util
+import itertools as iter
 
 
 class BrickInstance:
@@ -33,8 +34,12 @@ class BrickInstance:
 
         return False
 
-    def collide(self, other):
-        pass
+    def collide(self, other: BrickInstance):
+        cpoint_self = self.get_current_conn_points()
+        cpoint_other = other.get_current_conn_points()
+        for c_self, c_other in iter.product(cpoint_self, cpoint_other):
+            pass
+
 
     def to_ldraw(self):
         text = (

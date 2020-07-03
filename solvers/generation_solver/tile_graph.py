@@ -163,17 +163,22 @@ def form_complete_graph(num_rings: int, base_tile: BrickInstance, tile_set: list
     for i in range(0, num_rings):
         print(f"\ncomputing ring {i}")
         last_ring_num = len(last_ring)
-        for last_ring_idx in range(
-            last_ring_num
-        ):  # iterate over all bricks in the last ring
+
+        # iterate over all bricks in the last ring
+        for last_ring_idx in range(last_ring_num):
             print(f"last ring {last_ring_idx}")
             last_brick = last_ring.pop(0)  # brick instance in previous ring
-            for align_tile in tile_set:  # brick instance to be aligned
+
+            # brick instance to be aligned
+            for align_tile in tile_set:
+                # a list of neighbour bricks of "base_brick"
                 neighbour_tiles = generate_all_neighbor_tiles(
                     base_brick=last_brick, align_tile=align_tile, color=i + 1
-                )  # a list of neighbour bricks of "base_brick"
+                )
+
                 for elem in neighbour_tiles:
                     if not check_repeatability(elem, result_tiles):
                         result_tiles.append(elem)
                         last_ring.append(elem)
+
     return result_tiles

@@ -22,6 +22,16 @@ stringToType = {
     "tube": ConnPointType.TUBE,
 }
 
+typeToHeight = {
+    ConnPointType.HOLE : 20,
+    ConnPointType.PIN : 20,
+    ConnPointType.AXLE : 20,
+    ConnPointType.CROSS_HOLE : 20,
+    ConnPointType.SOLID : 20,
+    ConnPointType.STUD : 4,
+    ConnPointType.TUBE : 4,
+}
+
 # property: (debug brick, orientation, offset of the center, scale, scaling direction)
 typeToBrick = {
     ConnPointType.HOLE: ("18654.dat", [0, 1, 0], [0, 0, 0], 1, [0, 1, 0]),
