@@ -9,6 +9,7 @@ from util.debugger import MyDebugger
 from util.geometry_util import gen_lateral_vec
 import numpy as np
 
+
 def get_all_brick_templates(
     brick_database=[
         "technic_brick_database.json",

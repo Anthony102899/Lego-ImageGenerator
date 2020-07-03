@@ -3,7 +3,8 @@ from bricks_modeling.connections.connpointtype import ConnPointType, typeToBrick
 from util.geometry_util import rot_matrix_from_vec_a_to_b
 import numpy as np
 import itertools as iter
-
+from scipy.spatial.transform import Rotation as R
+from numpy import linalg as LA
 
 connect_type = [
     {ConnPointType.HOLE, ConnPointType.PIN},
@@ -35,19 +36,47 @@ def get_rotation(cpoint_align, n, cpoint_base):
     # print(f"\ncase {n}\n--------------------")
     return rotation
 
+# get eight (2 x 4) matrics
+def get_orient_matrices(cpoint_base, cpoint_align):
+    transformations = []
+    orient_matrices = get_two_orient_align_matrices(cpoint_base, cpoint_align)
+    rotations = get_four_self_rotation(cpoint_base.orient)
+    for orien_align_mat in orient_matrices:
+        for orient_rotate_mat in rotations:
+            transformation = np.identity(4)
+            transform_mat = orient_rotate_mat @ orien_align_mat
+            new_align_pos = transform_mat @ cpoint_align.pos
+            transformation[:3, 3] = cpoint_base.pos - new_align_pos
+            transformation[:3, :3] = transform_mat
+            transformations.append(transformation)
 
-def get_major_orient_matrices(cpoint_base, cpoint_align):
-    transformation = np.identity(4)
+    return transformations
 
-    rotation = rot_matrix_from_vec_a_to_b(cpoint_align.orient, cpoint_base.orient)
-    rotation = rot_matrix_from_vec_a_to_b(rotation @ cpoint_align.bi_orient, rotation @ cpoint_base.bi_orient) @ rotation
+def get_four_self_rotation(orient):
+    assert abs(LA.norm(orient) - 1) < 1e-6
+    rotations = []
 
-    new_align_pos = rotation @ cpoint_align.pos
-    transformation[:3, 3] = cpoint_base.pos - new_align_pos
+    for i in {0, 1, 2, 3}:
+        r = R.from_rotvec(np.pi / 2 * i * orient)
+        rotations.append( r.as_matrix() ) # if you met problem in this line, please upgrade "scipy"
 
-    transformation[:3, :3] = rotation
+    return rotations
 
-    return [transformation]
+def get_two_orient_align_matrices(cpoint_align, cpoint_base):
+    matrices = []
+    for direction in {-1, 1}:
+        rotation = rot_matrix_from_vec_a_to_b(
+            cpoint_align.orient, cpoint_base.orient * direction
+        )
+        rotation = (
+            rot_matrix_from_vec_a_to_b(
+                rotation @ cpoint_align.bi_orient, rotation @ cpoint_base.bi_orient
+            )
+            @ rotation
+        )
+        matrices.append(rotation)
+
+    return matrices
 
 
 """ returns a new brick instance """
@@ -70,26 +99,25 @@ def get_new_tile(align: BrickInstance, trans_mat, color: int):
 #     )
 
 """ Returns immediate possible aligns using "align_tile" for "base_brick" """
-def generate_all_neighbor_tiles(base_brick: BrickInstance, align_tile: BrickInstance, color: int):
+
+
+def generate_all_neighbor_tiles(
+    base_brick: BrickInstance, align_tile: BrickInstance, color: int
+):
     result_tiles = []
     base_cpoints = base_brick.get_current_conn_points()  # a list of cpoints in base
     align_cpoints = align_tile.get_current_conn_points()  # a list of cpoints in align
 
-    for base_cpoint_idx, align_cpoint_idx in [
-        (x, y) for x in range(len(base_cpoints)) for y in range(len(align_cpoints))
-    ]:
-        cpoint_base = base_cpoints[base_cpoint_idx]  # one cpoint of base
-        cpoint_align = align_cpoints[align_cpoint_idx]  # one cpoint of align
+    for cpoint_base, cpoint_align in iter.product(base_cpoints, align_cpoints):
 
         if {cpoint_base.type, cpoint_align.type} in connect_type:  # can connect
-            matrices = get_major_orient_matrices(
-                cpoint_base, cpoint_align
-            )
-            for trans_mat in matrices:  # 6 possible orientations of the normal
-                # TODO: get the 4 possible orientation here
+            matrices = get_orient_matrices(cpoint_base, cpoint_align)
+
+            for trans_mat in matrices:  # 2 possible orientations consistent with the normal
                 new_tile = BrickInstance(align_tile.template, trans_mat, color)
                 result_tiles.append(new_tile)
 
+            # TODO: check collision with base_brick here
     return result_tiles
 
 
@@ -128,7 +156,6 @@ def check_repeatability(elem: BrickInstance, result_tiles: list):
 
 
 """ Returns a list of "num_rings" neighbours of brick "base_brick" """
-
 
 def form_complete_graph(num_rings: int, base_tile: BrickInstance, tile_set: list):
     result_tiles = [base_tile]  # the resulting tiles

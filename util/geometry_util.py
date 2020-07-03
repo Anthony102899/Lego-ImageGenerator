@@ -13,13 +13,16 @@ def point_local2world(
 ) -> np.ndarray:
     return np.dot(rot_mat, local_point) + translation
 
+
 # return a axis-aligned unit vector that perpendicular to the input normal
 def gen_lateral_vec(vec: np.array):
-    norm = vec/LA.norm(vec)
+    norm = vec / LA.norm(vec)
     result_vec = np.array([0, 0, 0])
-    for i in range(3): # every coordinate in 3 dimension
+    for i in range(3):  # every coordinate in 3 dimension
         result_vec[i] = 1
-        if abs(LA.norm(np.cross(result_vec, norm))-1) < 1e-6: # two vectors perpendicular
+        if (
+            abs(LA.norm(np.cross(result_vec, norm)) - 1) < 1e-6
+        ):  # two vectors perpendicular
             return result_vec
         result_vec[i] = 0
     input("error normal input!", norm)

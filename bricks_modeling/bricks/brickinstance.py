@@ -33,6 +33,9 @@ class BrickInstance:
 
         return False
 
+    def collide(self, other):
+        pass
+
     def to_ldraw(self):
         text = (
             f"1 {self.color} {self.trans_matrix[0][3]} {self.trans_matrix[1][3]} {self.trans_matrix[2][3]} "
@@ -73,6 +76,13 @@ class BrickInstance:
             conn_point_position = geo_util.point_local2world(
                 self.trans_matrix[:3, :3], self.trans_matrix[:3, 3], cp.pos
             )
-            conn_points.append(CPoint(conn_point_position, conn_point_orient, conn_point_bi_orient, cp.type))
+            conn_points.append(
+                CPoint(
+                    conn_point_position,
+                    conn_point_orient,
+                    conn_point_bi_orient,
+                    cp.type,
+                )
+            )
 
         return conn_points
