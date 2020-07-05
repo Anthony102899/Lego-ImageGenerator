@@ -63,6 +63,5 @@ def ldr_to_obj(
 
     return meshs
 
-
 if __name__ == "__main__":
     ldr_to_obj("../../data/full_models/42023.mpd", open3d_vis=True)

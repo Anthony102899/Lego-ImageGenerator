@@ -71,8 +71,6 @@ class ConnectivityGraph:
         return json.dumps({"nodes": nodes, "edges": self.edges}, cls=NumpyArrayEncoder)
 
     def show(self):
-        # TODO: show edges in different colors
-
         sphere = o3d.geometry.TriangleMesh.create_sphere(radius=1.0, resolution=2)
         sphere.compute_vertex_normals()
         sphere.paint_uniform_color([0.9, 0.1, 0.1])
