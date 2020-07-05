@@ -1,5 +1,4 @@
 [
-
   {"id": "18654","connPoint": [{"pos": [0,0,0],"orient": [0,1,0],"type": "hole"}]},
   {"id": "43857","connPoint": [{"pos": [0,0,-10],"orient": [0,1,0],"type": "hole"},
                               {"pos": [0,0,10],"orient": [0,1,0],"type": "hole"}]},
@@ -102,7 +101,6 @@
                               {"pos": [0,0,120],"orient": [0,1,0],"type": "hole"},
                               {"pos": [16,0,132],"orient": [0,1,0],"type": "hole"},
                               {"pos": [32,0,144],"orient": [0,1,0],"type": "cross_hole"}]},
-                              
   {"id": "32348","connPoint": [{"pos": [0,0,0],"orient": [0,1,0],"type": "cross_hole"},
                               {"pos": [0,0,20],"orient": [0,1,0],"type": "hole"},
                               {"pos": [0,0,40],"orient": [0,1,0],"type": "hole"},
@@ -174,7 +172,6 @@
                               {"pos": [25,0,0],"orient": [1,0,0],"type": "axle"},
                               {"pos": [45,0,0],"orient": [1,0,0],"type": "axle"},
                               {"pos": [-31,0,0],"orient": [1,0,0],"type": "solid"}]},
-
   {"id": "32034","connPoint": [{"pos": [0,0,-20],"orient": [0,0,1],"type": "cross_hole"},
                               {"pos": [0,0,0],"orient": [1,0,0],"type": "hole"},
                               {"pos": [0,0,20],"orient": [0,0,1],"type": "cross_hole"}]},
