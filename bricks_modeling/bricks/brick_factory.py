@@ -13,7 +13,11 @@ import numpy as np
 def get_all_brick_templates(
     brick_database=[
         "technic_brick_database.json",
-        "regular_brick_database.json"
+        "regular_cuboid.json",
+        "regular_plate.json",
+        "regular_slope.json",
+        "regular_other.json",
+        "regular_round.json"
     ]
 ):
     data = []
