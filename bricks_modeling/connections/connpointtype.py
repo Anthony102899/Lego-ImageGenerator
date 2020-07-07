@@ -24,16 +24,28 @@ stringToType = {
     "cuboid_solid": ConnPointType.CUBOID_SOLID
 }
 
-# type to (length along the normal, and lateral direction of the normal)
+# type to if the connection point is valid in both sides along the normal
+isDoubleOriented = {
+    ConnPointType.HOLE :  True,
+    ConnPointType.PIN :   False,
+    ConnPointType.AXLE :  True,
+    ConnPointType.CROSS_HOLE :  True,
+    ConnPointType.SOLID :  True,
+    ConnPointType.STUD : False,
+    ConnPointType.TUBE : False,
+    ConnPointType.CUBOID_SOLID : True,
+}
+
+# type to (length along the normal, and two lateral direction of the normal)
 typeToBoundingBox = {
-    ConnPointType.HOLE : (20,20),
-    ConnPointType.PIN :  (20,20),
-    ConnPointType.AXLE : (20,20),
-    ConnPointType.CROSS_HOLE : (20,20),
-    ConnPointType.SOLID : (20,20),
-    ConnPointType.STUD : (4,12),
-    ConnPointType.TUBE : (4,12),
-    ConnPointType.CUBOID_SOLID : (20,20)
+    ConnPointType.HOLE : (20,20, 20),
+    ConnPointType.PIN :  (20,20,20),
+    ConnPointType.AXLE : (20,20,20),
+    ConnPointType.CROSS_HOLE : (20,20,20),
+    ConnPointType.SOLID : (20,20,20),
+    ConnPointType.STUD : (4,12,12),
+    ConnPointType.TUBE : (4,12,12),
+    ConnPointType.CUBOID_SOLID : (20,20,20)
 }
 
 # these properties are for visualization ONLY
