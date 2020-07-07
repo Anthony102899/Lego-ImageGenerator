@@ -73,7 +73,7 @@ class BrickInstance:
                 self.trans_matrix[:3, :3], cp.orient
             )
             conn_point_bi_orient = geo_util.vec_local2world(
-                self.trans_matrix[:3, :3], cp.orient
+                self.trans_matrix[:3, :3], cp.bi_orient
             )
             conn_point_position = geo_util.point_local2world(
                 self.trans_matrix[:3, :3], self.trans_matrix[:3, 3], cp.pos

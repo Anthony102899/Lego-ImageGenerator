@@ -1,7 +1,7 @@
 import numpy as np
 from numpy import linalg as LA
 from bricks_modeling.connections.connpointtype import ConnPointType, typeToBrick
-from util.geometry_util import rot_matrix_from_vec_a_to_b
+from util.geometry_util import rot_matrix_from_vec_a_to_b, gen_lateral_vec, rot_matrix_from_two_basis
 
 #### abstraction of a point on a LEGO bricks, which can be either a hole, a pin, or an axle,
 class CPoint:
@@ -29,10 +29,10 @@ class CPoint:
     def to_ldraw(self) -> str:
         scale_mat = np.identity(3)
         for i in range(3):
-            if typeToBrick[self.type][4][i] != 0:
-                scale_mat[i][i] *= typeToBrick[self.type][3]
+            scale_mat[i][i] *= typeToBrick[self.type][3][i]
 
-        rot_mat = rot_matrix_from_vec_a_to_b(typeToBrick[self.type][1], self.orient)
+        rot_mat = rot_matrix_from_two_basis(typeToBrick[self.type][1],gen_lateral_vec(typeToBrick[self.type][1]), self.orient, self.bi_orient)
+        # rot_mat = rot_matrix_from_vec_a_to_b(typeToBrick[self.type][1], self.orient)
         matrix = rot_mat
         matrix = matrix @ scale_mat
         offset = rot_mat @ np.array(typeToBrick[self.type][2])
