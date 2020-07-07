@@ -26,7 +26,6 @@ def get_brick_templates(brick_IDs):
     return bricks
 
 
-
 if __name__ == "__main__":
     debugger = MyDebugger("test")
     tile_set = get_brick_templates(brick_IDs)

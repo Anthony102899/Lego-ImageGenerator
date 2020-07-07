@@ -5,9 +5,9 @@ from bricks_modeling.bricks.brickinstance import BrickInstance
 
 def write_bricks_to_file(bricks: List[BrickInstance], file_path, debug=False):
     file = open(file_path, "a")
-    ldr_content = "\n 0 STEP \n".join([brick.to_ldraw() for brick in bricks])
+    ldr_content = "\n0 STEP\n".join([brick.to_ldraw() for brick in bricks])
     if debug:
-        conn_point = "\n".join(
+        conn_point = "\n0 STEP\n".join(
             [c.to_ldraw() for brick in bricks for c in brick.get_current_conn_points()]
         )
         ldr_content = ldr_content + "\n" + conn_point

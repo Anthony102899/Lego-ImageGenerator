@@ -12,12 +12,15 @@ import numpy as np
 
 def get_all_brick_templates(
     brick_database=[
-        "technic_brick_database.json",
+        "technic_beam.json",
+        "technic_axle.json",
+        "technic_pin.json",
+        "technic_connector.json",
         "regular_cuboid.json",
         "regular_plate.json",
         "regular_slope.json",
         "regular_other.json",
-        "regular_round.json"
+        "regular_circular.json"
     ]
 ):
     data = []

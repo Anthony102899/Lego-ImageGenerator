@@ -27,6 +27,22 @@ def gen_lateral_vec(vec: np.array):
         result_vec[i] = 0
     input("error normal input_images!", norm)
 
+def rot_matrix_from_two_basis(a1, a2, b1, b2):
+    assert abs(a1 @ a2) < 1e-6 and abs(b1 @ b2) < 1e-6
+    assert abs(LA.norm(a1) - 1) < 1e-4 and abs(LA.norm(a2) - 1) < 1e-4 and abs(LA.norm(b1) - 1) < 1e-4 and abs(LA.norm(b2) - 1) < 1e-4
+    a3 = np.cross(a1, a2)
+    b3 = np.cross(b1, b2)
+    X_before = np.empty([3,3])
+    X_before[:,0] = a1
+    X_before[:, 1] = a2
+    X_before[:, 2] = a3
+
+    X_after = np.empty([3, 3])
+    X_after[:,0] = b1
+    X_after[:, 1] = b2
+    X_after[:, 2] = b3
+
+    return X_after @ np.linalg.inv(X_before)
 
 def rot_matrix_from_vec_a_to_b(a, b):
     cross = np.cross(a, b)
