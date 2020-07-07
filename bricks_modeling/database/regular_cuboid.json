@@ -1,2827 +1,2892 @@
 [
   {
-    "id": "26604",
-    "connPoint": [
+    "id":"26604",
+    "connPoint":[
       {
-        "pos": [
+        "pos":[
           0,
           -2,
           0
         ],
-        "orient": [
+        "orient":[
           0,
           1,
           0
         ],
-        "type": "stud"
+        "type":"stud"
       },
       {
-        "pos": [
+        "pos":[
           0,
           10,
           -12
         ],
-        "orient": [
+        "orient":[
           0,
           0,
           1
         ],
-        "type": "stud"
+        "type":"stud"
       },
       {
-        "pos": [
+        "pos":[
           12,
           10,
           0
         ],
-        "orient": [
+        "orient":[
           -1,
           0,
           0
         ],
-        "type": "stud"
+        "type":"stud"
       },
       {
-        "pos": [
+        "pos":[
           0,
           22,
           0
         ],
-        "orient": [
+        "orient":[
           0,
           1,
           0
         ],
-        "type": "tube"
+        "type":"tube"
       }
     ]
   },
   {
-    "id": "11211",
-    "connPoint": [
+    "id":"11211",
+    "connPoint":[
       {
-        "pos": [10,-2,0],
-        "orient": [0,1,0],
-        "type": "stud"
-      },
-      {
-        "pos": [-10,-2,0],
-        "orient": [0,1,0],
-        "type": "stud"
-      },
-        {"pos": [-10,10,-12],"orient": [0,0,1],"type": "stud"},
-        {"pos": [10,10,-12],"orient": [0,0,1],"type": "stud"},
-        {"pos": [10,22,0],"orient": [0,-1,0],"type": "tube"},
-        {"pos": [-10,22,0],"orient": [0,-1,0],"type": "tube"}
-    ]},
-  {
-    "id": "22885",
-    "connPoint": [
-      {
-        "pos": [
+        "pos":[
           10,
           -2,
           0
         ],
-        "orient": [
+        "orient":[
           0,
           1,
           0
         ],
-        "type": "stud"
+        "type":"stud"
       },
       {
-        "pos": [
+        "pos":[
           -10,
           -2,
           0
         ],
-        "orient": [
+        "orient":[
           0,
           1,
           0
         ],
-        "type": "stud"
+        "type":"stud"
       },
       {
-        "pos": [
+        "pos":[
           -10,
           10,
           -12
         ],
-        "orient": [
+        "orient":[
           0,
           0,
           1
         ],
-        "type": "stud"
+        "type":"stud"
       },
       {
-        "pos": [
+        "pos":[
           10,
           10,
           -12
         ],
-        "orient": [
+        "orient":[
           0,
           0,
           1
         ],
-        "type": "stud"
+        "type":"stud"
       },
       {
-        "pos": [
+        "pos":[
+          10,
+          22,
+          0
+        ],
+        "orient":[
+          0,
+          -1,
+          0
+        ],
+        "type":"tube"
+      },
+      {
+        "pos":[
           -10,
-          30,
-          -12
-        ],
-        "orient": [
-          0,
-          0,
-          1
-        ],
-        "type": "stud"
-      },
-      {
-        "pos": [
-          10,
-          30,
-          -12
-        ],
-        "orient": [
-          0,
-          0,
-          1
-        ],
-        "type": "stud"
-      },
-      {
-        "pos": [
-          10,
-          38,
+          22,
           0
         ],
-        "orient": [
+        "orient":[
           0,
-          1,
+          -1,
           0
         ],
-        "type": "tube"
-      },
-      {
-        "pos": [
-          -10,
-          38,
-          0
-        ],
-        "orient": [
-          0,
-          1,
-          0
-        ],
-        "type": "tube"
+        "type":"tube"
       }
     ]
   },
   {
-    "id": "4733",
-    "connPoint": [
+    "id":"22885",
+    "connPoint":[
       {
-        "pos": [
-          0,
+        "pos":[
+          10,
           -2,
           0
         ],
-        "orient": [
+        "orient":[
           0,
           1,
           0
         ],
-        "type": "stud"
+        "type":"stud"
       },
       {
-        "pos": [
+        "pos":[
+          -10,
+          -2,
+          0
+        ],
+        "orient":[
           0,
+          1,
+          0
+        ],
+        "type":"stud"
+      },
+      {
+        "pos":[
+          -10,
           10,
           -12
         ],
-        "orient": [
+        "orient":[
           0,
           0,
           1
         ],
-        "type": "stud"
+        "type":"stud"
       },
       {
-        "pos": [
+        "pos":[
+          10,
+          10,
+          -12
+        ],
+        "orient":[
+          0,
+          0,
+          1
+        ],
+        "type":"stud"
+      },
+      {
+        "pos":[
+          -10,
+          30,
+          -12
+        ],
+        "orient":[
+          0,
+          0,
+          1
+        ],
+        "type":"stud"
+      },
+      {
+        "pos":[
+          10,
+          30,
+          -12
+        ],
+        "orient":[
+          0,
+          0,
+          1
+        ],
+        "type":"stud"
+      },
+      {
+        "pos":[
+          10,
+          38,
+          0
+        ],
+        "orient":[
+          0,
+          1,
+          0
+        ],
+        "type":"tube"
+      },
+      {
+        "pos":[
+          -10,
+          38,
+          0
+        ],
+        "orient":[
+          0,
+          1,
+          0
+        ],
+        "type":"tube"
+      }
+    ]
+  },
+  {
+    "id":"4733",
+    "connPoint":[
+      {
+        "pos":[
+          0,
+          -2,
+          0
+        ],
+        "orient":[
+          0,
+          1,
+          0
+        ],
+        "type":"stud"
+      },
+      {
+        "pos":[
+          0,
+          10,
+          -12
+        ],
+        "orient":[
+          0,
+          0,
+          1
+        ],
+        "type":"stud"
+      },
+      {
+        "pos":[
           12,
           10,
           0
         ],
-        "orient": [
+        "orient":[
           -1,
           0,
           0
         ],
-        "type": "stud"
+        "type":"stud"
       },
       {
-        "pos": [
+        "pos":[
           0,
           10,
           12
         ],
-        "orient": [
+        "orient":[
           0,
           0,
           -1
         ],
-        "type": "stud"
+        "type":"stud"
       },
       {
-        "pos": [
+        "pos":[
           -12,
           10,
           0
         ],
-        "orient": [
+        "orient":[
           1,
           0,
           0
         ],
-        "type": "stud"
+        "type":"stud"
       },
       {
-        "pos": [
+        "pos":[
           0,
           22,
           0
         ],
-        "orient": [
+        "orient":[
           0,
           1,
           0
         ],
-        "type": "tube"
+        "type":"tube"
       }
     ]
   },
   {
-    "id": "4070",
-    "connPoint": [
+    "id":"4070",
+    "connPoint":[
       {
-        "pos": [
+        "pos":[
           0,
           -2,
           0
         ],
-        "orient": [
+        "orient":[
           0,
           1,
           0
         ],
-        "type": "stud"
+        "type":"stud"
       },
       {
-        "pos": [
+        "pos":[
           0,
           10,
           -8
         ],
-        "orient": [
+        "orient":[
           0,
           0,
           1
         ],
-        "type": "stud"
+        "type":"stud"
       },
       {
-        "pos": [
+        "pos":[
           0,
           22,
           0
         ],
-        "orient": [
+        "orient":[
           0,
           1,
           0
         ],
-        "type": "tube"
+        "type":"tube"
       }
     ]
   },
   {
-    "id": "3622",
-    "connPoint": [
+    "id":"3622",
+    "connPoint":[
       {
-        "pos": [
+        "pos":[
           0,
           -2,
           0
         ],
-        "orient": [
+        "orient":[
           0,
           1,
           0
         ],
-        "type": "stud"
+        "type":"stud"
       },
       {
-        "pos": [
+        "pos":[
           20,
           -2,
           0
         ],
-        "orient": [
+        "orient":[
           0,
           1,
           0
         ],
-        "type": "stud"
+        "type":"stud"
       },
       {
-        "pos": [
+        "pos":[
           -20,
           -2,
           0
         ],
-        "orient": [
+        "orient":[
           0,
           1,
           0
         ],
-        "type": "stud"
+        "type":"stud"
       },
       {
-        "pos": [
+        "pos":[
           0,
           22,
           0
         ],
-        "orient": [
+        "orient":[
           0,
           1,
           0
         ],
-        "type": "tube"
+        "type":"tube"
       },
       {
-        "pos": [
+        "pos":[
           20,
           22,
           0
         ],
-        "orient": [
+        "orient":[
           0,
           1,
           0
         ],
-        "type": "tube"
+        "type":"tube"
       },
       {
-        "pos": [
+        "pos":[
           -20,
           22,
           0
         ],
-        "orient": [
+        "orient":[
           0,
           1,
           0
         ],
-        "type": "tube"
+        "type":"tube"
       }
     ]
   },
   {
-    "id": "3065",
-    "connPoint": [
+    "id":"3065",
+    "connPoint":[
       {
-        "pos": [
+        "pos":[
           10,
           -2,
           0
         ],
-        "orient": [
+        "orient":[
           0,
           1,
           0
         ],
-        "type": "stud"
+        "type":"stud"
       },
       {
-        "pos": [
+        "pos":[
           10,
           22,
           0
         ],
-        "orient": [
+        "orient":[
           0,
           1,
           0
         ],
-        "type": "tube"
+        "type":"tube"
       },
       {
-        "pos": [
+        "pos":[
           -10,
           -2,
           0
         ],
-        "orient": [
+        "orient":[
           0,
           1,
           0
         ],
-        "type": "stud"
+        "type":"stud"
       },
       {
-        "pos": [
+        "pos":[
           -10,
           22,
           0
         ],
-        "orient": [
+        "orient":[
           0,
           1,
           0
         ],
-        "type": "tube"
+        "type":"tube"
       }
     ]
   },
   {
-    "id": "3010",
-    "connPoint": [
+    "id":"3010",
+    "connPoint":[
       {
-        "pos": [
+        "pos":[
           10,
           -2,
           0
         ],
-        "orient": [
+        "orient":[
           0,
           1,
           0
         ],
-        "type": "stud"
+        "type":"stud"
       },
       {
-        "pos": [
+        "pos":[
           -10,
           -2,
           0
         ],
-        "orient": [
+        "orient":[
           0,
           1,
           0
         ],
-        "type": "stud"
+        "type":"stud"
       },
       {
-        "pos": [
+        "pos":[
           30,
           -2,
           0
         ],
-        "orient": [
+        "orient":[
           0,
           1,
           0
         ],
-        "type": "stud"
+        "type":"stud"
       },
       {
-        "pos": [
+        "pos":[
           -30,
           -2,
           0
         ],
-        "orient": [
+        "orient":[
           0,
           1,
           0
         ],
-        "type": "stud"
+        "type":"stud"
       },
       {
-        "pos": [
+        "pos":[
           10,
           22,
           0
         ],
-        "orient": [
+        "orient":[
           0,
           1,
           0
         ],
-        "type": "tube"
+        "type":"tube"
       },
       {
-        "pos": [
+        "pos":[
           -10,
           22,
           0
         ],
-        "orient": [
+        "orient":[
           0,
           1,
           0
         ],
-        "type": "tube"
+        "type":"tube"
       },
       {
-        "pos": [
+        "pos":[
           30,
           22,
           0
         ],
-        "orient": [
+        "orient":[
           0,
           1,
           0
         ],
-        "type": "tube"
+        "type":"tube"
       },
       {
-        "pos": [
+        "pos":[
           -30,
           22,
           0
         ],
-        "orient": [
+        "orient":[
           0,
           1,
           0
         ],
-        "type": "tube"
+        "type":"tube"
       }
     ]
   },
   {
-    "id": "3009",
-    "connPoint": [
+    "id":"3009",
+    "connPoint":[
       {
-        "pos": [
+        "pos":[
           10,
           -2,
           0
         ],
-        "orient": [
+        "orient":[
           0,
           1,
           0
         ],
-        "type": "stud"
+        "type":"stud"
       },
       {
-        "pos": [
+        "pos":[
           -10,
           -2,
           0
         ],
-        "orient": [
+        "orient":[
           0,
           1,
           0
         ],
-        "type": "stud"
+        "type":"stud"
       },
       {
-        "pos": [
+        "pos":[
           30,
           -2,
           0
         ],
-        "orient": [
+        "orient":[
           0,
           1,
           0
         ],
-        "type": "stud"
+        "type":"stud"
       },
       {
-        "pos": [
+        "pos":[
           -30,
           -2,
           0
         ],
-        "orient": [
+        "orient":[
           0,
           1,
           0
         ],
-        "type": "stud"
+        "type":"stud"
       },
       {
-        "pos": [
+        "pos":[
           50,
           -2,
           0
         ],
-        "orient": [
+        "orient":[
           0,
           1,
           0
         ],
-        "type": "stud"
+        "type":"stud"
       },
       {
-        "pos": [
+        "pos":[
           -50,
           -2,
           0
         ],
-        "orient": [
+        "orient":[
           0,
           1,
           0
         ],
-        "type": "stud"
+        "type":"stud"
       },
       {
-        "pos": [
+        "pos":[
           10,
           22,
           0
         ],
-        "orient": [
+        "orient":[
           0,
           1,
           0
         ],
-        "type": "tube"
+        "type":"tube"
       },
       {
-        "pos": [
+        "pos":[
           -10,
           22,
           0
         ],
-        "orient": [
+        "orient":[
           0,
           1,
           0
         ],
-        "type": "tube"
+        "type":"tube"
       },
       {
-        "pos": [
+        "pos":[
           30,
           22,
           0
         ],
-        "orient": [
+        "orient":[
           0,
           1,
           0
         ],
-        "type": "tube"
+        "type":"tube"
       },
       {
-        "pos": [
+        "pos":[
           -30,
           22,
           0
         ],
-        "orient": [
+        "orient":[
           0,
           1,
           0
         ],
-        "type": "tube"
+        "type":"tube"
       },
       {
-        "pos": [
+        "pos":[
           50,
           22,
           0
         ],
-        "orient": [
+        "orient":[
           0,
           1,
           0
         ],
-        "type": "tube"
+        "type":"tube"
       },
       {
-        "pos": [
+        "pos":[
           -50,
           22,
           0
         ],
-        "orient": [
+        "orient":[
           0,
           1,
           0
         ],
-        "type": "tube"
+        "type":"tube"
       }
     ]
   },
   {
-    "id": "3008",
-    "connPoint": [
+    "id":"3008",
+    "connPoint":[
       {
-        "pos": [
+        "pos":[
           10,
           -2,
           0
         ],
-        "orient": [
+        "orient":[
           0,
           1,
           0
         ],
-        "type": "stud"
+        "type":"stud"
       },
       {
-        "pos": [
+        "pos":[
           -10,
           -2,
           0
         ],
-        "orient": [
+        "orient":[
           0,
           1,
           0
         ],
-        "type": "stud"
+        "type":"stud"
       },
       {
-        "pos": [
+        "pos":[
           30,
           -2,
           0
         ],
-        "orient": [
+        "orient":[
           0,
           1,
           0
         ],
-        "type": "stud"
+        "type":"stud"
       },
       {
-        "pos": [
+        "pos":[
           -30,
           -2,
           0
         ],
-        "orient": [
+        "orient":[
           0,
           1,
           0
         ],
-        "type": "stud"
+        "type":"stud"
       },
       {
-        "pos": [
+        "pos":[
           50,
           -2,
           0
         ],
-        "orient": [
+        "orient":[
           0,
           1,
           0
         ],
-        "type": "stud"
+        "type":"stud"
       },
       {
-        "pos": [
+        "pos":[
           -50,
           -2,
           0
         ],
-        "orient": [
+        "orient":[
           0,
           1,
           0
         ],
-        "type": "stud"
+        "type":"stud"
       },
       {
-        "pos": [
+        "pos":[
           70,
           -2,
           0
         ],
-        "orient": [
+        "orient":[
           0,
           1,
           0
         ],
-        "type": "stud"
+        "type":"stud"
       },
       {
-        "pos": [
+        "pos":[
           -70,
           -2,
           0
         ],
-        "orient": [
+        "orient":[
           0,
           1,
           0
         ],
-        "type": "stud"
+        "type":"stud"
       },
       {
-        "pos": [
+        "pos":[
           10,
           22,
           0
         ],
-        "orient": [
+        "orient":[
           0,
           1,
           0
         ],
-        "type": "tube"
+        "type":"tube"
       },
       {
-        "pos": [
+        "pos":[
           -10,
           22,
           0
         ],
-        "orient": [
+        "orient":[
           0,
           1,
           0
         ],
-        "type": "tube"
+        "type":"tube"
       },
       {
-        "pos": [
+        "pos":[
           30,
           22,
           0
         ],
-        "orient": [
+        "orient":[
           0,
           1,
           0
         ],
-        "type": "tube"
+        "type":"tube"
       },
       {
-        "pos": [
+        "pos":[
           -30,
           22,
           0
         ],
-        "orient": [
+        "orient":[
           0,
           1,
           0
         ],
-        "type": "tube"
+        "type":"tube"
       },
       {
-        "pos": [
+        "pos":[
           50,
           22,
           0
         ],
-        "orient": [
+        "orient":[
           0,
           1,
           0
         ],
-        "type": "tube"
+        "type":"tube"
       },
       {
-        "pos": [
+        "pos":[
           -50,
           22,
           0
         ],
-        "orient": [
+        "orient":[
           0,
           1,
           0
         ],
-        "type": "tube"
+        "type":"tube"
       },
       {
-        "pos": [
+        "pos":[
           70,
           22,
           0
         ],
-        "orient": [
+        "orient":[
           0,
           1,
           0
         ],
-        "type": "tube"
+        "type":"tube"
       },
       {
-        "pos": [
+        "pos":[
           -70,
           22,
           0
         ],
-        "orient": [
+        "orient":[
           0,
           1,
           0
         ],
-        "type": "tube"
+        "type":"tube"
       }
     ]
   },
   {
-    "id": "3007",
-    "connPoint": [
+    "id":"3007",
+    "connPoint":[
       {
-        "pos": [
+        "pos":[
           10,
           -2,
           10
         ],
-        "orient": [
+        "orient":[
           0,
           1,
           0
         ],
-        "type": "stud"
+        "type":"stud"
       },
       {
-        "pos": [
+        "pos":[
           10,
           -2,
           -10
         ],
-        "orient": [
+        "orient":[
           0,
           1,
           0
         ],
-        "type": "stud"
+        "type":"stud"
       },
       {
-        "pos": [
+        "pos":[
           -10,
           -2,
           10
         ],
-        "orient": [
+        "orient":[
           0,
           1,
           0
         ],
-        "type": "stud"
+        "type":"stud"
       },
       {
-        "pos": [
+        "pos":[
           -10,
           -2,
           -10
         ],
-        "orient": [
+        "orient":[
           0,
           1,
           0
         ],
-        "type": "stud"
+        "type":"stud"
       },
       {
-        "pos": [
+        "pos":[
           30,
           -2,
           10
         ],
-        "orient": [
+        "orient":[
           0,
           1,
           0
         ],
-        "type": "stud"
+        "type":"stud"
       },
       {
-        "pos": [
+        "pos":[
           30,
           -2,
           -10
         ],
-        "orient": [
+        "orient":[
           0,
           1,
           0
         ],
-        "type": "stud"
+        "type":"stud"
       },
       {
-        "pos": [
+        "pos":[
           -30,
           -2,
           10
         ],
-        "orient": [
+        "orient":[
           0,
           1,
           0
         ],
-        "type": "stud"
+        "type":"stud"
       },
       {
-        "pos": [
+        "pos":[
           -30,
           -2,
           -10
         ],
-        "orient": [
+        "orient":[
           0,
           1,
           0
         ],
-        "type": "stud"
+        "type":"stud"
       },
       {
-        "pos": [
+        "pos":[
           50,
           -2,
           10
         ],
-        "orient": [
+        "orient":[
           0,
           1,
           0
         ],
-        "type": "stud"
+        "type":"stud"
       },
       {
-        "pos": [
+        "pos":[
           50,
           -2,
           -10
         ],
-        "orient": [
+        "orient":[
           0,
           1,
           0
         ],
-        "type": "stud"
+        "type":"stud"
       },
       {
-        "pos": [
+        "pos":[
           -50,
           -2,
           10
         ],
-        "orient": [
+        "orient":[
           0,
           1,
           0
         ],
-        "type": "stud"
+        "type":"stud"
       },
       {
-        "pos": [
+        "pos":[
           -50,
           -2,
           -10
         ],
-        "orient": [
+        "orient":[
           0,
           1,
           0
         ],
-        "type": "stud"
+        "type":"stud"
       },
       {
-        "pos": [
+        "pos":[
           70,
           -2,
           10
         ],
-        "orient": [
+        "orient":[
           0,
           1,
           0
         ],
-        "type": "stud"
+        "type":"stud"
       },
       {
-        "pos": [
+        "pos":[
           70,
           -2,
           -10
         ],
-        "orient": [
+        "orient":[
           0,
           1,
           0
         ],
-        "type": "stud"
+        "type":"stud"
       },
       {
-        "pos": [
+        "pos":[
           -70,
           -2,
           10
         ],
-        "orient": [
+        "orient":[
           0,
           1,
           0
         ],
-        "type": "stud"
+        "type":"stud"
       },
       {
-        "pos": [
+        "pos":[
           -70,
           -2,
           -10
         ],
-        "orient": [
+        "orient":[
           0,
           1,
           0
         ],
-        "type": "stud"
+        "type":"stud"
       },
       {
-        "pos": [
+        "pos":[
           10,
           22,
           10
         ],
-        "orient": [
+        "orient":[
           0,
           1,
           0
         ],
-        "type": "tube"
+        "type":"tube"
       },
       {
-        "pos": [
+        "pos":[
           10,
           22,
           -10
         ],
-        "orient": [
+        "orient":[
           0,
           1,
           0
         ],
-        "type": "tube"
+        "type":"tube"
       },
       {
-        "pos": [
+        "pos":[
           -10,
           22,
           10
         ],
-        "orient": [
+        "orient":[
           0,
           1,
           0
         ],
-        "type": "tube"
+        "type":"tube"
       },
       {
-        "pos": [
+        "pos":[
           -10,
           22,
           -10
         ],
-        "orient": [
+        "orient":[
           0,
           1,
           0
         ],
-        "type": "tube"
+        "type":"tube"
       },
       {
-        "pos": [
+        "pos":[
           30,
           22,
           10
         ],
-        "orient": [
+        "orient":[
           0,
           1,
           0
         ],
-        "type": "tube"
+        "type":"tube"
       },
       {
-        "pos": [
+        "pos":[
           30,
           22,
           -10
         ],
-        "orient": [
+        "orient":[
           0,
           1,
           0
         ],
-        "type": "tube"
+        "type":"tube"
       },
       {
-        "pos": [
+        "pos":[
           -30,
           22,
           10
         ],
-        "orient": [
+        "orient":[
           0,
           1,
           0
         ],
-        "type": "tube"
+        "type":"tube"
       },
       {
-        "pos": [
+        "pos":[
           -30,
           22,
           -10
         ],
-        "orient": [
+        "orient":[
           0,
           1,
           0
         ],
-        "type": "tube"
+        "type":"tube"
       },
       {
-        "pos": [
+        "pos":[
           50,
           22,
           10
         ],
-        "orient": [
+        "orient":[
           0,
           1,
           0
         ],
-        "type": "tube"
+        "type":"tube"
       },
       {
-        "pos": [
+        "pos":[
           50,
           22,
           -10
         ],
-        "orient": [
+        "orient":[
           0,
           1,
           0
         ],
-        "type": "tube"
+        "type":"tube"
       },
       {
-        "pos": [
+        "pos":[
           -50,
           22,
           10
         ],
-        "orient": [
+        "orient":[
           0,
           1,
           0
         ],
-        "type": "tube"
+        "type":"tube"
       },
       {
-        "pos": [
+        "pos":[
           -50,
           22,
           -10
         ],
-        "orient": [
+        "orient":[
           0,
           1,
           0
         ],
-        "type": "tube"
+        "type":"tube"
       },
       {
-        "pos": [
+        "pos":[
           70,
           22,
           10
         ],
-        "orient": [
+        "orient":[
           0,
           1,
           0
         ],
-        "type": "tube"
+        "type":"tube"
       },
       {
-        "pos": [
+        "pos":[
           70,
           22,
           -10
         ],
-        "orient": [
+        "orient":[
           0,
           1,
           0
         ],
-        "type": "tube"
+        "type":"tube"
       },
       {
-        "pos": [
+        "pos":[
           -70,
           22,
           10
         ],
-        "orient": [
+        "orient":[
           0,
           1,
           0
         ],
-        "type": "tube"
+        "type":"tube"
       },
       {
-        "pos": [
+        "pos":[
           -70,
           22,
           -10
         ],
-        "orient": [
+        "orient":[
           0,
           1,
           0
         ],
-        "type": "tube"
+        "type":"tube"
       }
     ]
   },
   {
-    "id": "3006",
-    "connPoint": [
+    "id":"3006",
+    "connPoint":[
       {
-        "pos": [
+        "pos":[
           10,
           -2,
           10
         ],
-        "orient": [
+        "orient":[
           0,
           1,
           0
         ],
-        "type": "stud"
+        "type":"stud"
       },
       {
-        "pos": [
+        "pos":[
           10,
           -2,
           -10
         ],
-        "orient": [
+        "orient":[
           0,
           1,
           0
         ],
-        "type": "stud"
+        "type":"stud"
       },
       {
-        "pos": [
+        "pos":[
           -10,
           -2,
           10
         ],
-        "orient": [
+        "orient":[
           0,
           1,
           0
         ],
-        "type": "stud"
+        "type":"stud"
       },
       {
-        "pos": [
+        "pos":[
           -10,
           -2,
           -10
         ],
-        "orient": [
+        "orient":[
           0,
           1,
           0
         ],
-        "type": "stud"
+        "type":"stud"
       },
       {
-        "pos": [
+        "pos":[
           30,
           -2,
           10
         ],
-        "orient": [
+        "orient":[
           0,
           1,
           0
         ],
-        "type": "stud"
+        "type":"stud"
       },
       {
-        "pos": [
+        "pos":[
           30,
           -2,
           -10
         ],
-        "orient": [
+        "orient":[
           0,
           1,
           0
         ],
-        "type": "stud"
+        "type":"stud"
       },
       {
-        "pos": [
+        "pos":[
           -30,
           -2,
           10
         ],
-        "orient": [
+        "orient":[
           0,
           1,
           0
         ],
-        "type": "stud"
+        "type":"stud"
       },
       {
-        "pos": [
+        "pos":[
           -30,
           -2,
           -10
         ],
-        "orient": [
+        "orient":[
           0,
           1,
           0
         ],
-        "type": "stud"
+        "type":"stud"
       },
       {
-        "pos": [
+        "pos":[
           50,
           -2,
           10
         ],
-        "orient": [
+        "orient":[
           0,
           1,
           0
         ],
-        "type": "stud"
+        "type":"stud"
       },
       {
-        "pos": [
+        "pos":[
           50,
           -2,
           -10
         ],
-        "orient": [
+        "orient":[
           0,
           1,
           0
         ],
-        "type": "stud"
+        "type":"stud"
       },
       {
-        "pos": [
+        "pos":[
           -50,
           -2,
           10
         ],
-        "orient": [
+        "orient":[
           0,
           1,
           0
         ],
-        "type": "stud"
+        "type":"stud"
       },
       {
-        "pos": [
+        "pos":[
           -50,
           -2,
           -10
         ],
-        "orient": [
+        "orient":[
           0,
           1,
           0
         ],
-        "type": "stud"
+        "type":"stud"
       },
       {
-        "pos": [
+        "pos":[
           70,
           -2,
           10
         ],
-        "orient": [
+        "orient":[
           0,
           1,
           0
         ],
-        "type": "stud"
+        "type":"stud"
       },
       {
-        "pos": [
+        "pos":[
           70,
           -2,
           -10
         ],
-        "orient": [
+        "orient":[
           0,
           1,
           0
         ],
-        "type": "stud"
+        "type":"stud"
       },
       {
-        "pos": [
+        "pos":[
           -70,
           -2,
           10
         ],
-        "orient": [
+        "orient":[
           0,
           1,
           0
         ],
-        "type": "stud"
+        "type":"stud"
       },
       {
-        "pos": [
+        "pos":[
           -70,
           -2,
           -10
         ],
-        "orient": [
+        "orient":[
           0,
           1,
           0
         ],
-        "type": "stud"
+        "type":"stud"
       },
       {
-        "pos": [
+        "pos":[
           90,
           -2,
           10
         ],
-        "orient": [
+        "orient":[
           0,
           1,
           0
         ],
-        "type": "stud"
+        "type":"stud"
       },
       {
-        "pos": [
+        "pos":[
           90,
           -2,
           -10
         ],
-        "orient": [
+        "orient":[
           0,
           1,
           0
         ],
-        "type": "stud"
+        "type":"stud"
       },
       {
-        "pos": [
+        "pos":[
           -90,
           -2,
           10
         ],
-        "orient": [
+        "orient":[
           0,
           1,
           0
         ],
-        "type": "stud"
+        "type":"stud"
       },
       {
-        "pos": [
+        "pos":[
           -90,
           -2,
           -10
         ],
-        "orient": [
+        "orient":[
           0,
           1,
           0
         ],
-        "type": "stud"
+        "type":"stud"
       },
       {
-        "pos": [
+        "pos":[
           10,
           22,
           10
         ],
-        "orient": [
+        "orient":[
           0,
           1,
           0
         ],
-        "type": "tube"
+        "type":"tube"
       },
       {
-        "pos": [
+        "pos":[
           10,
           22,
           -10
         ],
-        "orient": [
+        "orient":[
           0,
           1,
           0
         ],
-        "type": "tube"
+        "type":"tube"
       },
       {
-        "pos": [
+        "pos":[
           -10,
           22,
           10
         ],
-        "orient": [
+        "orient":[
           0,
           1,
           0
         ],
-        "type": "tube"
+        "type":"tube"
       },
       {
-        "pos": [
+        "pos":[
           -10,
           22,
           -10
         ],
-        "orient": [
+        "orient":[
           0,
           1,
           0
         ],
-        "type": "tube"
+        "type":"tube"
       },
       {
-        "pos": [
+        "pos":[
           30,
           22,
           10
         ],
-        "orient": [
+        "orient":[
           0,
           1,
           0
         ],
-        "type": "tube"
+        "type":"tube"
       },
       {
-        "pos": [
+        "pos":[
           30,
           22,
           -10
         ],
-        "orient": [
+        "orient":[
           0,
           1,
           0
         ],
-        "type": "tube"
+        "type":"tube"
       },
       {
-        "pos": [
+        "pos":[
           -30,
           22,
           10
         ],
-        "orient": [
+        "orient":[
           0,
           1,
           0
         ],
-        "type": "tube"
+        "type":"tube"
       },
       {
-        "pos": [
+        "pos":[
           -30,
           22,
           -10
         ],
-        "orient": [
+        "orient":[
           0,
           1,
           0
         ],
-        "type": "tube"
+        "type":"tube"
       },
       {
-        "pos": [
+        "pos":[
           50,
           22,
           10
         ],
-        "orient": [
+        "orient":[
           0,
           1,
           0
         ],
-        "type": "tube"
+        "type":"tube"
       },
       {
-        "pos": [
+        "pos":[
           50,
           22,
           -10
         ],
-        "orient": [
+        "orient":[
           0,
           1,
           0
         ],
-        "type": "tube"
+        "type":"tube"
       },
       {
-        "pos": [
+        "pos":[
           -50,
           22,
           10
         ],
-        "orient": [
+        "orient":[
           0,
           1,
           0
         ],
-        "type": "tube"
+        "type":"tube"
       },
       {
-        "pos": [
+        "pos":[
           -50,
           22,
           -10
         ],
-        "orient": [
+        "orient":[
           0,
           1,
           0
         ],
-        "type": "tube"
+        "type":"tube"
       },
       {
-        "pos": [
+        "pos":[
           70,
           22,
           10
         ],
-        "orient": [
+        "orient":[
           0,
           1,
           0
         ],
-        "type": "tube"
+        "type":"tube"
       },
       {
-        "pos": [
+        "pos":[
           70,
           22,
           -10
         ],
-        "orient": [
+        "orient":[
           0,
           1,
           0
         ],
-        "type": "tube"
+        "type":"tube"
       },
       {
-        "pos": [
+        "pos":[
           -70,
           22,
           10
         ],
-        "orient": [
+        "orient":[
           0,
           1,
           0
         ],
-        "type": "tube"
+        "type":"tube"
       },
       {
-        "pos": [
+        "pos":[
           -70,
           22,
           -10
         ],
-        "orient": [
+        "orient":[
           0,
           1,
           0
         ],
-        "type": "tube"
+        "type":"tube"
       },
       {
-        "pos": [
+        "pos":[
           90,
           22,
           10
         ],
-        "orient": [
+        "orient":[
           0,
           1,
           0
         ],
-        "type": "tube"
+        "type":"tube"
       },
       {
-        "pos": [
+        "pos":[
           90,
           22,
           -10
         ],
-        "orient": [
+        "orient":[
           0,
           1,
           0
         ],
-        "type": "tube"
+        "type":"tube"
       },
       {
-        "pos": [
+        "pos":[
           -90,
           22,
           10
         ],
-        "orient": [
+        "orient":[
           0,
           1,
           0
         ],
-        "type": "tube"
+        "type":"tube"
       },
       {
-        "pos": [
+        "pos":[
           -90,
           22,
           -10
         ],
-        "orient": [
+        "orient":[
           0,
           1,
           0
         ],
-        "type": "tube"
+        "type":"tube"
       }
     ]
   },
   {
-    "id": "3005",
-    "connPoint": [
+    "id":"3005",
+    "connPoint":[
       {
-        "pos": [
+        "pos":[
           0,
           -2,
           0
         ],
-        "orient": [
+        "orient":[
           0,
           1,
           0
         ],
-        "type": "stud"
+        "type":"stud"
       },
       {
-        "pos": [
+        "pos":[
           0,
           22,
           0
         ],
-        "orient": [
+        "orient":[
           0,
           1,
           0
         ],
-        "type": "tube"
+        "type":"tube"
       }
     ]
   },
   {
-    "id": "3004",
-    "connPoint": [
+    "id":"3004",
+    "connPoint":[
       {
-        "pos": [
+        "pos":[
           10,
           -2,
           0
         ],
-        "orient": [
+        "orient":[
           0,
           1,
           0
         ],
-        "type": "stud"
+        "type":"stud"
       },
       {
-        "pos": [
+        "pos":[
           -10,
           -2,
           0
         ],
-        "orient": [
+        "orient":[
           0,
           1,
           0
         ],
-        "type": "stud"
+        "type":"stud"
       },
       {
-        "pos": [
+        "pos":[
           10,
           22,
           0
         ],
-        "orient": [
+        "orient":[
           0,
           1,
           0
         ],
-        "type": "tube"
+        "type":"tube"
       },
       {
-        "pos": [
+        "pos":[
           -10,
           22,
           0
         ],
-        "orient": [
+        "orient":[
           0,
           1,
           0
         ],
-        "type": "tube"
+        "type":"tube"
       }
     ]
   },
   {
-    "id": "3003",
-    "connPoint": [
+    "id":"3003",
+    "connPoint":[
       {
-        "pos": [
+        "pos":[
           10,
           -2,
           10
         ],
-        "orient": [
+        "orient":[
           0,
           1,
           0
         ],
-        "type": "stud"
+        "type":"stud"
       },
       {
-        "pos": [
+        "pos":[
           -10,
           -2,
           10
         ],
-        "orient": [
+        "orient":[
           0,
           1,
           0
         ],
-        "type": "stud"
+        "type":"stud"
       },
       {
-        "pos": [
+        "pos":[
           10,
           -2,
           -10
         ],
-        "orient": [
+        "orient":[
           0,
           1,
           0
         ],
-        "type": "stud"
+        "type":"stud"
       },
       {
-        "pos": [
+        "pos":[
           -10,
           -2,
           -10
         ],
-        "orient": [
+        "orient":[
           0,
           1,
           0
         ],
-        "type": "stud"
+        "type":"stud"
       },
       {
-        "pos": [
+        "pos":[
           10,
           22,
           10
         ],
-        "orient": [
+        "orient":[
           0,
           1,
           0
         ],
-        "type": "tube"
+        "type":"tube"
       },
       {
-        "pos": [
+        "pos":[
           -10,
           22,
           10
         ],
-        "orient": [
+        "orient":[
           0,
           1,
           0
         ],
-        "type": "tube"
+        "type":"tube"
       },
       {
-        "pos": [
+        "pos":[
           10,
           22,
           -10
         ],
-        "orient": [
+        "orient":[
           0,
           1,
           0
         ],
-        "type": "tube"
+        "type":"tube"
       },
       {
-        "pos": [
+        "pos":[
           -10,
           22,
           -10
         ],
-        "orient": [
+        "orient":[
           0,
           1,
           0
         ],
-        "type": "tube"
+        "type":"tube"
       }
     ]
   },
   {
-    "id": "2456",
-    "connPoint": [
+    "id":"2456",
+    "connPoint":[
       {
-        "pos": [
+        "pos":[
           10,
           -2,
           10
         ],
-        "orient": [
+        "orient":[
           0,
           1,
           0
         ],
-        "type": "stud"
+        "type":"stud"
       },
       {
-        "pos": [
+        "pos":[
           10,
           -2,
           -10
         ],
-        "orient": [
+        "orient":[
           0,
           1,
           0
         ],
-        "type": "stud"
+        "type":"stud"
       },
       {
-        "pos": [
+        "pos":[
           -10,
           -2,
           10
         ],
-        "orient": [
+        "orient":[
           0,
           1,
           0
         ],
-        "type": "stud"
+        "type":"stud"
       },
       {
-        "pos": [
+        "pos":[
           -10,
           -2,
           -10
         ],
-        "orient": [
+        "orient":[
           0,
           1,
           0
         ],
-        "type": "stud"
+        "type":"stud"
       },
       {
-        "pos": [
+        "pos":[
           30,
           -2,
           10
         ],
-        "orient": [
+        "orient":[
           0,
           1,
           0
         ],
-        "type": "stud"
+        "type":"stud"
       },
       {
-        "pos": [
+        "pos":[
           30,
           -2,
           -10
         ],
-        "orient": [
+        "orient":[
           0,
           1,
           0
         ],
-        "type": "stud"
+        "type":"stud"
       },
       {
-        "pos": [
+        "pos":[
           -30,
           -2,
           10
         ],
-        "orient": [
+        "orient":[
           0,
           1,
           0
         ],
-        "type": "stud"
+        "type":"stud"
       },
       {
-        "pos": [
+        "pos":[
           -30,
           -2,
           -10
         ],
-        "orient": [
+        "orient":[
           0,
           1,
           0
         ],
-        "type": "stud"
+        "type":"stud"
       },
       {
-        "pos": [
+        "pos":[
           50,
           -2,
           10
         ],
-        "orient": [
+        "orient":[
           0,
           1,
           0
         ],
-        "type": "stud"
+        "type":"stud"
       },
       {
-        "pos": [
+        "pos":[
           50,
           -2,
           -10
         ],
-        "orient": [
+        "orient":[
           0,
           1,
           0
         ],
-        "type": "stud"
+        "type":"stud"
       },
       {
-        "pos": [
+        "pos":[
           -50,
           -2,
           10
         ],
-        "orient": [
+        "orient":[
           0,
           1,
           0
         ],
-        "type": "stud"
+        "type":"stud"
       },
       {
-        "pos": [
+        "pos":[
           -50,
           -2,
           -10
         ],
-        "orient": [
+        "orient":[
           0,
           1,
           0
         ],
-        "type": "stud"
+        "type":"stud"
       },
       {
-        "pos": [
+        "pos":[
           10,
           22,
           10
         ],
-        "orient": [
+        "orient":[
           0,
           1,
           0
         ],
-        "type": "tube"
+        "type":"tube"
       },
       {
-        "pos": [
+        "pos":[
           10,
           22,
           -10
         ],
-        "orient": [
+        "orient":[
           0,
           1,
           0
         ],
-        "type": "tube"
+        "type":"tube"
       },
       {
-        "pos": [
+        "pos":[
           -10,
           22,
           10
         ],
-        "orient": [
+        "orient":[
           0,
           1,
           0
         ],
-        "type": "tube"
+        "type":"tube"
       },
       {
-        "pos": [
+        "pos":[
           -10,
           22,
           -10
         ],
-        "orient": [
+        "orient":[
           0,
           1,
           0
         ],
-        "type": "tube"
+        "type":"tube"
       },
       {
-        "pos": [
+        "pos":[
           30,
           22,
           10
         ],
-        "orient": [
+        "orient":[
           0,
           1,
           0
         ],
-        "type": "tube"
+        "type":"tube"
       },
       {
-        "pos": [
+        "pos":[
           30,
           22,
           -10
         ],
-        "orient": [
+        "orient":[
           0,
           1,
           0
         ],
-        "type": "tube"
+        "type":"tube"
       },
       {
-        "pos": [
+        "pos":[
           -30,
           22,
           10
         ],
-        "orient": [
+        "orient":[
           0,
           1,
           0
         ],
-        "type": "tube"
+        "type":"tube"
       },
       {
-        "pos": [
+        "pos":[
           -30,
           22,
           -10
         ],
-        "orient": [
+        "orient":[
           0,
           1,
           0
         ],
-        "type": "tube"
+        "type":"tube"
       },
       {
-        "pos": [
+        "pos":[
           50,
           22,
           10
         ],
-        "orient": [
+        "orient":[
           0,
           1,
           0
         ],
-        "type": "tube"
+        "type":"tube"
       },
       {
-        "pos": [
+        "pos":[
           50,
           22,
           -10
         ],
-        "orient": [
+        "orient":[
           0,
           1,
           0
         ],
-        "type": "tube"
+        "type":"tube"
       },
       {
-        "pos": [
+        "pos":[
           -50,
           22,
           10
         ],
-        "orient": [
+        "orient":[
           0,
           1,
           0
         ],
-        "type": "tube"
+        "type":"tube"
       },
       {
-        "pos": [
+        "pos":[
           -50,
           22,
           -10
         ],
-        "orient": [
+        "orient":[
           0,
           1,
           0
         ],
-        "type": "tube"
+        "type":"tube"
       }
     ]
   },
   {
-    "id": "3001",
-    "connPoint": [
+    "id":"3001",
+    "connPoint":[
       {
-        "pos": [
+        "pos":[
           10,
           -2,
           10
         ],
-        "orient": [
+        "orient":[
           0,
           1,
           0
         ],
-        "type": "stud"
+        "type":"stud"
       },
       {
-        "pos": [
+        "pos":[
           10,
           -2,
           -10
         ],
-        "orient": [
+        "orient":[
           0,
           1,
           0
         ],
-        "type": "stud"
+        "type":"stud"
       },
       {
-        "pos": [
+        "pos":[
           -10,
           -2,
           10
         ],
-        "orient": [
+        "orient":[
           0,
           1,
           0
         ],
-        "type": "stud"
+        "type":"stud"
       },
       {
-        "pos": [
+        "pos":[
           -10,
           -2,
           -10
         ],
-        "orient": [
+        "orient":[
           0,
           1,
           0
         ],
-        "type": "stud"
+        "type":"stud"
       },
       {
-        "pos": [
+        "pos":[
           30,
           -2,
           10
         ],
-        "orient": [
+        "orient":[
           0,
           1,
           0
         ],
-        "type": "stud"
+        "type":"stud"
       },
       {
-        "pos": [
+        "pos":[
           30,
           -2,
           -10
         ],
-        "orient": [
+        "orient":[
           0,
           1,
           0
         ],
-        "type": "stud"
+        "type":"stud"
       },
       {
-        "pos": [
+        "pos":[
           -30,
           -2,
           10
         ],
-        "orient": [
+        "orient":[
           0,
           1,
           0
         ],
-        "type": "stud"
+        "type":"stud"
       },
       {
-        "pos": [
+        "pos":[
           -30,
           -2,
           -10
         ],
-        "orient": [
+        "orient":[
           0,
           1,
           0
         ],
-        "type": "stud"
+        "type":"stud"
       },
       {
-        "pos": [
+        "pos":[
           10,
           22,
           10
         ],
-        "orient": [
+        "orient":[
           0,
           1,
           0
         ],
-        "type": "tube"
+        "type":"tube"
       },
       {
-        "pos": [
+        "pos":[
           10,
           22,
           -10
         ],
-        "orient": [
+        "orient":[
           0,
           1,
           0
         ],
-        "type": "tube"
+        "type":"tube"
       },
       {
-        "pos": [
+        "pos":[
           -10,
           22,
           10
         ],
-        "orient": [
+        "orient":[
           0,
           1,
           0
         ],
-        "type": "tube"
+        "type":"tube"
       },
       {
-        "pos": [
+        "pos":[
           -10,
           22,
           -10
         ],
-        "orient": [
+        "orient":[
           0,
           1,
           0
         ],
-        "type": "tube"
+        "type":"tube"
       },
       {
-        "pos": [
+        "pos":[
           30,
           22,
           10
         ],
-        "orient": [
+        "orient":[
           0,
           1,
           0
         ],
-        "type": "tube"
+        "type":"tube"
       },
       {
-        "pos": [
+        "pos":[
           30,
           22,
           -10
         ],
-        "orient": [
+        "orient":[
           0,
           1,
           0
         ],
-        "type": "tube"
+        "type":"tube"
       },
       {
-        "pos": [
+        "pos":[
           -30,
           22,
           10
         ],
-        "orient": [
+        "orient":[
           0,
           1,
           0
         ],
-        "type": "tube"
+        "type":"tube"
       },
       {
-        "pos": [
+        "pos":[
           -30,
           22,
           -10
         ],
-        "orient": [
+        "orient":[
           0,
           1,
           0
         ],
-        "type": "tube"
+        "type":"tube"
       }
     ]
   },
   {
-    "id": "3002",
-    "connPoint": [
+    "id":"3002",
+    "connPoint":[
       {
-        "pos": [
+        "pos":[
           0,
           -2,
           10
         ],
-        "orient": [
+        "orient":[
           0,
           1,
           0
         ],
-        "type": "stud"
+        "type":"stud"
       },
       {
-        "pos": [
+        "pos":[
           0,
           -2,
           -10
         ],
-        "orient": [
+        "orient":[
           0,
           1,
           0
         ],
-        "type": "stud"
+        "type":"stud"
       },
       {
-        "pos": [
+        "pos":[
           -20,
           -2,
           10
         ],
-        "orient": [
+        "orient":[
           0,
           1,
           0
         ],
-        "type": "stud"
+        "type":"stud"
       },
       {
-        "pos": [
+        "pos":[
           -20,
           -2,
           -10
         ],
-        "orient": [
+        "orient":[
           0,
           1,
           0
         ],
-        "type": "stud"
+        "type":"stud"
       },
       {
-        "pos": [
+        "pos":[
           20,
           -2,
           10
         ],
-        "orient": [
+        "orient":[
           0,
           1,
           0
         ],
-        "type": "stud"
+        "type":"stud"
       },
       {
-        "pos": [
+        "pos":[
           20,
           -2,
           -10
         ],
-        "orient": [
+        "orient":[
           0,
           1,
           0
         ],
-        "type": "stud"
+        "type":"stud"
       },
       {
-        "pos": [
+        "pos":[
           0,
           22,
           10
         ],
-        "orient": [
+        "orient":[
           0,
           1,
           0
         ],
-        "type": "tube"
+        "type":"tube"
       },
       {
-        "pos": [
+        "pos":[
           0,
           22,
           -10
         ],
-        "orient": [
+        "orient":[
           0,
           1,
           0
         ],
-        "type": "tube"
+        "type":"tube"
       },
       {
-        "pos": [
+        "pos":[
           -20,
           22,
           10
         ],
-        "orient": [
+        "orient":[
           0,
           1,
           0
         ],
-        "type": "tube"
+        "type":"tube"
       },
       {
-        "pos": [
+        "pos":[
           -20,
           22,
           -10
         ],
-        "orient": [
+        "orient":[
           0,
           1,
           0
         ],
-        "type": "tube"
+        "type":"tube"
       },
       {
-        "pos": [
+        "pos":[
           20,
           22,
           10
         ],
-        "orient": [
+        "orient":[
           0,
           1,
           0
         ],
-        "type": "tube"
+        "type":"tube"
       },
       {
-        "pos": [
+        "pos":[
           20,
           22,
           -10
         ],
-        "orient": [
+        "orient":[
           0,
           1,
           0
         ],
-        "type": "tube"
+        "type":"tube"
       }
     ]
   },
   {
-    "id": "32952",
-    "connPoint": [
+    "id":"32952",
+    "connPoint":[
       {
-        "pos": [
+        "pos":[
           0,
           -2,
           0
         ],
-        "orient": [
+        "orient":[
           0,
           1,
           0
         ],
-        "type": "stud"
+        "type":"stud"
       },
       {
-        "pos": [
+        "pos":[
           0,
           10,
           -12
         ],
-        "orient": [
+        "orient":[
           0,
           0,
           1
         ],
-        "type": "stud"
+        "type":"stud"
       },
       {
-        "pos": [
+        "pos":[
           0,
           30,
           -12
         ],
-        "orient": [
+        "orient":[
           0,
           0,
           1
         ],
-        "type": "stud"
+        "type":"stud"
       },
       {
-        "pos": [
+        "pos":[
           0,
           38,
           0
         ],
-        "orient": [
+        "orient":[
           0,
           1,
           0
         ],
-        "type": "tube"
+        "type":"tube"
       }
     ]
-  },
+  }
 ]

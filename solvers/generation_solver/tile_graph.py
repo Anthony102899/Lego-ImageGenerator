@@ -129,7 +129,7 @@ def check_repeatability(elem: BrickInstance, result_tiles: list):
         filter(
             lambda brick: (elem_pos == brick.trans_matrix[:, 3][:3]).all(), result_tiles
         )
-    )  # filtered list of input bricks (same position)
+    )  # filtered list of input_images bricks (same position)
     if len(result_tiles_idx) == 0:
         return False
     cpoints_ls = list(
@@ -149,7 +149,7 @@ def check_repeatability(elem: BrickInstance, result_tiles: list):
         cp_info.sort()
         if np.array(
             (np.array(cp_info) == np.array(elem_cpoints_info))
-        ).all():  # all cpoints in one input equal elem's, duplicate brick
+        ).all():  # all cpoints in one input_images equal elem's, duplicate brick
             return True
     return False
 

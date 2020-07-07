@@ -1,0 +1,17 @@
+- to classify the bricks:
+    regular:
+        cuboid
+        slope
+        circular
+        plate
+        others
+    technic
+        beam
+        pin
+        connectors
+        axles
+    others
+        gears
+
+- to extract those for our task
+    to add more information

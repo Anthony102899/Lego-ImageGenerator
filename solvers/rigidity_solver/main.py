@@ -65,14 +65,14 @@ def simulate_step(structure_graph: ConnectivityGraph, n: int, bricks, step_size=
 
 if __name__ == "__main__":
     debugger = MyDebugger("test")
-    bricks = read_bricks_from_file("./data/full_models/square.ldr")
+    bricks = read_bricks_from_file("./data/full_models/single_pin.ldr")
     write_bricks_to_file(
         bricks, file_path=debugger.file_path("model_loaded.ldr"), debug=False
     )
     structure_graph = ConnectivityGraph(bricks)
 
 
-    for dim in range(11):
+    for dim in range(6):
         d_bricks = copy.deepcopy(bricks)
         total_bricks = d_bricks
         for i in range(50):

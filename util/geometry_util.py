@@ -14,7 +14,7 @@ def point_local2world(
     return np.dot(rot_mat, local_point) + translation
 
 
-# return a axis-aligned unit vector that perpendicular to the input normal
+# return a axis-aligned unit vector that perpendicular to the input_images normal
 def gen_lateral_vec(vec: np.array):
     norm = vec / LA.norm(vec)
     result_vec = np.array([0, 0, 0])
@@ -25,7 +25,7 @@ def gen_lateral_vec(vec: np.array):
         ):  # two vectors perpendicular
             return result_vec
         result_vec[i] = 0
-    input("error normal input!", norm)
+    input("error normal input_images!", norm)
 
 
 def rot_matrix_from_vec_a_to_b(a, b):
@@ -99,7 +99,7 @@ def points_span_dim(points: np.ndarray) -> bool:
 def eigen(matrix: np.ndarray, symmetric: bool) -> List:
     """
     Compute eigenvalues/vectors, return a list of eigenvalue/vectors, sorted by the eigenvalue ascendingly
-        symmetric: a boolean that indicates the input matrix is symmetric
+        symmetric: a boolean that indicates the input_images matrix is symmetric
 
     Note: if the matrix is symmetric (Hermitian), the eigenvectors shall be real
     """
