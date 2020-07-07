@@ -14,32 +14,64 @@ from numpy.linalg import matrix_rank
 import util.geometry_util as geo_util
 from solvers.rigidity_solver.algo_core import (
     spring_energy_matrix,
-    tranform_matrix_fitting,
+    transform_matrix_fitting,
 )
 from solvers.rigidity_solver.internal_structure import structure_sampling
 import solvers.rigidity_solver.visualization as vis
 import copy
 from sympy import Matrix
 
+def row_reduction(matrix: np.ndarray):
+    pass
 
+def trivial_basis(points: np.ndarray) -> np.ndarray:
+    """
+    Given n points in 3d space in form of a (n x 3) matrix, construct 6 'trivial' orthonormal vectors
+    """
+    P = points.reshape((-1, 3))
+    n = len(P)
+
+    x_axis, y_axis, z_axis = np.identity(3)
+    # translation along x, y, and z
+    translations = np.array([
+       x_axis * n, 
+       y_axis * n, 
+       z_axis * n,
+    ])
+
+    center = np.mean(P, axis=0)
+    P_shifted = P - center # make the rotation vectors orthogonal
+    rotations = np.array([
+        np.cross(P.shifted, x_axis),
+        np.cross(P.shifted, y_axis),
+        np.cross(P.shifted, z_axis),
+    ])
+
+    transformation = np.vstack((translations, rotations))
+    # row-vise normalize the vectors into orthonormal basis
+    basis = transformation / LA.norm(transformation, axis=1)[:, np.newaxis] 
+    return basis
+
+    
 def simulate_step(structure_graph: ConnectivityGraph, n: int, bricks, step_size=1):
     structure_graph.bricks = bricks
     points, edges, points_on_brick = structure_sampling(structure_graph)
 
     M = spring_energy_matrix(points, edges)
 
-    C = geo_util.eigen(M, symmetric=True)
+    e_pairs = geo_util.eigen(M, symmetric=True)
 
     # collect all eigen vectors with zero eigen value
-    eigen_space = []
-    for i in range(len(C)):
-        e_val, e_vec = C[i]
-        if abs(e_val) < 1e-6:
-            eigen_space.append(e_vec)
+    eigen_space = [e_vec for e_val, e_vec in e_pairs if abs(e_val) < 1e-6]
+
+    print("Number of points", len(points))
+    basis = trivial_basis(points)
+    print(basis)
+
+    raise Exception("Yeah")
 
     M = Matrix(np.array(eigen_space))
     M_rref = M.rref()[0] # reduced row echelon form
-
     e_vec = np.array(M_rref.row(n)).astype(np.float64)
     e_vec = e_vec / LA.norm(e_vec)
 
@@ -50,7 +82,7 @@ def simulate_step(structure_graph: ConnectivityGraph, n: int, bricks, step_size=
         indices_on_brick_i = np.array(points_on_brick[i])
         points_before = points[indices_on_brick_i]
         points_after = points_before + step_size * delta_x[indices_on_brick_i]
-        R, T = tranform_matrix_fitting(points_before, points_after)
+        R, T = transform_matrix_fitting(points_before, points_after)
 
         deformed_bricks[i].trans_matrix[:3, :3] = (
             R @ deformed_bricks[i].trans_matrix[:3, :3]

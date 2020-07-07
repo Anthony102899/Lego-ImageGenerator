@@ -95,6 +95,11 @@ def points_span_dim(points: np.ndarray) -> bool:
 
     return min(rank, 3)
 
+def project(v: np.ndarray, base: np.ndarray):
+    """
+    Project vector v on base. Return the projection
+    """
+    return np.dot(v, base) / np.linalg.norm(base)
 
 def eigen(matrix: np.ndarray, symmetric: bool) -> List:
     """

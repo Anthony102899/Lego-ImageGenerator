@@ -63,7 +63,7 @@ def spring_energy_matrix(
     return A.T @ P.T @ K @ P @ A
 
 
-def tranform_matrix_fitting(points_start, points_end, dim=3):
+def transform_matrix_fitting(points_start, points_end, dim=3):
     assert len(points_start) == len(points_end)
     A = np.zeros((len(points_start) * dim, dim * dim + dim))
     b = points_end.reshape(-1)
@@ -96,7 +96,7 @@ if __name__ == "__main__":
         print(p[0])
         points_before = points
         points_after = points_before + 1 * p[1].reshape(-1, 2)
-        R, T = tranform_matrix_fitting(points, points_after, dim=2)
+        R, T = transform_matrix_fitting(points, points_after, dim=2)
         for i, p in enumerate(points_before):
             print("--")
             u, p = polar(R)
