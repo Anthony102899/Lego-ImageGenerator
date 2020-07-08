@@ -71,6 +71,11 @@ def simulate_step(structure_graph: ConnectivityGraph, n: int, bricks, step_size=
     # cast the eigenvectors corresponding to zero eigenvalues into nullspace of the trivial basis,
     # in other words, the new vectors doesn't have any components (projection) in the span of the trivial basis
     reduced_zeroeigenspace = [geo_util.subtract_orthobasis(vec, basis) for vec in zeroeigenspace]
+    
+    # count zero vectors in reduced eigenvectors
+    num_zerovectors = sum([np.isclose(vec, np.zeros_like(vec)).all() for vec in reduced_zeroeigenspace])
+    # In 3d cases, exactly 6 eigenvectors for eigenvalue 0 are reduced to zerovector.
+    assert num_zerovectors == 6
 
     e_vec = reduced_zeroeigenspace[n]
     e_vec = e_vec / LA.norm(e_vec)
