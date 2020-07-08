@@ -26,7 +26,7 @@ bricks: List[BrickInstance] = read_bricks_from_file(
 )
 graph = ConnectivityGraph(bricks)
 num_nodes = len(graph.bricks)
-num_edges = len(graph.edges)
+num_edges = len(graph.connect_edges)
 
 
 def build_transformation_from_node(vars, node_ind):
@@ -81,7 +81,7 @@ def cost(vars):
         world2 = toworld2(local2)
         return norm_sq(world1 - world2)
 
-    costs = np.array([cost_for_edge(edge) for edge in graph.edges])
+    costs = np.array([cost_for_edge(edge) for edge in graph.connect_edges])
     c = costs.sum()
 
     return c

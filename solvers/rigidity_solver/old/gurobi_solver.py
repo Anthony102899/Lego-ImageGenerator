@@ -20,7 +20,7 @@ if __name__ == "__main__":
     graph = ConnectivityGraph(bricks)
 
     num_nodes = len(graph.bricks)
-    num_edges = len(graph.edges)
+    num_edges = len(graph.connect_edges)
 
     model = grb.Model("lego")
 
@@ -90,7 +90,7 @@ if __name__ == "__main__":
         prod = [_dot(row, point) for row in rotation]
         return prod
 
-    for edge in graph.edges:
+    for edge in graph.connect_edges:
         ind_a, ind_b = edge["node_indices"][0], edge["node_indices"][1]
         contact_pt_a = edge["properties"]["contact_point_1"]
         contact_pt_b = edge["properties"]["contact_point_2"]

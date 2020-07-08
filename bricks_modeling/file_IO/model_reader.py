@@ -39,7 +39,9 @@ class File:
     ):
         brick_id = line_content[-1][0:-4]
         # processing brick color
-        color = int(line_content[1])
+        if line_content[1].isdigit():
+            color = int(line_content[1])
+        else: color = line_content[1]
 
         translate = np.zeros((3, 1))
         for j in range(3):

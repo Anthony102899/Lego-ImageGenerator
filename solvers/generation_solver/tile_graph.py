@@ -1,10 +1,11 @@
 from bricks_modeling.bricks.brickinstance import BrickInstance
-from bricks_modeling.connections.connpointtype import ConnPointType, typeToBrick
-from util.geometry_util import rot_matrix_from_vec_a_to_b
+from bricks_modeling.connections.connpointtype import ConnPointType, typeToBrick, isDoubleOriented
+from util.geometry_util import rot_matrix_from_vec_a_to_b, rot_matrix_from_two_basis
 import numpy as np
 import itertools as iter
 from scipy.spatial.transform import Rotation as R
 from numpy import linalg as LA
+from typing import List
 
 connect_type = [
     {ConnPointType.HOLE, ConnPointType.PIN},
@@ -39,7 +40,7 @@ def get_rotation(cpoint_align, n, cpoint_base):
 # get eight (2 x 4) matrics
 def get_orient_matrices(cpoint_base, cpoint_align):
     transformations = []
-    orient_matrices = get_two_orient_align_matrices(cpoint_base, cpoint_align)
+    orient_matrices = get_orient_align_matrices(cpoint_base, cpoint_align)
     rotations = get_four_self_rotation(cpoint_base.orient)
     for orien_align_mat in orient_matrices:
         for orient_rotate_mat in rotations:
@@ -62,18 +63,11 @@ def get_four_self_rotation(orient):
 
     return rotations
 
-def get_two_orient_align_matrices(cpoint_align, cpoint_base):
+def get_orient_align_matrices(cpoint_base, cpoint_align):
     matrices = []
-    for direction in {-1, 1}:
-        rotation = rot_matrix_from_vec_a_to_b(
-            cpoint_align.orient, cpoint_base.orient * direction
-        )
-        rotation = (
-            rot_matrix_from_vec_a_to_b(
-                rotation @ cpoint_align.bi_orient, rotation @ cpoint_base.bi_orient
-            )
-            @ rotation
-        )
+    is_double_side = isDoubleOriented[cpoint_align.type] or isDoubleOriented[cpoint_base.type]
+    for direction in ({-1, 1} if is_double_side else {1}):
+        rotation = rot_matrix_from_two_basis(cpoint_align.orient, cpoint_align.bi_orient, cpoint_base.orient * direction, cpoint_base.bi_orient)
         matrices.append(rotation)
 
     return matrices
@@ -107,15 +101,14 @@ def generate_all_neighbor_tiles(
     align_cpoints = align_tile.get_current_conn_points()  # a list of cpoints in align
 
     for cpoint_base, cpoint_align in iter.product(base_cpoints, align_cpoints):
-
         if {cpoint_base.type, cpoint_align.type} in connect_type:  # can connect
             # get all possible rotation matrices
             matrices = get_orient_matrices(cpoint_base, cpoint_align)
             for trans_mat in matrices:  # 2 possible orientations consistent with the normal
                 new_tile = BrickInstance(align_tile.template, trans_mat, color)
+                # TODO: detect if new tile collide with the base tile (for concave shape)
+                # if base_brick.collide(new_tile):
                 result_tiles.append(new_tile)
-
-            # TODO: check collision with base_brick here
 
     return result_tiles
 
@@ -153,10 +146,16 @@ def check_repeatability(elem: BrickInstance, result_tiles: list):
             return True
     return False
 
+def unique_brick_list(bricks: List[BrickInstance]):
+    # remove self-repeat
+    unique_list = []
+    for x in bricks:
+        if x not in unique_list:
+            unique_list.append(x)
+    return unique_list
 
 """ Returns a list of "num_rings" neighbours of brick "base_brick" """
-
-def form_complete_graph(num_rings: int, base_tile: BrickInstance, tile_set: list):
+def find_brick_placements(num_rings: int, base_tile: BrickInstance, tile_set: list):
     result_tiles = [base_tile]  # the resulting tiles
     last_ring = [base_tile]  # the tiles in the last ring
     for i in range(0, num_rings):
@@ -175,8 +174,10 @@ def form_complete_graph(num_rings: int, base_tile: BrickInstance, tile_set: list
                     base_brick=last_brick, align_tile=align_tile, color=i + 1
                 )
 
+                neighbour_tiles = unique_brick_list(neighbour_tiles)
+
                 for elem in neighbour_tiles:
-                    if not check_repeatability(elem, result_tiles):
+                    if elem not in result_tiles:
                         result_tiles.append(elem)
                         last_ring.append(elem)
 

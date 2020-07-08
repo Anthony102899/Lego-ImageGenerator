@@ -3,6 +3,7 @@ import numpy as np
 from bricks_modeling.bricks.bricktemplate import BrickTemplate
 from bricks_modeling.connections.connpoint import CPoint
 import util.geometry_util as geo_util
+import util.cuboid_geometry as cu_geo
 import itertools as iter
 
 
@@ -24,19 +25,22 @@ class BrickInstance:
             else:
                 self_c_points = self.get_current_conn_points()
                 other_c_points = other.get_current_conn_points()
-                if len(self_c_points) > 0:
-                    return (
-                        self_c_points == other_c_points
-                        or self_c_points == other_c_points.reverse()
-                    )
-                else:
-                    return False
+                for i in range(len(self_c_points)):
+                    if self_c_points[i] not in other_c_points:
+                        return False
+                return True
+        else:
+            return False
 
-        return False
-
-    # TODO: finish this function
+    # TODO: haven't test yet
+    # return one of the spatial relation: {seperated, connected, collision, same(fully overlaped)}
     def collide(self, other):
-        pass
+        self_c_points = self.get_current_conn_points()
+        other_c_points = other.get_current_conn_points()
+        for p_self, p_other in iter.product(self_c_points, other_c_points):
+            if cu_geo.collosion_detect(p_self.get_cuboid(), p_other.get_cuboid()):
+                return True
+        return False
 
     def to_ldraw(self):
         text = (
@@ -88,3 +92,17 @@ class BrickInstance:
             )
 
         return conn_points
+
+if __name__ == "__main__":
+    from bricks_modeling.file_IO.model_reader import read_bricks_from_file
+    from bricks_modeling.file_IO.model_writer import write_bricks_to_file
+    from bricks_modeling.connectivity_graph import ConnectivityGraph
+    from util.debugger import MyDebugger
+
+    # test the equal function
+    debugger = MyDebugger("test")
+    bricks = read_bricks_from_file(r"./solvers/generation_solver/collision_test.ldr")
+    for i in range(len(bricks)):
+        for j in range(len(bricks)):
+            print(f"{i}=={j}: ",bricks[i] == bricks[j])
+            print(f"{i}collide with{j}: ", bricks[i].collide(bricks[j]))
