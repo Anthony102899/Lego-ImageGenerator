@@ -2,6 +2,7 @@ import numpy as np
 import math
 from numpy import linalg as LA
 from typing import List
+from sympy import Matrix
 
 
 def vec_local2world(rot_mat: np.ndarray, local_vec: np.ndarray) -> np.ndarray:
@@ -197,3 +198,11 @@ def eigen(matrix: np.ndarray, symmetric: bool) -> List:
     eigen_pairs = sorted(list(zip(w, V_normalized)), key=lambda pair: pair[0])
 
     return eigen_pairs
+
+def rref(matrix: np.ndarray) -> np.ndarray:
+    """
+    Return the reduced echelon form of a matrix
+    """
+    M = Matrix(matrix)
+    M_rref, pivot_indices = M.rref()[0] # reduced row echelon form
+    return np.array(M_rref).astype(np.float64)
