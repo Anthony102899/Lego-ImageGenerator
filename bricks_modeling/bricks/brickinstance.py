@@ -101,7 +101,8 @@ if __name__ == "__main__":
 
     # test the equal function
     debugger = MyDebugger("test")
-    bricks = read_bricks_from_file(r"F:\workspace\lego-solver\debug\2020-07-07_16-50-00_test\test1.ldr")
-    i= 0
-    j = 1
-    print(f"{i},{j}: ",bricks[i] == bricks[j])
+    bricks = read_bricks_from_file(r"./solvers/generation_solver/collision_test.ldr")
+    for i in range(len(bricks)):
+        for j in range(len(bricks)):
+            print(f"{i}=={j}: ",bricks[i] == bricks[j])
+            print(f"{i}collide with{j}: ", bricks[i].collide(bricks[j]))

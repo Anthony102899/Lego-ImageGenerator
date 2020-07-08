@@ -29,7 +29,7 @@ bricks: List[BrickInstance] = read_bricks_from_file(
 )
 graph = ConnectivityGraph(bricks)
 num_nodes = len(graph.bricks)
-num_edges = len(graph.edges)
+num_edges = len(graph.connect_edges)
 
 
 def build_rotation_for_node(vars, node_ind):
@@ -64,7 +64,7 @@ def norm_sq(arr):
 
 
 def edge_cost(edge_ind, vars):
-    edge = graph.edges[edge_ind]
+    edge = graph.connect_edges[edge_ind]
     nind1, nind2 = edge["node_indices"]
     R1 = build_rotation_for_node(vars, nind1)
     R2 = build_rotation_for_node(vars, nind2)

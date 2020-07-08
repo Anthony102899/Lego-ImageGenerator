@@ -102,7 +102,6 @@ def generate_all_neighbor_tiles(
 
     for cpoint_base, cpoint_align in iter.product(base_cpoints, align_cpoints):
         if {cpoint_base.type, cpoint_align.type} in connect_type:  # can connect
-            print(cpoint_base.type, cpoint_align.type)
             # get all possible rotation matrices
             matrices = get_orient_matrices(cpoint_base, cpoint_align)
             for trans_mat in matrices:  # 2 possible orientations consistent with the normal
@@ -156,7 +155,7 @@ def unique_brick_list(bricks: List[BrickInstance]):
     return unique_list
 
 """ Returns a list of "num_rings" neighbours of brick "base_brick" """
-def form_complete_graph(num_rings: int, base_tile: BrickInstance, tile_set: list):
+def find_brick_placements(num_rings: int, base_tile: BrickInstance, tile_set: list):
     result_tiles = [base_tile]  # the resulting tiles
     last_ring = [base_tile]  # the tiles in the last ring
     for i in range(0, num_rings):

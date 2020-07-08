@@ -3,6 +3,7 @@ import math
 from numpy import linalg as LA
 from typing import List
 from sympy import Matrix
+from scipy.spatial.transform import Rotation as R
 
 
 def vec_local2world(rot_mat: np.ndarray, local_vec: np.ndarray) -> np.ndarray:
@@ -206,3 +207,14 @@ def rref(matrix: np.ndarray) -> np.ndarray:
     M = Matrix(matrix)
     M_rref, pivot_indices = M.rref()[0] # reduced row echelon form
     return np.array(M_rref).astype(np.float64)
+
+def gen_random_rotation() -> np.ndarray:
+    rand_rot_axis = np.random.rand(3)
+    rot = R.from_rotvec(np.random.randint(0, 100) * rand_rot_axis)
+    return rot.as_matrix()
+
+def get_random_transformation() -> np.ndarray:
+    trans_matrix = np.identity(4, dtype=float)
+    trans_matrix[:3, :3] = gen_random_rotation()
+    trans_matrix[:3, 3] = 5 * np.random.rand(3)
+    return trans_matrix

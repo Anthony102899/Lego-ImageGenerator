@@ -41,7 +41,7 @@ def structure_sampling(structure_graph: ConnectivityGraph):
     # 1) respect symmetric property of the brick
     # 2) self-rigid connection inside each brick
     # 3) respect the joint property
-    for edge in structure_graph.edges:
+    for edge in structure_graph.connect_edges:
         if edge["type"] == ConnType.HOLE_PIN.name:
             bi = edge["node_indices"][0]
             bj = edge["node_indices"][1]

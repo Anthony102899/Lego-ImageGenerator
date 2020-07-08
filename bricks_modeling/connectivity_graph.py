@@ -4,7 +4,7 @@ import numpy as np
 
 import open3d as o3d
 import copy
-
+from solvers.generation_solver.tile_graph import unique_brick_list
 from bricks_modeling.connections.conn_type import compute_conn_type
 from util.json_encoder import NumpyArrayEncoder
 
@@ -16,8 +16,17 @@ To use a graph to describe a LEGO structure
 class ConnectivityGraph:
     def __init__(self, bricks):
         self.bricks = bricks
-        self.edges = []
+        self.connect_edges = []
+        self.overlap_edges = []
+        self._remove_redudant_bricks()
+
         self.build_graph_from_bricks()
+
+    def _remove_redudant_bricks(self):
+        print("#tiles before filtring repeat:", len(self.bricks))
+        unique_brick_list(self.bricks)
+        print("#tiles after filtring repeat:", len(self.bricks))
+
 
     def build_graph_from_bricks(self):
         for b_i, b_j in itertools.combinations(list(range(0, len(self.bricks))), 2):
@@ -29,8 +38,9 @@ class ConnectivityGraph:
                     cpoints_m = brick_i_conn_points[m]
                     cpoints_n = brick_j_conn_points[n]
                     type = compute_conn_type(cpoints_m, cpoints_n)
+
                     if type is not None:
-                        self.edges.append(
+                        self.connect_edges.append(
                             {
                                 "type": type.name,
                                 "node_indices": (b_i, b_j),
@@ -68,7 +78,7 @@ class ConnectivityGraph:
                 }
             )
 
-        return json.dumps({"nodes": nodes, "edges": self.edges}, cls=NumpyArrayEncoder)
+        return json.dumps({"nodes": nodes, "edges": self.connect_edges}, cls=NumpyArrayEncoder)
 
     def show(self):
         sphere = o3d.geometry.TriangleMesh.create_sphere(radius=1.0, resolution=2)
@@ -81,7 +91,7 @@ class ConnectivityGraph:
         for b in self.bricks:
             spheres += copy.deepcopy(sphere).translate(b.get_translation().tolist())
 
-        lines = [e["node_indices"] for e in self.edges]
+        lines = [e["node_indices"] for e in self.connect_edges]
         colors = [[1, 0, 0] for i in range(len(lines))]
         line_set = o3d.geometry.LineSet(
             points=o3d.utility.Vector3dVector(points),

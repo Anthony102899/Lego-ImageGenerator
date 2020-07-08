@@ -1,3 +1,10 @@
+================ TODO ================
+- remove unnecessary code
+- finish the collision and == function
+- add more brick types (see bricks defined in gen_super_graph.py) to test the system.
+
+
+================ Done ================
 - to classify the bricks:
     regular:
         cuboid

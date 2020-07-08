@@ -47,4 +47,4 @@ def compute_conn_type(c_point1: CPoint, c_point2: CPoint):
         print("unsupported connection type")
         return None
     else:
-        return None
+        return None # not connected
