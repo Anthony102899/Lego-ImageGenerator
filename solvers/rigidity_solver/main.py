@@ -14,33 +14,70 @@ from numpy.linalg import matrix_rank
 import util.geometry_util as geo_util
 from solvers.rigidity_solver.algo_core import (
     spring_energy_matrix,
-    tranform_matrix_fitting,
+    transform_matrix_fitting,
 )
 from solvers.rigidity_solver.internal_structure import structure_sampling
 import solvers.rigidity_solver.visualization as vis
 import copy
-from sympy import Matrix
 
+def trivial_basis(points: np.ndarray) -> np.ndarray:
+    """
+    Given n points in 3d space in form of a (n x 3) matrix, construct 6 'trivial' orthonormal vectors
+    """
+    P = points.reshape((-1, 3))
+    n = len(P)
 
+    # translation along x, y, and z
+    translations = np.array([
+       [1, 0, 0] * n, 
+       [0, 1, 0] * n, 
+       [0, 0, 1] * n,
+    ])
+
+    center = np.mean(P, axis=0)
+    P_shifted = P - center # make the rotation vectors orthogonal
+    x_axis, y_axis, z_axis = np.identity(3)
+    rotations = np.array([
+        np.cross(P_shifted, x_axis).reshape(-1),
+        np.cross(P_shifted, y_axis).reshape(-1),
+        np.cross(P_shifted, z_axis).reshape(-1),
+    ])
+
+    print("translation dim", translations.shape)
+    print("rotation dim", rotations.shape)
+
+    transformation = np.vstack((translations, rotations))
+    # row-wise normalize the vectors into orthonormal basis
+    basis = transformation / LA.norm(transformation, axis=1)[:, np.newaxis] 
+    return basis
+
+    
 def simulate_step(structure_graph: ConnectivityGraph, n: int, bricks, step_size=1):
     structure_graph.bricks = bricks
     points, edges, points_on_brick = structure_sampling(structure_graph)
 
     M = spring_energy_matrix(points, edges)
 
-    C = geo_util.eigen(M, symmetric=True)
+    e_pairs = geo_util.eigen(M, symmetric=True)
 
     # collect all eigen vectors with zero eigen value
-    eigen_space = []
-    for i in range(len(C)):
-        e_val, e_vec = C[i]
-        if abs(e_val) < 1e-6:
-            eigen_space.append(e_vec)
+    zeroeigenspace = [e_vec for e_val, e_vec in e_pairs if abs(e_val) < 1e-6]
 
-    M = Matrix(np.array(eigen_space))
-    M_rref = M.rref()[0] # reduced row echelon form
+    print("Number of points", len(points))
 
-    e_vec = np.array(M_rref.row(n)).astype(np.float64)
+    # Trivial basis -- orthonormalized translation along / rotation wrt 3 axes
+    basis = geo_util.trivial_basis(points)
+
+    # cast the eigenvectors corresponding to zero eigenvalues into nullspace of the trivial basis,
+    # in other words, the new vectors doesn't have any components (projection) in the span of the trivial basis
+    reduced_zeroeigenspace = [geo_util.subtract_orthobasis(vec, basis) for vec in zeroeigenspace]
+    
+    # count zero vectors in reduced eigenvectors
+    num_zerovectors = sum([np.isclose(vec, np.zeros_like(vec)).all() for vec in reduced_zeroeigenspace])
+    # In 3d cases, exactly 6 eigenvectors for eigenvalue 0 are reduced to zerovector.
+    assert num_zerovectors == 6
+
+    e_vec = reduced_zeroeigenspace[n]
     e_vec = e_vec / LA.norm(e_vec)
 
     deformed_bricks = copy.deepcopy(bricks)
@@ -50,7 +87,7 @@ def simulate_step(structure_graph: ConnectivityGraph, n: int, bricks, step_size=
         indices_on_brick_i = np.array(points_on_brick[i])
         points_before = points[indices_on_brick_i]
         points_after = points_before + step_size * delta_x[indices_on_brick_i]
-        R, T = tranform_matrix_fitting(points_before, points_after)
+        R, T = transform_matrix_fitting(points_before, points_after)
 
         deformed_bricks[i].trans_matrix[:3, :3] = (
             R @ deformed_bricks[i].trans_matrix[:3, :3]
