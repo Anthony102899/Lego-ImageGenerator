@@ -82,11 +82,79 @@ def get_perpendicular_vec(vec: np.array) -> np.array:
     return perp_vec / LA.norm(perp_vec)
 
 
-def get_perpendicular_vecs(vec: np.array) -> np.array:
-    vec1 = get_perpendicular_vec(vec)
+def get_perpendicular_vecs(vec: np.ndarray) -> np.ndarray:
+    vec1 = get_perpendicular_vec(vec) 
     vec2 = np.cross(vec1, vec / LA.norm(vec))
     return vec1, vec2
 
+def project(v: np.ndarray, base: np.ndarray) -> np.ndarray:
+    """
+    Project vector v on base. Return the projection
+    """
+    length = np.dot(v, base) / np.dot(base, base)
+    return length * base
+
+def rowwise_normalize(mat: np.ndarray) -> np.ndarray:
+    """
+    Row wise normalize a matrix, using L2 norm
+    """
+    assert len(mat.shape) == 2
+    return mat / LA.norm(mat, axis=1)[:, np.newaxis] 
+
+
+def orthonormalize(basis: np.ndarray) -> np.ndarray:
+    """
+    Take a set of linearly independent vectors, return an orthogonal basis via Modified Gram-Schmidt Process
+    """
+    U = np.zeros_like(basis)
+    for k, v in enumerate(basis):
+        u = np.copy(v)
+        for i in range(k):
+            u -= project(u, U[i])
+
+        U[k] = u[:]
+
+
+    U_norm = U / LA.norm(U, axis=1)[:, np.newaxis] 
+    return U_norm
+
+def trivial_basis(points: np.ndarray) -> np.ndarray:
+    """
+    Given n points in 3d space in form of a (n x 3) matrix, construct 6 'trivial' orthonormal vectors
+    """
+    P = points.reshape((-1, 3))
+    n = len(P)
+
+    # translation along x, y, and z
+    translations = np.array([
+       [1, 0, 0] * n, 
+       [0, 1, 0] * n, 
+       [0, 0, 1] * n,
+    ])
+
+    center = np.mean(P, axis=0)
+    P_shifted = P - center # make the rotation vectors orthogonal
+    x_axis, y_axis, z_axis = np.identity(3)
+    rotations = np.array([
+        np.cross(P_shifted, x_axis).reshape(-1),
+        np.cross(P_shifted, y_axis).reshape(-1),
+        np.cross(P_shifted, z_axis).reshape(-1),
+    ])
+
+    transformation = np.vstack((translations, rotations))
+    # row-wise normalize the vectors into orthonormal basis
+    basis = transformation / LA.norm(transformation, axis=1)[:, np.newaxis] 
+    orthonormal_basis = orthonormalize(basis)
+    return basis
+
+def subtract_orthobasis(vector: np.ndarray, orthobasis: np.ndarray) -> np.ndarray:
+    """
+    Given a vector and a orthonormal matrix, project the vector into the null space of the matrix
+    """
+
+    projections = np.apply_along_axis(lambda base: project(vector, base), axis=1, arr=orthobasis)
+    subtraction = vector - np.sum(projections, axis=0)
+    return subtraction
 
 def points_span_dim(points: np.ndarray) -> bool:
     """
@@ -111,15 +179,10 @@ def points_span_dim(points: np.ndarray) -> bool:
 
     return min(rank, 3)
 
-def project(v: np.ndarray, base: np.ndarray):
-    """
-    Project vector v on base. Return the projection
-    """
-    return np.dot(v, base) / np.linalg.norm(base)
 
 def eigen(matrix: np.ndarray, symmetric: bool) -> List:
     """
-    Compute eigenvalues/vectors, return a list of eigenvalue/vectors, sorted by the eigenvalue ascendingly
+    Compute eigenvalues/vectors, return a list of <eigenvalue, vector> pairs, sorted by the eigenvalue ascendingly
         symmetric: a boolean that indicates the input_images matrix is symmetric
 
     Note: if the matrix is symmetric (Hermitian), the eigenvectors shall be real
