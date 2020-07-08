@@ -1,5 +1,6 @@
 from os import path
 import open3d as o3d
+import trimesh
 
 from bricks_modeling.file_IO.model_reader import read_bricks_from_file
 from util.debugger import MyDebugger
@@ -32,7 +33,6 @@ def color_phraser(
 
     return color_dict
 
-
 def ldr_to_obj(
     ldr_path,
     obj_file_path=path.join(path.dirname(path.dirname(__file__)), "database", "obj"),
@@ -44,11 +44,14 @@ def ldr_to_obj(
     meshs = o3d.geometry.TriangleMesh()
     for brick in bricks:
         mesh = o3d.io.read_triangle_mesh(
-            f'{obj_file_path}\{brick.template.id + ".obj"}'
+            f'{obj_file_path}/{brick.template.id + ".obj"}'
         )
         mesh.compute_vertex_normals()
         if str(brick.color) in color_dict.keys():
             mesh.paint_uniform_color(color_dict[str(brick.color)])
+        elif not str(brick.color).isdigit():  # color stored in hex
+            rgb_color = trimesh.visual.color.hex_to_rgba(brick.color[3:])
+            mesh.paint_uniform_color(list(map(lambda comp: comp / 255, rgb_color[:3])))
         else:
             print("warning, no such color in ldview, print red")
             mesh.paint_uniform_color([1, 0, 0])
