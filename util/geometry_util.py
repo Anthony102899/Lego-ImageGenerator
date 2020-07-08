@@ -53,7 +53,7 @@ def rot_matrix_from_vec_a_to_b(a, b):
             return np.identity(3, dtype=float)
         return -np.identity(3, dtype=float)
     else:
-        dot = np.dot(a, b)
+        dot = np.dot(a, b)/ (LA.norm(a) * LA.norm(b))
         angle = math.acos(dot)
         rotation_axes = cross / np.linalg.norm(cross)
         M = np.array(
