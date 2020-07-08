@@ -115,7 +115,6 @@ def orthonormalize(basis: np.ndarray) -> np.ndarray:
 
         U[k] = u[:]
 
-
     U_norm = U / LA.norm(U, axis=1)[:, np.newaxis] 
     return U_norm
 
