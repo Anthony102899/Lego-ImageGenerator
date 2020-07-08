@@ -145,7 +145,7 @@ def trivial_basis(points: np.ndarray) -> np.ndarray:
     # row-wise normalize the vectors into orthonormal basis
     basis = transformation / LA.norm(transformation, axis=1)[:, np.newaxis] 
     orthonormal_basis = orthonormalize(basis)
-    return basis
+    return orthonormal_basis
 
 def subtract_orthobasis(vector: np.ndarray, orthobasis: np.ndarray) -> np.ndarray:
     """
