@@ -38,14 +38,14 @@ isDoubleOriented = {
 
 # type to (length along the normal, and two lateral direction of the normal)
 typeToBoundingBox = {
-    ConnPointType.HOLE : (20,20, 20),
-    ConnPointType.PIN :  (20,20,20),
-    ConnPointType.AXLE : (20,20,20),
-    ConnPointType.CROSS_HOLE : (20,20,20),
-    ConnPointType.SOLID : (20,20,20),
-    ConnPointType.STUD : (4,12,12),
-    ConnPointType.TUBE : (4,12,12),
-    ConnPointType.CUBOID_SOLID : (20,20,20)
+    ConnPointType.HOLE : (20, 20, 20),
+    ConnPointType.PIN :  (20, 20, 20),
+    ConnPointType.AXLE : (20, 20, 20),
+    ConnPointType.CROSS_HOLE : (20, 20, 20),
+    ConnPointType.SOLID : (20, 20, 20),
+    ConnPointType.STUD : (4, 12, 12),
+    ConnPointType.TUBE : (4, 12, 12),
+    ConnPointType.CUBOID_SOLID : (20, 20, 20)
 }
 
 # these properties are for visualization ONLY

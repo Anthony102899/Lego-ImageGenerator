@@ -38,7 +38,7 @@ class BrickInstance:
         self_c_points = self.get_current_conn_points()
         other_c_points = other.get_current_conn_points()
         for p_self, p_other in iter.product(self_c_points, other_c_points):
-            if cu_geo.collosion_detect(p_self.get_cuboid(), p_other.get_cuboid()):
+            if cu_geo.cub_collision_detect(p_self.get_cuboid(), p_other.get_cuboid()):
                 return True
         return False
 

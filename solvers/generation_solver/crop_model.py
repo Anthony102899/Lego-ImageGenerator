@@ -38,6 +38,8 @@ if __name__ == "__main__":
     obj_path = "./data/super_graph/bunny.obj"
     tile_set = read_bricks_from_file("./data/super_graph/3004-ring7.ldr")
     mesh = trimesh.load(obj_path)
+    flip = np.array([[-1, 0, 0, 0], [0, -1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]])
+    mesh.apply_transform(flip)
     scale = float(input("Enter scale of obj: "))
     result = crop_brick(mesh, tile_set, scale)
     print(f"resulting LEGO model has {len(result)} bricks")
