@@ -51,6 +51,12 @@ def show_graph(points: List[np.array], edges: List[List], vectors: List[np.array
     )
     line_set.colors = o3d.utility.Vector3dVector(colors)
     mesh_frame = o3d.geometry.TriangleMesh.create_coordinate_frame(
-        size=20, origin=[0, 0, 0]
+        size=10, origin=[0, 0, 0]
     )
-    o3d.visualization.draw_geometries([mesh_frame, line_set] + spheres)
+    o3d.visualization.draw_geometries([mesh_frame, line_set] + spheres + arrows)
+
+if __name__ == "__main__":
+    points = [np.array([0,0,0]), np.array([0,0,100]),np.array([0,100,0])]
+    edges = [[0,1],[1,2],[0,2]]
+    vectors = [np.array([1, 0, 0]), np.array([0, 1, 0]), np.array([0, 0, 1])]
+    show_graph(points, edges, vectors)
