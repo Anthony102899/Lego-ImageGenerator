@@ -1,7 +1,8 @@
 ================ TODO ================
-- finish the collision and == function
-- add more brick types (see bricks defined in gen_super_graph.py) to test the system.
-
+- add brick volume
+- persistent generated brick graph
+- remove case of connectivity from collision
+- test the solver!
 
 ================ Done ================
 - to classify the bricks:
@@ -22,3 +23,5 @@
 - to extract those for our task
     to add more information
 - remove unnecessary code
+- finish the collision and == function
+- add more brick types (see bricks defined in gen_super_graph.py) to test the system.

@@ -9,6 +9,7 @@ class GurobiSolver(object):
         super(GurobiSolver, self).__init__()
 
     def solve(self, nodes_num, node_areas, edges, verbose=True):
+        print("start solving...")
         if verbose:
             print(f"start solving by gurobi native ...")
         start_time = time.time()
@@ -16,8 +17,8 @@ class GurobiSolver(object):
 
         # add constrainr to the solver
         nodes = model.addMVar(nodes_num, vtype=GRB.BINARY, name="nodes")
-        for i in range(edges.shape[0]):
-            model.addConstr(nodes[edges[i, 0]] + nodes[edges[i, 1]] <= 1, f"c{i}")
+        for i in range(len(edges)):
+            model.addConstr(nodes[edges[i][0]] + nodes[edges[i][1]] <= 1, f"c{i}")
 
         # objective
         model.setObjective(sum([nodes[i]*node_areas[i] for i in range(nodes_num)]), GRB.MAXIMIZE)
@@ -26,7 +27,7 @@ class GurobiSolver(object):
         if verbose:
             print(f"solve finished in {time.time() - start_time}")
 
-        results = [var.X for var in model.getVars()]
+        results = [int(var.X) for var in model.getVars()]
 
         return results, time.time() - start_time
 
