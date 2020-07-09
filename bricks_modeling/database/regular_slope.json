@@ -156,6 +156,19 @@
     "id": "4287",
     "connPoint": [
       {
+        "pos":[
+          0,
+          10,
+          0
+        ],
+        "orient":[
+          0,
+          1,
+          0
+        ],
+        "type":"cuboid_solid"
+      },
+      {
         "pos": [
           0,
           -2,
