@@ -12,7 +12,7 @@ from util.geometry_util import get_random_transformation
 
 brick_IDs = ["3004",
              # "4070", # cuboid
-             # "4287", # slope
+              "4287", # slope
              # "3070", # plate
              # "3062", # round
              ]
