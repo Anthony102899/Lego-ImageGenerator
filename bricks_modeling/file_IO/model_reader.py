@@ -102,7 +102,7 @@ def read_files_name(file_path):
 
             for j in range(2, len(line_content)):
                 file_name = file_name + line_content[j] + " "
-                files_name.append(file_name)
+                files_name.append(file_name.lower())
 
     # print(f"now all files are {files}")
 
@@ -121,7 +121,7 @@ def get_file_or_brick_name(line_content):
             file_name = ""
             for j in range(14, len(line_content)):
                 file_name = file_name + line_content[j] + " "
-            return file_name
+            return file_name.lower()
 
     if (
         line_content[0] == "0" and line_content[1] == "FILE"
@@ -133,7 +133,9 @@ def get_file_or_brick_name(line_content):
             file_name = ""
             for j in range(2, len(line_content)):
                 file_name = file_name + line_content[j] + " "
-            return file_name
+            return file_name.lower()
+
+
 
 
 def is_brick_declaration(line_content, files_name):
@@ -189,7 +191,8 @@ def read_tree_from_file(file_path, read_fake_bricks=False):
             )
             current_file.add_an_internal_file(line_content)
         else:
-            print(f"unknown condition for line:{line}")
+            #print(f"unknown condition for line:{line}")
+            pass
     return file_tree
 
 
@@ -264,7 +267,7 @@ def read_bricks_from_file(file_path, read_fake_bricks=False):
     return bricks
 
 
-# if __name__ == "__main__":
-# bricks = read_bricks_from_file("../../data/full_models/miniheads/standard.mpd")
-# debugger = MyDebugger("test")
-# model_writer.write_bricks_to_file(bricks, debugger.file_path("model.ldr"))
+if __name__ == "__main__":
+    bricks = read_bricks_from_file("../../data/full_models/F-Long-Hair.ldr")
+    debugger = MyDebugger("test")
+    model_writer.write_bricks_to_file(bricks, debugger.file_path("model.ldr"))
