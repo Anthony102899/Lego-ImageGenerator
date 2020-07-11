@@ -34,7 +34,6 @@ def get_all_brick_templates(
             
     brick_templates = []
     template_ids = []
-    volume = {}
     for brick in data:
         cpoints = []
         for connPoint in brick["connPoint"]:
@@ -49,16 +48,14 @@ def get_all_brick_templates(
         brick_template = BrickTemplate(cpoints, brick["id"])
         brick_templates.append(brick_template)
         template_ids.append(brick["id"])
-        if len(brick) > 2:
-            volume.update({brick["id"]: brick["volume"]})
 
-    return brick_templates, template_ids, volume
+    return brick_templates, template_ids
 
 
 if __name__ == "__main__":
     debugger = MyDebugger("test")
 
-    brick_templates, _, _ = get_all_brick_templates()
+    brick_templates, _ = get_all_brick_templates()
 
     brick = BrickInstance(brick_templates[0])
     print(brick.to_ldraw())

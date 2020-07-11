@@ -10,28 +10,14 @@ def collide_check(ref_min, ref_max, minn, maxx):
 
 # Detect collision in each dimension
 def collision_detect(ref_corner, cuboid_corner):
-    x_min = np.min(cuboid_corner[:, 0])
-    x_max = np.max(cuboid_corner[:, 0])
-    y_min = np.min(cuboid_corner[:, 1])
-    y_max = np.max(cuboid_corner[:, 1])
-    z_min = np.min(cuboid_corner[:, 2])
-    z_max = np.max(cuboid_corner[:, 2])
-
-    xref_min = np.min(ref_corner[:, 0])
-    xref_max = np.max(ref_corner[:, 0])
-    yref_min = np.min(ref_corner[:, 1])
-    yref_max = np.max(ref_corner[:, 1])
-    zref_min = np.min(ref_corner[:, 2])
-    zref_max = np.max(ref_corner[:, 2])
-
-    x_collide = collide_check(xref_min, xref_max, x_min, x_max)
-    y_collide = collide_check(yref_min, yref_max, y_min, y_max)
-    z_collide = collide_check(zref_min, zref_max, z_min, z_max)
+    x_collide = collide_check(np.min(ref_corner[:, 0]), np.max(ref_corner[:, 0]), np.min(cuboid_corner[:, 0]), np.max(cuboid_corner[:, 0]))
+    y_collide = collide_check(np.min(ref_corner[:, 1]), np.max(ref_corner[:, 1]), np.min(cuboid_corner[:, 1]), np.max(cuboid_corner[:, 1]))
+    z_collide = collide_check(np.min(ref_corner[:, 2]), np.max(ref_corner[:, 2]), np.min(cuboid_corner[:, 2]), np.max(cuboid_corner[:, 2]))
 
     return (x_collide and y_collide and z_collide)
 
 def cub_collision_detect(cuboid_ref, cuboid):
-    corner_transform = np.array([[1,1,1], [1,-1,1], [-1,-1,1], [-1,1,1], [1,1,-1], [1,-1,-1], [-1,-1,-1], [-1,1,-1]])
+    corner_transform = np.array([[1, 1, 1], [1, -1, 1], [-1, -1, 1], [-1, 1, 1], [1, 1, -1], [1, -1, -1], [-1, -1, -1], [-1, 1, -1]])
     projection_matrix = np.array([[1, 0, 0], [0, 1, 0], [0, 0, 1]])  # information of the projection axis
 
     # Calculate all possible projection matrices for both cubes in respect to the base frame
@@ -45,11 +31,10 @@ def cub_collision_detect(cuboid_ref, cuboid):
     projection_axis.append(axis_cub)
     # Projection matrices relative to three faces of cuboid_ref
     for i in range(3):
-        base_axis = axis_ref[:,i].reshape(3)
+        base_axis = axis_ref[:, i].reshape(3)
         proj_mat = np.zeros((3, 3))
         for j in range(3):
-            cross = np.cross(base_axis, axis_cub[:,j].reshape(3))
-            proj_mat[:,j] = cross.reshape(3)
+            proj_mat[:, j] = (np.cross(base_axis, axis_cub[:, j].reshape(3))).reshape(3)
         projection_axis.append(proj_mat)
 
     # Position of each corner point relative to cube's center (do not consider the position relative to base frame's origin)

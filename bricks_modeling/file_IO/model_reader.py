@@ -153,7 +153,7 @@ def is_parts_quotation(line_content, files_name):
 
 def read_tree_from_file(file_path, read_fake_bricks=False):
     f = open(file_path, "r")
-    brick_templates, template_ids, _ = get_all_brick_templates()
+    brick_templates, template_ids = get_all_brick_templates()
     files_name = read_files_name(file_path)
     lines = f.readlines()
     file_tree = File_Tree()

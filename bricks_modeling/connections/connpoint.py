@@ -53,5 +53,5 @@ class CPoint:
         return rot_matrix_from_two_basis(typeToBrick[self.type][1],gen_lateral_vec(typeToBrick[self.type][1]), self.orient, self.bi_orient)
 
 if __name__ == "__main__":
-    point = CPoint(np.array([0, 0, 0]), np.array([0, 1, 0]), ConnPointType.AXLE)
+    point = CPoint(np.array([0, 0, 0]), np.array([0, 1, 0]), np.array([1, 0, 0]), ConnPointType.AXLE)
     print(point)

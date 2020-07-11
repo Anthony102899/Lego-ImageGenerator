@@ -10,7 +10,7 @@ from bricks_modeling.database.stl2obj import stl2obj
 
 def convert_stl_to_obj(stl_file_name, stl_directory, obj_directory, debug):
     # ldr_file_name must under ldr_directory
-    brick_templates, template_ids, _ = get_all_brick_templates()
+    brick_templates, template_ids = get_all_brick_templates()
     if debug:
         if stl_file_name in template_ids:
             if stl_file_name in get_file_name_in_a_directory_with_suffix(

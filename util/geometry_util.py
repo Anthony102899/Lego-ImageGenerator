@@ -34,13 +34,13 @@ def rot_matrix_from_two_basis(a1, a2, b1, b2):
     assert abs(LA.norm(a1) - 1) < 1e-4 and abs(LA.norm(a2) - 1) < 1e-4 and abs(LA.norm(b1) - 1) < 1e-4 and abs(LA.norm(b2) - 1) < 1e-4
     a3 = np.cross(a1, a2)
     b3 = np.cross(b1, b2)
-    X_before = np.empty([3,3])
-    X_before[:,0] = a1
+    X_before = np.empty([3, 3])
+    X_before[:, 0] = a1
     X_before[:, 1] = a2
     X_before[:, 2] = a3
 
     X_after = np.empty([3, 3])
-    X_after[:,0] = b1
+    X_after[:, 0] = b1
     X_after[:, 1] = b2
     X_after[:, 2] = b3
 
