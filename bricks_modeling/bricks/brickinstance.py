@@ -2,6 +2,7 @@ import numpy as np
 
 from bricks_modeling.bricks.bricktemplate import BrickTemplate
 from bricks_modeling.connections.connpoint import CPoint
+from bricks_modeling.connections.conn_type import compute_conn_type
 import util.geometry_util as geo_util
 import util.cuboid_geometry as cu_geo
 import itertools as iter
@@ -37,6 +38,9 @@ class BrickInstance:
     def collide(self, other):
         self_c_points = self.get_current_conn_points()
         other_c_points = other.get_current_conn_points()
+        for p_self, p_other in iter.product(self_c_points, other_c_points):
+            if not compute_conn_type(p_self, p_other) == None:
+                return False
         for p_self, p_other in iter.product(self_c_points, other_c_points):
             if cu_geo.cub_collision_detect(p_self.get_cuboid(), p_other.get_cuboid()):
                 return True
@@ -101,8 +105,8 @@ if __name__ == "__main__":
 
     # test the equal function
     debugger = MyDebugger("test")
-    bricks = read_bricks_from_file(r"./solvers/generation_solver/collision_test.ldr")
+    bricks = read_bricks_from_file(r"./solvers/generation_solver/selected_test1.ldr")
     for i in range(len(bricks)):
         for j in range(len(bricks)):
             print(f"{i}=={j}: ",bricks[i] == bricks[j])
-            print(f"{i}collide with{j}: ", bricks[i].collide(bricks[j]))
+            print(f"{i}collide with{j}: ", bricks[i].collide(bricks[j]),"\n")

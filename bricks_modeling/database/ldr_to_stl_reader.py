@@ -26,7 +26,7 @@ def get_file_name_in_a_directory_with_suffix(file_dir, Suffix) -> []:
 
 def convert_ldr_to_stl(ldr_file_name, ldr_directory, stl_directory, debug):
     # ldr_file_name must under ldr_directory
-    brick_templates, template_ids = get_all_brick_templates()
+    brick_templates, template_ids, _ = get_all_brick_templates()
     if debug:
         if ldr_file_name in template_ids:
             if ldr_file_name in get_file_name_in_a_directory_with_suffix(

@@ -25,7 +25,6 @@ class CPoint:
             return True
         return False
 
-    # TODO: to be tested
     def get_cuboid(self):
         heights = typeToBoundingBox[self.type]
         dimension = heights[0] * self.orient + heights[1] * self.bi_orient + heights[2] * np.cross(self.orient, self.bi_orient)

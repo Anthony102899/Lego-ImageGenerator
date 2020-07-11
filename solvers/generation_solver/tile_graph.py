@@ -26,7 +26,7 @@ def get_orient_matrices(cpoint_base, cpoint_align):
             transformation[:3, 3] = cpoint_base.pos - new_align_pos
             transformation[:3, :3] = transform_mat
             transformations.append(transformation)
-            
+
     return transformations
 
 def get_four_self_rotation(orient):
@@ -63,8 +63,8 @@ def generate_all_neighbor_tiles(
             for trans_mat in matrices:  # 2 possible orientations consistent with the normal
                 new_tile = BrickInstance(align_tile.template, trans_mat, color)
                 # TODO: detect if new tile collide with the base tile (for concave shape)
-                if base_brick.collide(new_tile):
-                    result_tiles.append(new_tile)
+                #if base_brick.collide(new_tile):
+                result_tiles.append(new_tile)
 
     return result_tiles
 

@@ -6,6 +6,8 @@ from bricks_modeling.bricks.brick_factory import get_all_brick_templates
 from bricks_modeling.bricks.brickinstance import BrickInstance
 import numpy as np
 import copy
+import os
+import pickle5 as pickle
 from scipy.spatial.transform import Rotation as R
 from bricks_modeling.connectivity_graph import ConnectivityGraph
 from util.geometry_util import get_random_transformation
@@ -14,13 +16,13 @@ from solvers.generation_solver.gurobi_solver import GurobiSolver
 
 brick_IDs = ["3004",
              # "4070", # cuboid
-              "4287", # slope
+             # "4287", # slope
              # "3070", # plate
              # "3062", # round
              ]
 
 def get_brick_templates(brick_IDs):
-    brick_templates, template_ids = get_all_brick_templates()
+    brick_templates, template_ids, volume = get_all_brick_templates()
     bricks = []
     for id in brick_IDs:
         assert id in template_ids
@@ -30,15 +32,16 @@ def get_brick_templates(brick_IDs):
         )
         bricks.append(brickInstance)
 
-    return bricks
+    return bricks, volume
 
 if __name__ == "__main__":
+    #graph_path = "./connectivity/['3004', '4287'] 1.pkl"
+
     debugger = MyDebugger("test")
-    brick_set = get_brick_templates(brick_IDs)
+    brick_set, volume = get_brick_templates(brick_IDs)
     seed_brick = copy.deepcopy(brick_set[0])
 
-    seed_brick.trans_matrix = get_random_transformation()
-    num_rings = 1
+    num_rings = 4
     bricks = find_brick_placements(
         num_rings, base_tile=seed_brick, tile_set=brick_set
     )
@@ -49,10 +52,11 @@ if __name__ == "__main__":
     )
 
     structure_graph = AdjacencyGraph(bricks)
-
+    pickle.dump(structure_graph, open(os.path.join("./connectivity/", f'{brick_IDs} {num_rings}.pkl'), "wb"))
+    #structure_graph = pickle.load(open(graph_path, "rb"))
     solver = GurobiSolver()
     results, time_used = solver.solve(nodes_num=len(structure_graph.bricks),
-                                      node_areas=[1 for b in structure_graph.bricks],
+                                      node_volume=[volume[b.template.id] for b in structure_graph.bricks],
                                       edges=structure_graph.overlap_edges)
 
     selected_bricks = []

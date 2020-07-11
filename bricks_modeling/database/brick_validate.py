@@ -10,7 +10,7 @@ from util.geometry_util import get_random_transformation
 
 if __name__ == "__main__":
     debugger = MyDebugger("test")
-    brick_templates, template_ids = get_all_brick_templates()
+    brick_templates, template_ids, _ = get_all_brick_templates()
 
     for template in brick_templates:
         brickInstance = BrickInstance(template, get_random_transformation(), 15)
