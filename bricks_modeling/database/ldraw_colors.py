@@ -16,12 +16,13 @@ def read_colors():
     for line in f.readlines():
         if line.startswith("0 !COLOUR"):
             line_content = line.rstrip().split()
-            color = (int(line_content[6][1+0*2:1+0*2+2], 16),
-                     int(line_content[6][1+1*2:1+1*2+2], 16),
-                     int(line_content[6][1+2*2:1+2*2+2], 16))
-            results[color] = int(line_content[4])
+            if len(line_content) <= 9 or (len(line_content) > 9 and line_content[9] != "ALPHA"): # ignore transparent color
+                color = (int(line_content[6][1+0*2:1+0*2+2], 16),
+                         int(line_content[6][1+1*2:1+1*2+2], 16),
+                         int(line_content[6][1+2*2:1+2*2+2], 16))
+                results[color] = int(line_content[4])
 
-    print(results)
+    return results
 
 if __name__ == "__main__":
     read_colors()

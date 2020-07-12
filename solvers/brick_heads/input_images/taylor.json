@@ -4,9 +4,10 @@
     "eye": 3, 
     "ear": 2,
     "nose": 3, 
-    "mouth": 2, 
-    "skin": 1, 
-    "glasses": -1, 
+    "mouth": 2,
+    "beard": -1,
+    "skin": 2,
+    "glasses": -1,
     "clothes": [[240, 238, 232], []],
     "hair": [[130, 95, 66], 3, [2, 0]]
 }

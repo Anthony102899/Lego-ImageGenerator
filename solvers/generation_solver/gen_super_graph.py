@@ -77,7 +77,7 @@ if __name__ == "__main__":
 
     """ option1: generate a new graph """    
     #brick_set = get_brick_templates(brick_IDs)
-    #bricks, structure_graph = generate_new(brick_set, num_rings=3, debugger=debugger)
+    bricks, structure_graph = generate_new(brick_set, num_rings=3, debugger=debugger)
 
     """ option2: load an existing ldr file """
     bricks, structure_graph = read_bricks(os.path.join(os.path.dirname(__file__), "super_graph/['3004', '4287'] 4.ldr"), debugger)
