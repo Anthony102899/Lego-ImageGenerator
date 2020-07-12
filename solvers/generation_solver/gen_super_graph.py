@@ -14,10 +14,10 @@ from solvers.generation_solver.adjacency_graph import AdjacencyGraph
 from solvers.generation_solver.gurobi_solver import GurobiSolver
 
 brick_IDs = ["3004",
-             # "4070", # cuboid
+              "4070", # cuboid
              # "4287", # slope
              # "3070", # plate
-              "3062", # round
+             # "3062", # round
              ]
 def get_volume(
     brick_database=[
@@ -58,7 +58,7 @@ def generate_new(brick_set, num_rings, debugger):
     )
     print(f"number of tiles neighbours in ring{num_rings}:", len(bricks))
     write_bricks_to_file(
-        bricks, file_path=debugger.file_path(f"test{num_rings}.ldr")
+        bricks, file_path=debugger.file_path(f"test{brick_IDs} {num_rings}.ldr")
     )
     structure_graph = AdjacencyGraph(bricks)  
     pickle.dump(structure_graph, open(os.path.join(os.path.dirname(__file__), f'connectivity/{brick_IDs} {num_rings}.pkl'), "wb"))
@@ -75,12 +75,12 @@ if __name__ == "__main__":
     debugger = MyDebugger("test")
     volume = get_volume()
 
-    """ option1: generate a new graph """
+    """ option1: generate a new graph """    
     #brick_set = get_brick_templates(brick_IDs)
     #bricks, structure_graph = generate_new(brick_set, num_rings=3, debugger=debugger)
 
     """ option2: load an existing ldr file """
-    bricks, structure_graph = read_bricks("./data/super_graph/['3004', '4287'] 4.ldr", debugger)
+    bricks, structure_graph = read_bricks(os.path.join(os.path.dirname(__file__), "super_graph/['3004', '4287'] 4.ldr"), debugger)
 
     """ option3: load a pkl file """
     #structure_graph = pickle.load(open("./connectivity/['3004', '3062'] 3.pkl", "rb"))
