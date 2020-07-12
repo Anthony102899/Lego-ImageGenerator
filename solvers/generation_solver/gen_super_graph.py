@@ -58,7 +58,7 @@ def generate_new(brick_set, num_rings, debugger):
     )
     print(f"number of tiles neighbours in ring{num_rings}:", len(bricks))
     write_bricks_to_file(
-        bricks, file_path=debugger.file_path(f"test{brick_IDs} {num_rings}.ldr")
+        bricks, file_path=debugger.file_path(f"{brick_IDs} {num_rings}.ldr")
     )
     structure_graph = AdjacencyGraph(bricks)  
     pickle.dump(structure_graph, open(os.path.join(os.path.dirname(__file__), f'connectivity/{brick_IDs} {num_rings}.pkl'), "wb"))
@@ -77,13 +77,13 @@ if __name__ == "__main__":
 
     """ option1: generate a new graph """    
     #brick_set = get_brick_templates(brick_IDs)
-    bricks, structure_graph = generate_new(brick_set, num_rings=3, debugger=debugger)
+    #bricks, structure_graph = generate_new(brick_set, num_rings=2, debugger=debugger)
 
     """ option2: load an existing ldr file """
-    bricks, structure_graph = read_bricks(os.path.join(os.path.dirname(__file__), "super_graph/['3004', '4287'] 4.ldr"), debugger)
+    #bricks, structure_graph = read_bricks(os.path.join(os.path.dirname(__file__), "super_graph/['3004', '4287'] 4.ldr"), debugger)
 
     """ option3: load a pkl file """
-    #structure_graph = pickle.load(open("./connectivity/['3004', '3062'] 3.pkl", "rb"))
+    structure_graph = pickle.load(open("./connectivity/['3004', '3062'] 3.pkl", "rb"))
 
     solver = GurobiSolver()
     results, time_used = solver.solve(nodes_num=len(structure_graph.bricks),

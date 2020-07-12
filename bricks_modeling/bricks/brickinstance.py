@@ -38,12 +38,13 @@ class BrickInstance:
     def collide(self, other):
         self_c_points = self.get_current_conn_points()
         other_c_points = other.get_current_conn_points()
+        collide = False
         for p_self, p_other in iter.product(self_c_points, other_c_points):
             if cu_geo.cub_collision_detect(p_self.get_cuboid(), p_other.get_cuboid()):
-                if compute_conn_type(p_self, p_other) == None:
-                    return True
-                return False
-        return False
+                if not compute_conn_type(p_self, p_other) == None:
+                    return False
+                collide = True
+        return collide
 
     def to_ldraw(self):
         text = (
@@ -103,8 +104,8 @@ if __name__ == "__main__":
     from util.debugger import MyDebugger
 
     # test the equal function
-    debugger = MyDebugger("test")
-    bricks = read_bricks_from_file(r"./solvers/generation_solver/test1.ldr")
+    #debugger = MyDebugger("test")
+    bricks = read_bricks_from_file(r"./solvers/generation_solver/selected_test.ldr")
     for i in range(len(bricks)):
         for j in range(len(bricks)):
             print(f"{i}=={j}: ",bricks[i] == bricks[j])
