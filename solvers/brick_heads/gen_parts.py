@@ -6,22 +6,27 @@ import os
 
 if __name__ == "__main__":
     debugger = MyDebugger("test")
-    template_bricks = read_bricks_from_file("./data/brickheads/components_old/template.ldr", read_fake_bricks = True)
+    template_bricks = read_bricks_from_file("./solvers/brick_heads/template.ldr", read_fake_bricks = True)
 
     total_bricks = template_bricks
 
-    test_dir = "./data/brickheads/components_old/"
+    test_dir = "./solvers/brick_heads/raw/girl_raw/"
     for file_name in os.listdir(test_dir):
-        addition_bricks = []
-        modifier_bricks = read_bricks_from_file(test_dir + file_name, read_fake_bricks=True)
-        for b in modifier_bricks:
-            if b not in template_bricks:
-                addition_bricks.append(b)
+        if not file_name.startswith('.'):
+            addition_bricks = []
+            modifier_bricks = read_bricks_from_file(test_dir + file_name, read_fake_bricks=True)
+            write_bricks_to_file(
+                modifier_bricks, file_path=debugger.file_path("origin_" + file_name), debug=False
+            )
 
-        write_bricks_to_file(
-            addition_bricks, file_path=debugger.file_path(file_name), debug=False
-        )
-        total_bricks = total_bricks + addition_bricks
+            for b in modifier_bricks:
+                if b not in template_bricks:
+                    addition_bricks.append(b)
+
+            write_bricks_to_file(
+                addition_bricks, file_path=debugger.file_path(file_name), debug=False
+            )
+            total_bricks = total_bricks + addition_bricks
 
     write_bricks_to_file(
         total_bricks, file_path=debugger.file_path("complete.ldr"), debug=False
