@@ -5,7 +5,7 @@ from util.debugger import MyDebugger
 import os
 import itertools as iter
 import json
-from bricks_modeling.database import ldraw_colors
+from solvers.brick_heads.part_selection import get_part_files, select_nearest_face_color
 
 parts = ["hair", "clothes", "glasses", "left_arm","right_arm", "beard"]
 
@@ -14,92 +14,44 @@ parts_dir = "./solvers/brick_heads/parts/"
 input_dir = f"./solvers/brick_heads/input_images/"
 
 
-def select_nearest_face_color(rgb):
-    skin_color_map = {
-        (244,244,244):511, # white
-        (255,201,149):78, # yellow
-        (145,80,28):484  # black or 10484?
-    }
-    return select_nearest_color(rgb, given_list=skin_color_map)
+def get_skin_files(selected_files):
+    skin_files = []
 
-def select_nearest_color(rgb, given_list = None):
-    if given_list is None:
-        all_colors = ldraw_colors.read_colors()
-    else:
-        all_colors = given_list
-
-    best_id = -1
-    closest_dist = 1e8
-    for l_rgb, color_id in all_colors.items():
-        current_dist = (rgb[0]-l_rgb[0])**2+(rgb[1]-l_rgb[1])**2+(rgb[2]-l_rgb[2])**2
-        if current_dist < closest_dist:
-            best_id = color_id
-            closest_dist = current_dist
-
-    return best_id
-
-def get_LEGO_parts(body_id, json_data):
-    if parts[body_id] == "hair":
-        gender = "F" if json_data["gender"] == 0 else "M"
-        length = json_data["hair"][1]
-        if sum(json_data["hair"][2])==0: # no bang
-            return [f"{gender}-Hair-{length}"]
-        else:
-            return [f"{gender}-Hair-{length}", f"{gender}-Hair-{length}_lh"]
-    elif parts[body_id] == "right_arm":
-        return ["right_arm_0"]
-    elif parts[body_id] == "left_arm":
-        return ["left_arm_0"]
-    elif parts[body_id] == "clothes":
-        return ["clothes"]
-    elif parts[body_id] == "glasses":
-        if json_data["glasses"] == -1:
-            return ["eyes_0"]
-        else:
-            return ["eyes_glasses"]
-    elif parts[body_id] == "beard":
-        return ["mustache_yes" if json_data["beard"] == 1 else "mustache_no"]
-    else:
-        print("error id:", body_id)
-        input()
-
-def gen_LEGO_figure(input_figure):
-    total_bricks = read_bricks_from_file(
-        template_path, read_fake_bricks=True
-    )
-
-    with open(input_dir + f"{input_figure}.json") as f:
-        data = json.load(f)
-
-    skin_color = data["skin"]
+    skin_color = json_data["skin"]
     color_id = select_nearest_face_color(skin_color)
 
+    for file in selected_files:
+        skined_file = file[0] + "_skin"
+        file_path = parts_dir + skined_file + ".ldr"
+        if os.path.exists(file_path):
+            skin_files.append((skined_file, color_id))
+
+    return skin_files
+
+def gen_LEGO_figure(json_data):
+    selected_files = []
+
     for i in range(len(parts)):
-        part_selection = get_LEGO_parts(i, data)
-        nearest_color = None
-        if parts[i] == "hair" or parts[i] == "clothes":
-            part_color = data[parts[i]][0]
-            nearest_color = select_nearest_color(part_color)
+        part_selection = get_part_files(parts[i], json_data)
+        selected_files += part_selection
 
-        if parts[i] == "hair" and len(part_selection) == 1:
-            bricks = read_bricks_from_file(parts_dir+"Hair_no_lh_skin.ldr", read_fake_bricks=True)
+    skin_files = get_skin_files(selected_files)
+    selected_files += skin_files
+
+    # start reading bricks
+    total_bricks = []
+    template_bricks = read_bricks_from_file(
+        template_path, read_fake_bricks=True
+    )
+    total_bricks += template_bricks
+
+    for file in selected_files:
+        bricks = read_bricks_from_file(parts_dir + file[0] + ".ldr", read_fake_bricks=True)
+        ldraw_color = file[1]
+        if ldraw_color is not None:
             for b in bricks:
-                b.color = color_id
-            total_bricks += bricks
-
-        for part_file in part_selection:
-            absolute_path = parts_dir + part_file
-            if os.path.exists(absolute_path + ".ldr"):
-                bricks = read_bricks_from_file(absolute_path + ".ldr", read_fake_bricks=True)
-                if nearest_color is not None:
-                    for b in bricks:
-                        b.color = nearest_color
-                total_bricks += bricks
-            if os.path.exists(absolute_path + "_skin.ldr"):
-                bricks = read_bricks_from_file(absolute_path + "_skin.ldr", read_fake_bricks=True)
-                for b in bricks:
-                    b.color = color_id
-                total_bricks += bricks
+                b.color = ldraw_color
+        total_bricks += bricks
 
     return total_bricks
 
@@ -108,10 +60,13 @@ if __name__ == "__main__":
     debugger = MyDebugger("brick_heads")
 
     # files = ["1_lkf", "2_gxs", "3_ymh", "4_taylor", "5_Hepburn", "6_James"]
-    files = ["test"]
+    files = ["6_James"]
 
     for input_figure in files:
-        bricks = gen_LEGO_figure(input_figure)
+        with open(input_dir + f"{input_figure}.json") as f:
+            json_data = json.load(f)
+
+        bricks = gen_LEGO_figure(json_data)
 
         write_bricks_to_file(
             bricks, file_path=debugger.file_path(f"complete_{input_figure}.ldr"), debug=False
