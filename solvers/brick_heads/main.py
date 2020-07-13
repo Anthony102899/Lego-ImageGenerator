@@ -13,14 +13,21 @@ template_path = "./solvers/brick_heads/template.ldr"
 parts_dir = "./solvers/brick_heads/parts/"
 input_dir = f"./solvers/brick_heads/input_images/"
 
-skin_color_map = {
-    1 : 511, # white
-    2 : 78,   # yellow
-    3 : 484,   # black or 10484?
-}
 
-def select_nearest_color(rgb):
-    all_colors = ldraw_colors.read_colors()
+def select_nearest_face_color(rgb):
+    skin_color_map = {
+        (244,244,244):511, # white
+        (255,201,149):78, # yellow
+        (145,80,28):484  # black or 10484?
+    }
+    return select_nearest_color(rgb, given_list=skin_color_map)
+
+def select_nearest_color(rgb, given_list = None):
+    if given_list is None:
+        all_colors = ldraw_colors.read_colors()
+    else:
+        all_colors = given_list
+
     best_id = -1
     closest_dist = 1e8
     for l_rgb, color_id in all_colors.items():
@@ -65,7 +72,7 @@ def gen_LEGO_figure(input_figure):
         data = json.load(f)
 
     skin_color = data["skin"]
-    color_id = skin_color_map[skin_color]
+    color_id = select_nearest_face_color(skin_color)
 
     for i in range(len(parts)):
         part_selection = get_LEGO_parts(i, data)
@@ -73,6 +80,12 @@ def gen_LEGO_figure(input_figure):
         if parts[i] == "hair" or parts[i] == "clothes":
             part_color = data[parts[i]][0]
             nearest_color = select_nearest_color(part_color)
+
+        if parts[i] == "hair" and len(part_selection) == 1:
+            bricks = read_bricks_from_file(parts_dir+"Hair_no_lh_skin.ldr", read_fake_bricks=True)
+            for b in bricks:
+                b.color = color_id
+            total_bricks += bricks
 
         for part_file in part_selection:
             absolute_path = parts_dir + part_file
@@ -88,18 +101,20 @@ def gen_LEGO_figure(input_figure):
                     b.color = color_id
                 total_bricks += bricks
 
-    write_bricks_to_file(
-        total_bricks, file_path=debugger.file_path(f"complete_{input_figure}.ldr"), debug=False
-    )
+    return total_bricks
 
 
 if __name__ == "__main__":
     debugger = MyDebugger("brick_heads")
 
-    # files = ["kaifu", "yuminhong", "taylor", "hepburn", "gxs"]
-    files = ["taylor"]
+    # files = ["1_lkf", "2_gxs", "3_ymh", "4_taylor", "5_Hepburn", "6_James"]
+    files = ["test"]
 
     for input_figure in files:
-        gen_LEGO_figure(input_figure)
+        bricks = gen_LEGO_figure(input_figure)
+
+        write_bricks_to_file(
+            bricks, file_path=debugger.file_path(f"complete_{input_figure}.ldr"), debug=False
+        )
 
 

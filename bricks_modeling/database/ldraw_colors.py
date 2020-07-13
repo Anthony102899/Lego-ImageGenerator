@@ -10,7 +10,7 @@ from util.geometry_util import get_random_transformation
 
 def read_colors():
     results = dict()
-    color_file = "./bricks_modeling/database/ldraw/LDConfig.ldr"
+    color_file = "./bricks_modeling/database/my_LDConfig.ldr"
     f = open(color_file, "r")
 
     for line in f.readlines():
