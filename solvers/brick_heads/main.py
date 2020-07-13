@@ -5,7 +5,8 @@ from util.debugger import MyDebugger
 import os
 import itertools as iter
 import json
-from bricks_modeling.database import ldraw_colors
+from solvers.brick_heads.part_selection import get_part_files, select_nearest_face_color
+import copy
 
 parts = ["hair", "clothes", "glasses", "left_arm","right_arm", "beard"]
 
@@ -13,93 +14,93 @@ template_path = "./solvers/brick_heads/template.ldr"
 parts_dir = "./solvers/brick_heads/parts/"
 input_dir = f"./solvers/brick_heads/input_images/"
 
-skin_color_map = {
-    1 : 511, # white
-    2 : 78,   # yellow
-    3 : 484,   # black or 10484?
-}
 
-def select_nearest_color(rgb):
-    all_colors = ldraw_colors.read_colors()
-    best_id = -1
-    closest_dist = 1e8
-    for l_rgb, color_id in all_colors.items():
-        current_dist = (rgb[0]-l_rgb[0])**2+(rgb[1]-l_rgb[1])**2+(rgb[2]-l_rgb[2])**2
-        if current_dist < closest_dist:
-            best_id = color_id
-            closest_dist = current_dist
+def get_skin_files(selected_files, json_data):
+    skin_files = []
 
-    return best_id
+    skin_color = json_data["skin"]
+    color_id = select_nearest_face_color(skin_color)
 
-def get_LEGO_parts(body_id, json_data):
-    if parts[body_id] == "hair":
-        gender = "F" if json_data["gender"] == 0 else "M"
-        length = json_data["hair"][1]
-        if sum(json_data["hair"][2])==0: # no bang
-            return [f"{gender}-Hair-{length}"]
-        else:
-            return [f"{gender}-Hair-{length}", f"{gender}-Hair-{length}_lh"]
-    elif parts[body_id] == "right_arm":
-        return ["right_arm_0"]
-    elif parts[body_id] == "left_arm":
-        return ["left_arm_0"]
-    elif parts[body_id] == "clothes":
-        return ["clothes"]
-    elif parts[body_id] == "glasses":
-        if json_data["glasses"] == -1:
-            return ["eyes_0"]
-        else:
-            return ["eyes_glasses"]
-    elif parts[body_id] == "beard":
-        return ["mustache_yes" if json_data["beard"] == 1 else "mustache_no"]
-    else:
-        print("error id:", body_id)
-        input()
+    for file in selected_files:
+        skined_file = file[0] + "_skin"
+        file_path = parts_dir + skined_file + ".ldr"
+        if os.path.exists(file_path):
+            skin_files.append((skined_file, color_id))
 
-def gen_LEGO_figure(input_figure):
-    total_bricks = read_bricks_from_file(
-        template_path, read_fake_bricks=True
-    )
+    return skin_files
 
-    with open(input_dir + f"{input_figure}.json") as f:
-        data = json.load(f)
-
-    skin_color = data["skin"]
-    color_id = skin_color_map[skin_color]
+def gen_LEGO_figure(json_data):
+    selected_files = []
 
     for i in range(len(parts)):
-        part_selection = get_LEGO_parts(i, data)
-        nearest_color = None
-        if parts[i] == "hair" or parts[i] == "clothes":
-            part_color = data[parts[i]][0]
-            nearest_color = select_nearest_color(part_color)
+        part_selection = get_part_files(parts[i], json_data)
+        selected_files += part_selection
 
-        for part_file in part_selection:
-            absolute_path = parts_dir + part_file
-            if os.path.exists(absolute_path + ".ldr"):
-                bricks = read_bricks_from_file(absolute_path + ".ldr", read_fake_bricks=True)
-                if nearest_color is not None:
-                    for b in bricks:
-                        b.color = nearest_color
-                total_bricks += bricks
-            if os.path.exists(absolute_path + "_skin.ldr"):
-                bricks = read_bricks_from_file(absolute_path + "_skin.ldr", read_fake_bricks=True)
-                for b in bricks:
-                    b.color = color_id
-                total_bricks += bricks
+    skin_files = get_skin_files(selected_files, json_data)
+    selected_files += skin_files
 
-    write_bricks_to_file(
-        total_bricks, file_path=debugger.file_path(f"complete_{input_figure}.ldr"), debug=False
+    # start reading bricks
+    total_bricks = []
+    template_bricks = read_bricks_from_file(
+        template_path, read_fake_bricks=True
     )
+    total_bricks += template_bricks
 
+    for file in selected_files:
+        bricks = read_bricks_from_file(parts_dir + file[0] + ".ldr", read_fake_bricks=True)
+        ldraw_color = file[1]
+        if ldraw_color is not None:
+            for b in bricks:
+                b.color = ldraw_color
+        total_bricks += bricks
+
+    return total_bricks
+
+def gen_all_inputs():
+    files = []
+
+    with open(input_dir + "5_Hepburn.json") as f:
+        json_data = json.load(f)
+
+    for gender in [0, 1]:
+        for hair in [1,2,3]:
+            for glasses in [-1, 1]:
+                for beard in [-1,1]:
+                    for bang in [0,1]:
+                        new_json = copy.deepcopy(json_data)
+                        new_json["gender"] = gender
+                        new_json["hair"][1] = hair
+                        new_json["glasses"] = glasses
+                        new_json["beard"] = beard
+                        new_json["hair"][2][1] = bang
+                        files.append((new_json, f"{gender}_{hair}_{glasses}_{beard}_{bang}"))
+    return files
+
+def ouptut_all_inputs():
+    fake_inputs = gen_all_inputs()
+    for file in fake_inputs:
+
+        bricks = gen_LEGO_figure(file[0])
+
+        write_bricks_to_file(
+            bricks, file_path=debugger.file_path(f"{file[1]}.ldr"), debug=False
+        )
 
 if __name__ == "__main__":
     debugger = MyDebugger("brick_heads")
+    # ouptut_all_inputs()
 
-    # files = ["kaifu", "yuminhong", "taylor", "hepburn", "gxs"]
-    files = ["taylor"]
+    # files = ["1_lkf", "2_gxs", "3_ymh", "4_taylor", "5_Hepburn", "6_James"]
+    files = ["6_James"]
 
     for input_figure in files:
-        gen_LEGO_figure(input_figure)
+        with open(input_dir + f"{input_figure}.json") as f:
+            json_data = json.load(f)
+
+        bricks = gen_LEGO_figure(json_data)
+
+        write_bricks_to_file(
+            bricks, file_path=debugger.file_path(f"complete_{input_figure}.ldr"), debug=False
+        )
 
 
