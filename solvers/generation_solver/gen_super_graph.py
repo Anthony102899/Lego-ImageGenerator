@@ -8,14 +8,15 @@ import numpy as np
 import copy
 import json
 import os
+import time
 import pickle5 as pickle
 from util.geometry_util import get_random_transformation
 from solvers.generation_solver.adjacency_graph import AdjacencyGraph
 from solvers.generation_solver.gurobi_solver import GurobiSolver
 
 brick_IDs = ["3004",
-              "4070", # cuboid
-             # "4287", # slope
+             # "4070", # cuboid
+              "4287", # slope
              # "3070", # plate
              # "3062", # round
              ]
@@ -52,21 +53,24 @@ def get_brick_templates(brick_IDs):
     return bricks
 
 def generate_new(brick_set, num_rings, debugger):
+    start_time = time.time()
     seed_brick = copy.deepcopy(brick_set[0])
     bricks = find_brick_placements(
         num_rings, base_tile=seed_brick, tile_set=brick_set
     )
+    print(f"generate finished in {round(time.time() - start_time, 2)}")
     print(f"number of tiles neighbours in ring{num_rings}:", len(bricks))
     write_bricks_to_file(
         bricks, file_path=debugger.file_path(f"{brick_IDs} {num_rings}.ldr")
     )
     structure_graph = AdjacencyGraph(bricks)  
-    pickle.dump(structure_graph, open(os.path.join(os.path.dirname(__file__), f'connectivity/{brick_IDs} {num_rings}.pkl'), "wb"))
+    pickle.dump(structure_graph, open(os.path.join(os.path.dirname(__file__), f'connectivity/{brick_IDs} r={num_rings} t={round(time.time() - start_time, 2)}.pkl'), "wb"))
     return bricks, structure_graph
 
 def read_bricks(path, debugger):
     bricks = read_bricks_from_file(path)
     _, filename=os.path.split(path)
+    filename = (filename.split("."))[0]
     structure_graph = AdjacencyGraph(bricks) 
     pickle.dump(structure_graph, open(os.path.join(os.path.dirname(__file__), f'connectivity/{filename}.pkl'), "wb"))
     return bricks, structure_graph
@@ -75,9 +79,9 @@ if __name__ == "__main__":
     debugger = MyDebugger("test")
     volume = get_volume()
 
-    """ option1: generate a new graph """    
+    """ option1: generate a new graph """
     #brick_set = get_brick_templates(brick_IDs)
-    #bricks, structure_graph = generate_new(brick_set, num_rings=2, debugger=debugger)
+    #bricks, structure_graph = generate_new(brick_set, num_rings=1, debugger=debugger)
 
     """ option2: load an existing ldr file """
     #bricks, structure_graph = read_bricks(os.path.join(os.path.dirname(__file__), "super_graph/['3004', '4287'] 4.ldr"), debugger)
