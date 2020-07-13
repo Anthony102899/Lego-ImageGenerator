@@ -4,7 +4,7 @@ import math
 # the cubes do not collide with each other in one axis only when the max of one cube is smaller than another cube
 # under the same axis
 def collide_check(ref_min, ref_max, minn, maxx):
-    if ref_min > maxx or ref_max < minn:
+    if ref_min - maxx > 1e-6 or ref_max - minn < 1e-6:
         return False
     return True
 

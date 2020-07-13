@@ -16,7 +16,7 @@ from solvers.generation_solver.gurobi_solver import GurobiSolver
 
 brick_IDs = ["3004",
              # "4070", # cuboid
-              "4287", # slope
+             # "4287", # slope
              # "3070", # plate
              # "3062", # round
              ]
@@ -61,7 +61,7 @@ def generate_new(brick_set, num_rings, debugger):
     print(f"generate finished in {round(time.time() - start_time, 2)}")
     print(f"number of tiles neighbours in ring{num_rings}:", len(bricks))
     write_bricks_to_file(
-        bricks, file_path=debugger.file_path(f"{brick_IDs} {num_rings}.ldr")
+        bricks, file_path=debugger.file_path(f"{brick_IDs} r={num_rings} t={round(time.time() - start_time, 2)}.ldr")
     )
     structure_graph = AdjacencyGraph(bricks)  
     pickle.dump(structure_graph, open(os.path.join(os.path.dirname(__file__), f'connectivity/{brick_IDs} r={num_rings} t={round(time.time() - start_time, 2)}.pkl'), "wb"))
@@ -81,14 +81,14 @@ if __name__ == "__main__":
 
     """ option1: generate a new graph """
     #brick_set = get_brick_templates(brick_IDs)
-    #bricks, structure_graph = generate_new(brick_set, num_rings=1, debugger=debugger)
+    #bricks, structure_graph = generate_new(brick_set, num_rings=6, debugger=debugger)
 
     """ option2: load an existing ldr file """
-    #bricks, structure_graph = read_bricks(os.path.join(os.path.dirname(__file__), "super_graph/['3004', '4287'] 4.ldr"), debugger)
+    bricks, structure_graph = read_bricks(os.path.join(os.path.dirname(__file__), "super_graph/bunny s=90.0 n=486 ['3004'] 7 t=117.7.ldr"), debugger)
 
     """ option3: load a pkl file """
-    structure_graph = pickle.load(open("./connectivity/['3004', '3062'] 3.pkl", "rb"))
-
+    #structure_graph = pickle.load(open("./connectivity/['3004', '3062'] 3.pkl", "rb"))
+    start_time = time.time()
     solver = GurobiSolver()
     results, time_used = solver.solve(nodes_num=len(structure_graph.bricks),
                                       node_volume=[volume[b.template.id] for b in structure_graph.bricks],
@@ -100,7 +100,7 @@ if __name__ == "__main__":
             selected_bricks.append(structure_graph.bricks[i])
 
     write_bricks_to_file(
-        selected_bricks, file_path=debugger.file_path(f"selected_test.ldr")
+        selected_bricks, file_path=debugger.file_path(f"selected t={round(time.time() - start_time, 2)}.ldr")
     )
 
     print("done!")
