@@ -52,12 +52,12 @@ typeToBoundingBox = {
     ConnPointType.AXLE : (20, 20, 20),
     ConnPointType.CROSS_HOLE : (20, 20, 20),
     ConnPointType.SOLID : (20, 20, 20),
-    ConnPointType.STUD : (4, 12, 12),
-    ConnPointType.TUBE : (4, 12, 12),
+    ConnPointType.STUD : (4, 11.9, 11.9),
+    ConnPointType.TUBE : (4, 11.9, 11.9),
     ConnPointType.CUBOID_SOLID : (19.5, 19.5, 19.5),
     ConnPointType.PLATE : (5, 19.5, 19.5),
     ConnPointType.CUBOID_HOLLOW : (11.5, 19.5, 19.5),
-    ConnPointType.SLOPE : (11.5, 19.5, 19.5)
+    ConnPointType.SLOPE : (11, 18, 18)
 }
 
 # these properties are for visualization ONLY
@@ -73,7 +73,7 @@ typeToBrick = {
     ConnPointType.CUBOID_SOLID: ("box5.dat", [0, 1, 0], [0, -10, 0], [10, 20, 10]),
     ConnPointType.PLATE: ("box5.dat", [0, 1, 0], [0, -2, 0], [10, 4, 10]),
     ConnPointType.CUBOID_HOLLOW: ("box5.dat", [0, 0, 1], [0, -10, 0], [10, 20, 6]),
-    ConnPointType.SLOPE: ("box5.dat", [0, 1, 0], [0, -7.5, 0], [10, 11, 10]),
+    ConnPointType.SLOPE: ("box5.dat", [0, 1, 0], [0, -5.5, 0], [10, 11, 10]),
 }
 
 if __name__ == "__main__":

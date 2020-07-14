@@ -38,7 +38,7 @@ def crop_brick(mesh, tile_set, scale):
 
 if __name__ == "__main__":
     obj_path = os.path.join(os.path.dirname(__file__), "super_graph/bunny.obj")
-    tile_path = os.path.join(os.path.dirname(__file__), "super_graph/['3004'] 5.ldr")
+    tile_path = os.path.join(os.path.dirname(__file__), "super_graph/['3004', '4287'] 5 n=9015 t=44086.09.ldr")
     tile_set = read_bricks_from_file(tile_path)
     mesh = trimesh.load(obj_path)
     flip = np.array([[-1, 0, 0, 0], [0, -1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]])
@@ -52,5 +52,6 @@ if __name__ == "__main__":
     _, filename=os.path.split(obj_path)
     filename = (filename.split("."))[0]
     _, tilename=os.path.split(tile_path)
-    tilename = (tilename.split("."))[0]
-    write_bricks_to_file(result, file_path=debugger.file_path(f"{filename} s={scale} n={len(result)} {tilename} t={round(time.time() - start_time, 2)}.ldr"))
+    tilename = ((tilename.split("."))[0]).split(" ")
+    tilename = tilename[0] + tilename[1] + tilename[2]
+    write_bricks_to_file(result, file_path=debugger.file_path(f"{filename} s={int(scale)} n={len(result)} {tilename} t={round(time.time() - start_time, 2)}.ldr"))
