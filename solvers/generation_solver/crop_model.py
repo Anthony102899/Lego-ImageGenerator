@@ -24,9 +24,16 @@ def RGB_to_Hex(rgb):
 
 def crop_brick(mesh, tile_set, scale):
     V = (mesh.vertices) * scale
+    if type(mesh.visual) == trimesh.visual.ColorVisuals:
+        colors_rgb = mesh.visual.face_colors
+    else:
+        colors_rgb = mesh.visual.to_color()
+        if colors_rgb.defined:
+            colors_rgb = colors_rgb.face_colors
+        else:
+            colors_rgb = np.c_[np.zeros((len(mesh.faces),3)), np.array([255 for face in mesh.faces])]
     mesh = trimesh.Trimesh(vertices=V, faces=mesh.faces)
     result_crop = []
-    colors_rgb = mesh.visual.face_colors
     for brick in tile_set:
         inside, nearby_face = brick_inside(brick, mesh)
         if inside:
@@ -37,10 +44,10 @@ def crop_brick(mesh, tile_set, scale):
     return result_crop
 
 if __name__ == "__main__":
-    obj_path = os.path.join(os.path.dirname(__file__), "super_graph/bunny.obj")
-    tile_path = os.path.join(os.path.dirname(__file__), "super_graph/['3004', '4287'] 5 n=9015 t=44086.09.ldr")
+    obj_path = os.path.join(os.path.dirname(__file__), "super_graph/bunnyc.obj")
+    tile_path = os.path.join(os.path.dirname(__file__), "super_graph/['3004'] 7.ldr")
     tile_set = read_bricks_from_file(tile_path)
-    mesh = trimesh.load(obj_path)
+    mesh = trimesh.load_mesh(obj_path)
     flip = np.array([[-1, 0, 0, 0], [0, -1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]])
     mesh.apply_transform(flip)
     scale = float(input("Enter scale of obj: "))
@@ -53,5 +60,5 @@ if __name__ == "__main__":
     filename = (filename.split("."))[0]
     _, tilename=os.path.split(tile_path)
     tilename = ((tilename.split("."))[0]).split(" ")
-    tilename = tilename[0] + tilename[1] + tilename[2]
-    write_bricks_to_file(result, file_path=debugger.file_path(f"{filename} s={int(scale)} n={len(result)} {tilename} t={round(time.time() - start_time, 2)}.ldr"))
+    tilename = tilename[0] + tilename[1] #+ tilename[2]
+    write_bricks_to_file(result, file_path=debugger.file_path(f"{filename} s={scale} n={len(result)} {tilename} t={round(time.time() - start_time, 2)}.ldr"))

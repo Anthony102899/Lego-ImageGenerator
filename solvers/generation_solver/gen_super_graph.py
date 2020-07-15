@@ -53,7 +53,7 @@ def crop(debugger, tile_set, tilename):
 
     _, filename=os.path.split(obj_path)
     filename = (filename.split("."))[0]
-    write_bricks_to_file(result, file_path=debugger.file_path(f"{filename} s={scale} n={len(result)} {tilename} t={round(time.time() - start_time, 2)}.ldr"))
+    write_bricks_to_file(result, file_path=debugger.file_path(f"{filename} s={int(scale)} n={len(result)} {tilename} t={round(time.time() - start_time, 2)}.ldr"))
     return result
 
 def get_brick_templates(brick_IDs):
@@ -87,10 +87,11 @@ def generate_new(brick_set, num_rings, debugger):
 
 def read_bricks(path, debugger):
     bricks = read_bricks_from_file(path)
-    _, filename=os.path.split(path)
+    _, filename = os.path.split(path)
     filename = (filename.split("."))[0]
+    start_time = time.time()
     structure_graph = AdjacencyGraph(bricks) 
-    pickle.dump(structure_graph, open(os.path.join(os.path.dirname(__file__), f'connectivity/{filename}.pkl'), "wb"))
+    pickle.dump(structure_graph, open(os.path.join(os.path.dirname(__file__), f'connectivity/{filename} t={round(time.time() - start_time, 2)}.pkl'), "wb"))
     return bricks, structure_graph
 
 if __name__ == "__main__":
@@ -102,11 +103,11 @@ if __name__ == "__main__":
     #bricks, structure_graph = generate_new(brick_set, num_rings=5, debugger=debugger)
 
     """ option2: load an existing ldr file """
-    bricks, structure_graph = read_bricks(os.path.join(os.path.dirname(__file__), "super_graph/['3004'] 7.ldr"), debugger)
+    bricks, structure_graph = read_bricks(os.path.join(os.path.dirname(__file__), "super_graph/bunny s=70.0 n=580 ['3004', '4287'] 5 t=236.01.ldr"), debugger)
 
     """ option3: load a pkl file """
     #structure_graph = pickle.load(open("./connectivity/['3004', '3062'] 3.pkl", "rb"))
-
+    
     start_time = time.time()
     solver = GurobiSolver()
     results, time_used = solver.solve(nodes_num=len(structure_graph.bricks),
