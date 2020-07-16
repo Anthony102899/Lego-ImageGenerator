@@ -80,16 +80,16 @@ class ConnectivityGraph:
 
         return json.dumps({"nodes": nodes, "edges": self.connect_edges}, cls=NumpyArrayEncoder)
 
-    def show(self):
+    def get_mesh(self):
         sphere = o3d.geometry.TriangleMesh.create_sphere(radius=1.0, resolution=2)
         sphere.compute_vertex_normals()
         sphere.paint_uniform_color([0.9, 0.1, 0.1])
 
-        points = [b.get_translation().tolist() for b in self.bricks]
+        points = [b.get_translation_for_mesh().tolist() for b in self.bricks]
 
         spheres = o3d.geometry.TriangleMesh()
         for b in self.bricks:
-            spheres += copy.deepcopy(sphere).translate(b.get_translation().tolist())
+            spheres += copy.deepcopy(sphere).translate(b.get_translation_for_mesh().tolist())
 
         lines = [e["node_indices"] for e in self.connect_edges]
         colors = [[1, 0, 0] for i in range(len(lines))]
@@ -101,4 +101,8 @@ class ConnectivityGraph:
         mesh_frame = o3d.geometry.TriangleMesh.create_coordinate_frame(
             size=20, origin=[0, 0, 0]
         )
-        o3d.visualization.draw_geometries([mesh_frame, line_set, spheres])
+        #o3d.visualization.draw_geometries([mesh_frame, line_set, spheres])
+        mesh = o3d.geometry.TriangleMesh()
+        mesh += mesh_frame
+        mesh += spheres
+        return mesh, line_set
