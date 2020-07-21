@@ -37,11 +37,8 @@ def get_part_files(body, json_data):
             return [(f"{gender}-Hair-{length}",nearest_ldr_color),
                     (f"{gender}-Hair-{length}_lh", nearest_ldr_color)]
 
-    elif body == "right_arm":
-        return [("right_arm_0", None)]
-
-    elif body == "left_arm":
-        return [("left_arm_0", None)]
+    elif body == "hands":
+        return [("08_hands_front_non", None)]
 
     elif body == "clothes":
         nearest_ldr_color = select_nearest_color(rgb=json_data["clothes"][0])
