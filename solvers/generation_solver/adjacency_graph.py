@@ -1,12 +1,16 @@
 import itertools
 import json
 import numpy as np
-
+import pickle5 as pickle
+from util.debugger import MyDebugger
+import time
+from bricks_modeling.file_IO.model_reader import read_bricks_from_file
 import open3d as o3d
 import copy
 from solvers.generation_solver.tile_graph import unique_brick_list
 from bricks_modeling.connections.conn_type import compute_conn_type
 from util.json_encoder import NumpyArrayEncoder
+from pathos.multiprocessing import ProcessingPool as Pool
 
 """
 To use a graph to describe a LEGO structure
@@ -27,11 +31,21 @@ class AdjacencyGraph:
         unique_brick_list(self.bricks)
         print("#tiles after filtring repeat:", len(self.bricks))
 
+    def build(self, b_i, b_j):
+        if self.bricks[b_i].collide(self.bricks[b_j]):
+            return (b_i, b_j)
+        return 
 
     def build_graph_from_bricks(self):
+        """
         for b_i, b_j in itertools.combinations(list(range(0, len(self.bricks))), 2):
             if self.bricks[b_i].collide(self.bricks[b_j]):
                 self.overlap_edges.append((b_i, b_j))
+        """
+        it = np.array(list(itertools.combinations(list(range(0, len(self.bricks))), 2)))
+        with Pool(20) as p:
+            a = p.map(self.build, it[:,0], it[:,1])
+        self.overlap_edges = [e for e in a if e]
 
 
     def to_json(self):
@@ -80,3 +94,14 @@ class AdjacencyGraph:
             size=20, origin=[0, 0, 0]
         )
         o3d.visualization.draw_geometries([mesh_frame, line_set, spheres])
+
+if __name__ == "__main__":
+    path = "solvers/generation_solver/super_graph/['3004'] 1.ldr"
+    bricks = read_bricks_from_file(path)
+    _, filename = os.path.split(path)
+    filename = (filename.split("."))[0]
+    start_time = time.time()
+    structure_graph = AdjacencyGraph(bricks)
+    t = round(time.time() - start_time, 2)
+    pickle.dump(structure_graph, open(os.path.join(os.path.dirname(__file__), f'connectivity/{filename} t={t}.pkl'), "wb"))
+    print(f"Saved at {filename} t={t}.pkl")
