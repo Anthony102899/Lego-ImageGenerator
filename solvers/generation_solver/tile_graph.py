@@ -6,12 +6,29 @@ import itertools as iter
 from scipy.spatial.transform import Rotation as R
 from numpy import linalg as LA
 from typing import List
+from util.debugger import MyDebugger
+from bricks_modeling.file_IO.model_writer import write_bricks_to_file
+import time
+import os
+import pickle5 as pickle
 
 connect_type = [
     {ConnPointType.HOLE, ConnPointType.PIN},
     {ConnPointType.CROSS_HOLE, ConnPointType.AXLE},
     {ConnPointType.STUD, ConnPointType.TUBE},
 ]
+
+class Tiling:
+    def __init__(self, result_tiles, last_ring, last_ring_num, middle_debugger, tile_set, num_rings, start_ring, last_idx, total_time):
+        self.result_tiles = result_tiles
+        self.last_ring = last_ring  # the tiles in the last ring
+        self.last_ring_num = last_ring_num
+        self.middle_debugger = middle_debugger
+        self.tile_set = tile_set
+        self.num_rings = num_rings
+        self.start_ring_idx = start_ring
+        self.last_idx = last_idx
+        self.total_time = total_time
 
 # get eight or four matrices
 def get_orient_matrices(cpoint_base, cpoint_align):
@@ -77,12 +94,14 @@ def unique_brick_list(bricks: List[BrickInstance]):
     return unique_list
 
 """ Returns a list of "num_rings" neighbours of brick "base_brick" """
-def find_brick_placements(num_rings: int, base_tile: BrickInstance, tile_set: list):
+def find_brick_placements(num_rings: int, base_tile: BrickInstance, tile_set: list, initial_time):
+    debugger = MyDebugger("middle")
     result_tiles = [base_tile]  # the resulting tiles
     last_ring = [base_tile]  # the tiles in the last ring
     for i in range(0, num_rings):
         print(f"\ncomputing ring {i}")
         last_ring_num = len(last_ring)
+        print("last ring num = ", last_ring_num)
 
         # iterate over all bricks in the last ring
         for last_ring_idx in range(last_ring_num):
@@ -93,8 +112,7 @@ def find_brick_placements(num_rings: int, base_tile: BrickInstance, tile_set: li
             for align_tile in tile_set:
                 # a list of neighbour bricks of "base_brick"
                 neighbour_tiles = generate_all_neighbor_tiles(
-                    base_brick=last_brick, align_tile=align_tile, color=i + 1
-                )
+                    base_brick=last_brick, align_tile=align_tile, color=i + 1)
 
                 neighbour_tiles = unique_brick_list(neighbour_tiles)
 
@@ -102,5 +120,14 @@ def find_brick_placements(num_rings: int, base_tile: BrickInstance, tile_set: li
                     if elem not in result_tiles:
                         result_tiles.append(elem)
                         last_ring.append(elem)
-
+            if last_ring_idx % 30 == 0:
+                tiling = Tiling(result_tiles, last_ring, last_ring_num,
+                                debugger, tile_set, 
+                                num_rings, i, last_ring_idx, 
+                                time.time() - initial_time)
+                pickle.dump(tiling, 
+                            open(os.path.join(os.path.dirname(__file__), f'super_graph/r={i}#{num_rings}.pkl'), "wb"))
+        write_bricks_to_file(result_tiles, 
+            file_path=debugger.file_path(f"n={len(result_tiles)} r={i+1} t={round(time.time() - initial_time, 2)}.ldr"))
     return result_tiles
+    
