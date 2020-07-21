@@ -8,7 +8,7 @@ import json
 from solvers.brick_heads.part_selection import get_part_files, select_nearest_face_color
 import copy
 
-parts = ["hair", "clothes", "glasses", "left_arm","right_arm", "beard"]
+parts = ["hair", "glasses", "beard", "clothes",  "hands" ]
 
 template_path = "./solvers/brick_heads/template.ldr"
 parts_dir = "./solvers/brick_heads/parts/"
@@ -34,10 +34,9 @@ def gen_LEGO_figure(json_data):
 
     for i in range(len(parts)):
         part_selection = get_part_files(parts[i], json_data)
+        skin_files = get_skin_files(part_selection, json_data)
         selected_files += part_selection
-
-    skin_files = get_skin_files(selected_files, json_data)
-    selected_files += skin_files
+        selected_files += skin_files
 
     # start reading bricks
     total_bricks = []
@@ -90,8 +89,8 @@ if __name__ == "__main__":
     debugger = MyDebugger("brick_heads")
     # ouptut_all_inputs()
 
-    # files = ["1_lkf", "2_gxs", "3_ymh", "4_taylor", "5_Hepburn", "6_James"]
-    files = ["6_James"]
+    files = ["1_lkf", "2_gxs", "3_ymh", "4_taylor", "5_Hepburn", "6_James"]
+    # files = ["6_James"]
 
     for input_figure in files:
         with open(input_dir + f"{input_figure}.json") as f:
