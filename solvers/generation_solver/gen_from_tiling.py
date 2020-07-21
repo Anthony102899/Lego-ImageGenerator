@@ -2,6 +2,7 @@ from solvers.generation_solver.tile_graph import Tiling, generate_all_neighbor_t
 import pickle5 as pickle
 from bricks_modeling.file_IO.model_writer import write_bricks_to_file
 import time
+import os
 
 def find_from_middle(tiling):
     debugger = tiling.middle_debugger

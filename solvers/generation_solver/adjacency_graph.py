@@ -11,6 +11,7 @@ from solvers.generation_solver.tile_graph import unique_brick_list
 from bricks_modeling.connections.conn_type import compute_conn_type
 from util.json_encoder import NumpyArrayEncoder
 from pathos.multiprocessing import ProcessingPool as Pool
+import os
 
 """
 To use a graph to describe a LEGO structure
