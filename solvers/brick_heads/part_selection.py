@@ -56,7 +56,7 @@ def gen_hair(gender: int, hair: int, hair_color: str, bang: int, skin_color: int
     hair_bricks = get_bricks_from_files(hair_files, hair_color_id)
     hair_skin_bricks = get_bricks_from_files(hair_skin_files, skin_color_id)
 
-    return hair_bricks + hair_skin_bricks
+    return hair_bricks , hair_skin_bricks
 
 
 def gen_eyes(eye: int, skin_color: int):
@@ -68,7 +68,7 @@ def gen_eyes(eye: int, skin_color: int):
     eye_bricks = get_bricks_from_files([eye_file])
     eye_skin_bricks = get_bricks_from_files(eye_skin_file, skin_color_id)
 
-    return eye_bricks + eye_skin_bricks
+    return eye_bricks , eye_skin_bricks
 
 
 def gen_hands(hands: int, skin_color: int, clothes_bg_color: Tuple):
@@ -81,7 +81,7 @@ def gen_hands(hands: int, skin_color: int, clothes_bg_color: Tuple):
     hands_bricks = get_bricks_from_files([hands_file], clothes_bg_color)
     hands_skin_bricks = get_bricks_from_files(hands_skin_file, skin_color_id)
 
-    return hands_bricks + hands_skin_bricks
+    return hands_bricks , hands_skin_bricks
 
 
 def gen_leges(pants_type, clothes_bg_color: Tuple, pants_color, skin_color):
@@ -112,7 +112,8 @@ def gen_leges(pants_type, clothes_bg_color: Tuple, pants_color, skin_color):
 
 
 def gen_clothes(clothes, clothes_bg_color: Tuple):
-    clothes_file = "clothes/clothes"
+    clothes_file = "clothes/clothes" if clothes != 15 else "clothes/skirt"
+
     clothes_color_id = nearest_color_id(clothes_bg_color)
 
     clothes_bricks = get_bricks_from_files([clothes_file], assign_color_id=clothes_color_id)
@@ -131,7 +132,7 @@ def gen_jaw(jaw, skin_color: int):
     jaw_bricks = get_bricks_from_files([jaw_file])
     jaw_skin_bricks = get_bricks_from_files(jaw_skin_files, skin_color_id)
 
-    return jaw_bricks + jaw_skin_bricks
+    return jaw_bricks , jaw_skin_bricks
 
 
 def get_skin_files(selected_files):

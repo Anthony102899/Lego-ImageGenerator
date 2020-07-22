@@ -1,4 +1,4 @@
-from bricks_modeling.file_IO.model_writer import write_bricks_to_file
+from bricks_modeling.file_IO.model_writer import write_bricks_to_file_for_instruction
 from bricks_modeling.connectivity_graph import ConnectivityGraph
 from util.debugger import MyDebugger
 import os
@@ -27,19 +27,19 @@ def gen_LEGO_figure(
     pants_color: Tuple
 ):
     # Template
-    template_head_bricks, template__bottom_bricks = p_select.gen_template()
+    template_head_bricks, template_bottom_bricks = p_select.gen_template()
 
     # Hair
-    hair_bricks = p_select.gen_hair(gender, hair, hair_color, bang, skin_color)
+    hair_bricks , hair_skin_bricks = p_select.gen_hair(gender, hair, hair_color, bang, skin_color)
 
     # Eye
-    eye_bricks = p_select.gen_eyes(eye, skin_color)
+    eye_bricks , eye_skin_bricks = p_select.gen_eyes(eye, skin_color)
 
     # Jaw
-    jaw_bricks = p_select.gen_jaw(jaw, skin_color)
+    jaw_bricks , jaw_skin_bricks = p_select.gen_jaw(jaw, skin_color)
 
     # Hands
-    hands_bricks = p_select.gen_hands(hands, skin_color, clothes_bg_color)
+    hands_bricks , hands_skin_bricks = p_select.gen_hands(hands, skin_color, clothes_bg_color)
 
     # Clothes
     clothes_bricks = p_select.gen_clothes(clothes_style, clothes_bg_color)
@@ -49,13 +49,13 @@ def gen_LEGO_figure(
 
     return (
         clothes_bricks
-        + hands_bricks
+        + hands_bricks + hands_skin_bricks
         + template_head_bricks
-        + template__bottom_bricks
-        + eye_bricks
-        + jaw_bricks
-        + hair_bricks
+        + eye_skin_bricks + eye_bricks
+        + jaw_skin_bricks + jaw_bricks
+        + hair_skin_bricks + hair_bricks
         + legs_bricks
+        + template_bottom_bricks
     )
 
 
@@ -108,9 +108,8 @@ if __name__ == "__main__":
             ) if len(model[14].split(", ")) >=3 else None
         )
 
-        write_bricks_to_file(
+        write_bricks_to_file_for_instruction(
             bricks,
-            file_path=debugger.file_path(f"complete_{int(model[0])}.ldr"),
-            debug=False,
+            file_path=debugger.file_path(f"complete_{int(model[0])}.ldr")
         )
     render.render_ldrs(debugger._debug_dir_name)

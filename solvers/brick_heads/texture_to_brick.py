@@ -38,5 +38,5 @@ def image_to_lego_texture(image_path, part_id, image_name, image_scale, out_path
         out_file.close()
 
 
-# image_to_lego_texture("F:\Research\Lego studio\icon.png",
-#                       "3068b", "icon", 20, "./")
+image_to_lego_texture("/Users/apple/workspace/lego-technic-solver/solvers/brick_heads/texture_test/textures/icon.png",
+                      "3005", "icon", 20, "./")
