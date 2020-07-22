@@ -8,8 +8,9 @@ import solvers.brick_heads.part_selection as p_select
 import copy
 import numpy as np
 import csv
-from typing import Tuple,List
+from typing import Tuple, List
 import solvers.brick_heads.bach_render_images as render
+
 
 def gen_LEGO_figure(
     gender: int,
@@ -21,9 +22,12 @@ def gen_LEGO_figure(
     jaw: int,
     hands: int,
     clothes_style: int,
+    clothes_bg_color: Tuple,
+    pants_type: int,
+    pants_color: Tuple
 ):
     # Template
-    template_bricks = p_select.gen_template()
+    template_head_bricks, template__bottom_bricks = p_select.gen_template()
 
     # Hair
     hair_bricks = p_select.gen_hair(gender, hair, hair_color, bang, skin_color)
@@ -35,9 +39,25 @@ def gen_LEGO_figure(
     jaw_bricks = p_select.gen_jaw(jaw, skin_color)
 
     # Hands
-    hands_bricks = p_select.gen_hands(hands, skin_color)
+    hands_bricks = p_select.gen_hands(hands, skin_color, clothes_bg_color)
 
-    return template_bricks + hair_bricks + eye_bricks + jaw_bricks + hands_bricks
+    # Clothes
+    clothes_bricks = p_select.gen_clothes(clothes_style, clothes_bg_color)
+
+    # Legs
+    legs_bricks = p_select.gen_leges(pants_type, clothes_bg_color, pants_color, skin_color)
+
+    return (
+        clothes_bricks
+        + hands_bricks
+        + template_head_bricks
+        + template__bottom_bricks
+        + eye_bricks
+        + jaw_bricks
+        + hair_bricks
+        + legs_bricks
+    )
+
 
 def ouptut_all_inputs():
     fake_inputs = gen_all_inputs()
@@ -50,7 +70,6 @@ def ouptut_all_inputs():
         )
 
 
-
 if __name__ == "__main__":
     debugger = MyDebugger("brick_heads")
     csv_path = r"/Users/apple/Dropbox/deecamp/data.csv"
@@ -59,19 +78,34 @@ if __name__ == "__main__":
         csv_reader = csv.reader(csv_file, delimiter=",")
         csv_matrix = list(csv_reader)
 
-    for model in csv_matrix[2:3]:
+    for model in csv_matrix[2:]:
         if model[1] == "":
             continue
         bricks = gen_LEGO_figure(
-            gender = int(model[1]),
-            hair = int(model[2]),
-            hair_color = (int(model[3].split(",")[0]), int(model[3].split(",")[1]), int(model[3].split(",")[2])),
-            bang = int(model[4]),
-            skin_color= int(model[5]),
-            eye= int(model[6]),
-            jaw= int(model[7]),
-            hands= int(model[8]),
-            clothes_style= int(model[9]),
+            gender=int(model[1]),
+            hair=int(model[2]),
+            hair_color=(
+                int(model[3].split(",")[0]),
+                int(model[3].split(",")[1]),
+                int(model[3].split(",")[2]),
+            ),
+            bang=int(model[4]),
+            skin_color=int(model[5]),
+            eye=int(model[6]),
+            jaw=int(model[7]),
+            hands=int(model[8]),
+            clothes_style=int(model[9]),
+            clothes_bg_color = (
+                int(model[10].split(", ")[0][3:]),
+                int(model[10].split(", ")[1]),
+                int(model[10].split(", ")[2][:model[10].split(", ")[2].index("]")])
+            ),
+            pants_type = int(model[13]),
+            pants_color = (
+                int(model[14].split(", ")[0][3:]),
+                int(model[14].split(", ")[1]),
+                int(model[14].split(", ")[2][:model[14].split(", ")[2].index("]")])
+            ) if len(model[14].split(", ")) >=3 else None
         )
 
         write_bricks_to_file(
