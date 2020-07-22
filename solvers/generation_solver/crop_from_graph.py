@@ -1,4 +1,4 @@
-
+import os
 from solvers.generation_solver.crop_model import brick_inside, RGB_to_Hex, get_color
 from bricks_modeling.file_IO.model_writer import write_bricks_to_file
 from solvers.generation_solver.gurobi_solver import GurobiSolver
@@ -13,25 +13,24 @@ import time
 import pickle5 as pickle
 
 
-def check_brick1(brick, mesh, colors_rgb):
+def check_brick(brick, mesh, colors_rgb):
     inside, nearby_face = brick_inside(brick, mesh)
     if inside:
         nearby_color = colors_rgb[nearby_face]
         nearby_hex = RGB_to_Hex(nearby_color)
         new_brick = BrickInstance(brick.template, brick.trans_matrix, nearby_hex)
         return new_brick, 1
-    return None, -1
+    return brick, -1
 
 def get_bricks(mesh, tile_set, scale):
     colors_rgb = get_color(mesh)
     V = (mesh.vertices) * scale
     mesh = trimesh.Trimesh(vertices=V, faces=mesh.faces)
     with Pool(20) as p:
-        result = p.map(partial(check_brick1, mesh=mesh, colors_rgb=colors_rgb), tile_set)
+        result = p.map(partial(check_brick, mesh=mesh, colors_rgb=colors_rgb), tile_set)
     result = np.array(result)
     flag = result[:,1]
     result_crop = result[:,0]
-    result_crop = [b for b in result_crop if b]
     return result_crop, flag
 
 if __name__ == "__main__":
@@ -52,8 +51,7 @@ if __name__ == "__main__":
         scale /= 10
         tile_set = tile.bricks
         result_crop, flag = get_bricks(mesh, tile_set, scale)
-        print(flag[:10])
-        print(len(result_crop))
+        tile.bricks = result_crop
         end_time = time.time()
         print(f"resulting LEGO model has {len(result_crop)} bricks")
 
@@ -62,10 +60,6 @@ if __name__ == "__main__":
         _, tilename = os.path.split(tile_path)
         tilename = ((tilename.split("."))[0]).split(" ")
         tilename = tilename[0] + tilename[1] + tilename[2]
-        write_bricks_to_file(
-            result_crop, 
-            file_path=debugger.file_path(
-                f"{filename} s={scale} n={len(result_crop)} {tilename} t={round(end_time - start_time, 2)}.ldr"))
 
         volume = get_volume()
         start_time = time.time()
@@ -81,6 +75,6 @@ if __name__ == "__main__":
                 selected_bricks.append(tile.bricks[i])
 
         write_bricks_to_file(
-            selected_bricks, file_path=debugger.file_path(f"selected n={len(selected_bricks)} t={round(end_time - start_time, 2)}.ldr"))
+            selected_bricks, file_path=debugger.file_path(f"selected {filename} {tilename} s={scale} n={len(selected_bricks)} t={round(end_time - start_time, 2)}.ldr"))
 
         print("done!")
