@@ -29,42 +29,29 @@ def color_phraser(
             color_dict[line_content[4]] = [
                 int(line_content[6][i : i + 2], 16) / 255 for i in (1, 3, 5)
             ]
-            print(f"color {line_content[4]} is {color_dict[line_content[4]]}")
+            #print(f"color {line_content[4]} is {color_dict[line_content[4]]}")
 
     return color_dict
 
 def ldr_to_obj(
     ldr_path,
-    obj_file_path=path.join(path.dirname(path.dirname(__file__)), "database", "obj"),
     output_path=MyDebugger("test").file_path("test.obj"),
     open3d_vis=False,
+    write_file=False
 ):
     color_dict = color_phraser()
     bricks = read_bricks_from_file(ldr_path)
     meshs = o3d.geometry.TriangleMesh()
     for brick in bricks:
-        mesh = o3d.io.read_triangle_mesh(
-            f'{obj_file_path}/{brick.template.id + ".obj"}'
-        )
-        mesh.compute_vertex_normals()
-        if str(brick.color) in color_dict.keys():
-            mesh.paint_uniform_color(color_dict[str(brick.color)])
-        elif not str(brick.color).isdigit():  # color stored in hex
-            rgb_color = trimesh.visual.color.hex_to_rgba(brick.color[3:])
-            mesh.paint_uniform_color(list(map(lambda comp: comp / 255, rgb_color[:3])))
-        else:
-            print("warning, no such color in ldview, print red")
-            mesh.paint_uniform_color([1, 0, 0])
-        mesh.rotate(brick.get_rotation().tolist(), [0, 0, 0])
-        mesh.translate([i / 2.5 for i in brick.get_translation().tolist()])
-        meshs += mesh
+        meshs += brick.get_mesh(color_dict)
 
     if open3d_vis:
         o3d.visualization.draw_geometries([meshs])
 
-    o3d.io.write_triangle_mesh(output_path, meshs)
+    if write_file:
+        o3d.io.write_triangle_mesh(output_path, meshs)
 
     return meshs
 
 if __name__ == "__main__":
-    ldr_to_obj("../../data/full_models/42023.mpd", open3d_vis=True)
+    ldr_to_obj("./data/full_models/test_case_1.ldr", open3d_vis=True, write_file=False)

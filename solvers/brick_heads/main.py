@@ -5,70 +5,101 @@ from util.debugger import MyDebugger
 import os
 import itertools as iter
 import json
+from solvers.brick_heads.part_selection import get_part_files, select_nearest_face_color
+import copy
 
-parts = ["hairs", "right_arm", "left_arm", "face_bottom", "eyes", "cloth"]
+parts = ["hair", "glasses", "beard", "clothes",  "hands" ]
 
-part_candidates = {
-    parts[0]: ["hair_short_2.ldr", "hair_short_1.ldr", "hair_long_1.ldr", "hair_long_2.ldr"],
-    parts[1]: ["right_arm_0.ldr"],
-    parts[2] : ["left_arm_0.ldr"],
-    parts[3] : ["face_bottom_0.ldr", "face_bottom_1.ldr", "face_bottom_2.ldr", "face_bottom_3.ldr"],
-    parts[4] : ["eyes_0.ldr","eyes_glasses_2.ldr" ,"eyes_glasses_3.ldr"],
-    parts[5] : ["cloth_up_0.ldr"]
-}
+template_path = "./solvers/brick_heads/template.ldr"
+parts_dir = "./solvers/brick_heads/parts/"
+input_dir = f"./solvers/brick_heads/input_images/"
 
-def get_LEGO_parts(body_id, json_data):
-    if parts[body_id] == "hairs":
-        if json_data["hair"] > 2:
-            return 2
-        else:
-            return 0
-    elif parts[body_id] == "right_arm":
-        return 0
-    elif parts[body_id] == "left_arm":
-        return 0
-    elif parts[body_id] == "face_bottom":
-        if json_data["mouth"] > 1:
-            return 0
-        else:
-            return 1
-    elif parts[body_id] == "eyes":
-        if json_data["glasses"] > 0:
-            return 1
-        else:
-            return 0
-    elif parts[body_id] == "cloth":
-        return 0
-    else:
-        print("error id:", body_id)
 
-def gen_LEGO_figure(input_figure):
-    total_bricks = read_bricks_from_file(
-        "./data/brickheads/template.ldr", read_fake_bricks=True
-    )
+def get_skin_files(selected_files, json_data):
+    skin_files = []
 
-    with open(f"./solvers/brick_heads/input/{input_figure}.json") as f:
-        data = json.load(f)
+    skin_color = json_data["skin"]
+    color_id = select_nearest_face_color(skin_color)
+
+    for file in selected_files:
+        skined_file = file[0] + "_skin"
+        file_path = parts_dir + skined_file + ".ldr"
+        if os.path.exists(file_path):
+            skin_files.append((skined_file, color_id))
+
+    return skin_files
+
+def gen_LEGO_figure(json_data):
+    selected_files = []
 
     for i in range(len(parts)):
-        part_selection = get_LEGO_parts(i, data)
-        bricks = read_bricks_from_file(part_dir + part_candidates[parts[i]][part_selection], read_fake_bricks=True)
+        part_selection = get_part_files(parts[i], json_data)
+        skin_files = get_skin_files(part_selection, json_data)
+        selected_files += part_selection
+        selected_files += skin_files
+
+    # start reading bricks
+    total_bricks = []
+    template_bricks = read_bricks_from_file(
+        template_path, read_fake_bricks=True
+    )
+    total_bricks += template_bricks
+
+    for file in selected_files:
+        bricks = read_bricks_from_file(parts_dir + file[0] + ".ldr", read_fake_bricks=True)
+        ldraw_color = file[1]
+        if ldraw_color is not None:
+            for b in bricks:
+                b.color = ldraw_color
         total_bricks += bricks
 
-    write_bricks_to_file(
-        total_bricks, file_path=debugger.file_path(f"complete_{input_figure}.ldr"), debug=False
-    )
+    return total_bricks
 
+def gen_all_inputs():
+    files = []
 
-part_dir = "./data/brickheads/parts/"
+    with open(input_dir + "5_Hepburn.json") as f:
+        json_data = json.load(f)
 
+    for gender in [0, 1]:
+        for hair in [1,2,3]:
+            for glasses in [-1, 1]:
+                for beard in [-1,1]:
+                    for bang in [0,1]:
+                        new_json = copy.deepcopy(json_data)
+                        new_json["gender"] = gender
+                        new_json["hair"][1] = hair
+                        new_json["glasses"] = glasses
+                        new_json["beard"] = beard
+                        new_json["hair"][2][1] = bang
+                        files.append((new_json, f"{gender}_{hair}_{glasses}_{beard}_{bang}"))
+    return files
+
+def ouptut_all_inputs():
+    fake_inputs = gen_all_inputs()
+    for file in fake_inputs:
+
+        bricks = gen_LEGO_figure(file[0])
+
+        write_bricks_to_file(
+            bricks, file_path=debugger.file_path(f"{file[1]}.ldr"), debug=False
+        )
 
 if __name__ == "__main__":
     debugger = MyDebugger("brick_heads")
+    # ouptut_all_inputs()
 
-    files = ["kaifu", "yuminhong", "taylor", "hepburn", "gxs"]
+    files = ["1_lkf", "2_gxs", "3_ymh", "4_taylor", "5_Hepburn", "6_James"]
+    # files = ["6_James"]
 
     for input_figure in files:
-        gen_LEGO_figure(input_figure)
+        with open(input_dir + f"{input_figure}.json") as f:
+            json_data = json.load(f)
+
+        bricks = gen_LEGO_figure(json_data)
+
+        write_bricks_to_file(
+            bricks, file_path=debugger.file_path(f"complete_{input_figure}.ldr"), debug=False
+        )
 
 

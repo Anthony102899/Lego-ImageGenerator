@@ -6,6 +6,11 @@ import itertools as iter
 from scipy.spatial.transform import Rotation as R
 from numpy import linalg as LA
 from typing import List
+from util.debugger import MyDebugger
+from bricks_modeling.file_IO.model_writer import write_bricks_to_file
+import time
+import os
+import pickle5 as pickle
 
 connect_type = [
     {ConnPointType.HOLE, ConnPointType.PIN},
@@ -13,31 +18,19 @@ connect_type = [
     {ConnPointType.STUD, ConnPointType.TUBE},
 ]
 
-rot = np.array(
-    [
-        [[1, 0, 0, 0], [0, 0, -1, 0], [0, 1, 0, 0], [0, 0, 0, 1]],
-        [[0, 0, 1, 0], [0, 1, 0, 0], [-1, 0, 0, 0], [0, 0, 0, 1]],
-        [[0, -1, 0, 0], [1, 0, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]],
-    ]
-)
+class Tiling:
+    def __init__(self, result_tiles, last_ring, last_ring_num, middle_debugger, tile_set, num_rings, start_ring, last_idx, total_time):
+        self.result_tiles = result_tiles
+        self.last_ring = last_ring  # the tiles in the last ring
+        self.last_ring_num = last_ring_num
+        self.middle_debugger = middle_debugger
+        self.tile_set = tile_set
+        self.num_rings = num_rings
+        self.start_ring_idx = start_ring
+        self.last_idx = last_idx
+        self.total_time = total_time
 
-
-def get_rotation(cpoint_align, n, cpoint_base):
-    cal_rotation = np.c_[
-        np.r_[
-            rot_matrix_from_vec_a_to_b(cpoint_base.orient, cpoint_align.orient),
-            np.array([[0, 0, 0]]),
-        ],
-        (np.array([[0, 0, 0, 1]])).T,
-    ]
-    rotation = cal_rotation
-    self_rot = rot[n % 3]
-    for i in range(int(n / 3)):
-        rotation = rotation @ self_rot
-    # print(f"\ncase {n}\n--------------------")
-    return rotation
-
-# get eight (2 x 4) matrics
+# get eight or four matrices
 def get_orient_matrices(cpoint_base, cpoint_align):
     transformations = []
     orient_matrices = get_orient_align_matrices(cpoint_base, cpoint_align)
@@ -72,26 +65,6 @@ def get_orient_align_matrices(cpoint_base, cpoint_align):
 
     return matrices
 
-
-""" returns a new brick instance """
-def get_new_tile(align: BrickInstance, trans_mat, color: int):
-    return BrickInstance(align.template, trans_mat, color)
-
-
-# def get_matrix(cpoint_base, cpoint_align, base_brick: BrickInstance, i):
-#     translation = np.identity(4)
-#     rotation = get_rotation(cpoint_align, i, cpoint_base)
-#     rot_3d = rotation[:3, :3]  # 3*3 matrix
-#     new_align_pos = rotation @ np.append(cpoint_align.pos, 1)
-#     translation[:, 3] = np.append(cpoint_base.pos, 1) - new_align_pos
-#     new_orient = rot_3d @ cpoint_align.orient
-#     same = np.linalg.norm(new_orient - cpoint_base.orient) < 1e-9
-#     return (
-#         translation @ rotation,
-#         (np.linalg.norm(np.cross(new_orient, cpoint_base.orient)) < 1e-9),
-#         same == 1,
-#     )
-
 """ Returns immediate possible aligns using "align_tile" for "base_brick" """
 def generate_all_neighbor_tiles(
     base_brick: BrickInstance, align_tile: BrickInstance, color: int
@@ -107,44 +80,10 @@ def generate_all_neighbor_tiles(
             for trans_mat in matrices:  # 2 possible orientations consistent with the normal
                 new_tile = BrickInstance(align_tile.template, trans_mat, color)
                 # TODO: detect if new tile collide with the base tile (for concave shape)
-                # if base_brick.collide(new_tile):
+                #if base_brick.collide(new_tile):
                 result_tiles.append(new_tile)
 
     return result_tiles
-
-
-""" Returns True if the brick is already in list """
-
-
-def check_repeatability(elem: BrickInstance, result_tiles: list):
-    elem_pos = list(elem.trans_matrix[:, 3][:3])  # elem position (1 * 3)
-    result_tiles_idx = list(
-        filter(
-            lambda brick: (elem_pos == brick.trans_matrix[:, 3][:3]).all(), result_tiles
-        )
-    )  # filtered list of input_images bricks (same position)
-    if len(result_tiles_idx) == 0:
-        return False
-    cpoints_ls = list(
-        map(lambda brick: brick.get_current_conn_points(), result_tiles_idx)
-    )  # a list of cpoints (#filtered tiles * #cpoints each)
-    cpoints_info = list(
-        map(
-            lambda cp_ls: list(map(lambda cp: [list(cp.pos), cp.type], cp_ls)),
-            cpoints_ls,
-        )
-    )  # a list of (pos, type) (#filtered tiles * #cpoints each)
-    elem_cpoints_info = list(
-        map(lambda cp: [list(cp.pos), cp.type], elem.get_current_conn_points())
-    )  # (#cpoints in elem * 2)
-    elem_cpoints_info.sort()
-    for cp_info in cpoints_info:
-        cp_info.sort()
-        if np.array(
-            (np.array(cp_info) == np.array(elem_cpoints_info))
-        ).all():  # all cpoints in one input_images equal elem's, duplicate brick
-            return True
-    return False
 
 def unique_brick_list(bricks: List[BrickInstance]):
     # remove self-repeat
@@ -155,30 +94,45 @@ def unique_brick_list(bricks: List[BrickInstance]):
     return unique_list
 
 """ Returns a list of "num_rings" neighbours of brick "base_brick" """
-def find_brick_placements(num_rings: int, base_tile: BrickInstance, tile_set: list):
+def find_brick_placements(num_rings: int, base_tile: BrickInstance, tile_set: list, initial_time):
+    debugger = MyDebugger("middle")
     result_tiles = [base_tile]  # the resulting tiles
     last_ring = [base_tile]  # the tiles in the last ring
+    snd_last_ring = []
     for i in range(0, num_rings):
         print(f"\ncomputing ring {i}")
         last_ring_num = len(last_ring)
-
+        print("last ring num = ", last_ring_num)
+        tmp = last_ring[:]
+        this_ring = []
         # iterate over all bricks in the last ring
         for last_ring_idx in range(last_ring_num):
             print(f"last ring {last_ring_idx}")
             last_brick = last_ring.pop(0)  # brick instance in previous ring
+            snd_last_ring.append(last_brick)
 
             # brick instance to be aligned
             for align_tile in tile_set:
                 # a list of neighbour bricks of "base_brick"
                 neighbour_tiles = generate_all_neighbor_tiles(
-                    base_brick=last_brick, align_tile=align_tile, color=i + 1
-                )
+                    base_brick=last_brick, align_tile=align_tile, color=i + 1)
 
                 neighbour_tiles = unique_brick_list(neighbour_tiles)
 
                 for elem in neighbour_tiles:
-                    if elem not in result_tiles:
+                    if elem not in snd_last_ring and elem not in this_ring:
                         result_tiles.append(elem)
                         last_ring.append(elem)
-
+                        this_ring.append(elem)
+            if last_ring_idx % 30 == 0:
+                tiling = Tiling(result_tiles, last_ring, last_ring_num,
+                                debugger, tile_set, 
+                                num_rings, i, last_ring_idx, 
+                                time.time() - initial_time)
+                pickle.dump(tiling, 
+                            open(os.path.join(os.path.dirname(__file__), f'super_graph/r={i}#{num_rings}.pkl'), "wb"))
+        write_bricks_to_file(result_tiles, 
+            file_path=debugger.file_path(f"n={len(result_tiles)} r={i+1} t={round(time.time() - initial_time, 2)}.ldr"))
+        snd_last_ring = tmp
     return result_tiles
+    

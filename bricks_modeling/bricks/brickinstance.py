@@ -1,10 +1,16 @@
 import numpy as np
+import open3d as o3d
+from os import path
+
+import trimesh
 
 from bricks_modeling.bricks.bricktemplate import BrickTemplate
 from bricks_modeling.connections.connpoint import CPoint
+from bricks_modeling.connections.conn_type import compute_conn_type
 import util.geometry_util as geo_util
 import util.cuboid_geometry as cu_geo
 import itertools as iter
+
 
 
 class BrickInstance:
@@ -38,7 +44,9 @@ class BrickInstance:
         self_c_points = self.get_current_conn_points()
         other_c_points = other.get_current_conn_points()
         for p_self, p_other in iter.product(self_c_points, other_c_points):
-            if cu_geo.collosion_detect(p_self.get_cuboid(), p_other.get_cuboid()):
+            if cu_geo.cub_collision_detect(p_self.get_cuboid(), p_other.get_cuboid()):
+                if not compute_conn_type(p_self, p_other) == None:
+                    return False
                 return True
         return False
 
@@ -69,6 +77,9 @@ class BrickInstance:
     def reset_transformation(self):
         self.trans_matrix = np.identity(4, dtype=float)
 
+    def get_translation_for_mesh(self):
+        return self.trans_matrix[:3, 3]/2.5
+
     def get_current_conn_points(self):
         conn_points = []
 
@@ -93,6 +104,24 @@ class BrickInstance:
 
         return conn_points
 
+    def get_mesh(self, color_dict):
+        obj_file_path = path.join(path.dirname(path.dirname(__file__)), "database", "obj",f'{self.template.id + ".obj"}')
+        mesh = o3d.io.read_triangle_mesh(
+            obj_file_path
+        )
+        mesh.compute_vertex_normals()
+        if str(self.color) in color_dict.keys():
+            mesh.paint_uniform_color(color_dict[str(self.color)])
+        elif not str(self.color).isdigit():  # color stored in hex
+            rgb_color = trimesh.visual.color.hex_to_rgba(self.color[3:])
+            mesh.paint_uniform_color(list(map(lambda comp: comp / 255, rgb_color[:3])))
+        else:
+            print("warning, no such color in ldview, print red")
+            mesh.paint_uniform_color([1, 0, 0])
+        mesh.rotate(self.get_rotation().tolist(), [0, 0, 0])
+        mesh.translate([i / 2.5 for i in self.get_translation().tolist()])
+        return mesh
+
 if __name__ == "__main__":
     from bricks_modeling.file_IO.model_reader import read_bricks_from_file
     from bricks_modeling.file_IO.model_writer import write_bricks_to_file
@@ -100,9 +129,10 @@ if __name__ == "__main__":
     from util.debugger import MyDebugger
 
     # test the equal function
-    debugger = MyDebugger("test")
-    bricks = read_bricks_from_file(r"./solvers/generation_solver/collision_test.ldr")
+    #debugger = MyDebugger("test")
+    bricks = read_bricks_from_file(r"./solvers/generation_solver/test.ldr")
     for i in range(len(bricks)):
         for j in range(len(bricks)):
-            print(f"{i}=={j}: ",bricks[i] == bricks[j])
-            print(f"{i}collide with{j}: ", bricks[i].collide(bricks[j]))
+            #print(f"{i}=={j}: ",bricks[i] == bricks[j])
+            if not i==j:
+                print(f"{i}collide with{j}: ", bricks[i].collide(bricks[j]),"\n")

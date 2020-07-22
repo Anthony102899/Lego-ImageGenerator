@@ -31,7 +31,7 @@ def get_all_brick_templates(
         with open(database_file) as f:
             temp = json.load(f)
             data.extend(temp)
-
+            
     brick_templates = []
     template_ids = []
     for brick in data:
@@ -55,7 +55,7 @@ def get_all_brick_templates(
 if __name__ == "__main__":
     debugger = MyDebugger("test")
 
-    brick_templates = get_all_brick_templates()
+    brick_templates, _ = get_all_brick_templates()
 
     brick = BrickInstance(brick_templates[0])
     print(brick.to_ldraw())

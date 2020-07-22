@@ -4,22 +4,22 @@
     "connPoint": [
       {
         "pos": [0,-10,10],
-        "orient": [0,-1,0],
+        "orient": [0,1,0],
         "type": "tube"
       },
       {
         "pos": [0,-10,-10],
-        "orient": [0,-1,0],
+        "orient": [0,1,0],
         "type": "tube"
       },
       {
         "pos": [0,-2,30],
-        "orient": [0,-1,0],
+        "orient": [0,1,0],
         "type": "tube"
       },
       {
         "pos": [0,-2,-30],
-        "orient": [0,-1,0],
+        "orient": [0,1,0],
         "type": "tube"
       }
     ]
@@ -309,22 +309,22 @@
     "connPoint": [
       {
         "pos": [10,-10,10],
-        "orient": [0,-1,0],
+        "orient": [0,1,0],
         "type": "tube"
       },
       {
         "pos": [-10,-10,10],
-        "orient": [0,-1,0],
+        "orient": [0,1,0],
         "type": "tube"
       },
       {
         "pos": [10,-2,-10],
-        "orient": [0,-1,0],
+        "orient": [0,1,0],
         "type": "tube"
       },
       {
         "pos": [-10,-2,-10],
-        "orient": [0,-1,0],
+        "orient": [0,1,0],
         "type": "tube"
       }
     ]
@@ -334,12 +334,12 @@
     "connPoint": [
       {
         "pos": [0,-10,10],
-        "orient": [0,-1,0],
+        "orient": [0,1,0],
         "type": "tube"
       },
       {
         "pos": [0,-2,-10],
-        "orient": [0,-1,0],
+        "orient": [0,1,0],
         "type": "tube"
       }
     ]
