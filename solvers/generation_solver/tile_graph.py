@@ -98,15 +98,18 @@ def find_brick_placements(num_rings: int, base_tile: BrickInstance, tile_set: li
     debugger = MyDebugger("middle")
     result_tiles = [base_tile]  # the resulting tiles
     last_ring = [base_tile]  # the tiles in the last ring
+    snd_last_ring = []
     for i in range(0, num_rings):
         print(f"\ncomputing ring {i}")
         last_ring_num = len(last_ring)
         print("last ring num = ", last_ring_num)
-
+        tmp = last_ring[:]
+        this_ring = []
         # iterate over all bricks in the last ring
         for last_ring_idx in range(last_ring_num):
             print(f"last ring {last_ring_idx}")
             last_brick = last_ring.pop(0)  # brick instance in previous ring
+            snd_last_ring.append(last_brick)
 
             # brick instance to be aligned
             for align_tile in tile_set:
@@ -117,9 +120,10 @@ def find_brick_placements(num_rings: int, base_tile: BrickInstance, tile_set: li
                 neighbour_tiles = unique_brick_list(neighbour_tiles)
 
                 for elem in neighbour_tiles:
-                    if elem not in result_tiles:
+                    if elem not in snd_last_ring and elem not in this_ring:
                         result_tiles.append(elem)
                         last_ring.append(elem)
+                        this_ring.append(elem)
             if last_ring_idx % 30 == 0:
                 tiling = Tiling(result_tiles, last_ring, last_ring_num,
                                 debugger, tile_set, 
@@ -129,5 +133,6 @@ def find_brick_placements(num_rings: int, base_tile: BrickInstance, tile_set: li
                             open(os.path.join(os.path.dirname(__file__), f'super_graph/r={i}#{num_rings}.pkl'), "wb"))
         write_bricks_to_file(result_tiles, 
             file_path=debugger.file_path(f"n={len(result_tiles)} r={i+1} t={round(time.time() - initial_time, 2)}.ldr"))
+        snd_last_ring = tmp
     return result_tiles
     
