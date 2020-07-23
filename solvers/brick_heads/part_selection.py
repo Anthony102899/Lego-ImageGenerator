@@ -7,7 +7,7 @@ from typing import Tuple
 
 def get_skin_color(skin_color: int):
     skin_color_map = {
-        2: 511,  # white
+        2: 78,  # white
         1: 78,  # yellow
         0: 484,  # black or 10484?
     }

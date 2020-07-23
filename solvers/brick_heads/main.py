@@ -59,15 +59,6 @@ def gen_LEGO_figure(
     )
 
 
-def ouptut_all_inputs():
-    fake_inputs = gen_all_inputs()
-    for file in fake_inputs:
-
-        bricks = gen_LEGO_figure(file[0])
-
-        write_bricks_to_file(
-            bricks, file_path=debugger.file_path(f"{file[1]}.ldr"), debug=False
-        )
 
 
 if __name__ == "__main__":
@@ -78,7 +69,7 @@ if __name__ == "__main__":
         csv_reader = csv.reader(csv_file, delimiter=",")
         csv_matrix = list(csv_reader)
 
-    for model in csv_matrix[2:]:
+    for model in csv_matrix[2:101]:
         if model[1] == "":
             continue
         bricks = gen_LEGO_figure(
