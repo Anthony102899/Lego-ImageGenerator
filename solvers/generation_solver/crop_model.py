@@ -13,7 +13,7 @@ def brick_inside(brick, mesh):
     cpoint_pos = list(map(lambda cp: list(cp.pos), brick.get_current_conn_points()))  # position of cpoints of *brick*
     cpoint_inside = mesh.contains(cpoint_pos)
     nearby_faces = trimesh.proximity.nearby_faces(mesh, [brick.trans_matrix[:, 3][:3]])
-    if cpoint_inside.all():
+    if cpoint_inside.all() or (len(cpoint_inside) == 2 and cpoint_inside.any()):
         return True, nearby_faces[0][0]
     return False, -1
 
@@ -49,16 +49,6 @@ def crop_brick(mesh, tile_set, scale):
     V = (mesh.vertices) * scale
     colors_rgb = get_color(mesh)
     mesh = trimesh.Trimesh(vertices=V, faces=mesh.faces)
-    """
-    result_crop = []
-    for brick in tile_set:
-        inside, nearby_face = brick_inside(brick, mesh)
-        if inside:
-            nearby_color = colors_rgb[nearby_face]
-            nearby_hex = RGB_to_Hex(nearby_color)
-            new_brick = BrickInstance(brick.template, brick.trans_matrix, nearby_hex)
-            result_crop.append(new_brick)
-    """
     with Pool(20) as p:
         result_crop = p.map(partial(check_brick, mesh=mesh, colors_rgb=colors_rgb), tile_set)
     result_crop = [b for b in result_crop if b]
@@ -66,7 +56,8 @@ def crop_brick(mesh, tile_set, scale):
 
 if __name__ == "__main__": #"./debug/pikachu/pikachu.ply"#
     obj_path = os.path.join(os.path.dirname(__file__), "super_graph/pokeball.ply")
-    tile_path = os.path.join(os.path.dirname(__file__), "super_graph/['3004', '4287'] 6 n=16369 t=89394.8.ldr")
+    tile_path = os.path.join(os.path.dirname(__file__), 
+                "super_graph/['3005', '4287'] 7 n=18963 t=89846.91.ldr")
     tile_set = read_bricks_from_file(tile_path)
     print("#bricks in tile: ", len(tile_set))
     mesh = trimesh.load_mesh(obj_path)
@@ -75,10 +66,10 @@ if __name__ == "__main__": #"./debug/pikachu/pikachu.ply"#
     flip = np.array([[-1, 0, 0, 0], [0, -1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]])
     mesh.apply_transform(flip)
     debugger = MyDebugger("test")
-    for scale in range (8, 9):
+    for scale in range (7, 10):
         #scale = float(input("Enter scale of obj: "))
         start_time = time.time()
-        #scale /= 10
+        scale /= 10
         result = crop_brick(mesh, tile_set, scale)
         end_time = time.time()
         print(f"resulting LEGO model has {len(result)} bricks")
