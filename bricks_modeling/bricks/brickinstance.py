@@ -1,5 +1,8 @@
 import numpy as np
+import open3d as o3d
 from os import path
+
+import trimesh
 
 from bricks_modeling.bricks.bricktemplate import BrickTemplate
 from bricks_modeling.connections.connpoint import CPoint
