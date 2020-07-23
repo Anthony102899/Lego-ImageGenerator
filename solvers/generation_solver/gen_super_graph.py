@@ -1,7 +1,4 @@
 import os
-import sys
-ROOT_DIR = os.path.abspath('/Users/wuyifan/lego-solver')
-sys.path.append(ROOT_DIR)
 from bricks_modeling.file_IO.model_reader import read_bricks_from_file
 from solvers.generation_solver.tile_graph import find_brick_placements
 from solvers.generation_solver.crop_model import crop_brick
