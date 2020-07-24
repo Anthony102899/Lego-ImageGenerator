@@ -55,9 +55,9 @@ typeToBoundingBox = {
     ConnPointType.STUD : (4, 11.9, 11.9),
     ConnPointType.TUBE : (4, 11.9, 11.9),
     ConnPointType.CUBOID_SOLID : (19.5, 19.5, 19.5),
-    ConnPointType.PLATE : (5, 19.5, 19.5),
+    ConnPointType.PLATE : (4, 19.5, 19.5),
     ConnPointType.CUBOID_HOLLOW : (11.5, 19.5, 19.5),
-    ConnPointType.SLOPE : (11, 12, 12)
+    ConnPointType.SLOPE : (10.5, 15, 15)
 }
 
 # these properties are for visualization ONLY
