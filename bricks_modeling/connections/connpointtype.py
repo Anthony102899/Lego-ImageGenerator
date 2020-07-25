@@ -52,12 +52,12 @@ typeToBoundingBox = {
     ConnPointType.AXLE : (20, 20, 20),
     ConnPointType.CROSS_HOLE : (20, 20, 20),
     ConnPointType.SOLID : (20, 20, 20),
-    ConnPointType.STUD : (4, 11.9, 11.9),
-    ConnPointType.TUBE : (4, 11.9, 11.9),
-    ConnPointType.CUBOID_SOLID : (19.5, 19.5, 19.5),
-    ConnPointType.PLATE : (4, 19.5, 19.5),
-    ConnPointType.CUBOID_HOLLOW : (11.5, 19.5, 19.5),
-    ConnPointType.SLOPE : (10.5, 15, 15)
+    ConnPointType.STUD : (3, 10, 10),
+    ConnPointType.TUBE : (3, 10, 10),
+    ConnPointType.CUBOID_SOLID : (18, 18, 18),
+    ConnPointType.PLATE : (3, 18, 18),
+    ConnPointType.CUBOID_HOLLOW : (11.5, 18, 18),
+    ConnPointType.SLOPE : (10, 14, 14)
 }
 
 # these properties are for visualization ONLY
