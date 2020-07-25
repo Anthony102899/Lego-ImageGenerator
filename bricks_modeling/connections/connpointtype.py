@@ -14,6 +14,7 @@ class ConnPointType(enum.Enum):
     PLATE = 9
     CUBOID_HOLLOW = 10
     SLOPE = 11
+    CONE = 12
 
 
 stringToType = {
@@ -27,7 +28,8 @@ stringToType = {
     "cuboid_solid": ConnPointType.CUBOID_SOLID,
     "plate": ConnPointType.PLATE,
     "cuboid_hollow": ConnPointType.CUBOID_HOLLOW,
-    "slope": ConnPointType.SLOPE
+    "slope": ConnPointType.SLOPE,
+    "cone": ConnPointType.CONE
 }
 
 # type to if the connection point is valid in both sides along the normal
@@ -42,7 +44,8 @@ isDoubleOriented = {
     ConnPointType.CUBOID_SOLID : True,
     ConnPointType.PLATE : True,
     ConnPointType.CUBOID_HOLLOW : True,
-    ConnPointType.SLOPE: False
+    ConnPointType.SLOPE: False,
+    ConnPointType.CONE:  False
 }
 
 # type to (length along the normal, and two lateral direction of the normal)
@@ -57,7 +60,8 @@ typeToBoundingBox = {
     ConnPointType.CUBOID_SOLID : (18, 18, 18),
     ConnPointType.PLATE : (3, 18, 18),
     ConnPointType.CUBOID_HOLLOW : (11.5, 18, 18),
-    ConnPointType.SLOPE : (10, 14, 14)
+    ConnPointType.SLOPE : (10, 14, 14),
+    ConnPointType.CONE : (17, 17, 17)
 }
 
 # these properties are for visualization ONLY
@@ -74,6 +78,7 @@ typeToBrick = {
     ConnPointType.PLATE: ("box5.dat", [0, 1, 0], [0, -2, 0], [10, 4, 10]),
     ConnPointType.CUBOID_HOLLOW: ("box5.dat", [0, 0, 1], [0, -10, 0], [10, 20, 6]),
     ConnPointType.SLOPE: ("box5.dat", [0, 1, 0], [0, -5.5, 0], [10, 11, 10]),
+    ConnPointType.CONE: ("18654.dat", [0, 1, 0], [0, 0, 0], [1, 0.9, 1]),
 }
 
 if __name__ == "__main__":
