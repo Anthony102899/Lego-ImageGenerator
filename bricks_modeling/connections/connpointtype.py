@@ -44,8 +44,8 @@ isDoubleOriented = {
     ConnPointType.CUBOID_SOLID : True,
     ConnPointType.PLATE : True,
     ConnPointType.CUBOID_HOLLOW : True,
-    ConnPointType.SLOPE: False,
-    ConnPointType.CONE:  False
+    ConnPointType.SLOPE: True,
+    ConnPointType.CONE:  True
 }
 
 # type to (length along the normal, and two lateral direction of the normal)
@@ -55,12 +55,12 @@ typeToBoundingBox = {
     ConnPointType.AXLE : (20, 20, 20),
     ConnPointType.CROSS_HOLE : (20, 20, 20),
     ConnPointType.SOLID : (20, 20, 20),
-    ConnPointType.STUD : (3, 10, 10),
-    ConnPointType.TUBE : (3, 10, 10),
-    ConnPointType.CUBOID_SOLID : (18, 18, 18),
-    ConnPointType.PLATE : (3, 18, 18),
-    ConnPointType.CUBOID_HOLLOW : (11.5, 18, 18),
-    ConnPointType.SLOPE : (10, 14, 14),
+    ConnPointType.STUD : (3.5, 11, 11),
+    ConnPointType.TUBE : (3.5, 11, 11),
+    ConnPointType.CUBOID_SOLID : (19.5, 19, 19),
+    ConnPointType.PLATE : (3.5, 18, 18),
+    ConnPointType.CUBOID_HOLLOW : (11.5, 19, 19),
+    ConnPointType.SLOPE : (11, 19, 19),
     ConnPointType.CONE : (17, 17, 17)
 }
 
@@ -82,5 +82,4 @@ typeToBrick = {
 }
 
 if __name__ == "__main__":
-    for c in ConnPointType:
-        print(c)
+    print(isDoubleOriented[ConnPointType.CUBOID_SOLID])

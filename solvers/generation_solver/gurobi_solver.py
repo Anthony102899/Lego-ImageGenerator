@@ -7,8 +7,8 @@ import numpy as np
 class GurobiSolver(object):
     def __init__(self):
         super(GurobiSolver, self).__init__()
-
-    def solve(self, nodes_num, node_volume, overlap_edges, flag, verbose=True):
+        
+    def solve(self, nodes_num, node_volume, overlap_edges, connect_edges, flag, verbose=True):
         print("start solving...")
         if verbose:
             print(f"start solving by gurobi native ...")
@@ -20,8 +20,8 @@ class GurobiSolver(object):
         overlap_num = len(overlap_edges)
         for i in range(overlap_num):
             model.addConstr(nodes[overlap_edges[i][0]] + nodes[overlap_edges[i][1]] <= 1, f"c{i}")
-        #for i in range(nodes_num):
-        #    model.addConstr(nodes[i] <= sum([nodes[k] for k in connect_edges[i] if k]), f"c{i+overlap_num}")
+        for i in range(nodes_num):
+            model.addConstr(nodes[i] <= sum([nodes[k] for k in connect_edges[i] if k]), f"c{i+overlap_num}")
 
         # objective  
         model.setObjective(sum([nodes[i]*node_volume[i]*flag[i] for i in range(nodes_num)]), GRB.MAXIMIZE)
