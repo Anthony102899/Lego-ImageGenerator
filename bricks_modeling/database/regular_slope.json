@@ -184,6 +184,19 @@
         "type":"cuboid_solid"
       },
       {
+        "pos":[
+          0,
+          22,
+          0
+        ],
+        "orient":[
+          0,
+          1,
+          0
+        ],
+        "type":"plate"
+      },
+      {
         "pos": [
           0,
           -2,
