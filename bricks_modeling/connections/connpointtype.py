@@ -41,24 +41,24 @@ isDoubleOriented = {
     ConnPointType.SOLID :  True,
     ConnPointType.STUD : False,
     ConnPointType.TUBE : False,
-    ConnPointType.CUBOID_SOLID : True,
-    ConnPointType.PLATE : True,
-    ConnPointType.CUBOID_HOLLOW : True,
-    ConnPointType.SLOPE: True,
-    ConnPointType.CONE:  True
+    ConnPointType.CUBOID_SOLID : False,
+    ConnPointType.PLATE : False,
+    ConnPointType.CUBOID_HOLLOW : False,
+    ConnPointType.SLOPE: False,
+    ConnPointType.CONE:  False
 }
 
 # type to (length along the normal, and two lateral direction of the normal)
 typeToBoundingBox = {
-    ConnPointType.HOLE : (18, 17, 17),
+    ConnPointType.HOLE : (18.5, 19, 19),
     ConnPointType.PIN :  (20, 20, 20),
     ConnPointType.AXLE : (20, 20, 20),
     ConnPointType.CROSS_HOLE : (20, 20, 20),
     ConnPointType.SOLID : (20, 20, 20),
-    ConnPointType.STUD : (3.5, 11, 11),
-    ConnPointType.TUBE : (3.5, 11, 11),
-    ConnPointType.CUBOID_SOLID : (19.5, 19, 19),
-    ConnPointType.PLATE : (3.5, 18, 18),
+    ConnPointType.STUD : (3.8, 11, 11),
+    ConnPointType.TUBE : (3.8, 11, 11),
+    ConnPointType.CUBOID_SOLID : (19.8, 19, 19),
+    ConnPointType.PLATE : (3.8, 19, 19),
     ConnPointType.CUBOID_HOLLOW : (11.5, 19, 19),
     ConnPointType.SLOPE : (11, 19, 19),
     ConnPointType.CONE : (17, 17, 17)
