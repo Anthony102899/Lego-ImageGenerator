@@ -22,6 +22,11 @@ class GurobiSolver(object):
             model.addConstr(nodes[overlap_edges[i][0]] + nodes[overlap_edges[i][1]] <= 1, f"c{i}")
         for i in range(nodes_num):
             model.addConstr(nodes[i] <= sum([nodes[k] for k in connect_edges[i] if k]), f"c{i+overlap_num}")
+        """
+        TODO:
+        change constraint: requires fully connected
+            #filtered edge > #selected?
+        """
 
         # objective  
         model.setObjective(sum([nodes[i]*node_volume[i]*flag[i] for i in range(nodes_num)]), GRB.MAXIMIZE)
