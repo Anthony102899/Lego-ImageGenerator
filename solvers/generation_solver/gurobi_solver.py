@@ -24,8 +24,7 @@ class GurobiSolver(object):
             model.addConstr(nodes[i] <= sum([nodes[k] for k in connect_edges[i] if k]), f"c{i+overlap_num}")
         """
         TODO:
-        change constraint: requires fully connected
-            #filtered edge > #selected?
+        fully connected?
         """
 
         # objective  

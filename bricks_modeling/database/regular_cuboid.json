@@ -264,6 +264,7 @@
   {
     "id":"4733",
     "volume":0.58,
+    "concave": 0,
     "connPoint":[
       {
         "pos":[
@@ -361,6 +362,7 @@
   {
     "id":"4070",
     "volume": 0.57,
+    "concave": 0,
     "connPoint":[
       {
         "pos":[
@@ -2001,6 +2003,7 @@
   {
     "id":"3005",
     "volume":0.581,
+    "concave": 0,
     "connPoint":[
       {
         "pos":[
@@ -2046,6 +2049,7 @@
   {
     "id":"3004",
     "volume":1.16,
+    "concave": 0,
     "connPoint":[
       {
         "pos":[

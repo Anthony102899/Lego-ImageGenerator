@@ -332,6 +332,7 @@
   {
     "id": "11477",
     "volume": 0.38,
+    "concave": 1,
     "connPoint": [
       {
         "pos": [0,-10,10],

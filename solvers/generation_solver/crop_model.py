@@ -13,7 +13,7 @@ def brick_inside(brick, mesh):
     cpoint_pos = list(map(lambda cp: list(cp.pos), brick.get_current_conn_points()))  # position of cpoints of *brick*
     cpoint_inside = mesh.contains(cpoint_pos)
     nearby_faces = trimesh.proximity.nearby_faces(mesh, [brick.trans_matrix[:, 3][:3]])
-    if cpoint_inside.all() or (len(cpoint_inside) == 2 and cpoint_inside.any()):
+    if cpoint_inside.all():# or (len(cpoint_inside) == 2 and cpoint_inside.any()):
         return True, nearby_faces[0][0]
     return False, -1
 
@@ -55,9 +55,9 @@ def crop_brick(mesh, tile_set, scale):
     return result_crop
 
 if __name__ == "__main__": #"./debug/pikachu/pikachu.ply"#
-    obj_path = os.path.join(os.path.dirname(__file__), "super_graph/pokeball.ply")
+    obj_path = os.path.join(os.path.dirname(__file__), "super_graph/thick_porygon.ply")
     tile_path = os.path.join(os.path.dirname(__file__), 
-                "super_graph/['3005', '4287'] 7 n=18963 t=89846.91.ldr")
+                "super_graph/3005+3023+3024+3070+59900/['3005', '3023', '3024', '3070', '59900']_5 n=3752 t=1009.46.ldr")
     tile_set = read_bricks_from_file(tile_path)
     print("#bricks in tile: ", len(tile_set))
     mesh = trimesh.load_mesh(obj_path)
@@ -66,17 +66,16 @@ if __name__ == "__main__": #"./debug/pikachu/pikachu.ply"#
     flip = np.array([[-1, 0, 0, 0], [0, -1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]])
     mesh.apply_transform(flip)
     debugger = MyDebugger("test")
-    for scale in range (7, 10):
-        #scale = float(input("Enter scale of obj: "))
-        start_time = time.time()
-        scale /= 10
-        result = crop_brick(mesh, tile_set, scale)
-        end_time = time.time()
-        print(f"resulting LEGO model has {len(result)} bricks")
 
-        _, filename=os.path.split(obj_path)
-        filename = (filename.split("."))[0]
-        _, tilename=os.path.split(tile_path)
-        tilename = ((tilename.split("."))[0]).split(" ")
-        tilename = tilename[0] + tilename[1] + tilename[2]
-        write_bricks_to_file(result, file_path=debugger.file_path(f"{filename} s={scale} n={len(result)} {tilename} t={round(end_time - start_time, 2)}.ldr"))
+    scale = float(input("Enter scale of obj: "))
+    start_time = time.time()
+    result = crop_brick(mesh, tile_set, scale)
+    end_time = time.time()
+    print(f"resulting LEGO model has {len(result)} bricks")
+
+    _, filename=os.path.split(obj_path)
+    filename = (filename.split("."))[0]
+    _, tilename=os.path.split(tile_path)
+    tilename = ((tilename.split("."))[0]).split(" ")
+    tilename = tilename[0] + tilename[1]
+    write_bricks_to_file(result, file_path=debugger.file_path(f"{filename} s={scale} n={len(result)} {tilename} t={round(end_time - start_time, 2)}.ldr"))

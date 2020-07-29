@@ -8,8 +8,27 @@ from bricks_modeling.connections.conn_type import compute_conn_type
 import util.geometry_util as geo_util
 import util.cuboid_geometry as cu_geo
 import itertools as iter
+import json
 
-
+def get_concave(
+    brick_database=[
+        "regular_cuboid.json",
+        "regular_plate.json",
+        "regular_slope.json",
+        "regular_other.json",
+        "regular_circular.json"]):
+    data = []
+    for data_base in brick_database:
+        database_file = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "bricks_modeling", "database", data_base)
+        with open(database_file) as f:
+            temp = json.load(f)
+            data.extend(temp)
+    concave = []
+    for brick in data:
+        if len(brick) > 2:
+            if brick["concave"] == 1:
+                concave.append(brick["id"])
+    return concave
 
 class BrickInstance:
     def __init__(self, template: BrickTemplate, trans_matrix, color=15):
@@ -39,13 +58,20 @@ class BrickInstance:
     # TODO: 11477, connect AND collide
     # return one of the spatial relation: {seperated, connected, collision, same(fully overlaped)}
     def collide(self, other):
+        concave = get_concave()
         self_c_points = self.get_current_conn_points()
         other_c_points = other.get_current_conn_points()
+        concave_connect = 0
         for p_self, p_other in iter.product(self_c_points, other_c_points):
             if cu_geo.cub_collision_detect(p_self.get_cuboid(), p_other.get_cuboid()):
                 if not compute_conn_type(p_self, p_other) == None:
+                    if self.template.id in concave or other.template.id in concave:
+                        concave_connect = 1
+                        continue
                     return 0
                 return 1
+        if concave_connect:
+            return 0
         return -1
 
     def to_ldraw(self):
