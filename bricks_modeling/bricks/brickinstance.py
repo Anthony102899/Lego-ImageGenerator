@@ -1,9 +1,7 @@
 import numpy as np
 import open3d as o3d
 from os import path
-
 import trimesh
-
 from bricks_modeling.bricks.bricktemplate import BrickTemplate
 from bricks_modeling.connections.connpoint import CPoint
 from bricks_modeling.connections.conn_type import compute_conn_type
@@ -38,7 +36,7 @@ class BrickInstance:
         else:
             return False
 
-    # TODO: haven't test yet
+    # TODO: 11477, connect AND collide
     # return one of the spatial relation: {seperated, connected, collision, same(fully overlaped)}
     def collide(self, other):
         self_c_points = self.get_current_conn_points()
@@ -134,5 +132,5 @@ if __name__ == "__main__":
     for i in range(len(bricks)):
         for j in range(len(bricks)):
             #print(f"{i}=={j}: ",bricks[i] == bricks[j])
-            if not i==j:
+            if not i==j and i > j:
                 print(f"{i}collide with{j}: ", bricks[i].collide(bricks[j]),"\n")
