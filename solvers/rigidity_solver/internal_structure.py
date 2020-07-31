@@ -66,6 +66,48 @@ def structure_sampling(structure_graph: ConnectivityGraph):
                     exec(f"points.append(p[{i}])")
                     points_on_brick[bj].append(len(points) - 1)
 
+        if edge["type"] == ConnType.CROSS_AXLE.name:
+            bi = edge["node_indices"][0]
+            bj = edge["node_indices"][1]
+            contact_pt = edge["properties"]["contact_point"]
+            contact_orient = edge["properties"]["contact_orient"]
+
+            feature_points_on_brick[bi].discard(edge["cpoint_indices"][0])
+            feature_points_on_brick[bj].discard(edge["cpoint_indices"][1])
+
+            point_idx_base = len(points)
+
+            p = get_crystal_vertices(contact_pt, contact_orient)
+
+            for i in range(7):
+                exec(f"points.append(p[{i}])")
+                points_on_brick[bi].append(len(points) - 1)
+                points_on_brick[bj].append(len(points) - 1)
+
+        if edge["type"] == ConnType.STUD_TUBE.name:
+            bi = edge["node_indices"][0]
+            bj = edge["node_indices"][1]
+            contact_pt = edge["properties"]["contact_point"]
+            contact_orient = edge["properties"]["contact_orient"]
+
+            feature_points_on_brick[bi].discard(edge["cpoint_indices"][0])
+            feature_points_on_brick[bj].discard(edge["cpoint_indices"][1])
+
+            point_idx_base = len(points)
+
+            p = get_crystal_vertices(contact_pt, contact_orient)
+
+            for i in range(7):
+                if i in {0, 1, 2}:
+                    exec(f"points.append(p[{i}])")
+                    points_on_brick[bi].append(len(points) - 1)
+                    points_on_brick[bj].append(len(points) - 1)
+                else:
+                    exec(f"points.append(p[{i}])")
+                    points_on_brick[bi].append(len(points) - 1)
+                    exec(f"points.append(p[{i}])")
+                    points_on_brick[bj].append(len(points) - 1)
+
     #### add additional sample points, by detecting if the connection points are already sampled
     for brick_id, c_id_set in feature_points_on_brick.items():
         brick = bricks[brick_id]
