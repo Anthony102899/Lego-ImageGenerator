@@ -50,20 +50,15 @@ class AdjacencyGraph:
         with Pool(20) as p:
             a = p.map(self.build, it[:,0], it[:,1])
 
-        #self.overlap_edges = [e for e in a if e]
-
-        connect_edges = []
         start_time = time.time()
         for x in a:
             if x[1] == 1:
                 self.overlap_edges.extend([x[0]])
             elif x[1] == 0:
-                connect_edges.extend([x[0]])
+                self.connect_edges.extend([x[0]])
 
-        tmp = [[f(x, b_i) for x in connect_edges] for b_i in range(len(self.bricks))]
         end_time = time.time()
         print("build time = ", end_time - start_time)
-        self.connect_edges = tmp
 
 
 

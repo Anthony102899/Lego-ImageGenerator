@@ -1,6 +1,6 @@
 import numpy as np
 import open3d as o3d
-from os import path
+import os
 import trimesh
 from bricks_modeling.bricks.bricktemplate import BrickTemplate
 from bricks_modeling.connections.connpoint import CPoint
@@ -129,7 +129,7 @@ class BrickInstance:
         return conn_points
 
     def get_mesh(self, color_dict):
-        obj_file_path = path.join(path.dirname(path.dirname(__file__)), "database", "obj",f'{self.template.id + ".obj"}')
+        obj_file_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "database", "obj",f'{self.template.id + ".obj"}')
         mesh = o3d.io.read_triangle_mesh(
             obj_file_path
         )

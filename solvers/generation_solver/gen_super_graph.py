@@ -16,6 +16,7 @@ import pickle5 as pickle
 from util.geometry_util import get_random_transformation
 from solvers.generation_solver.adjacency_graph import AdjacencyGraph
 from solvers.generation_solver.gurobi_solver import GurobiSolver
+from solvers.generation_solver.minizinc_solver import MinizincSolver
 
 brick_IDs = ["4733",
              "3024",
@@ -104,6 +105,8 @@ def read_bricks(path, debugger):
 
 if __name__ == "__main__":
     volume = get_volume()
+    debugger = MyDebugger("test")
+    model_file = "solvers/generation_solver/solve_model.mzn"
 
     """ option1: generate a new graph """
     """
@@ -111,31 +114,28 @@ if __name__ == "__main__":
     bricks, structure_graph = generate_new(brick_set, num_rings=1, debugger=debugger)
     """
     """ option2: load an existing ldr file """
-    #path = "super_graph/" + "pikachu s=1.5 n=429 [4733,3024,54200,3070,59900]5n=14538 t=7.25.ldr"
+    #path = "super_graph/" + "['3004', '4287'] 1.ldr"
     #bricks, structure_graph = read_bricks(os.path.join(os.path.dirname(__file__), path), debugger)
 
     """ option3: load a pkl file """
     """ """
     path1 = "solvers/generation_solver/connectivity/"
-    path = path1 + "(conn) Porygon s=1.5 t=299.35.pkl"
+    path = path1 + "['3004'] 1 t=2.15.pkl"
     structure_graph = pickle.load(open(path, "rb"))
+    
     _, filename = os.path.split(path)
     filename = (filename.split(" t="))[0]
     
     start_time = time.time()
-    solver = GurobiSolver()
-    results, time_used = solver.solve(nodes_num=len(structure_graph.bricks),
+    solver = MinizincSolver(model_file, "gecode")
+    results, time_used = solver.solve(structure_graph=structure_graph,
                                       node_volume=[volume[b.template.id] for b in structure_graph.bricks],
-                                      overlap_edges=structure_graph.overlap_edges,
-                                      connect_edges=structure_graph.connect_edges,
-                                      flag=np.ones(len(structure_graph.bricks)))
-
+                                      flag=[int(f) for f in np.ones(len(structure_graph.bricks))])
     selected_bricks = []
     for i in range(len(structure_graph.bricks)):
         if results[i] == 1:
             selected_bricks.append(structure_graph.bricks[i])
 
-    debugger = MyDebugger("test")
     write_bricks_to_file(
         selected_bricks, file_path=debugger.file_path(f"selected {filename} n={len(selected_bricks)} t={round(time.time() - start_time, 2)}.ldr")
     )
