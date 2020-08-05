@@ -3,7 +3,7 @@ import copy
 import open3d as o3d
 
 from bricks_modeling.connectivity_graph import ConnectivityGraph
-from bricks_modeling.file_IO.model_converter import color_phraser
+from bricks_modeling.file_IO.model_converter import color_phraser, ldr_to_obj
 from bricks_modeling.file_IO.model_reader import read_bricks_from_file
 from solvers.rigidity_solver.algo_core import spring_energy_matrix
 from solvers.rigidity_solver.internal_structure import structure_sampling
@@ -42,7 +42,7 @@ def create_arrow_mesh(points, vectors):
             arrow = o3d.geometry.TriangleMesh.create_arrow(
                 cylinder_radius=0.2,
                 cone_radius=0.35,
-                cylinder_height=50 * vec_len,
+                cylinder_height=200 * vec_len,
                 cone_height=8 * vec_len,
                 resolution=3,
             )
@@ -58,9 +58,9 @@ def get_movement_direction(ldr_path, n:int):
 
     connect_graph = ConnectivityGraph(bricks)
 
-    points, edges, points_on_brick = structure_sampling(connect_graph)
+    points, edges, points_on_brick, direction_for_abstract_edge = structure_sampling(connect_graph)
 
-    M = spring_energy_matrix(points, edges)
+    M = spring_energy_matrix(points, edges, direction_for_abstract_edge)
 
     #TODO: Subetract meaningful eigenvecotrs
 
@@ -107,7 +107,7 @@ def sampling_method_meshs(ldr_path, show_origin_model=True):
     color_dict = color_phraser()
     bricks = read_bricks_from_file(ldr_path)
     connect_graph = ConnectivityGraph(bricks)
-    points, edges, points_on_brick = structure_sampling(connect_graph)
+    points, edges, points_on_brick, direction_for_abstract_edge = structure_sampling(connect_graph)
 
     meshs = o3d.geometry.TriangleMesh()
     if show_origin_model:
@@ -120,13 +120,14 @@ def sampling_method_meshs(ldr_path, show_origin_model=True):
 
 
 if __name__ == "__main__":
-    path = "../data/full_models/axletest.ldr"
-    meshs, line_set = sampling_method_meshs(path, show_origin_model=True)
+    path = "../data/full_models/cube64179.ldr"
+    #meshs, line_set = sampling_method_meshs(path, show_origin_model=False)
+    meshs = ldr_to_obj(path)
     arrows = o3d.geometry.TriangleMesh()
     #for i in range(0,5):
-    arrows += get_movement_direction(path,6)
+    arrows += get_movement_direction(path,30)
 
     meshs += arrows
     meshs.compute_vertex_normals()
-    o3d.visualization.draw_geometries([meshs, line_set])
-    #o3d.visualization.draw_geometries([meshs])
+    #o3d.visualization.draw_geometries([meshs, line_set])
+    o3d.visualization.draw_geometries([meshs])

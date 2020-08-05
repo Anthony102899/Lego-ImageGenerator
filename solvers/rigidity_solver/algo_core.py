@@ -34,9 +34,7 @@ def rigidity_matrix(points: np.ndarray, edges: np.ndarray, dim: int) -> np.ndarr
     return R
 
 
-def spring_energy_matrix(
-    points: np.ndarray, edges: np.ndarray, dim: int = 3
-) -> np.ndarray:
+def spring_energy_matrix(points: np.ndarray, edges: np.ndarray, direction_for_abstract_edge = None, dim: int = 3) -> np.ndarray:
     K = np.zeros((len(edges), len(edges)))
     P = np.zeros((len(edges), len(edges) * dim))
     A = np.zeros((len(edges) * dim, len(points) * dim))
@@ -48,7 +46,8 @@ def spring_energy_matrix(
         p1 = points[e[0]]
         p2 = points[e[1]]
         edge_vec = p1 - p2
-        assert LA.norm(edge_vec) > 1e-6
+        if LA.norm(edge_vec) < 1e-6:
+            edge_vec = direction_for_abstract_edge[e[1]]
         normalized_edge_vec = normalized(edge_vec)
         P[idx][idx * dim : idx * dim + dim] = normalized_edge_vec.T
         K[idx][idx] = 1 / LA.norm(edge_vec)  # set as the same material for now
