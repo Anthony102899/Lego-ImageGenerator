@@ -56,7 +56,7 @@ typeToBoundingBox = {
     ConnPointType.CROSS_HOLE : (20, 20, 20),
     ConnPointType.SOLID : (20, 20, 20),
     ConnPointType.STUD : (3.8, 11, 11),
-    ConnPointType.TUBE : (3.8, 11, 11),
+    ConnPointType.TUBE : (3.8, 16, 16),
     ConnPointType.CUBOID_SOLID : (19.8, 19, 19),
     ConnPointType.PLATE : (3.5, 19, 19),
     ConnPointType.CUBOID_HOLLOW : (11.5, 19, 19),
