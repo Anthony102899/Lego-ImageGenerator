@@ -42,11 +42,11 @@ def cub_collision_detect(cuboid_ref, cuboid):
     cuboid_corner_relative = (np.tile(cuboid_center, (8, 1))) * corner_transform
     # Position of each corner point relative to cube's center (do not consider the position relative to base frame's origin)
     ref_center = np.array([cuboid_ref["Dimension"][0] / 2, cuboid_ref["Dimension"][1] / 2, cuboid_ref["Dimension"][2] / 2])
-    ref_corner_relative = (np.tile(ref_center, (8, 1))) * corner_transform
+    ref_corner_relative = (np.tile(ref_center, (8, 1))) * corner_transform    
     # Add origin & rotation to get the absolute coordinates of each corner point
-    ref_corners_pos = ref_corner_relative @ rotation_ref + np.array(cuboid_ref["Origin"])
-    cub_corners_pos = cuboid_corner_relative @ rotation_cub + np.array(cuboid["Origin"])
-
+    ref_corners_pos = ref_corner_relative  + np.array(cuboid_ref["Origin"])
+    cub_corners_pos = cuboid_corner_relative  + np.array(cuboid["Origin"])
+    
     for axis in projection_axis:
         cub_corners_proj = cub_corners_pos @ axis.T
         ref_corners_proj = ref_corners_pos @ axis.T

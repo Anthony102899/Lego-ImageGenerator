@@ -3,7 +3,7 @@ import copy
 import open3d as o3d
 
 from bricks_modeling.connectivity_graph import ConnectivityGraph
-from bricks_modeling.file_IO.model_converter import color_phraser
+from bricks_modeling.file_IO.model_converter import color_phraser, ldr_to_obj
 from bricks_modeling.file_IO.model_reader import read_bricks_from_file
 from solvers.rigidity_solver.algo_core import spring_energy_matrix
 from solvers.rigidity_solver.internal_structure import structure_sampling
@@ -12,7 +12,7 @@ import numpy as np
 from numpy import linalg as LA
 
 def get_mesh_for_points(points):
-    sphere = o3d.geometry.TriangleMesh.create_sphere(radius=1.0, resolution=2)
+    sphere = o3d.geometry.TriangleMesh.create_sphere(radius=0.5, resolution=2)
     sphere.compute_vertex_normals()
     sphere.paint_uniform_color([0.9, 0.1, 0.1])
     spheres = o3d.geometry.TriangleMesh()
@@ -42,11 +42,13 @@ def create_arrow_mesh(points, vectors):
             arrow = o3d.geometry.TriangleMesh.create_arrow(
                 cylinder_radius=0.2,
                 cone_radius=0.35,
-                cylinder_height=10 * vec_len,
+                cylinder_height=200 * vec_len,
                 cone_height=8 * vec_len,
                 resolution=3,
             )
-            arrows += copy.deepcopy(arrow).translate(p/2.5).rotate(rot_mat, center=p/2.5)
+            vec = vec / np.linalg.norm(vec)
+            print(vec)
+            arrows += copy.deepcopy(arrow).translate(p/2.5).rotate(rot_mat, center=p/2.5).paint_uniform_color([(vec[0]+1)/2,(vec[1]+1)/2,(vec[2]+1)/2])
     return arrows
 
 
@@ -56,9 +58,9 @@ def get_movement_direction(ldr_path, n:int):
 
     connect_graph = ConnectivityGraph(bricks)
 
-    points, edges, points_on_brick = structure_sampling(connect_graph)
+    points, edges, points_on_brick, direction_for_abstract_edge = structure_sampling(connect_graph)
 
-    M = spring_energy_matrix(points, edges)
+    M = spring_energy_matrix(points, edges, direction_for_abstract_edge)
 
     #TODO: Subetract meaningful eigenvecotrs
 
@@ -80,7 +82,8 @@ def get_movement_direction(ldr_path, n:int):
     num_zerovectors = sum([np.isclose(vec, np.zeros_like(vec)).all() for vec in reduced_zeroeigenspace])
     # In 3d cases, exactly 6 eigenvectors for eigenvalue 0 are reduced to zerovector.
     #assert num_zerovectors == 6
-    print(num_zerovectors)'''
+    print(num_zerovectors)
+    e_vec = reduced_zeroeigenspace[n]'''
 
     C = geo_util.eigen(M, symmetric=True)
 
@@ -88,7 +91,7 @@ def get_movement_direction(ldr_path, n:int):
     e_val, e_vec = e
 
 
-    #e_vec = reduced_zeroeigenspace[n]
+
     e_vec = e_vec / LA.norm(e_vec)
     arrows = o3d.geometry.TriangleMesh()
     delta_x = e_vec.reshape(-1, 3)
@@ -104,7 +107,7 @@ def sampling_method_meshs(ldr_path, show_origin_model=True):
     color_dict = color_phraser()
     bricks = read_bricks_from_file(ldr_path)
     connect_graph = ConnectivityGraph(bricks)
-    points, edges, points_on_brick = structure_sampling(connect_graph)
+    points, edges, points_on_brick, direction_for_abstract_edge = structure_sampling(connect_graph)
 
     meshs = o3d.geometry.TriangleMesh()
     if show_origin_model:
@@ -117,11 +120,14 @@ def sampling_method_meshs(ldr_path, show_origin_model=True):
 
 
 if __name__ == "__main__":
-    path = "../data/full_models/test_case_5.ldr"
-    meshs, line_set = sampling_method_meshs(path, show_origin_model=False)
+    path = "../data/full_models/cube64179.ldr"
+    #meshs, line_set = sampling_method_meshs(path, show_origin_model=False)
+    meshs = ldr_to_obj(path)
     arrows = o3d.geometry.TriangleMesh()
     #for i in range(0,5):
-    arrows += get_movement_direction(path,3)
+    arrows += get_movement_direction(path,30)
 
     meshs += arrows
-    o3d.visualization.draw_geometries([meshs, line_set])
+    meshs.compute_vertex_normals()
+    #o3d.visualization.draw_geometries([meshs, line_set])
+    o3d.visualization.draw_geometries([meshs])

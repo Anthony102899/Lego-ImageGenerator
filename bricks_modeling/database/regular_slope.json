@@ -2,6 +2,7 @@
   {
     "id": "54200",
     "volume":0.29,
+    "concave": 0,
     "connPoint": [
       {
         "pos": [
@@ -19,7 +20,7 @@
       {
         "pos": [
           0,
-          -9.75,
+          -9.5,
           0
         ],
         "orient": [
@@ -169,6 +170,7 @@
   {
     "id": "4287",
     "volume": 1.26,
+    "concave": 0,
     "connPoint": [
       {
         "pos":[

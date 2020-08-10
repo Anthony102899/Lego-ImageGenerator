@@ -1,5 +1,51 @@
 [
   {
+    "id": "59900",
+    "volume": 0.326,
+    "concave": 0,
+    "connPoint": [
+      {
+        "pos": [
+          0,
+          -2,
+          0
+        ],
+        "orient": [
+          0,
+          1,
+          0
+        ],
+        "type": "stud"
+      },
+      {
+        "pos": [
+          0,
+          22,
+          0
+        ],
+        "orient": [
+          0,
+          1,
+          0
+        ],
+        "type": "tube"
+      },
+      {
+        "pos": [
+          0,
+          9.5,
+          0
+        ],
+        "orient": [
+          0,
+          1,
+          0
+        ],
+        "type": "cone"
+      }
+    ]
+  },
+  {
     "id": "3941",
     "connPoint": [
       {
@@ -180,8 +226,22 @@
   },
   {
     "id": "3062",
-    "volume": 0.36,
+    "volume": 0.45,
+    "concave": 0,
     "connPoint": [
+      {
+        "pos": [
+          0,
+          9.5,
+          0
+        ],
+        "orient": [
+          0,
+          1,
+          0
+        ],
+        "type": "hole"
+      },
       {
         "pos": [
           0,

@@ -14,6 +14,7 @@ class ConnPointType(enum.Enum):
     PLATE = 9
     CUBOID_HOLLOW = 10
     SLOPE = 11
+    CONE = 12
 
 
 stringToType = {
@@ -27,7 +28,8 @@ stringToType = {
     "cuboid_solid": ConnPointType.CUBOID_SOLID,
     "plate": ConnPointType.PLATE,
     "cuboid_hollow": ConnPointType.CUBOID_HOLLOW,
-    "slope": ConnPointType.SLOPE
+    "slope": ConnPointType.SLOPE,
+    "cone": ConnPointType.CONE
 }
 
 # type to if the connection point is valid in both sides along the normal
@@ -39,25 +41,27 @@ isDoubleOriented = {
     ConnPointType.SOLID :  True,
     ConnPointType.STUD : False,
     ConnPointType.TUBE : False,
-    ConnPointType.CUBOID_SOLID : True,
-    ConnPointType.PLATE : True,
-    ConnPointType.CUBOID_HOLLOW : True,
-    ConnPointType.SLOPE: False
+    ConnPointType.CUBOID_SOLID : False,
+    ConnPointType.PLATE : False,
+    ConnPointType.CUBOID_HOLLOW : False,
+    ConnPointType.SLOPE: False,
+    ConnPointType.CONE:  False
 }
 
 # type to (length along the normal, and two lateral direction of the normal)
 typeToBoundingBox = {
-    ConnPointType.HOLE : (19, 17, 17),
+    ConnPointType.HOLE : (18.5, 19, 19),
     ConnPointType.PIN :  (20, 20, 20),
     ConnPointType.AXLE : (20, 20, 20),
     ConnPointType.CROSS_HOLE : (20, 20, 20),
     ConnPointType.SOLID : (20, 20, 20),
-    ConnPointType.STUD : (4, 11.9, 11.9),
-    ConnPointType.TUBE : (4, 11.9, 11.9),
-    ConnPointType.CUBOID_SOLID : (19.5, 19.5, 19.5),
-    ConnPointType.PLATE : (5, 19.5, 19.5),
-    ConnPointType.CUBOID_HOLLOW : (11.5, 19.5, 19.5),
-    ConnPointType.SLOPE : (11, 12, 12)
+    ConnPointType.STUD : (3.8, 11, 11),
+    ConnPointType.TUBE : (3.8, 11, 11),
+    ConnPointType.CUBOID_SOLID : (19.8, 19, 19),
+    ConnPointType.PLATE : (3.5, 19, 19),
+    ConnPointType.CUBOID_HOLLOW : (11.5, 19, 19),
+    ConnPointType.SLOPE : (11, 19, 19),
+    ConnPointType.CONE : (17, 17, 17)
 }
 
 # these properties are for visualization ONLY
@@ -74,8 +78,8 @@ typeToBrick = {
     ConnPointType.PLATE: ("box5.dat", [0, 1, 0], [0, -2, 0], [10, 4, 10]),
     ConnPointType.CUBOID_HOLLOW: ("box5.dat", [0, 0, 1], [0, -10, 0], [10, 20, 6]),
     ConnPointType.SLOPE: ("box5.dat", [0, 1, 0], [0, -5.5, 0], [10, 11, 10]),
+    ConnPointType.CONE: ("18654.dat", [0, 1, 0], [0, 0, 0], [1, 0.9, 1]),
 }
 
 if __name__ == "__main__":
-    for c in ConnPointType:
-        print(c)
+    print(isDoubleOriented[ConnPointType.CUBOID_SOLID])

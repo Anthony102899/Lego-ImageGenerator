@@ -17,6 +17,11 @@ import os
 To use a graph to describe a LEGO structure
 """
 
+def f(x, b_i):
+    if x[0] == b_i:
+        return x[1]
+    if x[1] == b_i:
+        return x[0]
 
 class AdjacencyGraph:
     def __init__(self, bricks):
@@ -33,20 +38,28 @@ class AdjacencyGraph:
         print("#tiles after filtring repeat:", len(self.bricks))
 
     def build(self, b_i, b_j):
-        if self.bricks[b_i].collide(self.bricks[b_j]):
-            return (b_i, b_j)
-        return 
+        collide = self.bricks[b_i].collide(self.bricks[b_j])
+        if collide == 1:
+            return (b_i, b_j), 1
+        elif collide == 0:
+            return (b_i, b_j), 0
+        return None, -1
 
     def build_graph_from_bricks(self):
-        """
-        for b_i, b_j in itertools.combinations(list(range(0, len(self.bricks))), 2):
-            if self.bricks[b_i].collide(self.bricks[b_j]):
-                self.overlap_edges.append((b_i, b_j))
-        """
         it = np.array(list(itertools.combinations(list(range(0, len(self.bricks))), 2)))
         with Pool(20) as p:
             a = p.map(self.build, it[:,0], it[:,1])
-        self.overlap_edges = [e for e in a if e]
+
+        start_time = time.time()
+        for x in a:
+            if x[1] == 1:
+                self.overlap_edges.extend([x[0]])
+            elif x[1] == 0:
+                self.connect_edges.extend([x[0]])
+
+        end_time = time.time()
+        print("build time = ", end_time - start_time)
+
 
 
     def to_json(self):
@@ -103,6 +116,7 @@ if __name__ == "__main__":
     filename = (filename.split("."))[0]
     start_time = time.time()
     structure_graph = AdjacencyGraph(bricks)
+    #print(structure_graph.connect_edges)
     t = round(time.time() - start_time, 2)
     pickle.dump(structure_graph, open(os.path.join(os.path.dirname(__file__), f'connectivity/{filename} t={t}.pkl'), "wb"))
     print(f"Saved at {filename} t={t}.pkl")

@@ -6,17 +6,23 @@ import os
 
 if __name__ == "__main__":
     debugger = MyDebugger("test")
-    template_bricks = read_bricks_from_file("./solvers/brick_heads/template.ldr", read_fake_bricks = True)
+    template_bricks = read_bricks_from_file(
+        "./solvers/brick_heads/template.ldr", read_fake_bricks=True
+    )
 
     total_bricks = template_bricks
 
     test_dir = "./solvers/brick_heads/raw/girl_raw/"
     for file_name in os.listdir(test_dir):
-        if not file_name.startswith('.'):
+        if not file_name.startswith("."):
             addition_bricks = []
-            modifier_bricks = read_bricks_from_file(test_dir + file_name, read_fake_bricks=True)
+            modifier_bricks = read_bricks_from_file(
+                test_dir + file_name, read_fake_bricks=True
+            )
             write_bricks_to_file(
-                modifier_bricks, file_path=debugger.file_path("origin_" + file_name), debug=False
+                modifier_bricks,
+                file_path=debugger.file_path("origin_" + file_name),
+                debug=False,
             )
 
             for b in modifier_bricks:

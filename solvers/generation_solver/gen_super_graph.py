@@ -1,3 +1,4 @@
+import os
 from bricks_modeling.file_IO.model_reader import read_bricks_from_file
 from solvers.generation_solver.tile_graph import find_brick_placements
 from solvers.generation_solver.crop_model import crop_brick
@@ -15,12 +16,20 @@ import pickle5 as pickle
 from util.geometry_util import get_random_transformation
 from solvers.generation_solver.adjacency_graph import AdjacencyGraph
 from solvers.generation_solver.gurobi_solver import GurobiSolver
+from solvers.generation_solver.minizinc_solver import MinizincSolver
 
-brick_IDs = ["3004",
-             # "4070", # cuboid
-              "4287", # slope
-             # "3070", # plate
-             # "3062", # round
+brick_IDs = ["4733",
+             "3024",
+             "54200",
+             #"3069",
+             "3070",
+             "59900",
+             #"3004",
+             #"3005",
+             #"4070", # cuboid
+             #"4287", # slope
+             #"3070", # plate
+             #"3062", # round
              ]
 def get_volume(
     brick_database=[
@@ -73,13 +82,13 @@ def generate_new(brick_set, num_rings, debugger):
     start_time = time.time()
     seed_brick = copy.deepcopy(brick_set[0])
     bricks = find_brick_placements(
-        num_rings, base_tile=seed_brick, tile_set=brick_set
-    )
+        num_rings, base_tile=seed_brick, tile_set=brick_set, initial_time=start_time
+        )
     print(f"generate finished in {round(time.time() - start_time, 2)}")
     print(f"number of tiles neighbours in ring{num_rings}:", len(bricks))
     write_bricks_to_file(
         bricks, file_path=debugger.file_path(f"{brick_IDs} n={len(bricks)} r={num_rings} t={round(time.time() - start_time, 2)}.ldr")
-    )
+        )
     start_time = time.time()
     structure_graph = AdjacencyGraph(bricks)  
     pickle.dump(structure_graph, open(os.path.join(os.path.dirname(__file__), f'connectivity/{brick_IDs} n={len(bricks)} r={num_rings} t={round(time.time() - start_time, 2)}.pkl'), "wb"))
@@ -95,32 +104,40 @@ def read_bricks(path, debugger):
     return bricks, structure_graph
 
 if __name__ == "__main__":
-    debugger = MyDebugger("test")
     volume = get_volume()
+    debugger = MyDebugger("test")
+    model_file = "solvers/generation_solver/solve_model.mzn"
 
     """ option1: generate a new graph """
-    #brick_set = get_brick_templates(brick_IDs)
-    #bricks, structure_graph = generate_new(brick_set, num_rings=5, debugger=debugger)
-
+    """
+    brick_set = get_brick_templates(brick_IDs)
+    bricks, structure_graph = generate_new(brick_set, num_rings=1, debugger=debugger)
+    """
     """ option2: load an existing ldr file """
-    bricks, structure_graph = read_bricks(os.path.join(os.path.dirname(__file__), "super_graph/bunny s=70.0 n=580 ['3004', '4287'] 5 t=236.01.ldr"), debugger)
+    #path = "super_graph/" + "['3004', '4287'] 1.ldr"
+    #bricks, structure_graph = read_bricks(os.path.join(os.path.dirname(__file__), path), debugger)
 
     """ option3: load a pkl file """
-    #structure_graph = pickle.load(open("./connectivity/['3004', '3062'] 3.pkl", "rb"))
+    """ """
+    path1 = "solvers/generation_solver/connectivity/"
+    path = path1 + "['3004'] 1 t=2.15.pkl"
+    structure_graph = pickle.load(open(path, "rb"))
+    
+    _, filename = os.path.split(path)
+    filename = (filename.split(" t="))[0]
     
     start_time = time.time()
-    solver = GurobiSolver()
-    results, time_used = solver.solve(nodes_num=len(structure_graph.bricks),
+    solver = MinizincSolver(model_file, "gecode")
+    results, time_used = solver.solve(structure_graph=structure_graph,
                                       node_volume=[volume[b.template.id] for b in structure_graph.bricks],
-                                      edges=structure_graph.overlap_edges)
-
+                                      flag=[int(f) for f in np.ones(len(structure_graph.bricks))])
     selected_bricks = []
     for i in range(len(structure_graph.bricks)):
         if results[i] == 1:
             selected_bricks.append(structure_graph.bricks[i])
 
     write_bricks_to_file(
-        selected_bricks, file_path=debugger.file_path(f"selected n={len(selected_bricks)} t={round(time.time() - start_time, 2)}.ldr")
+        selected_bricks, file_path=debugger.file_path(f"selected {filename} n={len(selected_bricks)} t={round(time.time() - start_time, 2)}.ldr")
     )
 
     print("done!")
