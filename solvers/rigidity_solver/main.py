@@ -54,7 +54,8 @@ def trivial_basis(points: np.ndarray) -> np.ndarray:
     
 def simulate_step(structure_graph: ConnectivityGraph, n: int, bricks, step_size=1):
     structure_graph.bricks = bricks
-    points, edges, points_on_brick = structure_sampling(structure_graph)
+
+    points, edges, points_on_brick, _ = structure_sampling(structure_graph)
 
     M = spring_energy_matrix(points, edges)
 
