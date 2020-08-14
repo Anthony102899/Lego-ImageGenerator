@@ -55,7 +55,6 @@ class BrickInstance:
         else:
             return False
 
-    # TODO: 11477, connect AND collide
     # return one of the spatial relation: {seperated, connected, collision, same(fully overlaped)}
     def collide(self, other):
         concave = get_concave()

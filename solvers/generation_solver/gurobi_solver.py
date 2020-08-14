@@ -3,6 +3,11 @@ import gurobipy
 from gurobipy import GRB
 import numpy as np
 
+def f(x, b_i):
+    if x[0] == b_i:
+        return x[1]
+    if x[1] == b_i:
+        return x[0]
 
 class GurobiSolver(object):
     def __init__(self):
@@ -18,10 +23,11 @@ class GurobiSolver(object):
         # add constraints to the solver
         nodes = model.addMVar(nodes_num, vtype=GRB.BINARY, name="nodes")
         overlap_num = len(overlap_edges)
+        tmp = [[f(x, b_i) for x in connect_edges] for b_i in range(nodes_num)]
         for i in range(overlap_num):
             model.addConstr(nodes[overlap_edges[i][0]] + nodes[overlap_edges[i][1]] <= 1, f"c{i}")
         for i in range(nodes_num):
-            model.addConstr(nodes[i] <= sum([nodes[k] for k in connect_edges[i] if k]), f"c{i+overlap_num}")
+            model.addConstr(nodes[i] <= sum([nodes[k] for k in tmp[i] if k]), f"c{i+overlap_num}")
         """
         TODO:
         fully connected?
