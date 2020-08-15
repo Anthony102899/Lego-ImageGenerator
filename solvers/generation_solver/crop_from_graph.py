@@ -1,7 +1,7 @@
 import os
 from solvers.generation_solver.crop_model import brick_inside, RGB_to_Hex, get_color
 from bricks_modeling.file_IO.model_writer import write_bricks_to_file
-from solvers.generation_solver.gurobi_solver import GurobiSolver
+from solvers.generation_solver.minizinc_solver import MinizincSolver
 from bricks_modeling.bricks.brickinstance import BrickInstance
 from solvers.generation_solver.gen_super_graph import get_volume
 from solvers.generation_solver.adjacency_graph import AdjacencyGraph
@@ -21,7 +21,7 @@ def check_brick(brick, mesh, colors_rgb):
         nearby_hex = RGB_to_Hex(nearby_color)
         new_brick = BrickInstance(brick.template, brick.trans_matrix, nearby_hex)
         return new_brick, 1
-    return brick, -1
+    return brick, -10
 
 def get_bricks(mesh, tile_set, scale):
     colors_rgb = get_color(mesh)
@@ -35,11 +35,14 @@ def get_bricks(mesh, tile_set, scale):
     return result_crop, flag
 
 if __name__ == "__main__":
+    model_file = "./solvers/generation_solver/solve_model.mzn"
     obj_path = os.path.join(os.path.dirname(__file__), "super_graph/pokeball.ply")
+
     tile_path = os.path.join(os.path.dirname(__file__), "connectivity/['3005', '4287'] 6 n=11209 t=80429.55.pkl")
-    tile = pickle.load(open(tile_path, "rb"))
-    tile_set = tile.bricks
+    structure_graph = pickle.load(open(tile_path, "rb"))
+    tile_set = structure_graph.bricks
     print("#bricks in tile: ", len(tile_set))
+
     mesh = trimesh.load_mesh(obj_path)
     if not type(mesh) == trimesh.Trimesh:
         mesh = mesh.dump(True)
@@ -47,36 +50,32 @@ if __name__ == "__main__":
     mesh.apply_transform(flip)
     volume = get_volume()
     debugger = MyDebugger("test")
-    for scale in range (5, 6):
-        #scale = float(input("Enter scale of obj: "))
-        start_time = time.time()
-        scale /= 10
-        tile_set = tile.bricks
-        result_crop, flag = get_bricks(mesh, tile_set, scale)
-        tile.bricks = result_crop
-        end_time = time.time()
-        print("\nCropping time = ", end_time - start_time)
 
-        _, filename = os.path.split(obj_path)
-        filename = (filename.split("."))[0]
-        _, tilename = os.path.split(tile_path)
-        tilename = ((tilename.split("."))[0]).split(" ")
-        tilename = tilename[0] + tilename[1] + tilename[2]
+    scale = float(input("Enter scale of obj: "))
+    start_time = time.time()
+    result_crop, flag = get_bricks(mesh, tile_set, scale)
+    structure_graph.bricks = result_crop
+    end_time = time.time()
+    print("\nCropping time = ", end_time - start_time)
 
-        start_time = time.time()
-        solver = GurobiSolver()
-        results, time_used = solver.solve(nodes_num=len(tile_set),
-                                        node_volume=[volume[b.template.id] for b in tile_set],
-                                        overlap_edges=tile.overlap_edges,
-                                        flag=flag)
-        end_time = time.time()
-        selected_bricks = []
-        for i in range(len(tile.bricks)):
-            if results[i] == 1:
-                selected_bricks.append(tile.bricks[i])
-        print(f"Resulting LEGO model has {len(selected_bricks)} bricks")
+    _, filename = os.path.split(obj_path)
+    filename = (filename.split("."))[0]
+    _, tilename = os.path.split(tile_path)
+    tilename = ((tilename.split("."))[0]).split(" ")
+    tilename = tilename[0] + tilename[1]
 
-        write_bricks_to_file(
-            selected_bricks, file_path=debugger.file_path(f"selected {filename} {tilename} s={scale} n={len(selected_bricks)} t={round(end_time - start_time, 2)}.ldr"))
+    start_time = time.time()
+    solver = MinizincSolver(model_file, "gurobi")
+    results, time_used = solver.solve(structure_graph=structure_graph,
+                                      node_volume=[volume[b.template.id] for b in structure_graph.bricks],
+                                      flag=flag)
+    end_time = time.time()
+    selected_bricks = []
+    for i in range(len(structure_graph.bricks)):
+        if results[i] == 1:
+            selected_bricks.append(structure_graph.bricks[i])
+    print(f"Resulting LEGO model has {len(selected_bricks)} bricks")
 
-        print("done!")
+    write_bricks_to_file(
+        selected_bricks, file_path=debugger.file_path(f"selected {filename} {tilename} s={scale} n={len(selected_bricks)} t={round(end_time - start_time, 2)}.ldr"))
+    print("done!")

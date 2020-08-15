@@ -4,7 +4,6 @@ import numpy as np
 
 import open3d as o3d
 import copy
-from solvers.generation_solver.tile_graph import unique_brick_list
 from bricks_modeling.connections.conn_type import compute_conn_type
 from util.json_encoder import NumpyArrayEncoder
 
@@ -24,7 +23,11 @@ class ConnectivityGraph:
 
     def _remove_redudant_bricks(self):
         print("#tiles before filtring repeat:", len(self.bricks))
-        unique_brick_list(self.bricks)
+        unique_list = []
+        for x in self.bricks:
+            if x not in unique_list:
+                unique_list.append(x)
+        self.bricks = unique_list
         print("#tiles after filtring repeat:", len(self.bricks))
 
 
