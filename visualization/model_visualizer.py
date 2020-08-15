@@ -42,17 +42,16 @@ def create_arrow_mesh(points, vectors):
             arrow = o3d.geometry.TriangleMesh.create_arrow(
                 cylinder_radius=0.2,
                 cone_radius=0.35,
-                cylinder_height=200 * vec_len,
+                cylinder_height=400 * vec_len,
                 cone_height=8 * vec_len,
                 resolution=3,
             )
             vec = vec / np.linalg.norm(vec)
-            print(vec)
             arrows += copy.deepcopy(arrow).translate(p/2.5).rotate(rot_mat, center=p/2.5).paint_uniform_color([(vec[0]+1)/2,(vec[1]+1)/2,(vec[2]+1)/2])
     return arrows
 
 
-def get_movement_direction(ldr_path, n:int):
+def get_movement_direction(ldr_path, n:int, lzy_methoid=False):
 
     bricks = read_bricks_from_file(ldr_path)
 
@@ -62,35 +61,37 @@ def get_movement_direction(ldr_path, n:int):
 
     M = spring_energy_matrix(points, edges, direction_for_abstract_edge)
 
+    e_vec = None
+
     #TODO: Subetract meaningful eigenvecotrs
+    if lzy_methoid:
+        e_pairs = geo_util.eigen(M, symmetric=True)
 
-    '''e_pairs = geo_util.eigen(M, symmetric=True)
+        # collect all eigen vectors with zero eigen value
+        zeroeigenspace = [e_vec for e_val, e_vec in e_pairs if abs(e_val) < 1e-15]
 
-    # collect all eigen vectors with zero eigen value
-    zeroeigenspace = [e_vec for e_val, e_vec in e_pairs if abs(e_val) < 1e-6]
+        print("Number of points", len(points))
+        print(f"Number of zeroeigenspace;{len(zeroeigenspace)}")
+        # Trivial basis -- orthonormalized translation along / rotation wrt 3 axes
+        basis = geo_util.trivial_basis(points)
 
-    print("Number of points", len(points))
+        # cast the eigenvectors corresponding to zero eigenvalues into nullspace of the trivial basis,
+        # in other words, the new vectors doesn't have any components (projection) in the span of the trivial basis
+        reduced_zeroeigenspace = [geo_util.subtract_orthobasis(vec, basis) for vec in zeroeigenspace]
 
-    # Trivial basis -- orthonormalized translation along / rotation wrt 3 axes
-    basis = geo_util.trivial_basis(points)
+        # count zero vectors in reduced eigenvectors
+        num_zerovectors = sum([np.isclose(vec, np.zeros_like(vec)).all() for vec in reduced_zeroeigenspace])
+        # In 3d cases, exactly 6 eigenvectors for eigenvalue 0 are reduced to zerovector.
+        #assert num_zerovectors == 6
+        print(num_zerovectors)
+        e_vec = reduced_zeroeigenspace[n]
+    else:
+        C = geo_util.eigen(M, symmetric=True)
 
-    # cast the eigenvectors corresponding to zero eigenvalues into nullspace of the trivial basis,
-    # in other words, the new vectors doesn't have any components (projection) in the span of the trivial basis
-    reduced_zeroeigenspace = [geo_util.subtract_orthobasis(vec, basis) for vec in zeroeigenspace]
+        e = C[n]
+        e_val, e_vec = e
 
-    # count zero vectors in reduced eigenvectors
-    num_zerovectors = sum([np.isclose(vec, np.zeros_like(vec)).all() for vec in reduced_zeroeigenspace])
-    # In 3d cases, exactly 6 eigenvectors for eigenvalue 0 are reduced to zerovector.
-    #assert num_zerovectors == 6
-    print(num_zerovectors)
-    e_vec = reduced_zeroeigenspace[n]'''
-
-    C = geo_util.eigen(M, symmetric=True)
-
-    e = C[n]
-    e_val, e_vec = e
-
-
+        print(f"The eigenvalue of dim {n} is {e_val}")
 
     e_vec = e_vec / LA.norm(e_vec)
     arrows = o3d.geometry.TriangleMesh()
@@ -103,7 +104,7 @@ def get_movement_direction(ldr_path, n:int):
     return arrows
 
 
-def sampling_method_meshs(ldr_path, show_origin_model=True):
+def sampling_method_meshs(ldr_path, show_origin_model=False):
     color_dict = color_phraser()
     bricks = read_bricks_from_file(ldr_path)
     connect_graph = ConnectivityGraph(bricks)
@@ -120,14 +121,21 @@ def sampling_method_meshs(ldr_path, show_origin_model=True):
 
 
 if __name__ == "__main__":
-    path = "../data/full_models/cube64179.ldr"
-    #meshs, line_set = sampling_method_meshs(path, show_origin_model=False)
-    meshs = ldr_to_obj(path)
-    arrows = o3d.geometry.TriangleMesh()
-    #for i in range(0,5):
-    arrows += get_movement_direction(path,30)
+    path = "../data/full_models/example3_add_full.ldr"
+    meshs, line_set = sampling_method_meshs(path, show_origin_model=True)
+    #meshs = ldr_to_obj(path)
 
-    meshs += arrows
-    meshs.compute_vertex_normals()
-    #o3d.visualization.draw_geometries([meshs, line_set])
-    o3d.visualization.draw_geometries([meshs])
+    '''for i in range(15,16):
+        arrows = o3d.geometry.TriangleMesh()
+        arrows += get_movement_direction(path,i, lzy_methoid=True)
+        meshscopy = copy.deepcopy(meshs)
+        meshscopy += arrows
+        meshscopy.compute_vertex_normals()
+        o3d.visualization.draw_geometries([meshscopy])'''
+
+    arrows = o3d.geometry.TriangleMesh()
+    arrows += get_movement_direction(path, 32, lzy_methoid=False)
+    meshscopy = copy.deepcopy(meshs)
+    meshscopy += arrows
+    meshscopy.compute_vertex_normals()
+    o3d.visualization.draw_geometries([meshscopy])
