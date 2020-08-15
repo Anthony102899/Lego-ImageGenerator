@@ -134,7 +134,7 @@ if __name__ == "__main__":
     dimension = 2
     points = np.array([[0, 0], [1, 0], [0, 2], [0, 2]])
     edges = [(0, 1), (1, 2), (0, 3)]
-    virtual_edges = [(2, 3, 1.0, 0.0)]
+    abstract_edges = [(2, 3, 1.0, 0.0)]
     points_on_parts = {0: [0, 1], 1: [1, 2], 2: [0, 3]}
 
     #### Test data #2
@@ -144,7 +144,7 @@ if __name__ == "__main__":
     # abstract_edges = []
     # points_on_parts = {0: [0, 1], 1: [1, 2], 2: [0, 2]}
 
-    is_rigid, eigen_pairs = solve_rigidity(points, edges + virtual_edges, dim=dimension)
+    is_rigid, eigen_pairs = solve_rigidity(points, edges + abstract_edges, dim=dimension)
     if is_rigid:
         vec, value = get_weakest_displacement(eigen_pairs, dim=dimension)
     else:

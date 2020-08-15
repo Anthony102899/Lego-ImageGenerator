@@ -36,141 +36,99 @@ def structure_sampling(structure_graph: ConnectivityGraph):
     bricks = structure_graph.bricks
     points = []
     edges = []
-    direction_for_abstract_edge = {}
+    abstract_edges = {}
+    # brick_id -> a list of point indices belongs to this brick
     points_on_brick = {i: [] for i in range(len(bricks))}
-    feature_points_on_brick = {i: None for i in range(len(bricks))}
 
+    # the representative connPoint on each brick
+    representative_cpoints_on_brick = {i: None for i in range(len(bricks))}
     for idx, b in enumerate(bricks):
-        feature_points_on_brick[idx] = b.template.deg1_cpoint_indices()
+        representative_cpoints_on_brick[idx] = b.template.deg1_cpoint_indices()
 
     for edge in structure_graph.connect_edges:
+        # get connecting bricks
+        bi = edge["node_indices"][0]
+        bj = edge["node_indices"][1]
+
+        # get contact position and orientation
+        contact_pt = edge["properties"]["contact_point"]
+        contact_orient = edge["properties"]["contact_orient"]
+
+        # generate points around the contact points
+        p = get_crystal_vertices(contact_pt, contact_orient)
+
         if edge["type"] == ConnType.HOLE_PIN.name:
-            bi = edge["node_indices"][0]
-            bj = edge["node_indices"][1]
-            contact_pt = edge["properties"]["contact_point"]
-            contact_orient = edge["properties"]["contact_orient"]
-
-            feature_points_on_brick[bi].discard(edge["cpoint_indices"][0])
-            feature_points_on_brick[bj].discard(edge["cpoint_indices"][1])
-
-            point_idx_base = len(points)
-
-            p = get_crystal_vertices(contact_pt, contact_orient)
-
             for i in range(7):
                 if i in {0, 1, 2}:
-                    exec(f"points.append(p[{i}])")
+                    points.append(p[i])
                     points_on_brick[bi].append(len(points) - 1)
                     points_on_brick[bj].append(len(points) - 1)
                 else:
-                    exec(f"points.append(p[{i}])")
+                    points.append(p[i])
                     points_on_brick[bi].append(len(points) - 1)
-                    exec(f"points.append(p[{i}])")
+                    points.append(p[i])
                     points_on_brick[bj].append(len(points) - 1)
 
         if edge["type"] == ConnType.CROSS_AXLE.name:
-            bi = edge["node_indices"][0]
-            bj = edge["node_indices"][1]
-            contact_pt = edge["properties"]["contact_point"]
-            contact_orient = edge["properties"]["contact_orient"]
-
-            feature_points_on_brick[bi].discard(edge["cpoint_indices"][0])
-            feature_points_on_brick[bj].discard(edge["cpoint_indices"][1])
-
-            point_idx_base = len(points)
-
-            p = get_crystal_vertices(contact_pt, contact_orient)
-
             for i in range(7):
-                exec(f"points.append(p[{i}])")
+                points.append(p[i])
                 points_on_brick[bi].append(len(points) - 1)
                 points_on_brick[bj].append(len(points) - 1)
 
         if edge["type"] == ConnType.STUD_TUBE.name:
-            bi = edge["node_indices"][0]
-            bj = edge["node_indices"][1]
-            contact_pt = edge["properties"]["contact_point"]
-            contact_orient = edge["properties"]["contact_orient"]
-
-            feature_points_on_brick[bi].discard(edge["cpoint_indices"][0])
-            feature_points_on_brick[bj].discard(edge["cpoint_indices"][1])
-
-            point_idx_base = len(points)
-
-            p = get_crystal_vertices(contact_pt, contact_orient)
-
             for i in range(7):
                 if i in {0, 1, 2}:
-                    exec(f"points.append(p[{i}])")
+                    points.append(p[i])
                     points_on_brick[bi].append(len(points) - 1)
                     points_on_brick[bj].append(len(points) - 1)
                 else:
-                    exec(f"points.append(p[{i}])")
+                    points.append(p[i])
                     points_on_brick[bi].append(len(points) - 1)
-                    exec(f"points.append(p[{i}])")
+                    points.append(p[i])
                     points_on_brick[bj].append(len(points) - 1)
 
         if edge["type"] == ConnType.HOLE_AXLE.name:
-            bi = edge["node_indices"][0]
-            bj = edge["node_indices"][1]
-            contact_pt     = edge["properties"]["contact_point"]
-            contact_orient = edge["properties"]["contact_orient"]
-
-            feature_points_on_brick[bi].discard(edge["cpoint_indices"][0])
-            feature_points_on_brick[bj].discard(edge["cpoint_indices"][1])
-
-            p = get_crystal_vertices(contact_pt, contact_orient)
-
-            points_base_index = len(points)
             #they do not share any points
             for i in range(7):
-                exec(f"points.append(p[{i}])")
+                points.append(p[i])
                 points_on_brick[bi].append(len(points) - 1)
-                exec(f"points.append(p[{i}])")
+                points.append(p[i])
                 points_on_brick[bj].append(len(points) - 1)
                 edges.append([len(points) - 2, len(points) - 1])
 
             p_vec1, p_vec2 = geo_util.get_perpendicular_vecs(contact_orient)
-            direction_for_abstract_edge[points_base_index + 1] = p_vec1
-            direction_for_abstract_edge[points_base_index + 3] = p_vec2
-            direction_for_abstract_edge[points_base_index + 5] = (p_vec2 + p_vec1)/2
-            direction_for_abstract_edge[points_base_index + 7] = p_vec1
-            direction_for_abstract_edge[points_base_index + 9] = -p_vec1
-            direction_for_abstract_edge[points_base_index + 11] = p_vec2
-            direction_for_abstract_edge[points_base_index + 13] = -p_vec2
+            abstract_edges[points_base_index + 1] = p_vec1
+            abstract_edges[points_base_index + 3] = p_vec2
+            abstract_edges[points_base_index + 5] = (p_vec2 + p_vec1)/2
+            abstract_edges[points_base_index + 7] = p_vec1
+            abstract_edges[points_base_index + 9] = -p_vec1
+            abstract_edges[points_base_index + 11] = p_vec2
+            abstract_edges[points_base_index + 13] = -p_vec2
         #This is a conntype not in our database
 
-        '''if edge["type"] == ConnType.CROSS_AXLE_WTIH_TRANSLATE.name:
-            bi = edge["node_indices"][0]
-            bj = edge["node_indices"][1]
-            contact_pt = edge["properties"]["contact_point"]
-            contact_orient = edge["properties"]["contact_orient"]
-
-            feature_points_on_brick[bi].discard(edge["cpoint_indices"][0])
-            feature_points_on_brick[bj].discard(edge["cpoint_indices"][1])
-
-            p = get_crystal_vertices(contact_pt, contact_orient)
-
-            points_base_index = len(points)
-            #they do not share any points
+        if edge["type"] == ConnType.PRISMATIC.name:
             for i in range(7):
-                exec(f"points.append(p[{i}])")
+                points.append(p[i])
                 points_on_brick[bi].append(len(points) - 1)
-                exec(f"points.append(p[{i}])")
+                points.append(p[i])
                 points_on_brick[bj].append(len(points) - 1)
                 edges.append([len(points) - 2, len(points) - 1])
 
             p_vec1, p_vec2 = geo_util.get_perpendicular_vecs(contact_orient)
-            direction_for_abstract_edge[points_base_index + 1] = p_vec1
-            direction_for_abstract_edge[points_base_index + 3] = p_vec2
-            direction_for_abstract_edge[points_base_index + 5] = (p_vec2 + p_vec1)/2
-            direction_for_abstract_edge[points_base_index + 7] = p_vec2
-            direction_for_abstract_edge[points_base_index + 9] = -p_vec2
-            direction_for_abstract_edge[points_base_index + 11] = p_vec1
-            direction_for_abstract_edge[points_base_index + 13] = -p_vec1'''
+            abstract_edges[points_base_index + 1] = p_vec1
+            abstract_edges[points_base_index + 3] = p_vec2
+            abstract_edges[points_base_index + 5] = (p_vec2 + p_vec1)/2
+            abstract_edges[points_base_index + 7] = p_vec2
+            abstract_edges[points_base_index + 9] = -p_vec2
+            abstract_edges[points_base_index + 11] = p_vec1
+            abstract_edges[points_base_index + 13] = -p_vec1
+
+        # remove the generated points
+        representative_cpoints_on_brick[bi].discard(edge["cpoint_indices"][0])
+        representative_cpoints_on_brick[bj].discard(edge["cpoint_indices"][1])
 
     #### add additional sample points, by detecting if the connection points are already sampled
-    for brick_id, c_id_set in feature_points_on_brick.items():
+    for brick_id, c_id_set in representative_cpoints_on_brick.items():
         brick = bricks[brick_id]
         for c_id in c_id_set:
             c_point = brick.get_current_conn_points()[c_id]
@@ -185,4 +143,4 @@ def structure_sampling(structure_graph: ConnectivityGraph):
     for value in points_on_brick.values():
         edges.extend(list(itertools.combinations(value, 2)))
 
-    return np.array(points), edges, points_on_brick, direction_for_abstract_edge
+    return np.array(points), edges, points_on_brick, abstract_edges
