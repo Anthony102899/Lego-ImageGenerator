@@ -11,9 +11,13 @@ from typing import List
 import itertools
 from numpy import linalg as LA
 from numpy.linalg import inv
-from visualization.model_visualizer import visualize_3D
+from visualization.model_visualizer import visualize_3D, visualize_2D
 
-def rigidity_matrix(points: np.ndarray, edges: np.ndarray, dim: int) -> np.ndarray:
+def rigidity_matrix(
+    points: np.ndarray,
+    edges: np.ndarray,
+    dim: int
+    ) -> np.ndarray:
     """
     points: (n, d) array, n points in a d-dimensional space
     edges : (m, 2) array, m edges, store indices of the points they join
@@ -32,7 +36,16 @@ def rigidity_matrix(points: np.ndarray, edges: np.ndarray, dim: int) -> np.ndarr
     return R
 
 
-def spring_energy_matrix(points: np.ndarray, edges: np.ndarray, dim: int = 3) -> np.ndarray:
+def spring_energy_matrix(
+    points: np.ndarray,
+    edges: np.ndarray,
+    dim: int = 3,
+    matrices=False,
+    ) -> np.ndarray:
+    """
+    matrices: return K, P, A if true
+    """
+
     K = np.zeros((len(edges), len(edges)))
     P = np.zeros((len(edges), len(edges) * dim))
     A = np.zeros((len(edges) * dim, len(points) * dim))
@@ -55,7 +68,10 @@ def spring_energy_matrix(points: np.ndarray, edges: np.ndarray, dim: int = 3) ->
             A[dim * idx + d][dim * e[0] + d] = 1
             A[dim * idx + d][dim * e[1] + d] = -1
 
-    return A.T @ P.T @ K @ P @ A
+    if matrices:
+        return K, P, A
+    else:
+        return A.T @ P.T @ K @ P @ A
 
 
 def transform_matrix_fitting(points_start, points_end, dim=3):
@@ -88,22 +104,52 @@ def solve_rigidity(points: np.ndarray, edges: np.ndarray, dim: int = 3) -> (bool
         return False, zero_eigenspace
 
 
+# to get basis that forming the motion space
+def get_motions(eigen_pairs, dim):
+    # collect all eigen vectors with zero eigen value
+    zeroeigenspace = [e_vec for e_val, e_vec in eigen_pairs]
+
+    # Trivial basis -- orthonormalized translation along / rotation wrt 3 axes
+    basis = geo_util.trivial_basis(points)
+
+    # cast the eigenvectors corresponding to zero eigenvalues into nullspace of the trivial basis,
+    # in other words, the new vectors doesn't have any components (projection) in the span of the trivial basis
+    reduced_zeroeigenspace = [geo_util.subtract_orthobasis(vec, basis) for vec in zeroeigenspace]
+
+    e_vec = reduced_zeroeigenspace[n]
+    e_vec = e_vec / LA.norm(e_vec)
+
+    delta_x = e_vec.reshape(-1, dim)
+
+    return delta_x
+
+def get_weakest_displacement(eigen_pairs, dim):
+    e_val, e_vec = eigen_pairs[0]
+    return e_vec.reshape(-1, dim), e_val
+
 if __name__ == "__main__":
     debugger = MyDebugger("test")
 
     #### Test data #1
-    # dimension = 2
-    # points = np.array([[0, 0], [1, 0], [0, 2], [0, 2]])
-    # edges = [(0, 1), (1, 2), (0, 3), (2, 3, 1.0, 0.0)]
-    # points_on_parts = {0: [0, 1], 1: [1, 2], 2: [0, 3]}
+    dimension = 2
+    points = np.array([[0, 0], [1, 0], [0, 2], [0, 2]])
+    edges = [(0, 1), (1, 2), (0, 3)]
+    virtual_edges = [(2, 3, 1.0, 0.0)]
+    points_on_parts = {0: [0, 1], 1: [1, 2], 2: [0, 3]}
 
     #### Test data #2
-    dimension = 2
-    points = np.array([[0, 0], [1, 0], [0, 2]])
-    edges = [(0, 1), (1, 2), (2, 0)]
-    abstract_edges = []
-    points_on_parts = {0: [0, 1], 1: [1, 2], 2: [0, 2]}
+    # dimension = 2
+    # points = np.array([[0, 0], [1, 0], [0, 1]])
+    # edges = [(0, 1), (1, 2), (2, 0)]
+    # abstract_edges = []
+    # points_on_parts = {0: [0, 1], 1: [1, 2], 2: [0, 2]}
 
-    is_rigid, eigen_value_vectors = solve_rigidity(points, edges, dim=dimension)
+    is_rigid, eigen_pairs = solve_rigidity(points, edges + virtual_edges, dim=dimension)
+    if is_rigid:
+        vec, value = get_weakest_displacement(eigen_pairs, dim=dimension)
+    else:
+        motion_vecs = get_motions(eigen_pairs, dim=dimension)
+
+    visualize_2D(points, edges, vec)
 
     print(is_rigid)

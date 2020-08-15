@@ -91,7 +91,7 @@ def get_perpendicular_vecs(vec: np.ndarray) -> np.ndarray:
 
 def project(v: np.ndarray, base: np.ndarray) -> np.ndarray:
     """
-    Project vector v on base. Return the projection
+    Project vector v on base. Return the projected vector
     """
     length = np.dot(v, base) / np.dot(base, base)
     return length * base
@@ -116,11 +116,14 @@ def orthonormalize(basis: np.ndarray) -> np.ndarray:
 
         U[k] = u[:]
 
-
     U_norm = U / LA.norm(U, axis=1)[:, np.newaxis] 
     return U_norm
 
-def trivial_basis(points: np.ndarray) -> np.ndarray:
+def decompose_on_orthobasis(vector, orthobasis):
+    projection_norms = np.apply_along_axis(lambda base: LA.norm(project(vector, base)), axis=1, arr=orthobasis)
+    return projection_norms
+
+def trivial_basis(points: np.ndarray, dim, orthonormal=True) -> np.ndarray:
     """
     Given n points in 3d space in form of a (n x 3) matrix, construct 6 'trivial' orthonormal vectors
     """
@@ -145,9 +148,11 @@ def trivial_basis(points: np.ndarray) -> np.ndarray:
 
     transformation = np.vstack((translations, rotations))
     # row-wise normalize the vectors into orthonormal basis
-    basis = transformation / LA.norm(transformation, axis=1)[:, np.newaxis] 
-    orthonormal_basis = orthonormalize(basis)
-    return orthonormal_basis
+    basis = rowwise_normalize(transformation)
+    if orthonormal:
+        return orthonormalize(basis)
+    else:
+        return basis
 
 def subtract_orthobasis(vector: np.ndarray, orthobasis: np.ndarray) -> np.ndarray:
     """
@@ -205,7 +210,7 @@ def rref(matrix: np.ndarray) -> np.ndarray:
     Return the reduced echelon form of a matrix
     """
     M = Matrix(matrix)
-    M_rref, pivot_indices = M.rref()[0] # reduced row echelon form
+    M_rref, pivot_indices = M.rref() # reduced row echelon form
     return np.array(M_rref).astype(np.float64)
 
 def gen_random_rotation() -> np.ndarray:
