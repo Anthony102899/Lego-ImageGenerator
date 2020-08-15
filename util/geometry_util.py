@@ -127,27 +127,34 @@ def trivial_basis(points: np.ndarray, dim, orthonormal=True) -> np.ndarray:
     """
     Given n points in 3d space in form of a (n x 3) matrix, construct 6 'trivial' orthonormal vectors
     """
-    P = points.reshape((-1, 3))
+    assert dim in [2, 3]
+    P = points.reshape((-1, dim))
     n = len(P)
 
-    # translation along x, y, and z
-    translations = np.array([
-       [1, 0, 0] * n, 
-       [0, 1, 0] * n, 
-       [0, 0, 1] * n,
-    ])
+    # translation along x, y (and z if in 3d)
+    translations = np.hstack([np.identity(dim)] * n)
 
-    center = np.mean(P, axis=0)
-    P_shifted = P - center # make the rotation vectors orthogonal
+    # note that here we cast 2d points into 3d,
+    # this is to use to get the perpendicular vectors via cross product
+    P_as3d = np.hstack((P, np.zeros((n, 1)))) if dim == 2 else P
+    center = np.mean(P_as3d, axis=0) 
+    P_shifted = P_as3d - center # centralize the object, to make the rotation vectors orthogonal
+
     x_axis, y_axis, z_axis = np.identity(3)
-    rotations = np.array([
-        np.cross(P_shifted, x_axis).reshape(-1),
-        np.cross(P_shifted, y_axis).reshape(-1),
-        np.cross(P_shifted, z_axis).reshape(-1),
-    ])
+
+    if dim == 3:
+        rotations = np.array([
+            np.cross(P_shifted, x_axis).reshape(-1),
+            np.cross(P_shifted, y_axis).reshape(-1),
+            np.cross(P_shifted, z_axis).reshape(-1),
+        ])
+    else: # dim == 2
+        # rotate wrt z_axis, discard the third dimension
+        rotated = np.cross(P_shifted, z_axis)[:, :dim]
+        rotations = rotated.reshape((1, -1))
 
     transformation = np.vstack((translations, rotations))
-    # row-wise normalize the vectors into orthonormal basis
+    # row-wise normalize the vectors so that each row is unitary
     basis = rowwise_normalize(transformation)
     if orthonormal:
         return orthonormalize(basis)
