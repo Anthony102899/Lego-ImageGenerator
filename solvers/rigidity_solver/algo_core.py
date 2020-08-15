@@ -110,7 +110,7 @@ def get_motions(eigen_pairs, dim):
     zeroeigenspace = [e_vec for e_val, e_vec in eigen_pairs]
 
     # Trivial basis -- orthonormalized translation along / rotation wrt 3 axes
-    basis = geo_util.trivial_basis(points)
+    basis = geo_util.trivial_basis(points, dim)
 
     # cast the eigenvectors corresponding to zero eigenvalues into nullspace of the trivial basis,
     # in other words, the new vectors doesn't have any components (projection) in the span of the trivial basis
