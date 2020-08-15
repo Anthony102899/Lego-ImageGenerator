@@ -135,7 +135,7 @@ def trivial_basis(points: np.ndarray, dim, orthonormal=True) -> np.ndarray:
     translations = np.hstack([np.identity(dim)] * n)
 
     # note that here we cast 2d points into 3d,
-    # this is to use to get the perpendicular vectors via cross product
+    # this is to get the perpendicular vectors via cross product which has to be done in 3d
     P_as3d = np.hstack((P, np.zeros((n, 1)))) if dim == 2 else P
     center = np.mean(P_as3d, axis=0) 
     P_shifted = P_as3d - center # centralize the object, to make the rotation vectors orthogonal
