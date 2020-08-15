@@ -54,6 +54,7 @@ def trivial_basis(points: np.ndarray) -> np.ndarray:
     
 def simulate_step(structure_graph: ConnectivityGraph, n: int, bricks, step_size=1):
     structure_graph.bricks = bricks
+
     points, edges, points_on_brick, direction_for_abstract_edge = structure_sampling(structure_graph)
 
     M = spring_energy_matrix(points, edges, direction_for_abstract_edge)
@@ -74,7 +75,7 @@ def simulate_step(structure_graph: ConnectivityGraph, n: int, bricks, step_size=
     
     # count zero vectors in reduced eigenvectors
     num_zerovectors = sum([np.isclose(vec, np.zeros_like(vec)).all() for vec in reduced_zeroeigenspace])
-    # In 3d cases, exactly 6 eigenvectors for eigenvalue 0 are reduced to zerovector.
+    # In 3d cases, if the object only has 6 DOF, then exactly 6 eigenvectors for eigenvalue 0 are reduced to zerovector.
     assert num_zerovectors == 6
 
     e_vec = reduced_zeroeigenspace[n]

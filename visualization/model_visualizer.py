@@ -102,7 +102,8 @@ def visualize_2D(points: np.array, edges: List[Tuple] = None, arrows = None):
             p_start = points[i]
             ax.arrow(p_start[0], p_start[1], arrows[i][0], arrows[i][1], head_width=0.05, head_length=0.1, fc='k', ec='k')
 
-    plt.axis([-1, 2, -1, 2])
+    xmin, xmax, ymin, ymax = plt.axis()
+    plt.axis([xmin - 1, xmax + 1, ymin - 1, ymax + 1])
     ax.set_aspect('equal', adjustable='box')
     plt.show()
 

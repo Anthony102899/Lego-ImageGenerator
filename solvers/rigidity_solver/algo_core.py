@@ -15,7 +15,11 @@ from numpy.linalg import matrix_rank
 from scipy.linalg import polar
 
 
-def rigidity_matrix(points: np.ndarray, edges: np.ndarray, dim: int) -> np.ndarray:
+def rigidity_matrix(
+    points: np.ndarray, 
+    edges: np.ndarray, 
+    dim: int
+    ) -> np.ndarray:
     """
     points: (n, d) array, n points in a d-dimensional space
     edges : (m, 2) array, m edges, store indices of the points they join
@@ -34,7 +38,17 @@ def rigidity_matrix(points: np.ndarray, edges: np.ndarray, dim: int) -> np.ndarr
     return R
 
 
-def spring_energy_matrix(points: np.ndarray, edges: np.ndarray, direction_for_abstract_edge = None, dim: int = 3) -> np.ndarray:
+def spring_energy_matrix(
+    points: np.ndarray, 
+    edges: np.ndarray, 
+    direction_for_abstract_edge=None, 
+    dim: int = 3,
+    matrices=False,
+    ) -> np.ndarray:
+    """
+    matrices: return K, P, A if true
+    """
+
     K = np.zeros((len(edges), len(edges)))
     P = np.zeros((len(edges), len(edges) * dim))
     A = np.zeros((len(edges) * dim, len(points) * dim))
@@ -59,7 +73,10 @@ def spring_energy_matrix(points: np.ndarray, edges: np.ndarray, direction_for_ab
             A[dim * idx + d][dim * e[0] + d] = 1
             A[dim * idx + d][dim * e[1] + d] = -1
 
-    return A.T @ P.T @ K @ P @ A
+    if matrices:
+        return K, P, A
+    else:
+        return A.T @ P.T @ K @ P @ A
 
 
 def transform_matrix_fitting(points_start, points_end, dim=3):
