@@ -15,6 +15,7 @@ import util.geometry_util as geo_util
 from solvers.rigidity_solver.algo_core import (
     spring_energy_matrix,
     transform_matrix_fitting,
+    solve_rigidity
 )
 from solvers.rigidity_solver.internal_structure import structure_sampling
 import solvers.rigidity_solver.visualization as vis
@@ -104,17 +105,6 @@ if __name__ == "__main__":
 
     bricks = read_bricks_from_file("./data/full_models/hole_axle_test.ldr")
     structure_graph = ConnectivityGraph(bricks)
+    points, edges, points_on_brick, abstract_edges = structure_sampling(structure_graph)
 
-
-
-    for dim in range(6):
-        d_bricks = copy.deepcopy(bricks)
-        total_bricks = d_bricks
-        for i in range(50):
-            print("simulation step", i, "...")
-            d_bricks = simulate_step(structure_graph, n=dim, bricks=d_bricks, step_size=1)
-            total_bricks += d_bricks
-
-        write_bricks_to_file(
-            total_bricks, file_path=debugger.file_path(f"simulation_{dim}.ldr"), debug=False
-        )
+    is_rigid, eigen_pairs = solve_rigidity(points, edges + abstract_edges, dim=3)
