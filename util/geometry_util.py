@@ -182,7 +182,7 @@ def points_span_dim(points: np.ndarray) -> bool:
     return min(rank, 3)
 
 
-def eigen(matrix: np.ndarray, symmetric: bool) -> List:
+def eigen(matrix: np.ndarray, symmetric: bool = True) -> List:
     """
     Compute eigenvalues/vectors, return a list of <eigenvalue, vector> pairs, sorted by the eigenvalue ascendingly
         symmetric: a boolean that indicates the input_images matrix is symmetric

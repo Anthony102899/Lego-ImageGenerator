@@ -1,12 +1,4 @@
-from bricks_modeling.file_IO.model_reader import read_bricks_from_file
-from bricks_modeling.file_IO.model_writer import write_bricks_to_file
-from bricks_modeling.connectivity_graph import ConnectivityGraph
-from util.debugger import MyDebugger
-from bricks_modeling.bricks.brick_factory import get_all_brick_templates
-from bricks_modeling.bricks.brickinstance import BrickInstance
-import numpy as np
-from util.geometry_util import get_random_transformation
-
+import os
 
 def read_colors():
     results = dict()
@@ -23,6 +15,26 @@ def read_colors():
                 results[color] = int(line_content[4])
 
     return results
+
+def color_phraser(
+    file_path=os.path.join(
+        os.path.dirname(os.path.dirname(__file__)), "database", "ldraw", "LDConfig.ldr"
+    )
+):
+    color_dict = {}
+
+    f = open(file_path, "r")
+    for line in f.readlines():
+        line_content = line.rstrip().split()
+        if len(line_content) < 8 or line_content[1] == "//":
+            continue
+        else:
+            color_dict[line_content[4]] = [
+                int(line_content[6][i : i + 2], 16) / 255 for i in (1, 3, 5)
+            ]
+            #print(f"color {line_content[4]} is {color_dict[line_content[4]]}")
+
+    return color_dict
 
 if __name__ == "__main__":
     read_colors()

@@ -71,11 +71,11 @@ def simulate_step(structure_graph: ConnectivityGraph, n: int, bricks, step_size=
     # cast the eigenvectors corresponding to zero eigenvalues into nullspace of the trivial basis,
     # in other words, the new vectors doesn't have any components (projection) in the span of the trivial basis
     reduced_zeroeigenspace = [geo_util.subtract_orthobasis(vec, basis) for vec in zeroeigenspace]
-    
+
+    print(matrix_rank(np.vstack(reduced_zeroeigenspace)))
     # count zero vectors in reduced eigenvectors
     num_zerovectors = sum([np.isclose(vec, np.zeros_like(vec)).all() for vec in reduced_zeroeigenspace])
     # In 3d cases, exactly 6 eigenvectors for eigenvalue 0 are reduced to zerovector.
-    assert num_zerovectors == 6
 
     e_vec = reduced_zeroeigenspace[n]
     e_vec = e_vec / LA.norm(e_vec)
@@ -99,15 +99,11 @@ def simulate_step(structure_graph: ConnectivityGraph, n: int, bricks, step_size=
 
     return deformed_bricks
 
-
 if __name__ == "__main__":
     debugger = MyDebugger("test")
-    bricks = read_bricks_from_file("../../data/full_models/single_pin.ldr")
-    write_bricks_to_file(
-        bricks, file_path=debugger.file_path("model_loaded.ldr"), debug=False
-    )
-    structure_graph = ConnectivityGraph(bricks)
 
+    bricks = read_bricks_from_file("./data/full_models/hole_axle_test.ldr")
+    structure_graph = ConnectivityGraph(bricks)
 
     for dim in range(6):
         d_bricks = copy.deepcopy(bricks)

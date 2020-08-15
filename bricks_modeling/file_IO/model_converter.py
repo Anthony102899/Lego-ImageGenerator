@@ -13,26 +13,6 @@ from util.debugger import MyDebugger
 """
 
 
-def color_phraser(
-    file_path=path.join(
-        path.dirname(path.dirname(__file__)), "database", "ldraw", "LDConfig.ldr"
-    )
-):
-    color_dict = {}
-
-    f = open(file_path, "r")
-    for line in f.readlines():
-        line_content = line.rstrip().split()
-        if len(line_content) < 8 or line_content[1] == "//":
-            continue
-        else:
-            color_dict[line_content[4]] = [
-                int(line_content[6][i : i + 2], 16) / 255 for i in (1, 3, 5)
-            ]
-            #print(f"color {line_content[4]} is {color_dict[line_content[4]]}")
-
-    return color_dict
-
 def ldr_to_obj(
     ldr_path,
     output_path=MyDebugger("test").file_path("test.obj"),

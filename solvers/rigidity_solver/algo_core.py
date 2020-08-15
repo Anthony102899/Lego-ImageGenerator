@@ -11,9 +11,7 @@ from typing import List
 import itertools
 from numpy import linalg as LA
 from numpy.linalg import inv
-from numpy.linalg import matrix_rank
-from scipy.linalg import polar
-
+from visualization.model_visualizer import visualize_3D
 
 def rigidity_matrix(points: np.ndarray, edges: np.ndarray, dim: int) -> np.ndarray:
     """
@@ -34,7 +32,7 @@ def rigidity_matrix(points: np.ndarray, edges: np.ndarray, dim: int) -> np.ndarr
     return R
 
 
-def spring_energy_matrix(points: np.ndarray, edges: np.ndarray, direction_for_abstract_edge = None, dim: int = 3) -> np.ndarray:
+def spring_energy_matrix(points: np.ndarray, edges: np.ndarray, dim: int = 3) -> np.ndarray:
     K = np.zeros((len(edges), len(edges)))
     P = np.zeros((len(edges), len(edges) * dim))
     A = np.zeros((len(edges) * dim, len(points) * dim))
@@ -43,18 +41,16 @@ def spring_energy_matrix(points: np.ndarray, edges: np.ndarray, direction_for_ab
 
     # forming P and K
     for idx, e in enumerate(edges):
-        p1 = points[e[0]]
-        p2 = points[e[1]]
-        edge_vec = p1 - p2
-        if LA.norm(edge_vec) < 1e-6:
-            edge_vec = direction_for_abstract_edge[e[1]]
-        normalized_edge_vec = normalized(edge_vec)
-        P[idx][idx * dim : idx * dim + dim] = normalized_edge_vec.T
-        K[idx][idx] = 1 / LA.norm(edge_vec)  # set as the same material for now
-        # K[idx][idx] = 1  # set as the same material for now
+        if len(e) == 2:
+            edge_vec = points[e[0]] - points[e[1]]
+        else: # virtual edge
+            assert len(e) == 2 + dim
+            assert LA.norm(points[e[0]] - points[e[1]]) < 1e-6
+            edge_vec = np.array(e[2:])
+            edge_vec = normalized(edge_vec)/1e-4 # making the spring strong by shorter the edge
 
-    # forming A
-    for idx, e in enumerate(edges):
+        P[idx][idx * dim : idx * dim + dim] = normalized(edge_vec).T
+        K[idx][idx] = 1 / LA.norm(edge_vec)  # set as the same material for now
         for d in range(dim):
             A[dim * idx + d][dim * e[0] + d] = 1
             A[dim * idx + d][dim * e[1] + d] = -1
@@ -77,30 +73,37 @@ def transform_matrix_fitting(points_start, points_end, dim=3):
 
     return M, T
 
+# to predict the rigidity of the structure
+def solve_rigidity(points: np.ndarray, edges: np.ndarray, dim: int = 3) -> (bool, List[np.ndarray]):
+    M = spring_energy_matrix(points, edges, dim)
+    e_pairs = geo_util.eigen(M, symmetric=True)
+
+    # collect all eigen vectors with zero eigen value
+    zero_eigenspace     = [(e_val, e_vec) for e_val, e_vec in e_pairs if abs(e_val) < 1e-6]
+    non_zero_eigenspace = [(e_val, e_vec) for e_val, e_vec in e_pairs if abs(e_val) >= 1e-6]
+
+    if len(zero_eigenspace) == (3 if dim == 2 else 6):
+        return True, non_zero_eigenspace
+    else:
+        return False, zero_eigenspace
+
 
 if __name__ == "__main__":
-    points = np.array([[0, 0], [0, 1], [1, 1], [1, 0]]) * 20 + 5
-    edges = np.array([[0, 1], [1, 2], [2, 3], [3, 1]])
+    debugger = MyDebugger("test")
 
-    # points = np.array([[0, 0], [0, 1], [1, 0]]) * 20 + 5
-    # edges = np.array([[0, 1], [1, 2], [2, 0]])
+    #### Test data #1
+    # dimension = 2
+    # points = np.array([[0, 0], [1, 0], [0, 2], [0, 2]])
+    # edges = [(0, 1), (1, 2), (0, 3), (2, 3, 1.0, 0.0)]
+    # points_on_parts = {0: [0, 1], 1: [1, 2], 2: [0, 3]}
 
-    M = spring_energy_matrix(points, edges, dim=2)
-    # M = zhenyuan_method()
-    from util.geometry_util import eigen
+    #### Test data #2
+    dimension = 2
+    points = np.array([[0, 0], [1, 0], [0, 2]])
+    edges = [(0, 1), (1, 2), (2, 0)]
+    abstract_edges = []
+    points_on_parts = {0: [0, 1], 1: [1, 2], 2: [0, 2]}
 
-    pairs = eigen(M, symmetric=True)
-    for p in pairs:
-        print("======")
-        print(p[0])
-        points_before = points
-        points_after = points_before + 1 * p[1].reshape(-1, 2)
-        R, T = transform_matrix_fitting(points, points_after, dim=2)
-        for i, p in enumerate(points_before):
-            print("--")
-            u, p = polar(R)
-            print(u)  # the rotation part
-            print(p)  # the sheer, scaling, and other deforming parts
+    is_rigid, eigen_value_vectors = solve_rigidity(points, edges, dim=dimension)
 
-    print("variable number", M.shape[1])
-    print("matrix rank", matrix_rank(M))
+    print(is_rigid)

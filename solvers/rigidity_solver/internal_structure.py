@@ -28,6 +28,10 @@ def get_crystal_vertices(contact_pt: np.array, contact_orient: np.array):
     return [p0, p1, p2, p3, p4, p5, p6]
 
 
+# Requirements on the sample points and their connection:
+    # 1) respect symmetric property of the brick
+    # 2) self-rigid connection inside each brick
+    # 3) respect the joint property
 def structure_sampling(structure_graph: ConnectivityGraph):
     bricks = structure_graph.bricks
     points = []
@@ -39,10 +43,6 @@ def structure_sampling(structure_graph: ConnectivityGraph):
     for idx, b in enumerate(bricks):
         feature_points_on_brick[idx] = b.template.deg1_cpoint_indices()
 
-    # Requirements on the sample points and their connection:
-    # 1) respect symmetric property of the brick
-    # 2) self-rigid connection inside each brick
-    # 3) respect the joint property
     for edge in structure_graph.connect_edges:
         if edge["type"] == ConnType.HOLE_PIN.name:
             bi = edge["node_indices"][0]
@@ -113,7 +113,7 @@ def structure_sampling(structure_graph: ConnectivityGraph):
         if edge["type"] == ConnType.HOLE_AXLE.name:
             bi = edge["node_indices"][0]
             bj = edge["node_indices"][1]
-            contact_pt = edge["properties"]["contact_point"]
+            contact_pt     = edge["properties"]["contact_point"]
             contact_orient = edge["properties"]["contact_orient"]
 
             feature_points_on_brick[bi].discard(edge["cpoint_indices"][0])
@@ -169,8 +169,6 @@ def structure_sampling(structure_graph: ConnectivityGraph):
             direction_for_abstract_edge[points_base_index + 11] = p_vec1
             direction_for_abstract_edge[points_base_index + 13] = -p_vec1'''
 
-
-
     #### add additional sample points, by detecting if the connection points are already sampled
     for brick_id, c_id_set in feature_points_on_brick.items():
         brick = bricks[brick_id]
@@ -183,7 +181,6 @@ def structure_sampling(structure_graph: ConnectivityGraph):
             for i in range(7):
                 exec(f"points.append(p[{i}])")
                 points_on_brick[brick_id].append(point_idx_base + i)
-
 
     for value in points_on_brick.values():
         edges.extend(list(itertools.combinations(value, 2)))

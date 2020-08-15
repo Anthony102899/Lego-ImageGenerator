@@ -9,6 +9,7 @@ import util.geometry_util as geo_util
 import util.cuboid_geometry as cu_geo
 import itertools as iter
 import json
+from bricks_modeling.database.ldraw_colors import color_phraser
 
 def get_concave(
     brick_database=[
@@ -127,7 +128,8 @@ class BrickInstance:
 
         return conn_points
 
-    def get_mesh(self, color_dict):
+    def get_mesh(self):
+        color_dict = color_phraser()
         obj_file_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "database", "obj",f'{self.template.id + ".obj"}')
         mesh = o3d.io.read_triangle_mesh(
             obj_file_path
@@ -141,8 +143,9 @@ class BrickInstance:
         else:
             print("warning, no such color in ldview, print red")
             mesh.paint_uniform_color([1, 0, 0])
+        mesh.scale(2.5, center=(0, 0, 0))
         mesh.rotate(self.get_rotation().tolist(), [0, 0, 0])
-        mesh.translate([i / 2.5 for i in self.get_translation().tolist()])
+        mesh.translate([i for i in self.get_translation().tolist()])
         return mesh
 
 if __name__ == "__main__":
