@@ -55,9 +55,9 @@ def trivial_basis(points: np.ndarray) -> np.ndarray:
 def simulate_step(structure_graph: ConnectivityGraph, n: int, bricks, step_size=1):
     structure_graph.bricks = bricks
 
-    points, edges, points_on_brick, _ = structure_sampling(structure_graph)
+    points, edges, points_on_brick, direction_for_abstract_edge = structure_sampling(structure_graph)
 
-    M = spring_energy_matrix(points, edges)
+    M = spring_energy_matrix(points, edges, direction_for_abstract_edge)
 
     e_pairs = geo_util.eigen(M, symmetric=True)
 
@@ -103,7 +103,7 @@ def simulate_step(structure_graph: ConnectivityGraph, n: int, bricks, step_size=
 
 if __name__ == "__main__":
     debugger = MyDebugger("test")
-    bricks = read_bricks_from_file("./data/full_models/single_pin.ldr")
+    bricks = read_bricks_from_file("../../data/full_models/single_pin.ldr")
     write_bricks_to_file(
         bricks, file_path=debugger.file_path("model_loaded.ldr"), debug=False
     )
