@@ -1,11 +1,11 @@
 import copy
-
+import networkx as nx
+import os
+from util.debugger import MyDebugger
+import random
+import matplotlib.pyplot as plt
 import open3d as o3d
-
-from bricks_modeling.connectivity_graph import ConnectivityGraph
 from bricks_modeling.file_IO.model_reader import read_bricks_from_file
-from solvers.rigidity_solver.algo_core import spring_energy_matrix
-from solvers.rigidity_solver.internal_structure import structure_sampling
 import util.geometry_util as geo_util
 import numpy as np
 from numpy import linalg as LA
@@ -57,7 +57,7 @@ def get_bricks_meshes(bricks):
         meshs += brick.get_mesh()
     return meshs
 
-def visualize(points: np.array, lego_bricks = None, edges: List[Tuple] = None, arrows = None, show_axis = True):
+def visualize_3D(points: np.array, lego_bricks = None, edges: List[Tuple] = None, arrows = None, show_axis = True):
     hybrid_mesh = o3d.geometry.TriangleMesh()
     point_meshes = get_mesh_for_points(points)
     hybrid_mesh += point_meshes
@@ -80,13 +80,48 @@ def visualize(points: np.array, lego_bricks = None, edges: List[Tuple] = None, a
     else:
         o3d.visualization.draw_geometries([hybrid_mesh])
 
+def visualize_2D(points: np.array, edges: List[Tuple] = None, arrows = None):
+    # create Graph
+    G_symmetric = nx.Graph()
 
-if __name__ == "__main__":
+    edge_color = ["gray" for i in range(len(edges))]
+
+    # draw networks
+    G_symmetric.add_nodes_from([i for i in range(len(points))])
+    node_color = ["blue" for i in range(len(points))]
+    node_pos = [[p[0], p[1]] for p in points]
+
+    nx.draw_networkx(G_symmetric, pos=node_pos, node_size=10, node_color=node_color, width=0.7,
+                     edgelist=edges, edge_color=edge_color,
+                     with_labels=False, style = "solid")
+
+    if arrows is not None:
+        ax = plt.axes()
+        ax.autoscale(enable=True)
+        for i in range(len(points)):
+            p_start = points[i]
+            ax.arrow(p_start[0], p_start[1], arrows[i][0], arrows[i][1], head_width=0.05, head_length=0.1, fc='k', ec='k')
+
+    plt.axis([-1, 2, -1, 2])
+    ax.set_aspect('equal', adjustable='box')
+    plt.show()
+
+def show_3D_example():
     file_path = "../data/full_models/hinged_L.ldr"
     bricks = read_bricks_from_file(file_path)
 
     points = np.array([[0, 0, 0], [1, 0, 0], [0, 2, 0]])
     edges = [(0, 1), (1, 2), (2, 0)]
     vectors = np.array([[0, 0, 0.01], [0, 0, 0.01], [0, 0, 0.05]])
+    visualize_3D(points, lego_bricks=bricks, edges = edges, arrows=vectors, show_axis=True)
 
-    visualize(points, lego_bricks=bricks, edges = edges, arrows=vectors, show_axis=True)
+def show_2D_example():
+    points = np.array([[0, 0], [0.5, 0], [0, 0.5]])
+    edges = [(0, 1), (1, 2), (2, 0)]
+    vectors = np.array([[0, 0.1], [0, 0.1], [0, 0.1]])
+    visualize_2D(points, edges, vectors)
+
+if __name__ == "__main__":
+    # show_3D_example()
+    show_2D_example()
+
