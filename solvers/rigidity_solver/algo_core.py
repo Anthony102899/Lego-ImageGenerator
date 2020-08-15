@@ -10,7 +10,7 @@ import copy
 from typing import List
 import itertools
 from numpy import linalg as LA
-from numpy.linalg import inv
+from numpy.linalg import inv, matrix_rank
 from visualization.model_visualizer import visualize_3D, visualize_2D
 
 def rigidity_matrix(
@@ -116,12 +116,17 @@ def get_motions(eigen_pairs, dim):
     # in other words, the new vectors doesn't have any components (projection) in the span of the trivial basis
     reduced_zeroeigenspace = [geo_util.subtract_orthobasis(vec, basis) for vec in zeroeigenspace]
 
-    e_vec = reduced_zeroeigenspace[n]
-    e_vec = e_vec / LA.norm(e_vec)
+    motion_basis = geo_util.rref(reduced_zeroeigenspace)
 
-    delta_x = e_vec.reshape(-1, dim)
+    trivial_motion_dim = 3 if dim == 2 else 6
+    result_motions = []
+    for i in range(len(motion_basis) - trivial_motion_dim):
+        e_vec = motion_basis[i]
+        e_vec = e_vec / LA.norm(e_vec)
+        delta_x = e_vec.reshape(-1, dim)
+        result_motions.append(delta_x)
 
-    return delta_x
+    return result_motions
 
 def get_weakest_displacement(eigen_pairs, dim):
     e_val, e_vec = eigen_pairs[0]
@@ -131,25 +136,26 @@ if __name__ == "__main__":
     debugger = MyDebugger("test")
 
     #### Test data #1
-    dimension = 2
-    points = np.array([[0, 0], [1, 0], [0, 2], [0, 2]])
-    edges = [(0, 1), (1, 2), (0, 3)]
-    abstract_edges = [(2, 3, 1.0, 0.0)]
-    points_on_parts = {0: [0, 1], 1: [1, 2], 2: [0, 3]}
+    # dimension = 2
+    # points = np.array([[0, 0], [1, 0], [0, 2], [0, 2]])
+    # edges = [(0, 1), (1, 2), (0, 3)]
+    # abstract_edges = [(2, 3, 1.0, 0.0)]
+    # points_on_parts = {0: [0, 1], 1: [1, 2], 2: [0, 3]}
 
     #### Test data #2
-    # dimension = 2
-    # points = np.array([[0, 0], [1, 0], [0, 1]])
-    # edges = [(0, 1), (1, 2), (2, 0)]
-    # abstract_edges = []
-    # points_on_parts = {0: [0, 1], 1: [1, 2], 2: [0, 2]}
+    dimension = 2
+    points = np.array([[0, 0], [1, 0], [0, 1], [0, 1]])
+    edges = [(0, 1), (1, 2), (3,0)]
+    abstract_edges = []
+    points_on_parts = {0: [0, 1], 1: [1, 2], 2: [0, 2]}
 
     is_rigid, eigen_pairs = solve_rigidity(points, edges + abstract_edges, dim=dimension)
     if is_rigid:
         vec, value = get_weakest_displacement(eigen_pairs, dim=dimension)
+        visualize_2D(points, edges, vec)
     else:
         motion_vecs = get_motions(eigen_pairs, dim=dimension)
+        visualize_2D(points, edges, motion_vecs[0])
 
-    visualize_2D(points, edges, vec)
 
     print(is_rigid)

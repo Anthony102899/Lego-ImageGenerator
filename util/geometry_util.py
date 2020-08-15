@@ -212,12 +212,13 @@ def eigen(matrix: np.ndarray, symmetric: bool = True) -> List:
 
     return eigen_pairs
 
+
 def rref(matrix: np.ndarray) -> np.ndarray:
     """
     Return the reduced echelon form of a matrix
     """
     M = Matrix(matrix)
-    M_rref, pivot_indices = M.rref() # reduced row echelon form
+    M_rref, pivot_indices = M.rref(iszerofunc = lambda x: True if abs(x)<1e-9 else False) # reduced row echelon form
     return np.array(M_rref).astype(np.float64)
 
 def gen_random_rotation() -> np.ndarray:
