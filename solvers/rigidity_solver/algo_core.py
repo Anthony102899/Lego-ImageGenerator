@@ -39,6 +39,7 @@ def rigidity_matrix(
 def spring_energy_matrix(
     points: np.ndarray,
     edges: np.ndarray,
+    fixed_points_idx = [],
     dim: int = 3,
     matrices=False,
     ) -> np.ndarray:
@@ -90,8 +91,8 @@ def transform_matrix_fitting(points_start, points_end, dim=3):
     return M, T
 
 # to predict the rigidity of the structure
-def solve_rigidity(points: np.ndarray, edges: np.ndarray, dim: int = 3) -> (bool, List[np.ndarray]):
-    M = spring_energy_matrix(points, edges, dim)
+def solve_rigidity(points: np.ndarray, edges: np.ndarray, fixed_points = [], dim: int = 3) -> (bool, List[np.ndarray]):
+    M = spring_energy_matrix(points, edges, fixed_points, dim)
     e_pairs = geo_util.eigen(M, symmetric=True)
 
     # collect all eigen vectors with zero eigen value
@@ -144,12 +145,13 @@ if __name__ == "__main__":
 
     #### Test data #2
     dimension = 2
-    points = np.array([[0, 0], [1, 0], [0, 1], [0, 1]])
-    edges = [(0, 1), (1, 2), (3,0)]
+    points = np.array([[0, 0], [1, 0], [0, 1]])
+    fixed_points_index = [0,1]
+    edges = [(0, 1), (1, 2)]
     abstract_edges = []
     points_on_parts = {0: [0, 1], 1: [1, 2], 2: [0, 2]}
 
-    is_rigid, eigen_pairs = solve_rigidity(points, edges + abstract_edges, dim=dimension)
+    is_rigid, eigen_pairs = solve_rigidity(points, fixed_points_index, edges + abstract_edges, dim=dimension)
     if is_rigid:
         vec, value = get_weakest_displacement(eigen_pairs, dim=dimension)
         visualize_2D(points, edges, vec)
