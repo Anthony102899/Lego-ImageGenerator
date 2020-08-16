@@ -36,16 +36,39 @@ def rigidity_matrix(
     return R
 
 
+def _remove_fixed_points_edges(points: np.ndarray, edges: np.ndarray, fixed_points_idx, fixed_edges_idx):
+    """
+    subroutine used by spring_energy_matrix. remove the fixed points and edges by deleting them from inputs
+    """
+    if fixed_edges_idx != []:
+        fixed_points_idx = set(fixed_points_idx) | set(points[np.array(fixed_edges_idx)].flatten())
+
+    if len(fixed_points_idx) > 0:
+        points = np.delete(points, list(fixed_pts), axis=0)
+    if len(fixed_edges_idx) > 0:
+        edges = np.delete(edges, fixed_edges_idx, axis=0)
+
+    return points, edges
+
 def spring_energy_matrix(
     points: np.ndarray,
     edges: np.ndarray,
-    fixed_points_idx = [],
+    fixed_points_idx=None,
+    fixed_edges_idx=None,
     dim: int = 3,
     matrices=False,
     ) -> np.ndarray:
     """
+    fixed_points_idx: list of indices of points
+    fixed_edges_idx: list of indices of edges
     matrices: return K, P, A if true
     """
+
+    fixed_points_idx = [] if fixed_points_idx is None else fixed_points_idx
+    fixed_edges_idx  = [] if fixed_edges_idx  is None else fixed_edges_idx
+    # remove the fixed items by deleting them from inputs
+    points, edges = _remove_fixed_points_edges(points, edges, fixed_points_idx, fixed_edges_idx)
+
 
     K = np.zeros((len(edges), len(edges)))
     P = np.zeros((len(edges), len(edges) * dim))
@@ -72,7 +95,7 @@ def spring_energy_matrix(
     if matrices:
         return K, P, A
     else:
-        return A.T @ P.T @ K @ P @ A
+        return np.linalg.multi_dot([A.T, P.T, K, P, A])
 
 
 def transform_matrix_fitting(points_start, points_end, dim=3):
