@@ -35,39 +35,40 @@ def rigidity_matrix(
 
     return R
 
-
-def _remove_fixed_points_edges(points: np.ndarray, edges: np.ndarray, fixed_points_idx, fixed_edges_idx):
+def _remove_fixed_points_edges(points: np.ndarray, edges: np.ndarray, fixed_points_idx):
     """
     subroutine used by spring_energy_matrix. remove the fixed points and edges by deleting them from inputs
     """
-    if fixed_edges_idx != []:
-        fixed_points_idx = set(fixed_points_idx) | set(points[np.array(fixed_edges_idx)].flatten())
+    fixed_edges_idx = [
+        index
+        for index, (pt_a, pt_b) in enumerate(edges) 
+        if pt_a in fixed_points_idx and pt_b in fixed_points_idx
+    ]
 
     if len(fixed_points_idx) > 0:
-        points = np.delete(points, list(fixed_pts), axis=0)
+        points = np.delete(points, fixed_points_idx, axis=0)
     if len(fixed_edges_idx) > 0:
         edges = np.delete(edges, fixed_edges_idx, axis=0)
 
     return points, edges
 
+
 def spring_energy_matrix(
     points: np.ndarray,
     edges: np.ndarray,
     fixed_points_idx=None,
-    fixed_edges_idx=None,
     dim: int = 3,
     matrices=False,
     ) -> np.ndarray:
     """
-    fixed_points_idx: list of indices of points
-    fixed_edges_idx: list of indices of edges
+    fixed_points_idx: list of indices of points to be fixed
     matrices: return K, P, A if true
     """
 
-    fixed_points_idx = [] if fixed_points_idx is None else fixed_points_idx
-    fixed_edges_idx  = [] if fixed_edges_idx  is None else fixed_edges_idx
+    if fixed_points_idx is None:
+        fixed_points_idx = []
     # remove the fixed items by deleting them from inputs
-    points, edges = _remove_fixed_points_edges(points, edges, fixed_points_idx, fixed_edges_idx)
+    points, edges = _remove_fixed_points_edges(points, edges, fixed_points_idx)
 
 
     K = np.zeros((len(edges), len(edges)))
