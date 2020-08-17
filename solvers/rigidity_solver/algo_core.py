@@ -175,7 +175,7 @@ if __name__ == "__main__":
     abstract_edges = []
     points_on_parts = {0: [0, 1], 1: [1, 2], 2: [0, 2]}
 
-    is_rigid, eigen_pairs = solve_rigidity(points, fixed_points_index, edges + abstract_edges, dim=dimension)
+    is_rigid, eigen_pairs = solve_rigidity(points, edges + abstract_edges, fixed_points=fixed_points_index, dim=dimension)
     if is_rigid:
         vec, value = get_weakest_displacement(eigen_pairs, dim=dimension)
         visualize_2D(points, edges, vec)
