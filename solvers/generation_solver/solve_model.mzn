@@ -26,6 +26,8 @@ forall(e in EDGE_COLL) (
 include "connected.mzn";
 constraint connected(from_connect, to_connect, node, selected_edges);
 
+constraint node[1] = 1;
+
 %%%%%%%%%%%%%%%%%% objectives
 % calculate total brick volume
 var float : node_volume_obj = sum(n in NODE) (node[n] * node_volume[n] * flag[n]);
