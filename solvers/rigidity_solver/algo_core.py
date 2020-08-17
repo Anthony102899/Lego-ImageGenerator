@@ -10,12 +10,14 @@ import copy
 from typing import List
 import itertools
 from numpy import linalg as LA
-from numpy.linalg import inv
-from numpy.linalg import matrix_rank
-from scipy.linalg import polar
+from numpy.linalg import inv, matrix_rank
+from visualization.model_visualizer import visualize_3D, visualize_2D
 
-
-def rigidity_matrix(points: np.ndarray, edges: np.ndarray, dim: int) -> np.ndarray:
+def rigidity_matrix(
+    points: np.ndarray,
+    edges: np.ndarray,
+    dim: int
+    ) -> np.ndarray:
     """
     points: (n, d) array, n points in a d-dimensional space
     edges : (m, 2) array, m edges, store indices of the points they join
@@ -33,8 +35,42 @@ def rigidity_matrix(points: np.ndarray, edges: np.ndarray, dim: int) -> np.ndarr
 
     return R
 
+def _remove_fixed_points_edges(points: np.ndarray, edges: np.ndarray, fixed_points_idx):
+    """
+    subroutine used by spring_energy_matrix. remove the fixed points and edges by deleting them from inputs
+    """
+    fixed_edges_idx = [
+        index
+        for index, (pt_a, pt_b) in enumerate(edges) 
+        if pt_a in fixed_points_idx and pt_b in fixed_points_idx
+    ]
 
-def spring_energy_matrix(points: np.ndarray, edges: np.ndarray, direction_for_abstract_edge = None, dim: int = 3) -> np.ndarray:
+    if len(fixed_points_idx) > 0:
+        points = np.delete(points, fixed_points_idx, axis=0)
+    if len(fixed_edges_idx) > 0:
+        edges = np.delete(edges, fixed_edges_idx, axis=0)
+
+    return points, edges
+
+
+def spring_energy_matrix(
+    points: np.ndarray,
+    edges: np.ndarray,
+    fixed_points_idx=None,
+    dim: int = 3,
+    matrices=False,
+    ) -> np.ndarray:
+    """
+    fixed_points_idx: list of indices of points to be fixed
+    matrices: return K, P, A if true
+    """
+
+    if fixed_points_idx is None:
+        fixed_points_idx = []
+    # remove the fixed items by deleting them from inputs
+    points, edges = _remove_fixed_points_edges(points, edges, fixed_points_idx)
+
+
     K = np.zeros((len(edges), len(edges)))
     P = np.zeros((len(edges), len(edges) * dim))
     A = np.zeros((len(edges) * dim, len(points) * dim))
@@ -43,23 +79,24 @@ def spring_energy_matrix(points: np.ndarray, edges: np.ndarray, direction_for_ab
 
     # forming P and K
     for idx, e in enumerate(edges):
-        p1 = points[e[0]]
-        p2 = points[e[1]]
-        edge_vec = p1 - p2
-        if LA.norm(edge_vec) < 1e-6:
-            edge_vec = direction_for_abstract_edge[e[1]]
-        normalized_edge_vec = normalized(edge_vec)
-        P[idx][idx * dim : idx * dim + dim] = normalized_edge_vec.T
-        K[idx][idx] = 1 / LA.norm(edge_vec)  # set as the same material for now
-        # K[idx][idx] = 1  # set as the same material for now
+        if len(e) == 2:
+            edge_vec = points[e[0]] - points[e[1]]
+        else: # virtual edge
+            assert len(e) == 2 + dim
+            assert LA.norm(points[e[0]] - points[e[1]]) < 1e-6
+            edge_vec = np.array(e[2:])
+            edge_vec = normalized(edge_vec)/1e-4 # making the spring strong by shorter the edge
 
-    # forming A
-    for idx, e in enumerate(edges):
+        P[idx][idx * dim : idx * dim + dim] = normalized(edge_vec).T
+        K[idx][idx] = 1 / LA.norm(edge_vec)  # set as the same material for now
         for d in range(dim):
             A[dim * idx + d][dim * e[0] + d] = 1
             A[dim * idx + d][dim * e[1] + d] = -1
 
-    return A.T @ P.T @ K @ P @ A
+    if matrices:
+        return K, P, A
+    else:
+        return np.linalg.multi_dot([A.T, P.T, K, P, A])
 
 
 def transform_matrix_fitting(points_start, points_end, dim=3):
@@ -77,30 +114,74 @@ def transform_matrix_fitting(points_start, points_end, dim=3):
 
     return M, T
 
+# to predict the rigidity of the structure
+def solve_rigidity(points: np.ndarray, edges: np.ndarray, fixed_points = [], dim: int = 3) -> (bool, List[np.ndarray]):
+    M = spring_energy_matrix(points, edges, fixed_points, dim)
+    e_pairs = geo_util.eigen(M, symmetric=True)
+
+    # collect all eigen vectors with zero eigen value
+    zero_eigenspace     = [(e_val, e_vec) for e_val, e_vec in e_pairs if abs(e_val) < 1e-6]
+    non_zero_eigenspace = [(e_val, e_vec) for e_val, e_vec in e_pairs if abs(e_val) >= 1e-6]
+
+    if len(zero_eigenspace) == (3 if dim == 2 else 6):
+        return True, non_zero_eigenspace
+    else:
+        return False, zero_eigenspace
+
+
+# to get basis that forming the motion space
+def get_motions(eigen_pairs, dim):
+    # collect all eigen vectors with zero eigen value
+    zeroeigenspace = [e_vec for e_val, e_vec in eigen_pairs]
+
+    # Trivial basis -- orthonormalized translation along / rotation wrt 3 axes
+    basis = geo_util.trivial_basis(points, dim)
+
+    # cast the eigenvectors corresponding to zero eigenvalues into nullspace of the trivial basis,
+    # in other words, the new vectors doesn't have any components (projection) in the span of the trivial basis
+    reduced_zeroeigenspace = [geo_util.subtract_orthobasis(vec, basis) for vec in zeroeigenspace]
+
+    motion_basis = geo_util.rref(reduced_zeroeigenspace)
+
+    trivial_motion_dim = 3 if dim == 2 else 6
+    result_motions = []
+    for i in range(len(motion_basis) - trivial_motion_dim):
+        e_vec = motion_basis[i]
+        e_vec = e_vec / LA.norm(e_vec)
+        delta_x = e_vec.reshape(-1, dim)
+        result_motions.append(delta_x)
+
+    return result_motions
+
+def get_weakest_displacement(eigen_pairs, dim):
+    e_val, e_vec = eigen_pairs[0]
+    return e_vec.reshape(-1, dim), e_val
 
 if __name__ == "__main__":
-    points = np.array([[0, 0], [0, 1], [1, 1], [1, 0]]) * 20 + 5
-    edges = np.array([[0, 1], [1, 2], [2, 3], [3, 1]])
+    debugger = MyDebugger("test")
 
-    # points = np.array([[0, 0], [0, 1], [1, 0]]) * 20 + 5
-    # edges = np.array([[0, 1], [1, 2], [2, 0]])
+    #### Test data #1
+    # dimension = 2
+    # points = np.array([[0, 0], [1, 0], [0, 2], [0, 2]])
+    # edges = [(0, 1), (1, 2), (0, 3)]
+    # abstract_edges = [(2, 3, 1.0, 0.0)]
+    # points_on_parts = {0: [0, 1], 1: [1, 2], 2: [0, 3]}
 
-    M = spring_energy_matrix(points, edges, dim=2)
-    # M = zhenyuan_method()
-    from util.geometry_util import eigen
+    #### Test data #2
+    dimension = 2
+    points = np.array([[0, 0], [1, 0], [0, 1]])
+    fixed_points_index = [0,1]
+    edges = [(0, 1), (1, 2)]
+    abstract_edges = []
+    points_on_parts = {0: [0, 1], 1: [1, 2], 2: [0, 2]}
 
-    pairs = eigen(M, symmetric=True)
-    for p in pairs:
-        print("======")
-        print(p[0])
-        points_before = points
-        points_after = points_before + 1 * p[1].reshape(-1, 2)
-        R, T = transform_matrix_fitting(points, points_after, dim=2)
-        for i, p in enumerate(points_before):
-            print("--")
-            u, p = polar(R)
-            print(u)  # the rotation part
-            print(p)  # the sheer, scaling, and other deforming parts
+    is_rigid, eigen_pairs = solve_rigidity(points, fixed_points_index, edges + abstract_edges, dim=dimension)
+    if is_rigid:
+        vec, value = get_weakest_displacement(eigen_pairs, dim=dimension)
+        visualize_2D(points, edges, vec)
+    else:
+        motion_vecs = get_motions(eigen_pairs, dim=dimension)
+        visualize_2D(points, edges, motion_vecs[0])
 
-    print("variable number", M.shape[1])
-    print("matrix rank", matrix_rank(M))
+
+    print(is_rigid)

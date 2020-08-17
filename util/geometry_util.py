@@ -91,7 +91,7 @@ def get_perpendicular_vecs(vec: np.ndarray) -> np.ndarray:
 
 def project(v: np.ndarray, base: np.ndarray) -> np.ndarray:
     """
-    Project vector v on base. Return the projection
+    Project vector v on base. Return the projected vector
     """
     length = np.dot(v, base) / np.dot(base, base)
     return length * base
@@ -116,38 +116,50 @@ def orthonormalize(basis: np.ndarray) -> np.ndarray:
 
         U[k] = u[:]
 
-
     U_norm = U / LA.norm(U, axis=1)[:, np.newaxis] 
     return U_norm
 
-def trivial_basis(points: np.ndarray) -> np.ndarray:
+def decompose_on_orthobasis(vector, orthobasis):
+    projection_norms = np.apply_along_axis(lambda base: LA.norm(project(vector, base)), axis=1, arr=orthobasis)
+    return projection_norms
+
+def trivial_basis(points: np.ndarray, dim, orthonormal=True) -> np.ndarray:
     """
     Given n points in 3d space in form of a (n x 3) matrix, construct 6 'trivial' orthonormal vectors
     """
-    P = points.reshape((-1, 3))
+    assert dim in [2, 3]
+    P = points.reshape((-1, dim))
     n = len(P)
 
-    # translation along x, y, and z
-    translations = np.array([
-       [1, 0, 0] * n, 
-       [0, 1, 0] * n, 
-       [0, 0, 1] * n,
-    ])
+    # translation along x, y (and z if in 3d)
+    translations = np.hstack([np.identity(dim)] * n)
 
-    center = np.mean(P, axis=0)
-    P_shifted = P - center # make the rotation vectors orthogonal
+    # note that here we cast 2d points into 3d,
+    # this is to get the perpendicular vectors via cross product which has to be done in 3d
+    P_as3d = np.hstack((P, np.zeros((n, 1)))) if dim == 2 else P
+    center = np.mean(P_as3d, axis=0) 
+    P_shifted = P_as3d - center # centralize the object, to make the rotation vectors orthogonal
+
     x_axis, y_axis, z_axis = np.identity(3)
-    rotations = np.array([
-        np.cross(P_shifted, x_axis).reshape(-1),
-        np.cross(P_shifted, y_axis).reshape(-1),
-        np.cross(P_shifted, z_axis).reshape(-1),
-    ])
+
+    if dim == 3:
+        rotations = np.array([
+            np.cross(P_shifted, x_axis).reshape(-1),
+            np.cross(P_shifted, y_axis).reshape(-1),
+            np.cross(P_shifted, z_axis).reshape(-1),
+        ])
+    else: # dim == 2
+        # rotate wrt z_axis, discard the third dimension
+        rotated = np.cross(P_shifted, z_axis)[:, :dim]
+        rotations = rotated.reshape((1, -1))
 
     transformation = np.vstack((translations, rotations))
-    # row-wise normalize the vectors into orthonormal basis
-    basis = transformation / LA.norm(transformation, axis=1)[:, np.newaxis] 
-    orthonormal_basis = orthonormalize(basis)
-    return orthonormal_basis
+    # row-wise normalize the vectors so that each row is unitary
+    basis = rowwise_normalize(transformation)
+    if orthonormal:
+        return orthonormalize(basis)
+    else:
+        return basis
 
 def subtract_orthobasis(vector: np.ndarray, orthobasis: np.ndarray) -> np.ndarray:
     """
@@ -182,7 +194,7 @@ def points_span_dim(points: np.ndarray) -> bool:
     return min(rank, 3)
 
 
-def eigen(matrix: np.ndarray, symmetric: bool) -> List:
+def eigen(matrix: np.ndarray, symmetric: bool = True) -> List:
     """
     Compute eigenvalues/vectors, return a list of <eigenvalue, vector> pairs, sorted by the eigenvalue ascendingly
         symmetric: a boolean that indicates the input_images matrix is symmetric
@@ -200,12 +212,13 @@ def eigen(matrix: np.ndarray, symmetric: bool) -> List:
 
     return eigen_pairs
 
+
 def rref(matrix: np.ndarray) -> np.ndarray:
     """
     Return the reduced echelon form of a matrix
     """
     M = Matrix(matrix)
-    M_rref, pivot_indices = M.rref()[0] # reduced row echelon form
+    M_rref, pivot_indices = M.rref(iszerofunc = lambda x: True if abs(x)<1e-9 else False) # reduced row echelon form
     return np.array(M_rref).astype(np.float64)
 
 def gen_random_rotation() -> np.ndarray:

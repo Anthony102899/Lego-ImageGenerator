@@ -1,38 +1,38 @@
 import copy
-
+import networkx as nx
+import os
+from util.debugger import MyDebugger
+import random
+import matplotlib.pyplot as plt
 import open3d as o3d
-
-from bricks_modeling.connectivity_graph import ConnectivityGraph
-from bricks_modeling.file_IO.model_converter import color_phraser, ldr_to_obj
 from bricks_modeling.file_IO.model_reader import read_bricks_from_file
-from solvers.rigidity_solver.algo_core import spring_energy_matrix
-from solvers.rigidity_solver.internal_structure import structure_sampling
 import util.geometry_util as geo_util
 import numpy as np
 from numpy import linalg as LA
+from typing import List, Tuple
 
-def get_mesh_for_points(points):
-    sphere = o3d.geometry.TriangleMesh.create_sphere(radius=0.5, resolution=2)
+def get_mesh_for_points(points: List[np.ndarray]):
+    sphere = o3d.geometry.TriangleMesh.create_sphere(radius=3, resolution=8)
     sphere.compute_vertex_normals()
     sphere.paint_uniform_color([0.9, 0.1, 0.1])
     spheres = o3d.geometry.TriangleMesh()
 
     for b in points:
-        spheres += copy.deepcopy(sphere).translate((b/2.5).tolist())
+        spheres += copy.deepcopy(sphere).translate((b).tolist())
 
     return spheres
 
-def get_mesh_for_edges(points, edges):
+def get_lineset_for_edges(points, edges):
     colors = [[1, 0, 0] for i in range(len(edges))]
     line_set = o3d.geometry.LineSet(
-        points=o3d.utility.Vector3dVector(points/2.5),
+        points=o3d.utility.Vector3dVector(points),
         lines=o3d.utility.Vector2iVector(edges),
     )
     line_set.colors = o3d.utility.Vector3dVector(colors)
 
     return line_set
 
-def create_arrow_mesh(points, vectors):
+def get_mesh_for_arrows(points, vectors):
     arrows = o3d.geometry.TriangleMesh()
     for idx, p in enumerate(points):
         vec = vectors[idx]
@@ -44,98 +44,85 @@ def create_arrow_mesh(points, vectors):
                 cone_radius=0.35,
                 cylinder_height=400 * vec_len,
                 cone_height=8 * vec_len,
-                resolution=3,
+                resolution=5,
             )
-            vec = vec / np.linalg.norm(vec)
-            arrows += copy.deepcopy(arrow).translate(p/2.5).rotate(rot_mat, center=p/2.5).paint_uniform_color([(vec[0]+1)/2,(vec[1]+1)/2,(vec[2]+1)/2])
+            norm_vec = vec / np.linalg.norm(vec)
+            arrows += copy.deepcopy(arrow).translate(p).rotate(rot_mat, center=p)\
+                .paint_uniform_color([(norm_vec[0]+1)/2,(norm_vec[1]+1)/2,(norm_vec[2]+1)/2])
     return arrows
 
-
-def get_movement_direction(ldr_path, n:int, lzy_methoid=False):
-
-    bricks = read_bricks_from_file(ldr_path)
-
-    connect_graph = ConnectivityGraph(bricks)
-
-    points, edges, points_on_brick, direction_for_abstract_edge = structure_sampling(connect_graph)
-
-    M = spring_energy_matrix(points, edges, direction_for_abstract_edge)
-
-    e_vec = None
-
-    #TODO: Subetract meaningful eigenvecotrs
-    if lzy_methoid:
-        e_pairs = geo_util.eigen(M, symmetric=True)
-
-        # collect all eigen vectors with zero eigen value
-        zeroeigenspace = [e_vec for e_val, e_vec in e_pairs if abs(e_val) < 1e-15]
-
-        print("Number of points", len(points))
-        print(f"Number of zeroeigenspace;{len(zeroeigenspace)}")
-        # Trivial basis -- orthonormalized translation along / rotation wrt 3 axes
-        basis = geo_util.trivial_basis(points)
-
-        # cast the eigenvectors corresponding to zero eigenvalues into nullspace of the trivial basis,
-        # in other words, the new vectors doesn't have any components (projection) in the span of the trivial basis
-        reduced_zeroeigenspace = [geo_util.subtract_orthobasis(vec, basis) for vec in zeroeigenspace]
-
-        # count zero vectors in reduced eigenvectors
-        num_zerovectors = sum([np.isclose(vec, np.zeros_like(vec)).all() for vec in reduced_zeroeigenspace])
-        # In 3d cases, exactly 6 eigenvectors for eigenvalue 0 are reduced to zerovector.
-        #assert num_zerovectors == 6
-        print(num_zerovectors)
-        e_vec = reduced_zeroeigenspace[n]
-    else:
-        C = geo_util.eigen(M, symmetric=True)
-
-        e = C[n]
-        e_val, e_vec = e
-
-        print(f"The eigenvalue of dim {n} is {e_val}")
-
-    e_vec = e_vec / LA.norm(e_vec)
-    arrows = o3d.geometry.TriangleMesh()
-    delta_x = e_vec.reshape(-1, 3)
-    for i in range(len(connect_graph.bricks)):
-        indices_on_brick_i = np.array(points_on_brick[i])
-        point = points[indices_on_brick_i]
-        arrows += create_arrow_mesh(point,delta_x[indices_on_brick_i])
-
-    return arrows
-
-
-def sampling_method_meshs(ldr_path, show_origin_model=False):
-    color_dict = color_phraser()
-    bricks = read_bricks_from_file(ldr_path)
-    connect_graph = ConnectivityGraph(bricks)
-    points, edges, points_on_brick, direction_for_abstract_edge = structure_sampling(connect_graph)
-
+def get_bricks_meshes(bricks):
     meshs = o3d.geometry.TriangleMesh()
-    if show_origin_model:
-        for brick in bricks:
-            meshs += brick.get_mesh(color_dict)
-    line_set = get_mesh_for_edges(points, edges)
-    meshs += get_mesh_for_points(points)
-    return meshs, line_set
+    for brick in bricks:
+        meshs += brick.get_mesh()
+    return meshs
 
+def visualize_3D(points: np.array, lego_bricks = None, edges: List[Tuple] = None, arrows = None, show_axis = True):
+    hybrid_mesh = o3d.geometry.TriangleMesh()
+    point_meshes = get_mesh_for_points(points)
+    hybrid_mesh += point_meshes
 
+    if show_axis:
+        mesh_frame = o3d.geometry.TriangleMesh.create_coordinate_frame(size=10, origin=[0, 0, 0])
+        hybrid_mesh += mesh_frame
+
+    if lego_bricks is not None:
+        model_meshes = get_bricks_meshes(lego_bricks)
+        hybrid_mesh += model_meshes
+
+    if arrows is not None:
+        arrow_meshes = get_mesh_for_arrows(points, arrows)
+        hybrid_mesh += arrow_meshes
+
+    if edges is not None:
+        edge_line_set = get_lineset_for_edges(points, edges)
+        o3d.visualization.draw_geometries([hybrid_mesh, edge_line_set])
+    else:
+        o3d.visualization.draw_geometries([hybrid_mesh])
+
+def visualize_2D(points: np.array, edges: List[Tuple] = None, arrows = None):
+    # create Graph
+    G_symmetric = nx.Graph()
+
+    edge_color = ["gray" for i in range(len(edges))]
+
+    # draw networks
+    G_symmetric.add_nodes_from([i for i in range(len(points))])
+    node_color = ["blue" for i in range(len(points))]
+    node_pos = [[p[0], p[1]] for p in points]
+
+    nx.draw_networkx(G_symmetric, pos=node_pos, node_size=10, node_color=node_color, width=0.7,
+                     edgelist=edges, edge_color=edge_color,
+                     with_labels=False, style = "solid")
+
+    if arrows is not None:
+        ax = plt.axes()
+        ax.autoscale(enable=True)
+        for i in range(len(points)):
+            p_start = points[i]
+            ax.arrow(p_start[0], p_start[1], arrows[i][0], arrows[i][1], head_width=0.05, head_length=0.1, fc='k', ec='k')
+
+    xmin, xmax, ymin, ymax = plt.axis()
+    plt.axis([xmin - 1, xmax + 1, ymin - 1, ymax + 1])
+    ax.set_aspect('equal', adjustable='box')
+    plt.show()
+
+def show_3D_example():
+    file_path = "../data/full_models/hinged_L.ldr"
+    bricks = read_bricks_from_file(file_path)
+
+    points = np.array([[0, 0, 0], [1, 0, 0], [0, 2, 0]])
+    edges = [(0, 1), (1, 2), (2, 0)]
+    vectors = np.array([[0, 0, 0.01], [0, 0, 0.01], [0, 0, 0.05]])
+    visualize_3D(points, lego_bricks=bricks, edges = edges, arrows=vectors, show_axis=True)
+
+def show_2D_example():
+    points = np.array([[0, 0], [0.5, 0], [0, 0.5]])
+    edges = [(0, 1), (1, 2), (2, 0)]
+    vectors = np.array([[0, 0.1], [0, 0.1], [0, 0.1]])
+    visualize_2D(points, edges, vectors)
 
 if __name__ == "__main__":
-    path = "../data/full_models/example3_add_full.ldr"
-    meshs, line_set = sampling_method_meshs(path, show_origin_model=True)
-    #meshs = ldr_to_obj(path)
+    show_3D_example()
+    # show_2D_example()
 
-    '''for i in range(15,16):
-        arrows = o3d.geometry.TriangleMesh()
-        arrows += get_movement_direction(path,i, lzy_methoid=True)
-        meshscopy = copy.deepcopy(meshs)
-        meshscopy += arrows
-        meshscopy.compute_vertex_normals()
-        o3d.visualization.draw_geometries([meshscopy])'''
-
-    arrows = o3d.geometry.TriangleMesh()
-    arrows += get_movement_direction(path, 32, lzy_methoid=False)
-    meshscopy = copy.deepcopy(meshs)
-    meshscopy += arrows
-    meshscopy.compute_vertex_normals()
-    o3d.visualization.draw_geometries([meshscopy])

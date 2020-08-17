@@ -15,6 +15,7 @@ import util.geometry_util as geo_util
 from solvers.rigidity_solver.algo_core import (
     spring_energy_matrix,
     transform_matrix_fitting,
+    solve_rigidity
 )
 from solvers.rigidity_solver.internal_structure import structure_sampling
 import solvers.rigidity_solver.visualization as vis
@@ -74,7 +75,7 @@ def simulate_step(structure_graph: ConnectivityGraph, n: int, bricks, step_size=
     
     # count zero vectors in reduced eigenvectors
     num_zerovectors = sum([np.isclose(vec, np.zeros_like(vec)).all() for vec in reduced_zeroeigenspace])
-    # In 3d cases, exactly 6 eigenvectors for eigenvalue 0 are reduced to zerovector.
+    # In 3d cases, if the object only has 6 DOF, then exactly 6 eigenvectors for eigenvalue 0 are reduced to zerovector.
     assert num_zerovectors == 6
 
     e_vec = reduced_zeroeigenspace[n]
@@ -99,24 +100,11 @@ def simulate_step(structure_graph: ConnectivityGraph, n: int, bricks, step_size=
 
     return deformed_bricks
 
-
 if __name__ == "__main__":
     debugger = MyDebugger("test")
-    bricks = read_bricks_from_file("../../data/full_models/single_pin.ldr")
-    write_bricks_to_file(
-        bricks, file_path=debugger.file_path("model_loaded.ldr"), debug=False
-    )
+
+    bricks = read_bricks_from_file("./data/full_models/hole_axle_test.ldr")
     structure_graph = ConnectivityGraph(bricks)
+    points, edges, points_on_brick, abstract_edges = structure_sampling(structure_graph)
 
-
-    for dim in range(6):
-        d_bricks = copy.deepcopy(bricks)
-        total_bricks = d_bricks
-        for i in range(50):
-            print("simulation step", i, "...")
-            d_bricks = simulate_step(structure_graph, n=dim, bricks=d_bricks, step_size=1)
-            total_bricks += d_bricks
-
-        write_bricks_to_file(
-            total_bricks, file_path=debugger.file_path(f"simulation_{dim}.ldr"), debug=False
-        )
+    is_rigid, eigen_pairs = solve_rigidity(points, edges + abstract_edges, dim=3)
