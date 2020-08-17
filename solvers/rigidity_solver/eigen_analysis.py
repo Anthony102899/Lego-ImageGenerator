@@ -11,7 +11,7 @@ def get_motions(eigen_pairs, points, dim):
     basis = geo_util.trivial_basis(points, dim)
 
     # cast the eigenvectors corresponding to zero eigenvalues into nullspace of the trivial basis,
-    # in other words, the new vectors doesn't have any components (projection) in the span of the trivial basis
+    # in other words, the new vectors don't have any components (projection) in the span of the trivial basis
     reduced_zeroeigenspace = [geo_util.subtract_orthobasis(vec, basis) for vec in zeroeigenspace]
 
     motion_basis = geo_util.rref(reduced_zeroeigenspace)
