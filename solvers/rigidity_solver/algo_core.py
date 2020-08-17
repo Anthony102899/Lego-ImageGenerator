@@ -137,7 +137,7 @@ def solve_rigidity(points: np.ndarray, edges: np.ndarray, fixed_points = [], dim
             vector = np.insert(vector, index, values=0)
         return vector
 
-    # fill zeros at the indices of fixed_points
+    # fill zeros into the eigenvectors at indices of fixed_points
     e_pairs = [(e_val, fill_zeros_at_fixed_points(e_vec)) for e_val, e_vec in e_pairs]
 
     # collect all eigen vectors with zero eigen value

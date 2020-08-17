@@ -2,7 +2,7 @@ import util.geometry_util as geo_util
 from numpy import linalg as LA
 
 
-# to get basis that forming the motion space
+# to get basis forming the motion space
 def get_motions(eigen_pairs, points, dim):
     # collect all eigen vectors with zero eigen value
     zeroeigenspace = [e_vec for e_val, e_vec in eigen_pairs]
