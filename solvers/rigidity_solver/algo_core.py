@@ -39,6 +39,9 @@ def _remove_fixed_points_edges(points: np.ndarray, edges: np.ndarray, fixed_poin
     """
     subroutine used by spring_energy_matrix. remove the fixed points and edges by deleting them from inputs
     """
+    if len(fixed_points_idx) == 0:
+        return points, edges
+
     fixed_edges_idx = [
         index
         for index, (pt_a, pt_b) in enumerate(edges) 
@@ -129,33 +132,6 @@ def solve_rigidity(points: np.ndarray, edges: np.ndarray, fixed_points = [], dim
         return False, zero_eigenspace
 
 
-# to get basis that forming the motion space
-def get_motions(eigen_pairs, dim):
-    # collect all eigen vectors with zero eigen value
-    zeroeigenspace = [e_vec for e_val, e_vec in eigen_pairs]
-
-    # Trivial basis -- orthonormalized translation along / rotation wrt 3 axes
-    basis = geo_util.trivial_basis(points, dim)
-
-    # cast the eigenvectors corresponding to zero eigenvalues into nullspace of the trivial basis,
-    # in other words, the new vectors doesn't have any components (projection) in the span of the trivial basis
-    reduced_zeroeigenspace = [geo_util.subtract_orthobasis(vec, basis) for vec in zeroeigenspace]
-
-    motion_basis = geo_util.rref(reduced_zeroeigenspace)
-
-    trivial_motion_dim = 3 if dim == 2 else 6
-    result_motions = []
-    for i in range(len(motion_basis) - trivial_motion_dim):
-        e_vec = motion_basis[i]
-        e_vec = e_vec / LA.norm(e_vec)
-        delta_x = e_vec.reshape(-1, dim)
-        result_motions.append(delta_x)
-
-    return result_motions
-
-def get_weakest_displacement(eigen_pairs, dim):
-    e_val, e_vec = eigen_pairs[0]
-    return e_vec.reshape(-1, dim), e_val
 
 if __name__ == "__main__":
     debugger = MyDebugger("test")
