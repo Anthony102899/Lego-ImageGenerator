@@ -12,7 +12,7 @@ from numpy import linalg as LA
 from typing import List, Tuple
 
 def get_mesh_for_points(points: List[np.ndarray]):
-    sphere = o3d.geometry.TriangleMesh.create_sphere(radius=0.5, resolution=8)
+    sphere = o3d.geometry.TriangleMesh.create_sphere(radius=3, resolution=8)
     sphere.compute_vertex_normals()
     sphere.paint_uniform_color([0.9, 0.1, 0.1])
     spheres = o3d.geometry.TriangleMesh()
@@ -67,11 +67,11 @@ def visualize_3D(points: np.array, lego_bricks = None, edges: List[Tuple] = None
         hybrid_mesh += mesh_frame
 
     if lego_bricks is not None:
-        model_meshes = get_bricks_meshes(bricks)
+        model_meshes = get_bricks_meshes(lego_bricks)
         hybrid_mesh += model_meshes
 
     if arrows is not None:
-        arrow_meshes = get_mesh_for_arrows(points, vectors)
+        arrow_meshes = get_mesh_for_arrows(points, arrows)
         hybrid_mesh += arrow_meshes
 
     if edges is not None:
@@ -123,6 +123,6 @@ def show_2D_example():
     visualize_2D(points, edges, vectors)
 
 if __name__ == "__main__":
-    # show_3D_example()
-    show_2D_example()
+    show_3D_example()
+    # show_2D_example()
 
