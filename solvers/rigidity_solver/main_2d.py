@@ -12,7 +12,7 @@ import solvers.rigidity_solver.test_cases.cases_2D as cases2d
 if __name__ == "__main__":
     debugger = MyDebugger("test")
 
-    points, fixed_points_index, edges, abstract_edges = cases2d.case_1()
+    points, fixed_points_index, edges, abstract_edges = cases2d.case_6()
 
     is_rigid, eigen_pairs = solve_rigidity(points, edges + abstract_edges, fixed_points=fixed_points_index, dim=2)
 
@@ -20,7 +20,7 @@ if __name__ == "__main__":
         vec, value = get_weakest_displacement(eigen_pairs, dim=2)
         vis.visualize_2D(points, edges, vec)
     else:
-        motion_vecs = get_motions(eigen_pairs, dim=2)
+        motion_vecs = get_motions(eigen_pairs, points, dim=2)
         vis.visualize_2D(points, edges, motion_vecs[0])
 
     print(is_rigid)
