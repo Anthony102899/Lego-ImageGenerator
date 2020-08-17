@@ -130,34 +130,3 @@ def solve_rigidity(points: np.ndarray, edges: np.ndarray, fixed_points = [], dim
         return True, non_zero_eigenspace
     else:
         return False, zero_eigenspace
-
-
-
-if __name__ == "__main__":
-    debugger = MyDebugger("test")
-
-    #### Test data #1
-    # dimension = 2
-    # points = np.array([[0, 0], [1, 0], [0, 2], [0, 2]])
-    # edges = [(0, 1), (1, 2), (0, 3)]
-    # abstract_edges = [(2, 3, 1.0, 0.0)]
-    # points_on_parts = {0: [0, 1], 1: [1, 2], 2: [0, 3]}
-
-    #### Test data #2
-    dimension = 2
-    points = np.array([[0, 0], [1, 0], [0, 1]])
-    fixed_points_index = [0,1]
-    edges = [(0, 1), (1, 2)]
-    abstract_edges = []
-    points_on_parts = {0: [0, 1], 1: [1, 2], 2: [0, 2]}
-
-    is_rigid, eigen_pairs = solve_rigidity(points, edges + abstract_edges, fixed_points=fixed_points_index, dim=dimension)
-    if is_rigid:
-        vec, value = get_weakest_displacement(eigen_pairs, dim=dimension)
-        visualize_2D(points, edges, vec)
-    else:
-        motion_vecs = get_motions(eigen_pairs, dim=dimension)
-        visualize_2D(points, edges, motion_vecs[0])
-
-
-    print(is_rigid)
