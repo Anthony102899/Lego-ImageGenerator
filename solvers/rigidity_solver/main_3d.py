@@ -12,14 +12,16 @@ import solvers.rigidity_solver.test_cases.cases_3D as cases3d
 if __name__ == "__main__":
     debugger = MyDebugger("test")
 
-    bricks, points, edges, abstract_edges, points_on_brick = cases3d.case_1()
+    bricks, points, edges, abstract_edges, points_on_brick = cases3d.case_normal("hinged_L")
 
     is_rigid, eigen_pairs = solve_rigidity(points, edges + abstract_edges, dim=3)
 
     if is_rigid:
+        print("Rigid structure!")
         vec, value = get_weakest_displacement(eigen_pairs, dim=3)
         vis.visualize_3D(points, lego_bricks=bricks, edges=edges, arrows=vec)
     else:
+        print("non-Rigid structure!")
         motion_vecs = get_motions(eigen_pairs, points, dim=3)
         vis.visualize_3D(points, lego_bricks=bricks, edges=edges, arrows=motion_vecs[0])
 
