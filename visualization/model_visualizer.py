@@ -99,8 +99,9 @@ def visualize_2D(points: np.array, edges: List[Tuple] = None, arrows = None):
         ax = plt.axes()
         ax.autoscale(enable=True)
         for i in range(len(points)):
-            p_start = points[i]
-            ax.arrow(p_start[0], p_start[1], arrows[i][0], arrows[i][1], head_width=0.05, head_length=0.1, fc='k', ec='k')
+            if LA.norm(arrows[i]) > 1e-4:
+                p_start = points[i]
+                ax.arrow(p_start[0], p_start[1], arrows[i][0], arrows[i][1], head_width=0.05, head_length=0.1, fc='k', ec='k')
 
     xmin, xmax, ymin, ymax = plt.axis()
     plt.axis([xmin - 1, xmax + 1, ymin - 1, ymax + 1])
