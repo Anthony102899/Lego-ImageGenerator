@@ -18,14 +18,16 @@ from solvers.generation_solver.adjacency_graph import AdjacencyGraph
 from solvers.generation_solver.gurobi_solver import GurobiSolver
 from solvers.generation_solver.minizinc_solver import MinizincSolver
 
-brick_IDs = ["4733",
+brick_IDs = ["3005",
+             #"4733",
+             "3023",
              "3024",
-             "54200",
+             #"54200",
              #"3069",
              "3070",
-             "59900",
+             #"59900",
              #"3004",
-             #"3005",
+             "11477",
              #"4070", # cuboid
              #"4287", # slope
              #"3070", # plate
@@ -106,31 +108,34 @@ def read_bricks(path, debugger):
 if __name__ == "__main__":
     volume = get_volume()
     debugger = MyDebugger("test")
-    model_file = "solvers/generation_solver/solve_model.mzn"
+    model_file = "./solvers/generation_solver/solve_model.mzn"
 
-    """ option1: generate a new graph """
-    """
-    brick_set = get_brick_templates(brick_IDs)
-    bricks, structure_graph = generate_new(brick_set, num_rings=1, debugger=debugger)
-    """
-    """ option2: load an existing ldr file """
-    #path = "super_graph/" + "['3004', '4287'] 1.ldr"
-    #bricks, structure_graph = read_bricks(os.path.join(os.path.dirname(__file__), path), debugger)
-
-    """ option3: load a pkl file """
-    """ """
-    path1 = "solvers/generation_solver/connectivity/"
-    path = path1 + "['3004'] 1 t=2.15.pkl"
-    structure_graph = pickle.load(open(path, "rb"))
-    
-    _, filename = os.path.split(path)
-    filename = (filename.split(" t="))[0]
+    mode = int(input("Enter mode: "))
+    if mode == 1:
+        """ option1: generate a new graph """
+        brick_set = get_brick_templates(brick_IDs)
+        num_rings = int(input("Enter ring: "))
+        bricks, structure_graph = generate_new(brick_set, num_rings=num_rings, debugger=debugger)
+        filename = str(brick_IDs) + str(num_rings)
+    else:
+        if mode == 2: 
+            """ option2: load an existing ldr file """
+            path = "super_graph/" + input("Enter path in super_graph: ")
+            bricks, structure_graph = read_bricks(os.path.join(os.path.dirname(__file__), path), debugger)
+        elif mode == 3:
+            """ option3: load a pkl file """
+            path1 = "solvers/generation_solver/connectivity/"
+            path = path1 + input("Enter path in connectivity: ")
+            structure_graph = pickle.load(open(path, "rb"))
+        _, filename = os.path.split(path)
+        filename = (filename.split(" t="))[0]
     
     start_time = time.time()
-    solver = MinizincSolver(model_file, "gecode")
+    solver = MinizincSolver(model_file, "gurobi")
     results, time_used = solver.solve(structure_graph=structure_graph,
                                       node_volume=[volume[b.template.id] for b in structure_graph.bricks],
                                       flag=[int(f) for f in np.ones(len(structure_graph.bricks))])
+    
     selected_bricks = []
     for i in range(len(structure_graph.bricks)):
         if results[i] == 1:
