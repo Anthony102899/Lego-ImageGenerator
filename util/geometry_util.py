@@ -170,6 +170,19 @@ def subtract_orthobasis(vector: np.ndarray, orthobasis: np.ndarray) -> np.ndarra
     subtraction = vector - np.sum(projections, axis=0)
     return subtraction
 
+def is_subspace(zeroeigenspace, basis) -> bool:
+    """
+    Return if the space spanned by "basis" is a subspace of the space spanning by "zeroeigenspace"
+    """
+    for base in basis:
+        projected_vec = np.zeros_like(base)
+        for zero_base in zeroeigenspace:
+            projected_vec += project(base, zero_base)
+        if LA.norm(projected_vec-base) > 1e-5:
+            return False
+
+    return True
+
 def points_span_dim(points: np.ndarray) -> bool:
     """
     points: shape(n, 3)
