@@ -5,12 +5,14 @@ import trimesh
 from bricks_modeling.bricks.bricktemplate import BrickTemplate
 from bricks_modeling.connections.connpoint import CPoint
 from bricks_modeling.connections.conn_type import compute_conn_type
-import solvers.generation_solver.read_bbox as read_bbox
 from bricks_modeling.database.ldraw_colors import color_phraser
 import util.geometry_util as geo_util
 import util.cuboid_geometry as cu_geo
 import itertools as iter
 import json
+
+collider_path = "/Applications/Studio 2.0/ldraw/collider"
+connectivity_path = "/Applications/Studio 2.0/ldraw/connectivity"
 
 def get_concave(
     brick_database=[
@@ -57,12 +59,38 @@ class BrickInstance:
         else:
             return False
 
+    def get_bbox(self):
+        bbox = []
+        brick_id = self.template.id
+        brick_rot = self.get_rotation()
+        brick_trans = self.get_translation()
+        #print(brick.template.id)
+        #print("brick rot = \n", brick_rot)
+        #print("brick trans = ", brick_trans,"\n")
+        for line in open(os.path.join(collider_path, f"{brick_id}.col")):
+            line = (line.split(" "))[:17]
+            line = [float(x) for x in line]
+            init_orient = (np.array(line[2:11])).reshape((3,3))
+            #print("init_orient =\n", init_orient)
+            init_origin = np.array(line[11:14])
+            #print("init_origin = ", init_origin)
+            init_dim = init_orient @ np.array(line[14:17])  # in (x,y,z) format
+            #print("init_size = ", init_dim)
+
+            origin = brick_rot @ init_origin + brick_trans
+            #print("\norigin =\n", origin)
+            rotation = brick_rot @ init_orient
+            #print("rotation =\n", rotation)
+            dim = brick_rot @ init_dim
+            bbox.append({"Origin": origin, "Rotation": rotation, "Dimension": dim})
+        return bbox
+
     # return one of the spatial relation: {seperated, connected, collision, same(fully overlaped)}
     def collide(self, other):
         concave = get_concave()
         concave_connect = 0
-        self_bbox = read_bbox.get_bbox(self)
-        other_bbox = read_bbox.get_bbox(other)
+        self_bbox = self.get_bbox()
+        other_bbox = other.get_bbox()
         connect = 0
         for p_self, p_other in iter.product(self.get_current_conn_points(), other.get_current_conn_points()):
             if not compute_conn_type(p_self, p_other) == None:
@@ -160,8 +188,7 @@ if __name__ == "__main__":
     from bricks_modeling.file_IO.model_writer import write_bricks_to_file
     from bricks_modeling.connectivity_graph import ConnectivityGraph
 
-    # test the equal function
-    bricks = read_bricks_from_file("./debug/test1.ldr")
+    bricks = read_bricks_from_file("./debug/test.ldr")
     for i in range(len(bricks)):
         for j in range(len(bricks)):
             #print(f"{i}=={j}: ",bricks[i] == bricks[j])
