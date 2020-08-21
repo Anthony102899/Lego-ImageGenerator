@@ -12,7 +12,7 @@ import solvers.rigidity_solver.test_cases.cases_3D as cases3d
 if __name__ == "__main__":
     debugger = MyDebugger("test")
 
-    bricks, points, edges, abstract_edges, points_on_brick = cases3d.case_normal("hinged_L")
+    bricks, points, edges, abstract_edges, points_on_brick = cases3d.lego_models("hinged_L")
 
     is_rigid, eigen_pairs = solve_rigidity(points, edges + abstract_edges, dim=3)
 
