@@ -5,7 +5,7 @@ import trimesh
 from bricks_modeling.bricks.bricktemplate import BrickTemplate
 from bricks_modeling.connections.connpoint import CPoint
 from bricks_modeling.connections.conn_type import compute_conn_type
-from solvers.generation_solver.read_bbox import get_bbox
+import solvers.generation_solver.read_bbox as read_bbox
 from bricks_modeling.database.ldraw_colors import color_phraser
 import util.geometry_util as geo_util
 import util.cuboid_geometry as cu_geo
@@ -61,13 +61,13 @@ class BrickInstance:
     def collide(self, other):
         concave = get_concave()
         concave_connect = 0
-        self_bbox = get_bbox(self)
-        other_bbox = get_bbox(other)
+        self_bbox = read_bbox.get_bbox(self)
+        other_bbox = read_bbox.get_bbox(other)
         connect = 0
         for p_self, p_other in iter.product(self.get_current_conn_points(), other.get_current_conn_points()):
             if not compute_conn_type(p_self, p_other) == None:
                 connect = 1
-                if brick1.template.id in concave or brick2.template.id in concave:
+                if self.template.id in concave or other.template.id in concave:
                     concave_connect = 1
                 break
         for bb1, bb2 in iter.product(self_bbox, other_bbox):
@@ -159,11 +159,9 @@ if __name__ == "__main__":
     from bricks_modeling.file_IO.model_reader import read_bricks_from_file
     from bricks_modeling.file_IO.model_writer import write_bricks_to_file
     from bricks_modeling.connectivity_graph import ConnectivityGraph
-    from util.debugger import MyDebugger
 
     # test the equal function
-    #debugger = MyDebugger("test")
-    bricks = read_bricks_from_file(r"./debug/test.ldr")
+    bricks = read_bricks_from_file("./debug/test1.ldr")
     for i in range(len(bricks)):
         for j in range(len(bricks)):
             #print(f"{i}=={j}: ",bricks[i] == bricks[j])
