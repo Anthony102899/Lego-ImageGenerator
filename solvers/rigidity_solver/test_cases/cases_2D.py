@@ -15,7 +15,8 @@ def case_1_1():
     abstract_edges = []
     return points, fixed_points_index, edges, abstract_edges
 
-def case_1_2():
+# a rigid square
+def case_2():
     points = np.array([[0, 0], [1, 0], [1, 1], [0, 1]])
     fixed_points_index = []
     edges = [(0, 1), (1, 2), (2, 3), (3, 0), (0, 2)]
@@ -23,7 +24,7 @@ def case_1_2():
     return points, fixed_points_index, edges, abstract_edges
 
 # a hinge
-def case_2():
+def case_3():
     points = np.array([[0, 0], [1, 0], [0, 2]])
     fixed_points_index = []
     edges = [(0, 1), (0, 2)]
@@ -31,7 +32,7 @@ def case_2():
     return points, fixed_points_index, edges, abstract_edges
 
 # a hinge with one edge fiexed
-def case_3():
+def case_3_1():
     points = np.array([[0, 0], [1, 0], [0, 2]])
     fixed_points_index = [0, 1]
     edges = [(0, 1), (0, 2)]
@@ -47,7 +48,7 @@ def case_4():
     return points, fixed_points_index, edges, abstract_edges
 
 # a triangle with one point not connected and one edge fixed
-def case_5():
+def case_4_1():
     points = np.array([[0, 0], [1, 0], [0, 1],[0, 1]])
     fixed_points_index = [0, 1]
     edges = [(0, 1), (1, 2), (0, 3)]
@@ -55,15 +56,22 @@ def case_5():
     return points, fixed_points_index, edges, abstract_edges
 
 # a triangle with one point not connected and one edge fixed. The dangling point can slide over adjacent edge
-def case_6():
+def case_5():
     points = np.array([[0, 0], [1, 0], [0, 1],[0, 1]])
     fixed_points_index = [0, 1]
     edges = [(0, 1), (1, 2), (0, 3)]
     abstract_edges = [(2, 3, 1.0, 0.0)]
     return points, fixed_points_index, edges, abstract_edges
 
+def case_5_1():
+    points = np.array([[0, 0], [1, 0], [0, 1], [0, 1]])
+    fixed_points_index = [0, 1, 3]
+    edges = [(0, 1), (1, 2), (0, 3)]
+    abstract_edges = [(2, 3, 1.0, 0.0)]
+    return points, fixed_points_index, edges, abstract_edges
+
 # a bar-shaped truss structure
-def case_7():
+def case_6():
     length = 8
     points = [[i, 0] for i in range(length)]
     points += [[i, 1] for i in range(length)]
@@ -79,8 +87,25 @@ def case_7():
 
     return np.array(points), fixed_points_index, edges, abstract_edges
 
-# a rigid U shape
+# a triangular shaped truss structure
+def case_7():
+    pass
+
+# a pump mechanism
 def case_8():
+    pass
+
+# a robot leg
+def case_9():
+    pass
+
+# a robot leg
+def case_10():
+    pass
+
+
+# a rigid U shape
+def case_11():
     points = np.array([[0, 1], [0, -1], [1,-0.5], [1, 0.5], [10,-1], [10,1]])
     fixed_points_index = []
     edges = [(0, 1), (1, 2), (2, 0), (2,4), (1,4), (1,3), (0,3), (0,5), (3,5)]
@@ -88,7 +113,7 @@ def case_8():
     return points, fixed_points_index, edges, abstract_edges
 
 # another rigid U shape
-def case_8_1():
+def case_11_1():
     truss_length = 2
 
     points = [[0, 1], [0, -1], [1,-0.5], [1, 0.5], [10,-1], [10,1]]
