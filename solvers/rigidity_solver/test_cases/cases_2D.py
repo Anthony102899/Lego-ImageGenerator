@@ -99,9 +99,9 @@ def case_7():
 # a pump mechanism
 def case_8():
     points = np.array([[0, 0], [1, -1], [1, 1], [1, 1]])
-    fixed_points_index = [0, 3]
+    fixed_points_index = [1, 3]
     edges = [(0, 1), (0, 2)]
-    abstract_edges = [(2, 3, 0.0, 1.0)]
+    abstract_edges = [(2, 3, 1.0, 0.0)]
     return points, fixed_points_index, edges, abstract_edges
 
 # a robot leg
