@@ -145,7 +145,7 @@ def solve_rigidity(points: np.ndarray, edges: np.ndarray, fixed_points = [], dim
     zero_eigenspace     = [(e_val, e_vec) for e_val, e_vec in e_pairs if abs(e_val) < 1e-6]
     non_zero_eigenspace = [(e_val, e_vec) for e_val, e_vec in e_pairs if abs(e_val) >= 1e-6]
 
-    if len(zero_eigenspace) == 0 or len(zero_eigenspace) == (3 if dim == 2 else 6):
+    if len(zero_eigenspace) == 0 or (len(fixed_points) == 0 and len(zero_eigenspace) == (3 if dim == 2 else 6)):
         return True, non_zero_eigenspace
     else:
         return False, zero_eigenspace
