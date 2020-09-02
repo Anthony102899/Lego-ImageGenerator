@@ -15,11 +15,11 @@ from scipy.linalg import null_space
 from numpy.linalg import cholesky
 from numpy.linalg import inv
 
-def matrix_for_joint(jo1_pts, jo1_pts_idx, jo2_pts, jo2_pts_idx, points, forbidden_motions, dim = 2):
+def constraints_for_joints(jo1_pts, jo1_pts_idx, jo2_pts, jo2_pts_idx, points, forbidden_motions, fixed_points_index, dim = 2):
     points_num = len(points)
 
+    constraint_mat = np.zeros((len(forbidden_motions) + len(fixed_points_index) * dim, (len(jo2_pts) * dim)))
     project_mat = np.zeros((len(jo2_pts) * dim, points_num * dim))
-    constraint_mat = np.zeros((len(forbidden_motions), (len(jo2_pts) * dim)))
 
     basis1 = (jo1_pts[1] - jo1_pts[0]) / LA.norm(jo1_pts[1] - jo1_pts[0])
     basis2 = (jo1_pts[2] - jo1_pts[0]) / LA.norm(jo1_pts[2] - jo1_pts[0])
@@ -52,16 +52,37 @@ def matrix_for_joint(jo1_pts, jo1_pts_idx, jo2_pts, jo2_pts_idx, points, forbidd
                 constraint_mat[idx, j * dim]     = -projected_p_2
                 constraint_mat[idx, j * dim + 1] = projected_p_1
 
+    A = constraint_mat @ project_mat
+
+    for row, point_idx in enumerate(fixed_points_index):
+        A[len(forbidden_motions) + row*dim : len(forbidden_motions) + row*dim + dim, point_idx* dim : point_idx * dim + dim] = np.identity(dim)
+
     print(project_mat)
     print("")
     print(constraint_mat)
+    print("")
+    print(A)
 
-    B = null_space(constraint_mat @ project_mat)
+
+
+    B = null_space(A)
     T = np.transpose(B) @ B
     L = cholesky(T)
 
     return B, L
 
+
+def solve_rigidity_new(dim = 2):
+    global eigen_pairs
+    eigen_pairs = geo_util.eigen(inv(L).T @ S @ inv(L), symmetric=True)
+    eigen_pairs = [(e_val, B @ e_vec) for e_val, e_vec in eigen_pairs]
+    # collect all eigen vectors with zero eigen value
+    zero_eigenspace = [(e_val, e_vec) for e_val, e_vec in eigen_pairs if abs(e_val) < 1e-6]
+    non_zero_eigenspace = [(e_val, e_vec) for e_val, e_vec in eigen_pairs if abs(e_val) >= 1e-6]
+    if len(zero_eigenspace) == 0 or (len(zero_eigenspace) == (3 if dim == 2 else 6)):
+        return True, non_zero_eigenspace
+    else:
+        return False, zero_eigenspace
 
 
 if __name__ == "__main__":
@@ -71,15 +92,15 @@ if __name__ == "__main__":
 
     fixed_points_index.sort()
     M = spring_energy_matrix(points, edges, fixed_points_index, dim=2)
-    B, L = matrix_for_joint(points[0:3], list(range(0,3)),
+    B, L = constraints_for_joints(points[0:3], list(range(0, 3)),
                          points[3:6], list(range(3,6)),
-                         points,
-                         forbidden_motions = [("T", np.array([0,1])),("T", np.array([1,0])),("R", np.array([0,0]))]
-                         )
+                                  points,
+                                  forbidden_motions = [("T", np.array([0,1])),("T", np.array([1,0])),("R", np.array([0,0]))],
+                                  fixed_points_index = [0]
+                                  )
     S = B.T @ M @ B
 
-    eigen_pairs = geo_util.eigen(inv(L).T @ S @ inv(L), symmetric=True)
-    is_rigid = False
+    is_rigid, eigen_pairs = solve_rigidity_new()
 
     if is_rigid:
         vec, value = get_weakest_displacement(eigen_pairs, dim=2)
@@ -87,7 +108,7 @@ if __name__ == "__main__":
         # print(vec)
         vis.visualize_2D(points, edges, vec)
     else:
-        # motion_vecs = get_motions(eigen_pairs, points, dim=2)
-        vis.visualize_2D(points, edges, (B @ eigen_pairs[0][1]).reshape(-1, 2))
+        motion_vecs = get_motions(eigen_pairs, points, dim=2)
+        vis.visualize_2D(points, edges, motion_vecs[0])
 
     print("The structure is", "rigid" if is_rigid else "not rigid.")
