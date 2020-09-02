@@ -15,10 +15,10 @@ from scipy.linalg import null_space
 from numpy.linalg import cholesky
 from numpy.linalg import inv
 
-def constraints_for_joints(jo1_pts, jo1_pts_idx, jo2_pts, jo2_pts_idx, points, forbidden_motions, fixed_points_index, dim = 2):
+def constraints_for_joints(jo1_pts, jo1_pts_idx, jo2_pts, jo2_pts_idx, points, forbidden_motions, allowed_motions, fixed_points_index, dim = 2):
     points_num = len(points)
 
-    constraint_mat = np.zeros((len(forbidden_motions) + len(fixed_points_index) * dim, (len(jo2_pts) * dim)))
+    constraint_mat = np.zeros((5 + len(fixed_points_index) * dim, (len(jo2_pts) * dim)))
     project_mat = np.zeros((len(jo2_pts) * dim, points_num * dim))
 
     basis1 = (jo1_pts[1] - jo1_pts[0]) / LA.norm(jo1_pts[1] - jo1_pts[0])
@@ -36,21 +36,30 @@ def constraints_for_joints(jo1_pts, jo1_pts_idx, jo2_pts, jo2_pts_idx, points, f
         project_mat[i * dim + 1, idx_k * dim   : idx_k   * dim + dim] = np.transpose(points[jo2_idx] - points[idx_i])
         project_mat[i * dim + 1, idx_i * dim   : idx_i   * dim + dim] = np.transpose(points[idx_i] - points[jo2_idx] - basis2)
 
-    # assemble the constraint matrix
-    for idx, cons in enumerate(forbidden_motions):
-        if cons[0] == "T": # translation
-            projected_value_1 = np.transpose(cons[1]) @ basis1
-            projected_value_2 = np.transpose(cons[1]) @ basis2
-            for j in range(len(jo2_pts)):
-                constraint_mat[idx, j * dim]     = projected_value_1
-                constraint_mat[idx, j * dim + 1] = projected_value_2
-        elif cons[0] == "R":
-            for j in range(len(jo2_pts)):
-                rot_arm = jo2_pts[j] - cons[1]
-                projected_p_1 = np.transpose(rot_arm) @ basis1
-                projected_p_2 = np.transpose(rot_arm) @ basis2
-                constraint_mat[idx, j * dim]     = -projected_p_2
-                constraint_mat[idx, j * dim + 1] = projected_p_1
+    # assemble the constraint matrix via allowed motions
+    forbidden_motion_vecs = null_space(allowed_motions).T
+    for idx, motion_vec in enumerate(forbidden_motion_vecs):
+        for j in range(len(jo2_pts)):
+            projected_value_1 = np.transpose(motion_vec[j*dim : j*dim + dim]) @ basis1
+            projected_value_2 = np.transpose(motion_vec[j*dim : j*dim + dim]) @ basis2
+            constraint_mat[idx, j * dim]     = projected_value_1
+            constraint_mat[idx, j * dim + 1] = projected_value_2
+
+    ### assemble the matrix via forbidden motions
+    # for idx, constraints in enumerate(forbidden_motions):
+    #     if constraints[0] == "T": # translation
+    #         projected_value_1 = np.transpose(constraints[1]) @ basis1
+    #         projected_value_2 = np.transpose(constraints[1]) @ basis2
+    #         for j in range(len(jo2_pts)):
+    #             constraint_mat[idx, j * dim]     = projected_value_1
+    #             constraint_mat[idx, j * dim + 1] = projected_value_2
+    #     elif constraints[0] == "R":
+    #         for j in range(len(jo2_pts)):
+    #             rot_arm = jo2_pts[j] - constraints[1]
+    #             projected_p_1 = np.transpose(rot_arm) @ basis1
+    #             projected_p_2 = np.transpose(rot_arm) @ basis2
+    #             constraint_mat[idx, j * dim]     = -projected_p_2
+    #             constraint_mat[idx, j * dim + 1] = projected_p_1
 
     A = constraint_mat @ project_mat
 
@@ -62,7 +71,6 @@ def constraints_for_joints(jo1_pts, jo1_pts_idx, jo2_pts, jo2_pts_idx, points, f
     print(constraint_mat)
     print("")
     print(A)
-
 
 
     B = null_space(A)
@@ -96,7 +104,8 @@ if __name__ == "__main__":
                          points[3:6], list(range(3,6)),
                                   points,
                                   forbidden_motions = [("T", np.array([0,1])),("T", np.array([1,0])),("R", np.array([0,0]))],
-                                  fixed_points_index = [0]
+                                  allowed_motions = np.array([[0, 1, 0, 1, 0, 1]]),
+                                  fixed_points_index = [0,1,2]
                                   )
     S = B.T @ M @ B
 
