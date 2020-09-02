@@ -9,6 +9,11 @@ from solvers.rigidity_solver.eigen_analysis import get_motions, get_weakest_disp
 import solvers.rigidity_solver.test_cases.cases_2D as cases2d
 from solvers.rigidity_solver.algo_core import spring_energy_matrix
 import numpy as np
+import util.geometry_util as geo_util
+from numpy import linalg as LA
+from scipy.linalg import null_space
+from numpy.linalg import cholesky
+from numpy.linalg import inv
 
 def matrix_for_joint(jo1_pts, jo1_pts_idx, jo2_pts, jo2_pts_idx, points, forbidden_motions, dim = 2):
     points_num = len(points)
@@ -16,20 +21,20 @@ def matrix_for_joint(jo1_pts, jo1_pts_idx, jo2_pts, jo2_pts_idx, points, forbidd
     project_mat = np.zeros((len(jo2_pts) * dim, points_num * dim))
     constraint_mat = np.zeros((len(forbidden_motions), (len(jo2_pts) * dim)))
 
-    basis1 = jo1_pts[1] - jo1_pts[0]
-    basis2 = jo1_pts[2] - jo1_pts[0]
+    basis1 = (jo1_pts[1] - jo1_pts[0]) / LA.norm(jo1_pts[1] - jo1_pts[0])
+    basis2 = (jo1_pts[2] - jo1_pts[0]) / LA.norm(jo1_pts[2] - jo1_pts[0])
     idx_i, idx_j, idx_k = jo1_pts_idx[0], jo1_pts_idx[1], jo1_pts_idx[2]
 
     # assemble projection matrix
     for i in range(len(jo2_pts)):
         jo2_idx = jo2_pts_idx[i]
         project_mat[i * dim, jo2_idx * dim : jo2_idx * dim + dim ] = np.transpose(basis1)
-        project_mat[i * dim, idx_j * dim: idx_j * dim + dim] = np.transpose(points[jo2_idx] - points[idx_i])
-        project_mat[i * dim, idx_i * dim: idx_i * dim + dim] = np.transpose(points[idx_i] - points[jo2_idx] - basis1)
+        project_mat[i * dim, idx_j   * dim : idx_j   * dim + dim ] = np.transpose(points[jo2_idx] - points[idx_i])
+        project_mat[i * dim, idx_i   * dim : idx_i   * dim + dim ] = np.transpose(points[idx_i] - points[jo2_idx] - basis1)
 
         project_mat[i * dim + 1, jo2_idx * dim : jo2_idx * dim + dim ] = np.transpose(basis2)
-        project_mat[i * dim + 1, idx_k * dim: idx_k * dim + dim] = np.transpose(points[jo2_idx] - points[idx_i])
-        project_mat[i * dim + 1, idx_i * dim: idx_i * dim + dim] = np.transpose(points[idx_i] - points[jo2_idx] - basis2)
+        project_mat[i * dim + 1, idx_k * dim   : idx_k   * dim + dim] = np.transpose(points[jo2_idx] - points[idx_i])
+        project_mat[i * dim + 1, idx_i * dim   : idx_i   * dim + dim] = np.transpose(points[idx_i] - points[jo2_idx] - basis2)
 
     # assemble the constraint matrix
     for idx, cons in enumerate(forbidden_motions):
@@ -47,7 +52,16 @@ def matrix_for_joint(jo1_pts, jo1_pts_idx, jo2_pts, jo2_pts_idx, points, forbidd
                 constraint_mat[idx, j * dim]     = -projected_p_2
                 constraint_mat[idx, j * dim + 1] = projected_p_1
 
-    return constraint_mat @ project_mat
+    print(project_mat)
+    print("")
+    print(constraint_mat)
+
+    B = null_space(constraint_mat @ project_mat)
+    T = np.transpose(B) @ B
+    L = cholesky(T)
+
+    return B, L
+
 
 
 if __name__ == "__main__":
@@ -57,14 +71,15 @@ if __name__ == "__main__":
 
     fixed_points_index.sort()
     M = spring_energy_matrix(points, edges, fixed_points_index, dim=2)
-    B = matrix_for_joint(points[0:3], list(range(0,3)),
+    B, L = matrix_for_joint(points[0:3], list(range(0,3)),
                          points[3:6], list(range(3,6)),
                          points,
                          forbidden_motions = [("T", np.array([0,1])),("T", np.array([1,0])),("R", np.array([0,0]))]
                          )
+    S = B.T @ M @ B
 
-
-    is_rigid, eigen_pairs = solve_rigidity(points, edges + abstract_edges, fixed_points=fixed_points_index, dim=2)
+    eigen_pairs = geo_util.eigen(inv(L).T @ S @ inv(L), symmetric=True)
+    is_rigid = False
 
     if is_rigid:
         vec, value = get_weakest_displacement(eigen_pairs, dim=2)
@@ -72,7 +87,7 @@ if __name__ == "__main__":
         # print(vec)
         vis.visualize_2D(points, edges, vec)
     else:
-        motion_vecs = get_motions(eigen_pairs, points, dim=2)
-        vis.visualize_2D(points, edges, motion_vecs[0])
+        # motion_vecs = get_motions(eigen_pairs, points, dim=2)
+        vis.visualize_2D(points, edges, (B @ eigen_pairs[0][1]).reshape(-1, 2))
 
     print("The structure is", "rigid" if is_rigid else "not rigid.")
