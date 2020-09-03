@@ -188,7 +188,8 @@ def case_11_1():
     return np.array(points), fixed_points_index, edges, abstract_edges
 
 def case_seperate_parts():
-    points = np.array([[0, 0],[-1, 0], [0, 1]])
+    # points = np.array([[0, 0],[-1, 0], [0, 1]])
+    points = np.array([[-1, 0], [0, 0], [0, 1]])
     points = np.append(points, np.array([[1, 0], [2, 0], [1, 1], [2, 1]]), axis=0)
     fixed_points_index = []
     edges =  [(0, 1), (1, 2), (2, 0)]

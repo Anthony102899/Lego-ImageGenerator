@@ -14,6 +14,7 @@ from numpy import linalg as LA
 from scipy.linalg import null_space
 from numpy.linalg import cholesky
 from numpy.linalg import inv
+from numpy.linalg import matrix_rank
 
 def get_constraits_for_allowed_motions(allowed_motions, target_points, dim):
     allowed_motion_vecs = np.zeros((len(allowed_motions), len(target_points) * dim))
@@ -29,30 +30,67 @@ def get_constraits_for_allowed_motions(allowed_motions, target_points, dim):
 
     return null_space(allowed_motion_vecs).T
 
-def constraints_for_joints2(jo1_pts, jo1_pts_idx, jo2_pts, jo2_pts_idx, points, allowed_motions, fixed_points_index, dim = 2):
-    connection_mat  = np.zeros((len(jo2_pts) * dim, len(points)*dim))
+def constraints_for_joints(source_pts, source_pts_idx, target_pts, target_pts_idx, points, allowed_motions, fixed_points_index, dim = 2):
+    points_num = len(points)
 
-    forbidden_motion_vecs = get_constraits_for_allowed_motions(allowed_motions, jo2_pts, dim = 2)
-    constraints_mat = np.zeros((len(forbidden_motion_vecs) + len(fixed_points_index) * dim, len(jo2_pts) * dim))
-    constraints_mat[:forbidden_motion_vecs.shape[0], :forbidden_motion_vecs.shape[1]] = forbidden_motion_vecs
+    forbidden_motion_vecs = get_constraits_for_allowed_motions(allowed_motions, target_pts, dim=dim)
 
-    for i in range(len(jo2_pts)):
-        jo2_idx = jo2_pts_idx[i]
-        jo1_idx = jo1_pts_idx[i]
-        connection_mat[i * dim: i * dim + dim, jo2_idx * dim: jo2_idx * dim + dim] = np.identity(2)
-        connection_mat[i * dim: i * dim + dim, jo1_idx * dim: jo1_idx * dim + dim] = np.identity(2)
+    constraint_mat = np.zeros((len(forbidden_motion_vecs) + len(fixed_points_index) * dim, (len(target_pts) * dim)))
+    project_mat = np.zeros((len(target_pts) * dim, points_num * dim))
 
-    A = constraints_mat @ connection_mat
+    basis1 = (source_pts[1] - source_pts[0]) / LA.norm(source_pts[1] - source_pts[0])
+    basis2 = np.array([basis1[1], -basis1[0]])
+    idx_0, idx_1 = source_pts_idx[0], source_pts_idx[1]
 
+    # assemble projection matrix
+    for i in range(len(target_pts)):
+        jo2_idx = target_pts_idx[i]
+        # assembly the coordinate m
+        project_mat[i * dim, jo2_idx * dim : jo2_idx * dim + dim ] = np.transpose(basis1)
+        project_mat[i * dim, idx_0 * dim: idx_0 * dim + dim] = np.transpose(- points[jo2_idx])
+        project_mat[i * dim, idx_1   * dim : idx_1   * dim + dim ] = np.transpose(points[jo2_idx])
+
+        # assembly the coordinate n
+        project_mat[i * dim + 1, jo2_idx * dim : jo2_idx * dim + dim ] = np.transpose(basis2)
+        project_mat[i * dim, idx_0 * dim]     = np.transpose(- points[jo2_idx][1])
+        project_mat[i * dim, idx_0 * dim + 1] = np.transpose(points[jo2_idx][0])
+        project_mat[i * dim, idx_1 * dim]     = np.transpose(points[jo2_idx][1])
+        project_mat[i * dim, idx_1 * dim + 1] = np.transpose(-points[jo2_idx][0])
+
+    # assemble the constraint matrix via forbidden motion
+    for idx, motion_vec in enumerate(forbidden_motion_vecs):
+        for j in range(len(target_pts)):
+            projected_value_1 = np.transpose(motion_vec[j*dim : j*dim + dim]) @ basis1
+            projected_value_2 = np.transpose(motion_vec[j*dim : j*dim + dim]) @ basis2
+            constraint_mat[idx, j * dim]     = projected_value_1
+            constraint_mat[idx, j * dim + 1] = projected_value_2
+
+    A = constraint_mat @ project_mat
+
+    current_row = len(forbidden_motion_vecs)
+    # for fixed joints
     for row, point_idx in enumerate(fixed_points_index):
-        A[len(forbidden_motion_vecs) + row * dim: len(forbidden_motion_vecs) + row * dim + dim,
-        point_idx * dim: point_idx * dim + dim] = np.identity(dim)
+        A[current_row + row*dim : current_row + row*dim + dim, point_idx* dim : point_idx * dim + dim] = np.identity(dim)
+
+    # for fixed edge length
+    # A[current_row, source_pts_idx[0] * dim : source_pts_idx[0] * dim + dim] = np.transpose(source_pts[0])
+    # A[current_row, source_pts_idx[1] * dim : source_pts_idx[1] * dim + dim] = np.transpose(source_pts[1])
+    # current_row = current_row + 1
+    # A[current_row, target_pts_idx[0] * dim: target_pts_idx[0] * dim + dim] = np.transpose(target_pts[0])
+    # A[current_row, target_pts_idx[1] * dim: target_pts_idx[1] * dim + dim] = np.transpose(target_pts[1])
+
+    print(project_mat)
+    print("")
+    print(constraint_mat)
+    print("")
+    print(A)
 
     B = null_space(A)
     T = np.transpose(B) @ B
     L = cholesky(T)
 
-    return B, L
+    return B, T, L
+
 
 def solve_rigidity_new(dim = 2):
     global eigen_pairs
@@ -60,6 +98,7 @@ def solve_rigidity_new(dim = 2):
     eigen_pairs = [(e_val, B @ e_vec) for e_val, e_vec in eigen_pairs]
     # collect all eigen vectors with zero eigen value
     zero_eigenspace = [(e_val, e_vec) for e_val, e_vec in eigen_pairs if abs(e_val) < 1e-6]
+    print("DoF:", len(zero_eigenspace))
     non_zero_eigenspace = [(e_val, e_vec) for e_val, e_vec in eigen_pairs if abs(e_val) >= 1e-6]
     if len(zero_eigenspace) == 0 or (len(zero_eigenspace) == (3 if dim == 2 else 6)):
         return True, non_zero_eigenspace
@@ -74,13 +113,16 @@ if __name__ == "__main__":
 
     fixed_points_index.sort()
     M = spring_energy_matrix(points, edges, fixed_points_index, dim=2)
-    B, L = constraints_for_joints2(points[0:3], list(range(0, 3)),
-                                   points[3:6], list(range(3,6)),
-                                   points,
-                                   allowed_motions = [("R", np.array([0,1])), ("T", np.array([0,1])), ("T", np.array([1,0]))],
-                                   fixed_points_index = [0,1,2]
-                                   )
+    B, T, L = constraints_for_joints(points[0:2], list(range(0, 2)),
+                                  points[3:5], list(range(3, 5)),
+                                  points,
+                                  allowed_motions = np.array([("T", np.array([1,0]))]),
+                                  fixed_points_index = [1]
+                                  )
     S = B.T @ M @ B
+
+    print("T rank:", matrix_rank(T))
+    print("S rank:", matrix_rank(S))
 
     is_rigid, eigen_pairs = solve_rigidity_new()
 
