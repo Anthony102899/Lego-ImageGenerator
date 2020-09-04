@@ -17,8 +17,14 @@ from numpy.linalg import inv
 from numpy.linalg import matrix_rank
 
 def get_constraits_for_allowed_motions(allowed_motions, target_points, dim):
+    assert len(target_points) == 2
     allowed_motion_vecs = np.zeros((len(allowed_motions) + 1, len(target_points) * dim))
-    allowed_motion_vecs[0] = np.array([1,0,-1,0])
+
+    # allow changes of the distance between two points
+    dir_vec = (target_points[0] - target_points[1]) / LA.norm(target_points[0] - target_points[1])
+    allowed_motion_vecs[0, 0:2] = dir_vec.T
+    allowed_motion_vecs[0, 2:4] = -dir_vec.T
+
     for idx, constraint in enumerate(allowed_motions):
         if constraint[0] == "T": # translation
             for j in range(len(target_points)):
@@ -82,11 +88,7 @@ def constraints_for_joints(source_pts, source_pts_idx, target_pts, target_pts_id
     print(f"A: rank{matrix_rank(A)}")
     print(A)
 
-    B = null_space(A)
-    T = np.transpose(B) @ B
-    L = cholesky(T)
-
-    return B, T, L
+    return A
 
 
 def solve_rigidity_new(dim = 2):
@@ -106,18 +108,23 @@ def solve_rigidity_new(dim = 2):
 if __name__ == "__main__":
     debugger = MyDebugger("test")
 
-    points, fixed_points_index, edges, abstract_edges = cases2d.case_two_edges()
+    points, fixed_points_index, edges, joints = cases2d.case_8_new()
 
-    fixed_points_index.sort()
-    M = spring_energy_matrix(points, edges, fixed_points_index, dim=2)
+    M = spring_energy_matrix(points, edges, dim=2, fixed_points_idx = [])
 
-    B, T, L = constraints_for_joints(points[0:2], [0,1],
-                                     points[2:4], [2,3],
-                                     points,
-                                     # allowed_motions = np.array([("T", np.array([1,0])), ("R", np.array([0,1])), ("T", np.array([0,1]))]),
-                                     allowed_motions=np.array([]),
-                                     fixed_points_index = [3]
-                                     )
+    j = 0
+    eidx_1, eidx_2 = joints[j][0], joints[j][1]
+    e_1, e_2 = edges[eidx_1], edges[eidx_2]
+
+    A = constraints_for_joints(points[np.array(list(e_1))], list(e_1),
+                               points[np.array(list(e_2))], list(e_2),
+                               points,
+                               allowed_motions = joints[j][2],
+                               fixed_points_index = fixed_points_index
+                               )
+    B = null_space(A)
+    T = np.transpose(B) @ B
+    L = cholesky(T)
     S = B.T @ M @ B
 
     print("T rank:", matrix_rank(T))

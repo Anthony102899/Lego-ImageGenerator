@@ -186,11 +186,12 @@ def case_11_1():
     abstract_edges = []
 
     return np.array(points), fixed_points_index, edges, abstract_edges
+
 def case_two_edges():
     points = np.array([[-1, 0], [1, 0], [2, 0], [3, 0]])
     edges =  [(0, 1), (2, 3)]
     fixed_points_index = []
-    return points, fixed_points_index, edges, []
+    return points, fixed_points_index, edges
 
 def case_seperate_parts():
     # points = np.array([[0, 0],[-1, 0], [0, 1]])
@@ -200,5 +201,20 @@ def case_seperate_parts():
     edges =  [(0, 1), (1, 2), (2, 0)]
     edges += [(3, 4), (4, 5), (5, 3)]
     edges += [(5, 6), (4, 6)]
-    abstract_edges = []
-    return points, fixed_points_index, edges, abstract_edges
+    return points, fixed_points_index, edges
+
+# a pump mechanism in new format
+def case_8_new():
+    points = np.array([[1, -1], [0, 0], [1, 1], [1, 0.8], [1, 0], [1, 2]])
+    fixed_points_index = [0, 4, 5]
+    edges = [(0, 1), (1, 2), (2, 3), (4, 5)]
+    joints = [(2, 3, [("T", (0, 1))])]  # edge#1 and edge#2 can only "T"ranslate relative to each other in the direction (0,1)
+    return points, fixed_points_index, edges, joints
+
+# a pump mechanism in new format
+def case_simple():
+    points = np.array([[0, 0], [1, 1], [1, 0], [1, 2]])
+    edges = [(0, 1), (2, 3)]
+    fixed_points_index = [0, 2]
+    joints = [(0, 1, [("T", (0, 1))])]  # edge#1 and edge#2 can only "T"ranslate relative to each other in the direction (0,1)
+    return points, fixed_points_index, edges, joints
