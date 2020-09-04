@@ -39,7 +39,8 @@ def constraints_for_joints(source_pts, source_pts_idx, target_pts, target_pts_id
     constraint_mat = np.zeros((len(forbidden_motion_vecs) + len(fixed_points_index) * dim, (len(target_pts) * dim)))
     project_mat = np.zeros((len(target_pts) * dim, points_num * dim))
 
-    basis1 = (source_pts[1] - source_pts[0]) / LA.norm(source_pts[1] - source_pts[0])
+    b1_length = LA.norm(source_pts[1] - source_pts[0])
+    basis1 = (source_pts[1] - source_pts[0]) / b1_length
     basis2 = np.array([-basis1[1], basis1[0]])
     idx_0, idx_1 = source_pts_idx[0], source_pts_idx[1]
 
@@ -48,14 +49,14 @@ def constraints_for_joints(source_pts, source_pts_idx, target_pts, target_pts_id
         jo2_idx = target_pts_idx[i]
         # assembly the coordinate m
         project_mat[i * dim, jo2_idx * dim : jo2_idx * dim + dim ]  = np.transpose(basis1)
-        project_mat[i * dim, idx_0 * dim   : idx_0 * dim + dim] = np.transpose(points[idx_0] - points[jo2_idx] - basis1)
-        project_mat[i * dim, idx_1   * dim : idx_1   * dim + dim ] = np.transpose(points[jo2_idx] - points[idx_0])
+        project_mat[i * dim, idx_0 * dim   : idx_0 * dim + dim] = np.transpose((points[idx_0] - points[jo2_idx])/b1_length - basis1)
+        project_mat[i * dim, idx_1   * dim : idx_1   * dim + dim ] = np.transpose((points[jo2_idx] - points[idx_0])/b1_length)
 
         # assembly the coordinate n
-        vec = points[jo2_idx] - points[idx_0]
+        vec = (points[jo2_idx] - points[idx_0]) / b1_length
         project_mat[i * dim + 1, jo2_idx * dim : jo2_idx * dim + dim ] = np.transpose(basis2)
-        project_mat[i * dim + 1, idx_0 * dim]     = -vec[1] + basis2[0]
-        project_mat[i * dim + 1, idx_0 * dim + 1] =  vec[0] + basis2[1]
+        project_mat[i * dim + 1, idx_0 * dim]     = -vec[1] - basis2[0]
+        project_mat[i * dim + 1, idx_0 * dim + 1] =  vec[0] - basis2[1]
         project_mat[i * dim + 1, idx_1 * dim]     =  vec[1]
         project_mat[i * dim + 1, idx_1 * dim + 1] = -vec[0]
 
@@ -113,9 +114,9 @@ if __name__ == "__main__":
     B, T, L = constraints_for_joints(points[0:2], [0,1],
                                      points[2:4], [2,3],
                                      points,
-                                     # allowed_motions = np.array([("T", np.array([1,0])), ("R", np.array([0,1]))]),
+                                     # allowed_motions = np.array([("T", np.array([1,0])), ("R", np.array([0,1])), ("T", np.array([0,1]))]),
                                      allowed_motions=np.array([]),
-                                     fixed_points_index = [1]
+                                     fixed_points_index = [3]
                                      )
     S = B.T @ M @ B
 
