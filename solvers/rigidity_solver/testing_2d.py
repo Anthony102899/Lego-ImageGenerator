@@ -46,16 +46,17 @@ def constraints_for_joints(source_pts, source_pts_idx, target_pts, target_pts_id
     for i in range(len(target_pts)):
         jo2_idx = target_pts_idx[i]
         # assembly the coordinate m
-        project_mat[i * dim, jo2_idx * dim : jo2_idx * dim + dim ] = np.transpose(basis1)
-        project_mat[i * dim, idx_0 * dim: idx_0 * dim + dim] = np.transpose(- points[jo2_idx])
-        project_mat[i * dim, idx_1   * dim : idx_1   * dim + dim ] = np.transpose(points[jo2_idx])
+        project_mat[i * dim, jo2_idx * dim : jo2_idx * dim + dim ]  = np.transpose(basis1)
+        project_mat[i * dim, idx_0 * dim   : idx_0 * dim + dim] = np.transpose(points[idx_0] - points[jo2_idx] - basis1)
+        project_mat[i * dim, idx_1   * dim : idx_1   * dim + dim ] = np.transpose(points[jo2_idx] - points[idx_0])
 
         # assembly the coordinate n
         project_mat[i * dim + 1, jo2_idx * dim : jo2_idx * dim + dim ] = np.transpose(basis2)
-        project_mat[i * dim, idx_0 * dim]     = np.transpose(- points[jo2_idx][1])
-        project_mat[i * dim, idx_0 * dim + 1] = np.transpose(points[jo2_idx][0])
-        project_mat[i * dim, idx_1 * dim]     = np.transpose(points[jo2_idx][1])
-        project_mat[i * dim, idx_1 * dim + 1] = np.transpose(-points[jo2_idx][0])
+        vec = points[jo2_idx] - points[idx_0]
+        project_mat[i * dim, idx_0 * dim]     = -vec[1] + basis2[0]
+        project_mat[i * dim, idx_0 * dim + 1] =  vec[0] + basis2[1]
+        project_mat[i * dim, idx_1 * dim]     = vec[1]
+        project_mat[i * dim, idx_1 * dim + 1] = -vec[0]
 
     # assemble the constraint matrix via forbidden motion
     for idx, motion_vec in enumerate(forbidden_motion_vecs):
@@ -71,13 +72,6 @@ def constraints_for_joints(source_pts, source_pts_idx, target_pts, target_pts_id
     # for fixed joints
     for row, point_idx in enumerate(fixed_points_index):
         A[current_row + row*dim : current_row + row*dim + dim, point_idx* dim : point_idx * dim + dim] = np.identity(dim)
-
-    # for fixed edge length
-    # A[current_row, source_pts_idx[0] * dim : source_pts_idx[0] * dim + dim] = np.transpose(source_pts[0])
-    # A[current_row, source_pts_idx[1] * dim : source_pts_idx[1] * dim + dim] = np.transpose(source_pts[1])
-    # current_row = current_row + 1
-    # A[current_row, target_pts_idx[0] * dim: target_pts_idx[0] * dim + dim] = np.transpose(target_pts[0])
-    # A[current_row, target_pts_idx[1] * dim: target_pts_idx[1] * dim + dim] = np.transpose(target_pts[1])
 
     print(project_mat)
     print("")
@@ -117,7 +111,7 @@ if __name__ == "__main__":
                                   points[3:5], list(range(3, 5)),
                                   points,
                                   allowed_motions = np.array([("T", np.array([1,0]))]),
-                                  fixed_points_index = [1]
+                                  fixed_points_index = [3]
                                   )
     S = B.T @ M @ B
 
