@@ -5,7 +5,7 @@ import os
 from os.path import dirname as dir
 
 # a rigid triangle
-def case_normal(file_name):
+def lego_models(file_name):
     bricks = read_bricks_from_file(
         os.path.join(dir(dir(dir(dir(__file__)))), "data", "full_models", f"{file_name}.ldr")
     )
