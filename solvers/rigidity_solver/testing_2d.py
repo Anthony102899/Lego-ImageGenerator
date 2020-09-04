@@ -17,16 +17,17 @@ from numpy.linalg import inv
 from numpy.linalg import matrix_rank
 
 def get_constraits_for_allowed_motions(allowed_motions, target_points, dim):
-    allowed_motion_vecs = np.zeros((len(allowed_motions), len(target_points) * dim))
+    allowed_motion_vecs = np.zeros((len(allowed_motions) + 1, len(target_points) * dim))
+    allowed_motion_vecs[0] = np.array([1,0,-1,0])
     for idx, constraint in enumerate(allowed_motions):
         if constraint[0] == "T": # translation
             for j in range(len(target_points)):
-                allowed_motion_vecs[idx, j * dim : j * dim + 2] = constraint[1]
+                allowed_motion_vecs[idx+1, j * dim : j * dim + 2] = constraint[1]
         elif constraint[0] == "R":
             for j in range(len(target_points)):
                 rot_arm = target_points[j] - constraint[1]
-                allowed_motion_vecs[idx, j * dim]     = -rot_arm[1]
-                allowed_motion_vecs[idx, j * dim + 1] = rot_arm[0]
+                allowed_motion_vecs[idx+1, j * dim]     = -rot_arm[1]
+                allowed_motion_vecs[idx+1, j * dim + 1] = rot_arm[0]
 
     return null_space(allowed_motion_vecs).T
 
@@ -39,7 +40,7 @@ def constraints_for_joints(source_pts, source_pts_idx, target_pts, target_pts_id
     project_mat = np.zeros((len(target_pts) * dim, points_num * dim))
 
     basis1 = (source_pts[1] - source_pts[0]) / LA.norm(source_pts[1] - source_pts[0])
-    basis2 = np.array([basis1[1], -basis1[0]])
+    basis2 = np.array([-basis1[1], basis1[0]])
     idx_0, idx_1 = source_pts_idx[0], source_pts_idx[1]
 
     # assemble projection matrix
@@ -51,12 +52,12 @@ def constraints_for_joints(source_pts, source_pts_idx, target_pts, target_pts_id
         project_mat[i * dim, idx_1   * dim : idx_1   * dim + dim ] = np.transpose(points[jo2_idx] - points[idx_0])
 
         # assembly the coordinate n
-        project_mat[i * dim + 1, jo2_idx * dim : jo2_idx * dim + dim ] = np.transpose(basis2)
         vec = points[jo2_idx] - points[idx_0]
-        project_mat[i * dim, idx_0 * dim]     = -vec[1] + basis2[0]
-        project_mat[i * dim, idx_0 * dim + 1] =  vec[0] + basis2[1]
-        project_mat[i * dim, idx_1 * dim]     = vec[1]
-        project_mat[i * dim, idx_1 * dim + 1] = -vec[0]
+        project_mat[i * dim + 1, jo2_idx * dim : jo2_idx * dim + dim ] = np.transpose(basis2)
+        project_mat[i * dim + 1, idx_0 * dim]     = -vec[1] + basis2[0]
+        project_mat[i * dim + 1, idx_0 * dim + 1] =  vec[0] + basis2[1]
+        project_mat[i * dim + 1, idx_1 * dim]     =  vec[1]
+        project_mat[i * dim + 1, idx_1 * dim + 1] = -vec[0]
 
     # assemble the constraint matrix via forbidden motion
     for idx, motion_vec in enumerate(forbidden_motion_vecs):
@@ -73,10 +74,11 @@ def constraints_for_joints(source_pts, source_pts_idx, target_pts, target_pts_id
     for row, point_idx in enumerate(fixed_points_index):
         A[current_row + row*dim : current_row + row*dim + dim, point_idx* dim : point_idx * dim + dim] = np.identity(dim)
 
-    print(project_mat)
-    print("")
+    print(f"constraint matrix: rank{matrix_rank(constraint_mat)}")
     print(constraint_mat)
-    print("")
+    print(f"projection matrix: rank{matrix_rank(project_mat)}")
+    print(project_mat)
+    print(f"A: rank{matrix_rank(A)}")
     print(A)
 
     B = null_space(A)
@@ -103,16 +105,18 @@ def solve_rigidity_new(dim = 2):
 if __name__ == "__main__":
     debugger = MyDebugger("test")
 
-    points, fixed_points_index, edges, abstract_edges = cases2d.case_seperate_parts()
+    points, fixed_points_index, edges, abstract_edges = cases2d.case_two_edges()
 
     fixed_points_index.sort()
     M = spring_energy_matrix(points, edges, fixed_points_index, dim=2)
-    B, T, L = constraints_for_joints(points[0:2], list(range(0, 2)),
-                                  points[3:5], list(range(3, 5)),
-                                  points,
-                                  allowed_motions = np.array([("T", np.array([1,0]))]),
-                                  fixed_points_index = [3]
-                                  )
+
+    B, T, L = constraints_for_joints(points[0:2], [0,1],
+                                     points[2:4], [2,3],
+                                     points,
+                                     # allowed_motions = np.array([("T", np.array([1,0])), ("R", np.array([0,1]))]),
+                                     allowed_motions=np.array([]),
+                                     fixed_points_index = [1]
+                                     )
     S = B.T @ M @ B
 
     print("T rank:", matrix_rank(T))
