@@ -18,16 +18,18 @@ from solvers.generation_solver.adjacency_graph import AdjacencyGraph
 from solvers.generation_solver.gurobi_solver import GurobiSolver
 from solvers.generation_solver.minizinc_solver import MinizincSolver
 
-brick_IDs = ["3005",
+brick_IDs = [#"3005",
              #"4733",
              "3023",
              "3024",
-             #"54200",
-             #"3069",
-             "3070",
+             "54200",
+             "3069",
+             "4081b",
+             "4073",
+             #"3070",
              #"59900",
              #"3004",
-             "11477",
+             #"11477",
              #"4070", # cuboid
              #"4287", # slope
              #"3070", # plate
@@ -99,7 +101,7 @@ def generate_new(brick_set, num_rings, debugger):
 def read_bricks(path, debugger):
     bricks = read_bricks_from_file(path)
     _, filename = os.path.split(path)
-    filename = (filename.split("."))[0]
+    filename = (filename.split("t="))[0]
     start_time = time.time()
     structure_graph = AdjacencyGraph(bricks) 
     pickle.dump(structure_graph, open(os.path.join(os.path.dirname(__file__), f'connectivity/{filename} t={round(time.time() - start_time, 2)}.pkl'), "wb"))

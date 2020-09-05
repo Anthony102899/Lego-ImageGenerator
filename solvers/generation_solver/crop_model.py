@@ -9,6 +9,23 @@ from bricks_modeling.bricks.brickinstance import BrickInstance
 from multiprocessing import Pool
 from functools import partial
 
+collider_path = "/Applications/Studio 2.0/ldraw/collider"
+
+def get_p_pos(brick):
+    cp_pos = []
+    brick_id = brick.template.id
+    brick_rot = brick.get_rotation()
+    brick_trans = brick.get_translation()
+    for line in open(os.path.join(collider_path, f"{brick_id}.col")):
+        line = (line.split(" "))[:17]
+        line = [float(x) for x in line]
+        init_origin = np.array(line[11:14])
+        #print("init_origin = ", init_origin)
+        origin = brick_rot @ init_origin + brick_trans
+        #print("\norigin =\n", origin)
+        cp_pos.append(list(origin))
+    return cp_pos
+
 def brick_inside(brick, mesh):
     cpoint_pos = list(map(lambda cp: list(cp.pos), brick.get_current_conn_points()))  # position of cpoints of *brick*
     cpoint_inside = mesh.contains(cpoint_pos)
@@ -54,10 +71,10 @@ def crop_brick(mesh, tile_set, scale):
     result_crop = [b for b in result_crop if b]
     return result_crop
 
-if __name__ == "__main__": #"./debug/pikachu/pikachu.ply"#
-    obj_path = os.path.join(os.path.dirname(__file__), "super_graph/thick_porygon.ply")
+if __name__ == "__main__":
+    obj_path = os.path.join(os.path.dirname(__file__), "super_graph/thick_pikachu.ply")
     tile_path = os.path.join(os.path.dirname(__file__), 
-                "super_graph/3005+3023+3024+3070+59900/['3005', '3023', '3024', '3070', '59900']_5 n=3752 t=1009.46.ldr")
+                "super_graph/3005+4287/['3005', '4287'] 6 n=11209 t=30374.85.ldr")
     tile_set = read_bricks_from_file(tile_path)
     print("#bricks in tile: ", len(tile_set))
     mesh = trimesh.load_mesh(obj_path)
@@ -73,9 +90,9 @@ if __name__ == "__main__": #"./debug/pikachu/pikachu.ply"#
     end_time = time.time()
     print(f"resulting LEGO model has {len(result)} bricks")
 
-    _, filename=os.path.split(obj_path)
+    _, filename = os.path.split(obj_path)
     filename = (filename.split("."))[0]
-    _, tilename=os.path.split(tile_path)
+    _, tilename = os.path.split(tile_path)
     tilename = ((tilename.split("."))[0]).split(" ")
     tilename = tilename[0] + tilename[1]
     write_bricks_to_file(result, file_path=debugger.file_path(f"{filename} s={scale} n={len(result)} {tilename} t={round(end_time - start_time, 2)}.ldr"))
