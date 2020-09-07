@@ -30,5 +30,19 @@ def get_bbox(brick):
         bbox.append({"Origin": origin, "Rotation": rotation, "Dimension": init_dim})
     return bbox
 
+def get_cpoint(brick):
+    cps = []
+    brick_id = brick.template.id
+    brick_rot = brick.get_rotation()
+    brick_trans = brick.get_translation()
+    binFile = open(os.path.join(connectivity_path, f"{brick_id}.conn"),'rb')
+    
+    data = []
+    """ """
+    for line in binFile:
+        print(len(line))
+        print([line[i] for i in range(len(line))])
+
 if __name__ == "__main__":
-    bricks = (read_bricks_from_file("./debug/test1.ldr"))
+    bricks = (read_bricks_from_file("./debug/3005.ldr"))
+    #get_cpoint(bricks[0])
