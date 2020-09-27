@@ -2,6 +2,7 @@
   {
     "id": "4081b",
     "volume": 0.2825,
+    "concave": 1,
     "connPoint": [
       {
         "pos": [0,-2,0],

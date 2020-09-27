@@ -3,6 +3,7 @@ import open3d as o3d
 import trimesh
 
 from bricks_modeling.file_IO.model_reader import read_bricks_from_file
+from bricks_modeling.database.ldraw_colors import color_phraser
 from util.debugger import MyDebugger
 
 """
@@ -34,4 +35,4 @@ def ldr_to_obj(
     return meshs
 
 if __name__ == "__main__":
-    ldr_to_obj("./data/full_models/test_case_1.ldr", open3d_vis=True, write_file=False)
+    ldr_to_obj("/Users/wuyifan/lego-solver/debug/truck.ldr", write_file=True)
