@@ -69,11 +69,7 @@ class BrickGroup:
         bricks = []
         for bricktemplate in self.bricks:
             brick = copy.deepcopy(bricktemplate)
-            brick.rotate(trans_matrix[:3, :3])
-            brick.trans_matrix[:3, 3:4] = np.dot(
-                trans_matrix[:3, :3], brick.trans_matrix[:3, 3:4]
-            )
-            brick.translate(trans_matrix[:3, 3:4])
+            brick.trans_matrix = trans_matrix @ brick.trans_matrix
             bricks.append(brick)
 
         return bricks

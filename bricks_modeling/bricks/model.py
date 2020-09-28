@@ -25,15 +25,8 @@ def read_bricks_from_group(file: BrickGroup, trans_matrix, all_files):
 
     # read bricks of the sub groups
     for i in range(len(file.subgroups)):
-        new_trans_matrix = np.identity(4, dtype=float)
-        new_trans_matrix[:3, :3] = np.dot(
-            trans_matrix[:3, :3], (file.trans_matrix_for_subgroups[i])[:3, :3]
-        )
-        new_trans_matrix[:3, 3:4] = (
-            np.dot(trans_matrix[:3, :3],
-                (file.trans_matrix_for_subgroups[i])[:3, 3:4],
-            ) + trans_matrix[:3, 3:4]
-        )
+        matrix_for_subgroup = file.trans_matrix_for_subgroups[i]
+        new_trans_matrix = trans_matrix @ matrix_for_subgroup
         sub_file = all_files[file.subgroups[i]]
         bricks = bricks + read_bricks_from_group(sub_file, new_trans_matrix, all_files)
 
