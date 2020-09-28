@@ -65,14 +65,14 @@ def case_4_1():
 
 # a triangle with one point not connected and one edge fixed. The dangling point can slide over adjacent edge
 def case_5():
-    points = np.array([[0, 0], [1, 0], [0.03, 1],[0, 1]])
+    points = np.array([[0, 0], [1, 0], [0, 0.90],[0, 1]])
     fixed_points_index = [0, 1]
     edges = [(0, 1), (1, 2), (0, 3)]
     joints = [(2, [2], [("T", (0, 1))])]
     return points, fixed_points_index, edges, joints
 
 def case_5_1():
-    points = np.array([[0, 0], [1, 0], [0.03, 1],[0, 1]])
+    points = np.array([[0, 0], [1, 0], [0, 0.90],[0, 1]])
     fixed_points_index = [0, 1, 3]
     edges = [(0, 1), (1, 2), (0, 3)]
     joints = [(2, [2], [("T", (0, 1))])]
@@ -132,7 +132,7 @@ def case_9():
     return points, fixed_points_index, edges, joints
 
 def case_10():
-    height = 3
+    height = 5
     points = [[1,1],[0,2],[2,2],[2,0],[0,6],[2,6],[1,4],[0,10],[2,10],[1,8],[0,14],[2,14],[1,12],[0,18],[2,18],[1,16],[0,22],[2,22],[1,20],[0,26],[2,26],[1,24],
                        [6,0],[6,2],[4,1],[10,0],[10,2],[8,1],[14,0],[14,2],[12,1],[18,0],[18,2],[16,1],[22,0],[22,2],[20,1],[26,0],[26,2],[24,1]]
     fixed_points_index = []
@@ -184,7 +184,7 @@ def case_11():
 
 # another rigid U shape
 def case_11_1():
-    truss_length = 2
+    truss_length = 5
 
     points = [[0, 1], [0, -1], [1,-0.5], [1, 0.5], [10,-1], [10,1]]
     origin_length = len(points)
