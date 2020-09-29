@@ -14,7 +14,7 @@ class Model:
     def is_empty(self):
         return len(self.groups) == 0
 
-    def traverse_model(self):
+    def get_bricks(self):
         bricks = read_bricks_from_group(self.get_root_file(), np.identity(4, dtype=float), self.groups)
         return bricks
 

@@ -1,4 +1,4 @@
-from bricks_modeling.file_IO.model_writer import write_bricks_to_file_for_instruction
+from bricks_modeling.file_IO.model_writer import write_bricks_to_file_with_steps
 from util.debugger import MyDebugger
 import os
 import csv

@@ -1,4 +1,4 @@
-from bricks_modeling.file_IO.model_writer import write_bricks_to_file_for_instruction
+from bricks_modeling.file_IO.model_writer import write_bricks_to_file_with_steps
 from util.debugger import MyDebugger
 import os
 import csv
@@ -88,7 +88,7 @@ if __name__ == "__main__":
         #         if b.template.id == "3941":
         #             b.color = 72
 
-        write_bricks_to_file_for_instruction(
+        write_bricks_to_file_with_steps(
             ordered_bricks,
             file_path=debugger.file_path(f"complete_{int(model[0])}.ldr"),
             texture_brick_strs=texture_brick_strs

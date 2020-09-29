@@ -8,6 +8,7 @@ class BrickGroup:
     def __init__(self, name):
         self.name = name
         self.bricks = []
+        self.brick_steps = []
         self.subgroups = []
         self.trans_matrix_for_subgroups = []
 

@@ -15,7 +15,7 @@ import os
 def read_model_from_file(file_path, read_fake_bricks=False):
     if not os.path.exists(file_path):
         print("file not exist!")
-        exit(9)
+        exit(7)
 
     f = open(file_path, "r")
     brick_templates, template_ids = get_all_brick_templates()
@@ -47,7 +47,7 @@ def read_model_from_file(file_path, read_fake_bricks=False):
 def read_bricks_from_file(file_path, read_fake_bricks=False):
     print(f"reading file: {file_path}...")
     hierarchy_model = read_model_from_file(file_path, read_fake_bricks)
-    return hierarchy_model.traverse_model()
+    return hierarchy_model.get_bricks()
 
 if __name__ == "__main__":
     bricks = read_bricks_from_file("../../data/full_models/F-Long-Hair.ldr")
