@@ -28,17 +28,19 @@ def read_model_from_file(file_path, read_fake_bricks=False):
     for line in lines:
         line_content = line.rstrip().split(" ")
 
-        if is_file_name(line_content):
+        if is_file_name_annotation(line_content):
             file_name = get_file_name(line_content).lower()
             print(f"Read a new file {file_name}")
             current_file = model.groups[file_name]
         elif is_a_brick(line_content, group_names):
-            current_file.read_a_brick(
+            current_file.add_brick(
                 line_content, brick_templates, template_ids, read_fake_bricks
             )
         elif is_brick_group(line_content, group_names):
             print("parts group: ", line_content)
-            current_file.add_an_internal_file(line_content)
+            current_file.add_a_subgroup(line_content)
+        elif is_step_annotation(line_content):
+            current_file.add_a_step()
         else:
             print(f"unknown condition for line:{line}")
             pass

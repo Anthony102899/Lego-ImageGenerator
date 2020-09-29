@@ -1,4 +1,4 @@
-from bricks_modeling.file_IO.model_writer import write_bricks_to_file_with_steps
+from bricks_modeling.file_IO.model_writer import write_bricks_to_file_with_steps, write_model_to_file
 from util.debugger import MyDebugger
 import os
 import csv
@@ -18,4 +18,5 @@ if __name__ == "__main__":
     debugger = MyDebugger("brick_heads")
     file_path = r"data/full_models/hierarchy_test.ldr"
     model = read_model_from_file(file_path, read_fake_bricks=True)
-    write_bricks_to_file_with_steps(model.get_bricks(), debugger.file_path(f"complete.ldr"))
+    write_bricks_to_file_with_steps(model.get_bricks(), debugger.file_path(f"complete_bricks.ldr"))
+    write_model_to_file(model, debugger.file_path(f"complete_full.ldr"))

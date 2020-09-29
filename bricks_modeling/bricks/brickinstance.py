@@ -10,6 +10,7 @@ import util.geometry_util as geo_util
 import util.cuboid_geometry as cu_geo
 import itertools as iter
 import json
+from bricks_modeling.file_IO.util import to_ldr_format
 
 def get_concave(
     brick_database=[
@@ -75,14 +76,7 @@ class BrickInstance:
         return -1
 
     def to_ldraw(self):
-        text = (
-            f"1 {self.color} {self.trans_matrix[0][3]} {self.trans_matrix[1][3]} {self.trans_matrix[2][3]} "
-            + f"{self.trans_matrix[0][0]} {self.trans_matrix[0][1]} {self.trans_matrix[0][2]} "
-            + f"{self.trans_matrix[1][0]} {self.trans_matrix[1][1]} {self.trans_matrix[1][2]} "
-            + f"{self.trans_matrix[2][0]} {self.trans_matrix[2][1]} {self.trans_matrix[2][2]} "
-            + f"{self.template.id}.dat"
-        )
-        return text
+        return to_ldr_format(self.color, self.trans_matrix, f"{self.template.id}.dat")
 
     def rotate(self, rot_mat):
         self.trans_matrix[:3, :3] = np.dot(rot_mat, self.trans_matrix[:3, :3])

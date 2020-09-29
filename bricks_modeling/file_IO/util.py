@@ -1,12 +1,6 @@
 import copy
 import math
 import numpy as np
-from bricks_modeling.bricks.brick_factory import get_all_brick_templates
-from bricks_modeling.bricks.brickinstance import BrickInstance
-from bricks_modeling.file_IO import model_writer
-from util.debugger import MyDebugger
-from bricks_modeling.bricks.bricktemplate import BrickTemplate
-from bricks_modeling.bricks.brick_group import BrickGroup
 
 def read_all_subgroup_names(file_path):
     f = open(file_path, "r")
@@ -42,8 +36,11 @@ def get_brick_name(line_content):
 def is_file_declaration(line_content):
     return line_content
 
-def is_file_name(line_content):
+def is_file_name_annotation(line_content):
     return line_content[0] == "0" and line_content[1] == "FILE"
+
+def is_step_annotation(line_content):
+    return line_content[0] == "0" and line_content[1].lower() == "step"
 
 def is_a_brick(line_content, files_name):
     return line_content[0] == "1" and get_brick_name(line_content) not in files_name
@@ -51,7 +48,12 @@ def is_a_brick(line_content, files_name):
 def is_brick_group(line_content, files_name):
     return line_content[0] == "1" and get_brick_name(line_content) in files_name
 
-def read_bricks_from_graph(bricks, file_tree):
-    # nodes = find_roots(files)
-    file = file_tree.get_root_file()
-    read_file_from_rootfile(bricks, file, np.identity(4, dtype=float), file_tree.files)
+def to_ldr_format(color, trans_matrix, part_id):
+    text = (
+            f"1 {color} {trans_matrix[0][3]} {trans_matrix[1][3]} {trans_matrix[2][3]} "
+                    + f"{trans_matrix[0][0]} {trans_matrix[0][1]} {trans_matrix[0][2]} "
+                    + f"{trans_matrix[1][0]} {trans_matrix[1][1]} {trans_matrix[1][2]} "
+                    + f"{trans_matrix[2][0]} {trans_matrix[2][1]} {trans_matrix[2][2]} "
+                    + f"{part_id}"
+    )
+    return text
