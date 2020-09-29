@@ -51,6 +51,7 @@ def write_model_to_file(model: Model, file_path):
                 color     = brick_step.subgroups_colors[i]
                 trans_mat = brick_step.subgroups_transformation[i]
                 ldr_content += (to_ldr_format(color, trans_mat, name) + "\n")
+        ldr_content += f"0 NOFILE\n"
 
     file.write(ldr_content)
     file.close()

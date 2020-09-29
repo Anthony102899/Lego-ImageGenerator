@@ -31,11 +31,7 @@ class BrickStep:
             self, line_content, brick_templates, template_ids, read_fake_brick=False
     ):
         brick_id = line_content[-1][0:-4]
-        # processing brick color
-        if line_content[1].isdigit():
-            color = int(line_content[1])
-        else:
-            color = line_content[1]
+        color = int(line_content[1])
 
         translate = np.zeros((3, 1))
         for j in range(3):

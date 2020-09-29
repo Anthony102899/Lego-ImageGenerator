@@ -18,7 +18,7 @@ def read_all_subgroup_names(file_path):
 
     return group_names
 
-def get_file_name(line_content):
+def get_group_name(line_content):
     assert line_content[0] == "0" and line_content[1] == "FILE"
     file_name = " ".join(line_content[2:])
     return file_name

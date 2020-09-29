@@ -22,14 +22,16 @@ def read_model_from_file(file_path, read_fake_bricks=False):
     group_names = read_all_subgroup_names(file_path)
     model = Model(group_names)
 
-    current_file = model.get_root_file()
+    current_file = model.get_root_group()
 
     lines = f.readlines()
     for line in lines:
         line_content = line.rstrip().split(" ")
+        if len(line_content) <= 1:
+            continue
 
         if is_file_name_annotation(line_content):
-            file_name = get_file_name(line_content).lower()
+            file_name = get_group_name(line_content).lower()
             print(f"Read a new file {file_name}")
             current_file = model.groups[file_name]
         elif is_a_brick(line_content, group_names):

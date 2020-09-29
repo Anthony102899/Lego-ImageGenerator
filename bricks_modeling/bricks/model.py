@@ -8,14 +8,14 @@ class Model:
         self.group_names = group_names
         self.groups = {name: BrickGroup(name) for name in group_names}
 
-    def get_root_file(self) -> BrickGroup:
+    def get_root_group(self) -> BrickGroup:
         return self.groups[self.main_model_name]
 
     def is_empty(self):
         return len(self.groups) == 0
 
     def get_bricks(self):
-        bricks = get_all_bricks_from_current_group(self.get_root_file(), np.identity(4, dtype=float), self.groups)
+        bricks = get_all_bricks_from_current_group(self.get_root_group(), np.identity(4, dtype=float), self.groups)
         return bricks
 
 def get_all_bricks_from_current_group(current_brick_group: BrickGroup, trans_matrix, all_subgroups):
