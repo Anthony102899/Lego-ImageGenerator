@@ -16,6 +16,6 @@ We assume the following information is provided:
 
 if __name__ == "__main__":
     debugger = MyDebugger("brick_heads")
-    file_path = r"data/full_models/hierarchy_test_simple.ldr"
+    file_path = r"data/full_models/hierarchy_test.ldr"
     bricks = read_bricks_from_file(file_path, read_fake_bricks=True)
     write_bricks_to_file_for_instruction(bricks, debugger.file_path(f"complete.ldr"))
