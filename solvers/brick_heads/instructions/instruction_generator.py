@@ -1,8 +1,6 @@
 from bricks_modeling.bricks.model import Model
 from bricks_modeling.file_IO.util import to_ldr_format
 
-
-
 def write_model_to_file(model: Model, file_path):
     file = open(file_path, "a")
     ldr_content = ""
