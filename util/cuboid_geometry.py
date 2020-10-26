@@ -15,7 +15,7 @@ def collision_detect(ref_corner, cuboid_corner):
     z_collide = collide_check(np.min(ref_corner[:, 2]), np.max(ref_corner[:, 2]), np.min(cuboid_corner[:, 2]), np.max(cuboid_corner[:, 2]))
 
     return (x_collide and y_collide and z_collide)
-
+    
 def cub_collision_detect(cuboid_ref, cuboid):
     corner_transform = np.array([[1, 1, 1], [1, -1, 1], [-1, -1, 1], [-1, 1, 1], [1, 1, -1], [1, -1, -1], [-1, -1, -1], [-1, 1, -1]])
     projection_matrix = np.array([[1, 0, 0], [0, 1, 0], [0, 0, 1]])  # information of the projection axis
@@ -44,8 +44,8 @@ def cub_collision_detect(cuboid_ref, cuboid):
     ref_center = np.array([cuboid_ref["Dimension"][0] / 2, cuboid_ref["Dimension"][1] / 2, cuboid_ref["Dimension"][2] / 2])
     ref_corner_relative = (np.tile(ref_center, (8, 1))) * corner_transform    
     # Add origin & rotation to get the absolute coordinates of each corner point
-    ref_corners_pos = ref_corner_relative  + np.array(cuboid_ref["Origin"])
-    cub_corners_pos = cuboid_corner_relative  + np.array(cuboid["Origin"])
+    ref_corners_pos = np.array(rotation_ref @ ref_corner_relative.transpose()).transpose() + np.array(cuboid_ref["Origin"])
+    cub_corners_pos = np.array(rotation_cub @ cuboid_corner_relative.transpose()).transpose() + np.array(cuboid["Origin"])
     
     for axis in projection_axis:
         cub_corners_proj = cub_corners_pos @ axis.T

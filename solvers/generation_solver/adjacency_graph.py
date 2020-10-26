@@ -1,8 +1,8 @@
+import numpy as np
+from util.debugger import MyDebugger
 import itertools
 import json
-import numpy as np
 import pickle5 as pickle
-from util.debugger import MyDebugger
 import time
 from bricks_modeling.file_IO.model_reader import read_bricks_from_file
 import open3d as o3d
@@ -16,12 +16,6 @@ import os
 """
 To use a graph to describe a LEGO structure
 """
-
-def f(x, b_i):
-    if x[0] == b_i:
-        return x[1]
-    if x[1] == b_i:
-        return x[0]
 
 class AdjacencyGraph:
     def __init__(self, bricks):
@@ -38,10 +32,9 @@ class AdjacencyGraph:
         print("#tiles after filtring repeat:", len(self.bricks))
 
     def build(self, b_i, b_j):
-        collide = self.bricks[b_i].collide(self.bricks[b_j])
-        if collide == 1:
+        if self.bricks[b_i].collide(self.bricks[b_j]):
             return (b_i, b_j), 1
-        elif collide == 0:
+        elif self.bricks[b_i].connect(self.bricks[b_j]):
             return (b_i, b_j), 0
         return None, -1
 
@@ -55,8 +48,6 @@ class AdjacencyGraph:
                 self.overlap_edges.extend([x[0]])
             elif x[1] == 0:
                 self.connect_edges.extend([x[0]])
-
-
 
     def to_json(self):
         nodes = []
@@ -106,7 +97,7 @@ class AdjacencyGraph:
         o3d.visualization.draw_geometries([mesh_frame, line_set, spheres])
 
 if __name__ == "__main__":
-    path = "solvers/generation_solver/super_graph/['3004'] 1.ldr"
+    path = "solvers/generation_solver/super_graph/['3004'] 2.ldr"
     bricks = read_bricks_from_file(path)
     _, filename = os.path.split(path)
     filename = (filename.split("."))[0]

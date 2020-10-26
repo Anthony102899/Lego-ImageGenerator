@@ -1,7 +1,6 @@
 import os
 from bricks_modeling.file_IO.model_reader import read_bricks_from_file
 from solvers.generation_solver.tile_graph import find_brick_placements
-from solvers.generation_solver.crop_model import crop_brick
 from util.debugger import MyDebugger
 from bricks_modeling.file_IO.model_writer import write_bricks_to_file
 from bricks_modeling.bricks.brick_factory import get_all_brick_templates
@@ -15,17 +14,16 @@ import time
 import pickle5 as pickle
 from util.geometry_util import get_random_transformation
 from solvers.generation_solver.adjacency_graph import AdjacencyGraph
-from solvers.generation_solver.gurobi_solver import GurobiSolver
 from solvers.generation_solver.minizinc_solver import MinizincSolver
 
 brick_IDs = [#"3005",
              #"4733",
-             "3023",
+             #"3023",
              #"3024",
-             #"54200",
+             "54200",
              #"3069b",
              "4081b",
-             "6141",
+             #"6141",
              #"3623",
              #"3070",
              #"59900",
@@ -55,21 +53,6 @@ def get_volume(
             volume.update({brick["id"]: brick["volume"]})
     return volume
 
-def crop(debugger, tile_set, tilename):
-    obj_path = os.path.join(os.path.dirname(__file__), "super_graph/bunny.obj")
-    mesh = trimesh.load(obj_path)
-    flip = np.array([[-1, 0, 0, 0], [0, -1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]])
-    mesh.apply_transform(flip)
-    scale = float(input("Enter scale of obj: "))
-    start_time = time.time()
-    result = crop_brick(mesh, tile_set, scale)
-    print(f"resulting LEGO model has {len(result)} bricks")
-
-    _, filename=os.path.split(obj_path)
-    filename = (filename.split("."))[0]
-    write_bricks_to_file(result, file_path=debugger.file_path(f"{filename} s={int(scale)} n={len(result)} {tilename} t={round(time.time() - start_time, 2)}.ldr"))
-    return result
-
 def get_brick_templates(brick_IDs):
     brick_templates, template_ids = get_all_brick_templates()
     bricks = []
@@ -87,17 +70,12 @@ def generate_new(brick_set, num_rings, debugger):
     start_time = time.time()
     seed_brick = copy.deepcopy(brick_set[0])
     bricks = find_brick_placements(
-        num_rings, base_tile=seed_brick, tile_set=brick_set, initial_time=start_time
-        )
+        num_rings, base_tile=seed_brick, tile_set=brick_set, initial_time=start_time)
     print(f"generate finished in {round(time.time() - start_time, 2)}")
     print(f"number of tiles neighbours in ring{num_rings}:", len(bricks))
     write_bricks_to_file(
-        bricks, file_path=debugger.file_path(f"{brick_IDs} n={len(bricks)} r={num_rings} t={round(time.time() - start_time, 2)}.ldr")
-        )
-    start_time = time.time()
-    structure_graph = AdjacencyGraph(bricks)  
-    pickle.dump(structure_graph, open(os.path.join(os.path.dirname(__file__), f'connectivity/{brick_IDs} n={len(bricks)} r={num_rings} t={round(time.time() - start_time, 2)}.pkl'), "wb"))
-    return bricks, structure_graph
+        bricks, file_path=debugger.file_path(f"{brick_IDs} n={len(bricks)} r={num_rings} t={round(time.time() - start_time, 2)}.ldr"))
+    return bricks, []
 
 def read_bricks(path, debugger):
     bricks = read_bricks_from_file(path)
@@ -110,17 +88,19 @@ def read_bricks(path, debugger):
 
 if __name__ == "__main__":
     volume = get_volume()
-    debugger = MyDebugger("test")
     model_file = "./solvers/generation_solver/solve_model.mzn"
 
     mode = int(input("Enter mode: "))
     if mode == 1:
         """ option1: generate a new graph """
+        debugger = MyDebugger("gen")
         brick_set = get_brick_templates(brick_IDs)
         num_rings = int(input("Enter ring: "))
         bricks, structure_graph = generate_new(brick_set, num_rings=num_rings, debugger=debugger)
         filename = str(brick_IDs) + str(num_rings)
+        exit()
     else:
+        debugger = MyDebugger("solve")
         if mode == 2: 
             """ option2: load an existing ldr file """
             path = "super_graph/" + input("Enter path in super_graph: ")

@@ -26,7 +26,9 @@ forall(e in EDGE_COLL) (
 include "connected.mzn";
 constraint connected(from_connect, to_connect, node, selected_edges);
 
-constraint node[1] = 1;
+%constraint node[1] = 1;
+%constraint node[2] = 1;
+%constraint node[3] = 1;
 
 %%%%%%%%%%%%%%%%%% objectives
 % calculate total brick volume

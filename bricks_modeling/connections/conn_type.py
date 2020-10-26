@@ -15,8 +15,8 @@ class ConnType(enum.Enum):
     PRISMATIC = 6
 
 def compute_conn_type(c_point1: CPoint, c_point2: CPoint):
-    if np.linalg.norm(c_point1.pos - c_point2.pos) < 1e-9:
-        if np.linalg.norm(np.cross(c_point1.orient, c_point2.orient)) < 1e-9:
+    if np.linalg.norm(c_point1.pos - c_point2.pos) < 1e-4:
+        if np.linalg.norm(np.cross(c_point1.orient, c_point2.orient)) < 1e-6:
             if not np.linalg.norm(c_point1.orient - c_point2.orient) < 1e-6 and not (isDoubleOriented[c_point1.type] or isDoubleOriented[c_point2.type]):
                 return None
             if {c_point1.type, c_point2.type} == {

@@ -8,28 +8,21 @@ from bricks_modeling.file_IO.model_writer import write_bricks_to_file
 from bricks_modeling.bricks.brickinstance import BrickInstance
 from multiprocessing import Pool
 from functools import partial
-
-collider_path = "/Applications/Studio 2.0/ldraw/collider"
+from bricks_modeling import config
 
 def get_corner_pos(brick):
-    corner_pos = []
-    brick_id = brick.template.id
-    brick_rot = brick.get_rotation()
-    brick_trans = brick.get_translation()
-    for line in open(os.path.join(collider_path, f"{brick_id}.col")):
-        line = (line.split(" "))[:17]
-        line = [float(x) for x in line]
-        init_origin = np.array(line[11:14])
-        init_dim = np.array(line[14:17])  # in (x,y,z) format
+    bbox_ls = brick.get_bbox()
+    cub_corner = []
+    corner_transform = np.array([[1, 1, 1], [-1, -1, -1]])
+    for bbox in bbox_ls:
+        cuboid_center = np.array([bbox["Dimension"][0] / 2, bbox["Dimension"][1] / 2, bbox["Dimension"][2] / 2])
+        cuboid_corner_relative = (np.tile(cuboid_center, (2, 1))) * corner_transform
+        cub_corners_pos = np.array(bbox["Rotation"] @ cuboid_corner_relative.transpose()).transpose() + np.array(bbox["Origin"])
+        cub_corner.append(cub_corners_pos[0])
+        cub_corner.append(cub_corners_pos[1])
+    return cub_corner
 
-        origin = brick_rot @ init_origin + brick_trans
-        dim = abs(brick_rot @ init_dim) + 3
-        half_dim = dim / 2
-        corner_pos.append(list(origin + half_dim))
-        corner_pos.append(list(origin - half_dim))
-    return corner_pos
-
-def brick_inside(brick, mesh):
+def brick_inside(brick:BrickInstance, mesh):
     """
     cpoint_pos = list(map(lambda cp: list(cp.pos), brick.get_current_conn_points()))  # position of cpoints of *brick*
     cpoint_inside = mesh.contains(cpoint_pos)
@@ -84,12 +77,14 @@ def crop_brick(mesh, tile_set, scale):
 
 if __name__ == "__main__":
     bricks = read_bricks_from_file("./debug/3005.ldr")
-    obj_path = os.path.join(os.path.dirname(__file__), "super_graph/Short_bus.ply")
+    obj_path = os.path.join(os.path.dirname(__file__), "super_graph/thick_van.ply")
     tile_path = os.path.join(os.path.dirname(__file__), 
-                "super_graph/3023+3024+54200+3069+4081+4073+3623/2 n=2337 t=130.63.ldr")
+                "super_graph/3023+3024+3069+4081+3623/m2 n=2048 t=117.32.ldr")
     tile_set = read_bricks_from_file(tile_path)
     print("#bricks in tile: ", len(tile_set))
     mesh = trimesh.load_mesh(obj_path)
+    print(mesh.is_watertight)
+
     if not type(mesh) == trimesh.Trimesh:
         mesh = mesh.dump(True)
     flip = np.array([[-1, 0, 0, 0], [0, -1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]])
@@ -107,4 +102,4 @@ if __name__ == "__main__":
     _, tilename = os.path.split(tile_path)
     tilename = ((tilename.split("."))[0]).split(" ")
     tilename = tilename[0] + " " + tilename[1]
-    write_bricks_to_file(result, file_path=debugger.file_path(f"{filename} s={scale} n={len(result)} {tilename} t={round(end_time - start_time, 2)}.ldr"))
+    write_bricks_to_file(result, file_path=debugger.file_path(f"n{filename} s={scale} n={len(result)} {tilename} t={round(end_time - start_time, 2)}.ldr"))
