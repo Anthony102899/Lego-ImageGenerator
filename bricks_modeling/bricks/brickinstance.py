@@ -34,7 +34,7 @@ class BrickInstance:
 
                 origin = brick_rot @ init_origin + brick_trans
                 rotation = brick_rot @ init_orient
-                dim = abs(brick_rot @ init_dim) * 2 + 1.5
+                dim = abs(init_dim) * 2 + 1
                 bbox.append({"Origin": origin, "Rotation": rotation, "Dimension": dim})
             return bbox
         else:
@@ -126,7 +126,6 @@ class BrickInstance:
                     cp.type,
                 )
             )
-
         return conn_points
 
     def get_mesh(self):
@@ -153,13 +152,18 @@ if __name__ == "__main__":
     from bricks_modeling.file_IO.model_reader import read_bricks_from_file
     from bricks_modeling.file_IO.model_writer import write_bricks_to_file
     from bricks_modeling.connectivity_graph import ConnectivityGraph
-
-    bricks = read_bricks_from_file("./debug/test2.ldr") 
+    """
+    bricks = read_bricks_from_file("./debug/0.ldr") 
+    print((bricks[0].get_bbox())[0])
+    
+    """
+    bricks = read_bricks_from_file("./bricks_modeling/bricks/spacial_relation_test_cases/0 3069+3023.ldr") 
     for i in range(len(bricks)):
         for j in range(len(bricks)):
             if not i == j and i > j:
                 collide = bricks[i].collide(bricks[j])
                 connect = bricks[i].connect(bricks[j]) and (not collide)
-                #print(f"{i}=={j}: ",bricks[i] == bricks[j])
+                print(f"{i}=={j}: ",bricks[i] == bricks[j])
                 print(f"{i} collide with {j}: ", collide,"\n")
                 print(f"{i} connect with {j}: ", connect,"\n")
+    
