@@ -12,6 +12,7 @@ import itertools as iter
 import json
 from util.geometry_util import get_random_transformation
 from bricks_modeling import config
+import util.cuboid_collision as cuboid_col
 
 class BrickInstance:
     def __init__(self, template: BrickTemplate, trans_matrix, color=15):
@@ -24,8 +25,8 @@ class BrickInstance:
         brick_id = self.template.id
         brick_rot = self.get_rotation()
         brick_trans = self.get_translation()
-        if os.path.exists(os.path.join(config.col_file, f"{brick_id}.col")):
-            for line in open(os.path.join(config.col_file, f"{brick_id}.col")):
+        if os.path.exists(os.path.join(config.col_folder, f"{brick_id}.col")):
+            for line in open(os.path.join(config.col_folder, f"{brick_id}.col")):
                 line = (line.split(" "))[:17]
                 line = [float(x) for x in line]
                 init_orient = (np.array(line[2:11])).reshape((3,3))
@@ -34,7 +35,7 @@ class BrickInstance:
 
                 origin = brick_rot @ init_origin + brick_trans
                 rotation = brick_rot @ init_orient
-                dim = abs(init_dim) * 2 + 1
+                dim = init_dim * 2 + 1
                 bbox.append({"Origin": origin, "Rotation": rotation, "Dimension": dim})
             return bbox
         else:
@@ -71,7 +72,7 @@ class BrickInstance:
         self_bbox = self.get_bbox()
         other_bbox = other.get_bbox()
         for bb1, bb2 in iter.product(self_bbox, other_bbox):
-            if cu_geo.cub_collision_detect(bb1, bb2):
+            if cuboid_col.cub_collision_detect(bb1, bb2):
                 return True
         return False
 
@@ -150,7 +151,7 @@ if __name__ == "__main__":
     print((bricks[0].get_bbox())[0])
     
     """
-    bricks = read_bricks_from_file("./bricks_modeling/bricks/spacial_relation_test_cases/0 3069+3023.ldr") 
+    bricks = read_bricks_from_file("./debug/0 3024+54200 2.ldr") 
     for i in range(len(bricks)):
         for j in range(len(bricks)):
             if not i == j and i > j:
