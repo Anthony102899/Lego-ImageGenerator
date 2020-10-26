@@ -1,2 +1,2 @@
-ldr_file = ""
-col_file = ""
+col_folder = "XX"
+ldraw_folder = "XX"

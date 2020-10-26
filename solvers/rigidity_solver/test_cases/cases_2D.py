@@ -3,78 +3,87 @@ import numpy as np
 # a rigid triangle
 def case_1():
     points = np.array([[-1, 0], [1, 0], [0, 1.732]])
-    fixed_points_index = []
+    fixed_points_index = [0]
     edges = [(0, 1), (1, 2), (2, 0)]
-    abstract_edges = []
-    return points, fixed_points_index, edges, abstract_edges
+    joints = []
+    return points, fixed_points_index, edges, joints
 
 def case_1_1():
     points = np.array([[-1, 0], [1, 0], [0, 0.2]])
     fixed_points_index = []
     edges = [(0, 1), (1, 2), (2, 0)]
-    abstract_edges = []
-    return points, fixed_points_index, edges, abstract_edges
+    joints = []
+    return points, fixed_points_index, edges, joints
+
+# a rigid triangle
+def case_1_2():
+    points = np.array([[-1, 0], [1, 0], [1, 0], [0, 1.732], [0, 1.732], [-1, 0]])
+    fixed_points_index = []
+    edges = [(0, 1), (2, 3), (4, 5)]
+    joints = [(0, [2, 3], [("R", (1, 0))]), (1, [4, 5], [("R", (0, 1.732))]), (2, [0, 1], [("R", (-1, 0))])]
+    return points, fixed_points_index, edges, joints
 
 # a rigid square
 def case_2():
     points = np.array([[0, 0], [1, 0], [1, 1], [0, 1]])
     fixed_points_index = []
     edges = [(0, 1), (1, 2), (2, 3), (3, 0), (0, 2)]
-    abstract_edges = []
-    return points, fixed_points_index, edges, abstract_edges
+    joints = []
+    return points, fixed_points_index, edges, joints
 
 # a hinge
 def case_3():
     points = np.array([[0, 0], [1, 0], [0, 2]])
     fixed_points_index = []
     edges = [(0, 1), (0, 2)]
-    abstract_edges = []
-    return points, fixed_points_index, edges, abstract_edges
+    joints = []
+    return points, fixed_points_index, edges, joints
 
 # a hinge with one edge fixed
 def case_3_1():
     points = np.array([[0, 0], [1, 0], [0, 2]])
     fixed_points_index = [0, 1]
     edges = [(0, 1), (0, 2)]
-    abstract_edges = []
-    return points, fixed_points_index, edges, abstract_edges
+    joints = []
+    return points, fixed_points_index, edges, joints
 
 # a triangle with one point not connected
 def case_4():
     points = np.array([[0, 0], [1, 0], [0, 1],[0, 1]])
     fixed_points_index = []
     edges = [(0, 1), (1, 2), (0, 3)]
-    abstract_edges = []
-    return points, fixed_points_index, edges, abstract_edges
+    joints = []
+    return points, fixed_points_index, edges, joints
 
 # a triangle with one point not connected and one edge fixed
 def case_4_1():
     points = np.array([[0, 0], [1, 0], [0, 1],[0, 1]])
     fixed_points_index = [0, 1]
     edges = [(0, 1), (1, 2), (0, 3)]
-    abstract_edges = []
-    return points, fixed_points_index, edges, abstract_edges
+    joints = []
+    return points, fixed_points_index, edges, joints
 
 # a triangle with one point not connected and one edge fixed. The dangling point can slide over adjacent edge
 def case_5():
-    points = np.array([[0, 0], [1, 0], [0, 1],[0, 1]])
+    points = np.array([[0, 0], [1, 0], [0, 0.90],[0, 1]])
     fixed_points_index = [0, 1]
     edges = [(0, 1), (1, 2), (0, 3)]
-    abstract_edges = [(2, 3, 1.0, 0.0)]
-    return points, fixed_points_index, edges, abstract_edges
+    joints = [(2, [2], [("T", (0, 1))])]
+    return points, fixed_points_index, edges, joints
 
 def case_5_1():
-    points = np.array([[0, 0], [1, 0], [0, 1], [0, 1]])
+    points = np.array([[0, 0], [1, 0], [0, 0.90],[0, 1]])
     fixed_points_index = [0, 1, 3]
     edges = [(0, 1), (1, 2), (0, 3)]
-    abstract_edges = [(2, 3, 1.0, 0.0)]
-    return points, fixed_points_index, edges, abstract_edges
+    joints = [(2, [2], [("T", (0, 1))])]
+    return points, fixed_points_index, edges, joints
 
 # a bar-shaped truss structure
 def case_6():
     length = 8
     points = [[i, 0] for i in range(length)]
     points += [[i, 1] for i in range(length)]
+    points = np.array(points)
 
     edges = [(i, i+length) for i in range(length)]
     edges += [(i, i + 1) for i in range(length-1)]
@@ -83,9 +92,9 @@ def case_6():
 
     fixed_points_index = [0, length-1, length, length*2 -1]
     # fixed_points_index = []
-    abstract_edges = []
+    joints = []
 
-    return np.array(points), fixed_points_index, edges, abstract_edges
+    return points, fixed_points_index, edges, joints
 
 # a triangular shaped truss structure
 def case_7():
@@ -93,16 +102,25 @@ def case_7():
     fixed_points_index = [0, 5]
     edges = [(0, 1), (1, 2), (2, 3), (3, 4), (4, 5), (0, 6), (6, 7), (7, 8), (8, 9), (9, 10), (10, 5), (1, 6), (2, 7),
              (3, 9), (4, 10), (2, 6), (2, 8), (3, 8), (4, 9)]
-    abstract_edges = []
-    return points, fixed_points_index, edges, abstract_edges
 
-# a pump mechanism
+    joints = []
+    return points, fixed_points_index, edges, joints
+
+# a pump mechanism in new format
 def case_8():
-    points = np.array([[0, 0], [1, -1], [1, 1], [1, 1]])
-    fixed_points_index = [1, 3]
-    edges = [(0, 1), (0, 2)]
-    abstract_edges = [(2, 3, 1.0, 0.0)]
-    return points, fixed_points_index, edges, abstract_edges
+    points = np.array([[0, 0], [1, 1], [1, 0], [1, 2]])
+    edges = [(0, 1), (2, 3)]
+    fixed_points_index = [0, 2]
+    joints = [(1, [1], [("T", (0, 1))])]  # edge#1 and edge#2 can only "T"ranslate relative to each other in the direction (0,1)
+    return points, fixed_points_index, edges, joints
+
+# a pump mechanism in new format
+def case_8_2():
+    points = np.array([[1, -1], [0, 0], [1, 1], [1, 0], [1, 2]])
+    fixed_points_index = [0, 3, 4]
+    edges = [(0, 1), (1, 2), (3, 4)]
+    joints = [(2, [2], [("T", (0, 1))])]  # edge#2 and points #1 and #2 can only "T"ranslate relative to each other along the direction (0,1)
+    return points, fixed_points_index, edges, joints
 
 # a robot leg
 def case_9():
@@ -110,11 +128,11 @@ def case_9():
     fixed_points_index = [0,1]
     edges = [(0, 1), (0, 2), (1, 2), (0, 3), (2, 4), (1, 5), (3, 7), (6, 7), (4, 6), (4, 8), (8, 9), (5, 9), (3, 4),
              (4, 5)]
-    abstract_edges = []
-    return points, fixed_points_index, edges, abstract_edges
+    joints = []
+    return points, fixed_points_index, edges, joints
 
 def case_10():
-    height = 3
+    height = 5
     points = [[1,1],[0,2],[2,2],[2,0],[0,6],[2,6],[1,4],[0,10],[2,10],[1,8],[0,14],[2,14],[1,12],[0,18],[2,18],[1,16],[0,22],[2,22],[1,20],[0,26],[2,26],[1,24],
                        [6,0],[6,2],[4,1],[10,0],[10,2],[8,1],[14,0],[14,2],[12,1],[18,0],[18,2],[16,1],[22,0],[22,2],[20,1],[26,0],[26,2],[24,1]]
     fixed_points_index = []
@@ -152,8 +170,8 @@ def case_10():
         edges += [(points_base_middle_base + i, points_base_upper_slope + 1 + i) for i in range(height)]
         edges += [(points_base_middle_base + i, points_base_upper_slope + i) for i in range(height)]
 
-    abstract_edges = []
-    return np.array(points), fixed_points_index, edges, abstract_edges
+    joints = []
+    return np.array(points), fixed_points_index, edges, joints
 
 
 # a rigid U shape
@@ -161,12 +179,12 @@ def case_11():
     points = np.array([[0, 1], [0, -1], [1,-0.5], [1, 0.5], [10,-1], [10,1]])
     fixed_points_index = []
     edges = [(0, 1), (1, 2), (2, 0), (2,4), (1,4), (1,3), (0,3), (0,5), (3,5)]
-    abstract_edges = []
-    return points, fixed_points_index, edges, abstract_edges
+    joints = []
+    return points, fixed_points_index, edges, joints
 
 # another rigid U shape
 def case_11_1():
-    truss_length = 2
+    truss_length = 5
 
     points = [[0, 1], [0, -1], [1,-0.5], [1, 0.5], [10,-1], [10,1]]
     origin_length = len(points)
@@ -183,38 +201,6 @@ def case_11_1():
     edges += [(i+1, i + truss_length) for i in range(origin_length, origin_length + truss_length - 1)]
 
     fixed_points_index = []
-    abstract_edges = []
+    joints = []
 
-    return np.array(points), fixed_points_index, edges, abstract_edges
-
-def case_two_edges():
-    points = np.array([[-1, 0], [1, 0], [2, 0], [3, 0]])
-    edges =  [(0, 1), (2, 3)]
-    fixed_points_index = []
-    return points, fixed_points_index, edges
-
-def case_seperate_parts():
-    # points = np.array([[0, 0],[-1, 0], [0, 1]])
-    points = np.array([[-1, 0], [0, 0], [0, 1]])
-    points = np.append(points, np.array([[1, 0], [2, 0], [1, 1], [2, 1]]), axis=0)
-    fixed_points_index = []
-    edges =  [(0, 1), (1, 2), (2, 0)]
-    edges += [(3, 4), (4, 5), (5, 3)]
-    edges += [(5, 6), (4, 6)]
-    return points, fixed_points_index, edges
-
-# a pump mechanism in new format
-def case_8_new():
-    points = np.array([[1, -1], [0, 0], [1, 1], [1, 0.8], [1, 0], [1, 2]])
-    fixed_points_index = [0, 4, 5]
-    edges = [(0, 1), (1, 2), (2, 3), (4, 5)]
-    joints = [(2, 3, [("T", (0, 1))])]  # edge#1 and edge#2 can only "T"ranslate relative to each other in the direction (0,1)
-    return points, fixed_points_index, edges, joints
-
-# a pump mechanism in new format
-def case_simple():
-    points = np.array([[0, 0], [1, 1], [1, 0], [1, 2]])
-    edges = [(0, 1), (2, 3)]
-    fixed_points_index = [0, 2]
-    joints = [(0, 1, [("T", (0, 1))])]  # edge#1 and edge#2 can only "T"ranslate relative to each other in the direction (0,1)
-    return points, fixed_points_index, edges, joints
+    return np.array(points), fixed_points_index, edges, joints

@@ -12,6 +12,10 @@ import itertools
 from numpy import linalg as LA
 from numpy.linalg import inv, matrix_rank
 from visualization.model_visualizer import visualize_3D, visualize_2D
+from scipy.linalg import null_space
+from numpy.linalg import cholesky
+from numpy.linalg import inv
+from numpy.linalg import matrix_rank
 
 def rigidity_matrix(
     points: np.ndarray,
@@ -44,7 +48,7 @@ def _remove_fixed_edges(points: np.ndarray, edges: np.ndarray, fixed_points_idx)
 
     fixed_edges_idx = [
         index
-        for index, edge in enumerate(edges) 
+        for index, edge in enumerate(edges)
         if edge[0] in fixed_points_idx and edge[1] in fixed_points_idx
     ]
 
@@ -57,7 +61,6 @@ def _remove_fixed_edges(points: np.ndarray, edges: np.ndarray, fixed_points_idx)
 def spring_energy_matrix(
     points: np.ndarray,
     edges: np.ndarray,
-    fixed_points_idx=None,
     dim: int = 3,
     matrices=False,
     ) -> np.ndarray:
@@ -65,9 +68,6 @@ def spring_energy_matrix(
     fixed_points_idx: list of indices of points to be fixed
     matrices: return K, P, A if true
     """
-
-    if fixed_points_idx is not None:
-        points, edges = _remove_fixed_edges(points, edges, fixed_points_idx)
 
     n, m = len(points), len(edges)
 
@@ -95,12 +95,6 @@ def spring_energy_matrix(
             A[dim * idx + d, dim * e[0] + d] = 1
             A[dim * idx + d, dim * e[1] + d] = -1
 
-    deleting_indices = []
-    for idx in fixed_points_idx:
-        deleting_indices.extend([idx * dim + i for i in range(dim)])
-
-    A = np.delete(A, deleting_indices, axis=1)
-
     if matrices:
         return K, P, A
     else:
@@ -122,30 +116,190 @@ def transform_matrix_fitting(points_start, points_end, dim=3):
 
     return M, T
 
-# to predict the rigidity of the structure
-def solve_rigidity(points: np.ndarray, edges: np.ndarray, fixed_points = [], dim: int = 3) -> (bool, List[np.ndarray]):
-    fixed_points.sort()
-    M = spring_energy_matrix(points, edges, fixed_points, dim)
-    # the eigenvectors here don't have entries for fixed_points
-    e_pairs = geo_util.eigen(M, symmetric=True)
+def solve_rigidity(points: np.ndarray, edges: np.ndarray, joints, fixed_points_idx = [], dim: int = 3) -> (bool, List[np.ndarray]):
+    M = spring_energy_matrix(points, edges, dim=dim)
 
-    inserting_indices = []
-    for idx in fixed_points:
-        inserting_indices.extend([dim*idx + i for i in range(dim)])
+    A = np.zeros((1, len(points) * dim))
+    for joint in joints:
+        edge_idx, motion_points, allowed_motions = joint[0], joint[1], joint[2]
 
-    def fill_zeros_at_fixed_points(vector):
-        for index in inserting_indices:
-            vector = np.insert(vector, index, values=0)
-        return vector
+        A_joint = constraints_for_one_joint(points[np.array(list(edges[edge_idx]))], list(edges[edge_idx]),
+                                      points[np.array(motion_points)], motion_points,
+                                      points,
+                                      allowed_motions=allowed_motions, dim = dim)
+        A = np.append(A, A_joint, 0)
 
-    # fill zeros into the eigenvectors at indices of fixed_points
-    e_pairs = [(e_val, fill_zeros_at_fixed_points(e_vec)) for e_val, e_vec in e_pairs]
+    # adding the fixed points constraints
+    C = get_matrix_for_fixed_points(fixed_points_idx, len(points), dim)
+    A = np.append(A, C, 0)
 
-    # collect all eigen vectors with zero eigen value
-    zero_eigenspace     = [(e_val, e_vec) for e_val, e_vec in e_pairs if abs(e_val) < 1e-6]
-    non_zero_eigenspace = [(e_val, e_vec) for e_val, e_vec in e_pairs if abs(e_val) >= 1e-6]
+    # mathmatical computation
+    B = null_space(A)
+    T = np.transpose(B) @ B
+    L = cholesky(T)
+    S = B.T @ M @ B
+    print("T rank:", matrix_rank(T))
+    print("S rank:", matrix_rank(S))
 
-    if len(zero_eigenspace) == 0 or (len(fixed_points) == 0 and len(zero_eigenspace) == (3 if dim == 2 else 6)):
-        return True, non_zero_eigenspace
+    # compute eigen value / vectors
+    eigen_pairs = geo_util.eigen(inv(L).T @ S @ inv(L), symmetric=True)
+    eigen_pairs = [(e_val, B @ e_vec) for e_val, e_vec in eigen_pairs]
+
+    # judge rigid or not
+    print("DoF:", len([(e_val, e_vec) for e_val, e_vec in eigen_pairs if abs(e_val) < 1e-6]))
+
+    trivial_motions     = [(e_val, e_vec) for e_val, e_vec in eigen_pairs if
+                           abs(e_val) < 1e-6 and geo_util.is_trivial_motions([e_vec], points, dim)]
+
+    non_trivial_motions = [(e_val, e_vec) for e_val, e_vec in eigen_pairs if
+                           abs(e_val) < 1e-6 and (not geo_util.is_trivial_motions([e_vec], points, dim))]
+
+    non_zero_eigenspace = [(e_val, e_vec) for e_val, e_vec in eigen_pairs if abs(e_val) >= 1e-6]
+
+    return trivial_motions, non_trivial_motions, non_zero_eigenspace
+
+def constraints_for_one_joint(source_pts, source_pts_idx, target_pts, target_pts_idx, points, allowed_motions, dim = 2):
+    forbidden_motion_vecs = get_constraits_for_points_allowed_motions(allowed_motions, target_pts, dim=dim)
+
+    constraint_mat = np.zeros((len(forbidden_motion_vecs), (len(target_pts) * dim)))
+
+    if dim == 2:
+        project_mat, basis1, basis2 = project_matrix_2D(source_pts, source_pts_idx,target_pts, target_pts_idx, points)
     else:
-        return False, zero_eigenspace
+        project_mat, basis1, basis2, basis3 = project_matrix_3D(source_pts, source_pts_idx,target_pts, target_pts_idx, points)
+
+    # assemble the constraint matrix via forbidden motion
+    for idx, motion_vec in enumerate(forbidden_motion_vecs):
+        for j in range(len(target_pts)):
+            projected_value_1 = np.transpose(motion_vec[j*dim : j*dim + dim]) @ basis1
+            projected_value_2 = np.transpose(motion_vec[j*dim : j*dim + dim]) @ basis2
+            constraint_mat[idx, j * dim]     = projected_value_1
+            constraint_mat[idx, j * dim + 1] = projected_value_2
+            if dim == 3:
+                projected_value_3 = np.transpose(motion_vec[j * dim: j * dim + dim]) @ basis3
+                constraint_mat[idx, j * dim + 2] = projected_value_3
+
+    A = constraint_mat @ project_mat
+
+    print(f"constraint matrix: rank{matrix_rank(constraint_mat)}")
+    print(constraint_mat)
+    print(f"projection matrix: rank{matrix_rank(project_mat)}")
+    print(project_mat)
+    print(f"A: rank{matrix_rank(A)}")
+    print(A)
+
+    return A
+
+def project_matrix_2D(source_pts, source_pts_idx,target_pts, target_pts_idx, points, dim = 2):
+    assert len(source_pts) == 2
+
+    points_num = len(points)
+    project_mat = np.zeros((len(target_pts) * dim, points_num * dim))
+
+    b1_length = LA.norm(source_pts[1] - source_pts[0])
+    basis1 = (source_pts[1] - source_pts[0]) / b1_length
+    basis2 = np.array([-basis1[1], basis1[0]])
+    idx_0, idx_1 = source_pts_idx[0], source_pts_idx[1]
+
+    # assemble projection matrix
+    for i in range(len(target_pts)):
+        jo2_idx = target_pts_idx[i]
+        # assembly the coordinate m
+        project_mat[i * dim, jo2_idx * dim: jo2_idx * dim + dim] = np.transpose(basis1)
+        project_mat[i * dim, idx_0 * dim: idx_0 * dim + dim] = np.transpose(
+            (points[idx_0] - points[jo2_idx]) / b1_length - basis1)
+        project_mat[i * dim, idx_1 * dim: idx_1 * dim + dim] = np.transpose(
+            (points[jo2_idx] - points[idx_0]) / b1_length)
+
+        # assembly the coordinate n
+        vec = (points[jo2_idx] - points[idx_0]) / b1_length
+        project_mat[i * dim + 1, jo2_idx * dim: jo2_idx * dim + dim] = np.transpose(basis2)
+        project_mat[i * dim + 1, idx_0 * dim] = -vec[1] - basis2[0]
+        project_mat[i * dim + 1, idx_0 * dim + 1] = vec[0] - basis2[1]
+        project_mat[i * dim + 1, idx_1 * dim] = vec[1]
+        project_mat[i * dim + 1, idx_1 * dim + 1] = -vec[0]
+
+    return project_mat, basis1, basis2
+
+# TODO: not tested yet
+def project_matrix_3D(source_pts, source_pts_idx,target_pts, target_pts_idx, points, dim = 2):
+    assert len(source_pts) == 3
+
+    points_num = len(points)
+    project_mat = np.zeros((len(target_pts) * dim, points_num * dim))
+
+    l_b1 = LA.norm(source_pts[1] - source_pts[0])
+    basis1 = (source_pts[1] - source_pts[0]) / l_b1
+    l_b2 = LA.norm(np.cross(basis1, source_pts[1] - source_pts[0]))
+    basis2 = np.cross(basis1, source_pts[1] - source_pts[0]) / l_b2
+    basis3 = np.cross(basis1, basis2)
+
+    Da1, Da2, Da3 = source_pts_idx[0] * dim, source_pts_idx[0] * dim + 1, source_pts_idx[0] * dim + 2
+    Db1, Db2, Db3 = source_pts_idx[1] * dim, source_pts_idx[1] * dim + 1, source_pts_idx[1] * dim + 2
+    Dc1, Dc2, Dc3 = source_pts_idx[2] * dim, source_pts_idx[2] * dim + 1, source_pts_idx[2] * dim + 2
+
+    a, b, c = source_pts[0], source_pts[1], source_pts[1]
+
+    # assemble projection matrix
+    for i in range(len(target_pts)):
+        Dv1, Dv2, Dv3 = target_pts_idx[i], target_pts_idx[i] + 1, target_pts_idx[i] + 2
+        v = target_pts[i]
+
+        # assembly the coordinate m
+        project_mat[i * dim, Da1: Da1+3] = (a-b) / l_b1 + (a-v) / l_b1
+        project_mat[i * dim, Db1: Db1+3] = (v-a) / l_b1
+        project_mat[i * dim, Dv1: Dv1+3] = (b-a) / l_b1
+
+        # assembly the coordinate n
+        project_mat[i * dim, Da1] = ((b[2] - c[2])*(a[1] - v[1]))/l_b2 - ((b[1] - c[1])*(a[2] - v[2]))/l_b2 - ((a[1] - b[1])*(a[2] - c[2]) - (a[2] - b[2])*(a[1] - c[1]))/l_b2
+        project_mat[i * dim, Da2] = ((a[0] - b[0])*(a[2] - c[2]) - (a[2] - b[2])*(a[0] - c[0]))/l_b2 + ((b[0] - c[0])*(a[2] - v[2]))/l_b2 - ((b[2] - c[2])*(a[0] - v[0]))/l_b2
+        project_mat[i * dim, Da3] = ((b[1] - c[1])*(a[0] - v[0]))/l_b2 - ((b[0] - c[0])*(a[1] - v[1]))/l_b2 - ((a[0] - b[0])*(a[1] - c[1]) - (a[1] - b[1])*(a[0] - c[0]))/l_b2
+        project_mat[i * dim, Db1] = ((a[1] - c[1])*(a[2] - v[2]))/l_b2 - ((a[2] - c[2])*(a[1] - v[1]))/l_b2
+        project_mat[i * dim, Db2] = ((a[2] - c[2])*(a[0] - v[0]))/l_b2 - ((a[0] - c[0])*(a[2] - v[2]))/l_b2
+        project_mat[i * dim, Db3] = ((a[0] - c[0])*(a[1] - v[1]))/l_b2 - ((a[1] - c[1])*(a[0] - v[0]))/l_b2
+        project_mat[i * dim, Dc1] = ((a[2] - b[2])*(a[1] - v[1]))/l_b2 - ((a[1] - b[1])*(a[2] - v[2]))/l_b2
+        project_mat[i * dim, Dc2] = ((a[0] - b[0])*(a[2] - v[2]))/l_b2 - ((a[2] - b[2])*(a[0] - v[0]))/l_b2
+        project_mat[i * dim, Dc3] = ((a[1] - b[1])*(a[0] - v[0]))/l_b2 - ((a[0] - b[0])*(a[1] - v[1]))/l_b2
+        project_mat[i * dim, Dv1] = ((a[1] - b[1])*(a[2] - c[2]) - (a[2] - b[2])*(a[1] - c[1]))/l_b2
+        project_mat[i * dim, Dv2] = -((a[0] - b[0])*(a[2] - c[2]) - (a[2] - b[2])*(a[0] - c[0]))/l_b2
+        project_mat[i * dim, Dv3] = ((a[0] - b[0])*(a[1] - c[1]) - (a[1] - b[1])*(a[0] - c[0]))/l_b2
+
+        # assembly the coordinate o
+        project_mat[i * dim, Da1] =(((a[1] - b[1])*(b[1] - c[1]))/(l_b1*l_b2) + ((a[2] - b[2])*(b[2] - c[2]))/(l_b1*l_b2))*(a[0] - v[0]) - (((a[0] - b[0])*(a[1] - c[1]) - (a[1] - b[1])*(a[0] - c[0]))/(l_b1*l_b2) + ((a[0] - b[0])*(b[1] - c[1]))/(l_b1*l_b2))*(a[1] - v[1]) - (((a[0] - b[0])*(a[2] - c[2]) - (a[2] - b[2])*(a[0] - c[0]))/(l_b1*l_b2) + ((a[0] - b[0])*(b[2] - c[2]))/(l_b1*l_b2))*(a[2] - v[2]) + (((a[0] - b[0])*(a[1] - c[1]) - (a[1] - b[1])*(a[0] - c[0]))*(a[1] - b[1]))/(l_b1*l_b2) + (((a[0] - b[0])*(a[2] - c[2]) - (a[2] - b[2])*(a[0] - c[0]))*(a[2] - b[2]))/(l_b1*l_b2)
+        project_mat[i * dim, Da2] =(((a[0] - b[0])*(b[0] - c[0]))/(l_b1*l_b2) + ((a[2] - b[2])*(b[2] - c[2]))/(l_b1*l_b2))*(a[1] - v[1]) + (((a[0] - b[0])*(a[1] - c[1]) - (a[1] - b[1])*(a[0] - c[0]))/(l_b1*l_b2) - ((a[1] - b[1])*(b[0] - c[0]))/(l_b1*l_b2))*(a[0] - v[0]) - (((a[1] - b[1])*(a[2] - c[2]) - (a[2] - b[2])*(a[1] - c[1]))/(l_b1*l_b2) + ((a[1] - b[1])*(b[2] - c[2]))/(l_b1*l_b2))*(a[2] - v[2]) - (((a[0] - b[0])*(a[1] - c[1]) - (a[1] - b[1])*(a[0] - c[0]))*(a[0] - b[0]))/(l_b1*l_b2) + (((a[1] - b[1])*(a[2] - c[2]) - (a[2] - b[2])*(a[1] - c[1]))*(a[2] - b[2]))/(l_b1*l_b2)
+        project_mat[i * dim, Da3] =(((a[0] - b[0])*(b[0] - c[0]))/(l_b1*l_b2) + ((a[1] - b[1])*(b[1] - c[1]))/(l_b1*l_b2))*(a[2] - v[2]) + (((a[0] - b[0])*(a[2] - c[2]) - (a[2] - b[2])*(a[0] - c[0]))/(l_b1*l_b2) - ((a[2] - b[2])*(b[0] - c[0]))/(l_b1*l_b2))*(a[0] - v[0]) + (((a[1] - b[1])*(a[2] - c[2]) - (a[2] - b[2])*(a[1] - c[1]))/(l_b1*l_b2) - ((a[2] - b[2])*(b[1] - c[1]))/(l_b1*l_b2))*(a[1] - v[1]) - (((a[0] - b[0])*(a[2] - c[2]) - (a[2] - b[2])*(a[0] - c[0]))*(a[0] - b[0]))/(l_b1*l_b2) - (((a[1] - b[1])*(a[2] - c[2]) - (a[2] - b[2])*(a[1] - c[1]))*(a[1] - b[1]))/(l_b1*l_b2)
+        project_mat[i * dim, Db1] =(((a[0] - b[0])*(a[1] - c[1]) - (a[1] - b[1])*(a[0] - c[0]))/(l_b1*l_b2) + ((a[0] - b[0])*(a[1] - c[1]))/(l_b1*l_b2))*(a[1] - v[1]) - (((a[1] - b[1])*(a[1] - c[1]))/(l_b1*l_b2) + ((a[2] - b[2])*(a[2] - c[2]))/(l_b1*l_b2))*(a[0] - v[0]) + (((a[0] - b[0])*(a[2] - c[2]) - (a[2] - b[2])*(a[0] - c[0]))/(l_b1*l_b2) + ((a[0] - b[0])*(a[2] - c[2]))/(l_b1*l_b2))*(a[2] - v[2])
+        project_mat[i * dim, Db2] =(((a[1] - b[1])*(a[2] - c[2]) - (a[2] - b[2])*(a[1] - c[1]))/(l_b1*l_b2) + ((a[1] - b[1])*(a[2] - c[2]))/(l_b1*l_b2))*(a[2] - v[2]) - (((a[0] - b[0])*(a[1] - c[1]) - (a[1] - b[1])*(a[0] - c[0]))/(l_b1*l_b2) - ((a[1] - b[1])*(a[0] - c[0]))/(l_b1*l_b2))*(a[0] - v[0]) - (((a[0] - b[0])*(a[0] - c[0]))/(l_b1*l_b2) + ((a[2] - b[2])*(a[2] - c[2]))/(l_b1*l_b2))*(a[1] - v[1])
+        project_mat[i * dim, Db3] =- (((a[0] - b[0])*(a[0] - c[0]))/(l_b1*l_b2) + ((a[1] - b[1])*(a[1] - c[1]))/(l_b1*l_b2))*(a[2] - v[2]) - (((a[0] - b[0])*(a[2] - c[2]) - (a[2] - b[2])*(a[0] - c[0]))/(l_b1*l_b2) - ((a[2] - b[2])*(a[0] - c[0]))/(l_b1*l_b2))*(a[0] - v[0]) - (((a[1] - b[1])*(a[2] - c[2]) - (a[2] - b[2])*(a[1] - c[1]))/(l_b1*l_b2) - ((a[2] - b[2])*(a[1] - c[1]))/(l_b1*l_b2))*(a[1] - v[1])
+        project_mat[i * dim, Dc1] =((a[1] - b[1])**2/(l_b1*l_b2) + (a[2] - b[2])**2/(l_b1*l_b2))*(a[0] - v[0]) - ((a[0] - b[0])*(a[1] - b[1])*(a[1] - v[1]))/(l_b1*l_b2) - ((a[0] - b[0])*(a[2] - b[2])*(a[2] - v[2]))/(l_b1*l_b2)
+        project_mat[i * dim, Dc2] =((a[0] - b[0])**2/(l_b1*l_b2) + (a[2] - b[2])**2/(l_b1*l_b2))*(a[1] - v[1]) - ((a[0] - b[0])*(a[1] - b[1])*(a[0] - v[0]))/(l_b1*l_b2) - ((a[1] - b[1])*(a[2] - b[2])*(a[2] - v[2]))/(l_b1*l_b2)
+        project_mat[i * dim, Dc3] =((a[0] - b[0])**2/(l_b1*l_b2) + (a[1] - b[1])**2/(l_b1*l_b2))*(a[2] - v[2]) - ((a[0] - b[0])*(a[2] - b[2])*(a[0] - v[0]))/(l_b1*l_b2) - ((a[1] - b[1])*(a[2] - b[2])*(a[1] - v[1]))/(l_b1*l_b2)
+        project_mat[i * dim, Dv1] =- (((a[0] - b[0])*(a[1] - c[1]) - (a[1] - b[1])*(a[0] - c[0]))*(a[1] - b[1]))/(l_b1*l_b2) - (((a[0] - b[0])*(a[2] - c[2]) - (a[2] - b[2])*(a[0] - c[0]))*(a[2] - b[2]))/(l_b1*l_b2)
+        project_mat[i * dim, Dv2] =(((a[0] - b[0])*(a[1] - c[1]) - (a[1] - b[1])*(a[0] - c[0]))*(a[0] - b[0]))/(l_b1*l_b2) - (((a[1] - b[1])*(a[2] - c[2]) - (a[2] - b[2])*(a[1] - c[1]))*(a[2] - b[2]))/(l_b1*l_b2)
+        project_mat[i * dim, Dv3] =(((a[0] - b[0])*(a[2] - c[2]) - (a[2] - b[2])*(a[0] - c[0]))*(a[0] - b[0]))/(l_b1*l_b2) + (((a[1] - b[1])*(a[2] - c[2]) - (a[2] - b[2])*(a[1] - c[1]))*(a[1] - b[1]))/(l_b1*l_b2)
+
+    return project_mat, basis1, basis2, basis3
+
+def get_matrix_for_fixed_points(fixed_points_index, points_num, dim):
+    C = np.zeros((len(fixed_points_index) * dim, points_num * dim))
+    # for fixed joints
+    for row, point_idx in enumerate(fixed_points_index):
+        C[row * dim: row * dim + dim, point_idx * dim: point_idx * dim + dim] = np.identity(dim)
+
+    return C
+
+# get constraint for a single point
+def get_constraits_for_points_allowed_motions(allowed_motions, target_points, dim):
+    allowed_motion_vecs = np.zeros((len(allowed_motions) * len(target_points), len(target_points) * dim))
+
+    for idx, constraint in enumerate(allowed_motions):
+        for j in range(len(target_points)):
+            row_num = idx * len(target_points) + j
+            if constraint[0] == "T":  # translation
+                allowed_motion_vecs[row_num, j * dim: j * dim + 2] = constraint[1]
+            elif constraint[0] == "R":
+                rot_arm = target_points[j] - constraint[1]
+                allowed_motion_vecs[row_num, j * dim] = -rot_arm[1]
+                allowed_motion_vecs[row_num, j * dim + 1] = rot_arm[0]
+
+    return null_space(allowed_motion_vecs).T

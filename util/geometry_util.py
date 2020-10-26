@@ -170,18 +170,24 @@ def subtract_orthobasis(vector: np.ndarray, orthobasis: np.ndarray) -> np.ndarra
     subtraction = vector - np.sum(projections, axis=0)
     return subtraction
 
-def is_subspace(zeroeigenspace, basis) -> bool:
+
+def is_subspace(vecs, basis) -> bool:
     """
-    Return if the space spanned by "basis" is a subspace of the space spanning by "zeroeigenspace"
+    Return if the space spanned by "vecs" is a subspace of the space spanning by "basis"
     """
-    for base in basis:
-        projected_vec = np.zeros_like(base)
-        for zero_base in zeroeigenspace:
-            projected_vec += project(base, zero_base)
-        if LA.norm(projected_vec-base) > 1e-5:
+    for vec in vecs:
+        projected_vec = np.zeros_like(vec)
+        for zero_base in basis:
+            projected_vec += project(vec, zero_base)
+        if LA.norm(projected_vec-vec) > 1e-5:
             return False
 
     return True
+
+
+def is_trivial_motions(eigen_vecs, points, dim) -> bool:
+    basis = trivial_basis(points, dim)
+    return is_subspace(eigen_vecs, basis)
 
 def points_span_dim(points: np.ndarray) -> bool:
     """
