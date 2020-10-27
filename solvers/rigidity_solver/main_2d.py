@@ -1,3 +1,6 @@
+import sys
+sys.path.append('.')
+
 from util.debugger import MyDebugger
 import visualization.model_visualizer as vis
 from solvers.rigidity_solver.eigen_analysis import get_motions, get_weakest_displacement
@@ -7,7 +10,7 @@ from solvers.rigidity_solver.algo_core import solve_rigidity
 if __name__ == "__main__":
     debugger = MyDebugger("test")
 
-    points, fixed_points_index, edges, joints = cases2d.case_5()
+    points, fixed_points_index, edges, joints = cases2d.case_6()
 
     trivial_motions, non_trivial_motions, non_zero_eigenspace = \
         solve_rigidity(points, edges, joints, fixed_points_idx=fixed_points_index, dim=2)
