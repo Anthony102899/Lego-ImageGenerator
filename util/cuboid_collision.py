@@ -1,9 +1,5 @@
 import numpy as np
 import math
-import os
-import sys
-ROOT_DIR = os.path.abspath('/Users/wuyifan/lego-solver')
-sys.path.append(ROOT_DIR)
 
 def check_ineq(T, L, cub_vec, ref_vec):
     right = abs(cub_vec[0].dot(L)) + abs(cub_vec[1].dot(L)) + abs(cub_vec[2].dot(L)) + abs(ref_vec[0].dot(L)) + abs(ref_vec[1].dot(L)) + abs(ref_vec[2].dot(L))

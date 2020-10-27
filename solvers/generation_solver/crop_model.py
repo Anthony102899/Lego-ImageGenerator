@@ -23,14 +23,6 @@ def get_corner_pos(brick):
     return cub_corner
 
 def brick_inside(brick:BrickInstance, mesh):
-    """
-    cpoint_pos = list(map(lambda cp: list(cp.pos), brick.get_current_conn_points()))  # position of cpoints of *brick*
-    cpoint_inside = mesh.contains(cpoint_pos)
-    nearby_faces = trimesh.proximity.nearby_faces(mesh, [brick.trans_matrix[:, 3][:3]])
-    if cpoint_inside.all():
-        return True, nearby_faces[0][0]
-    return False, -1
-    """
     corner_pos = get_corner_pos(brick)
     corner_inside = mesh.contains(corner_pos)
     nearby_faces = trimesh.proximity.nearby_faces(mesh, [brick.trans_matrix[:, 3][:3]])
@@ -77,9 +69,9 @@ def crop_brick(mesh, tile_set, scale):
 
 if __name__ == "__main__":
     bricks = read_bricks_from_file("./debug/3005.ldr")
-    obj_path = os.path.join(os.path.dirname(__file__), "super_graph/thick_van.ply")
+    obj_path = os.path.join(os.path.dirname(__file__), "super_graph/candle.ply")
     tile_path = os.path.join(os.path.dirname(__file__), 
-                "super_graph/3023+3024+3069+4081+3623/m2 n=2048 t=117.32.ldr")
+                "super_graph/3005+4733+3024+54200+3070+59900/3005+4733+3023+3024+54200+3070+59900 3 n=4134 t=524.41.ldr")
     tile_set = read_bricks_from_file(tile_path)
     print("#bricks in tile: ", len(tile_set))
     mesh = trimesh.load_mesh(obj_path)

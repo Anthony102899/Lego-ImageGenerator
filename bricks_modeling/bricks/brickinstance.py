@@ -7,10 +7,10 @@ from bricks_modeling.connections.connpoint import CPoint
 from bricks_modeling.connections.conn_type import compute_conn_type
 from bricks_modeling.database.ldraw_colors import color_phraser
 import util.geometry_util as geo_util
-import util.cuboid_geometry as cu_geo
 import itertools as iter
 import json
 from util.geometry_util import get_random_transformation
+from bricks_modeling.file_IO.util import to_ldr_format
 from bricks_modeling import config
 import util.cuboid_collision as cuboid_col
 
@@ -146,11 +146,7 @@ if __name__ == "__main__":
     from bricks_modeling.file_IO.model_reader import read_bricks_from_file
     from bricks_modeling.file_IO.model_writer import write_bricks_to_file
     from bricks_modeling.connectivity_graph import ConnectivityGraph
-    """
-    bricks = read_bricks_from_file("./debug/0.ldr") 
-    print((bricks[0].get_bbox())[0])
     
-    """
     bricks = read_bricks_from_file("./debug/0 3024+54200 2.ldr") 
     for i in range(len(bricks)):
         for j in range(len(bricks)):
@@ -160,4 +156,3 @@ if __name__ == "__main__":
                 print(f"{i}=={j}: ",bricks[i] == bricks[j])
                 print(f"{i} collide with {j}: ", collide,"\n")
                 print(f"{i} connect with {j}: ", connect,"\n")
-    
