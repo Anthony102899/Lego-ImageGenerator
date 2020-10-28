@@ -1,5 +1,25 @@
 [
   {
+    "id": "24299",
+    "volume": 0.774,
+    "connPoint": [
+      {"pos": [-10, -2, -10], "orient": [0, 1, 0], "type": "stud"},
+      {"pos": [-10, 6, -10], "orient": [0, 1, 0], "type": "tube"},
+      {"pos": [-10, -2, 10], "orient": [0, 1, 0], "type": "stud"},
+      {"pos": [-10, 6, 10], "orient": [0, 1, 0], "type": "tube"}
+      ]
+  },
+  {
+    "id": "24307",
+    "volume": 0.774,
+    "connPoint": [
+      {"pos": [10, -2, -10], "orient": [0, 1, 0], "type": "stud"},
+      {"pos": [10, 6, -10], "orient": [0, 1, 0], "type": "tube"},
+      {"pos": [10, -2, 10], "orient": [0, 1, 0], "type": "stud"},
+      {"pos": [10, 6, 10], "orient": [0, 1, 0], "type": "tube"}
+      ]
+  },
+  {
     "id": "3028",
     "volume": 1,
     "connPoint": [
@@ -152,329 +172,74 @@
   {
     "id": "98138",
     "connPoint": [
-      {
-        "pos": [
-          0,
-          6,
-          0
-        ],
-        "orient": [
-          0,
-          1,
-          0
-        ],
-        "type": "tube"
-      }
-    ]
+      {"pos": [  0,  6,  0],"orient": [0,1,0],"type": "tube"}]
   },
   {
     "id": "87079",
     "connPoint": [
-      {
-        "pos": [
-          10,
-          6,
-          10
-        ],
-        "orient": [
-          0,
-          1,
-          0
-        ],
-        "type": "tube"
+      {"pos": [  10,  6,  10],"orient": [  0,  1,  0],"type": "tube"
       },
-      {
-        "pos": [
-          10,
-          6,
-          -10
-        ],
-        "orient": [
-          0,
-          1,
-          0
-        ],
-        "type": "tube"
+      {"pos": [  10,  6,  -10],"orient": [  0,  1,  0],"type": "tube"
       },
-      {
-        "pos": [
-          -10,
-          6,
-          10
-        ],
-        "orient": [
-          0,
-          1,
-          0
-        ],
-        "type": "tube"
+      {"pos": [  -10,  6,  10],"orient": [  0,  1,  0],"type": "tube"
       },
-      {
-        "pos": [
-          -10,
-          6,
-          -10
-        ],
-        "orient": [
-          0,
-          1,
-          0
-        ],
-        "type": "tube"
+      {"pos": [  -10,  6,  -10],"orient": [  0,  1,  0],"type": "tube"
       },
-      {
-        "pos": [
-          30,
-          6,
-          10
-        ],
-        "orient": [
-          0,
-          1,
-          0
-        ],
-        "type": "tube"
+      {"pos": [  30,  6,  10],"orient": [  0,  1,  0],"type": "tube"
       },
-      {
-        "pos": [
-          30,
-          6,
-          -10
-        ],
-        "orient": [
-          0,
-          1,
-          0
-        ],
-        "type": "tube"
+      {"pos": [  30,  6,  -10],"orient": [  0,  1,  0],"type": "tube"
       },
-      {
-        "pos": [
-          -30,
-          6,
-          10
-        ],
-        "orient": [
-          0,
-          1,
-          0
-        ],
-        "type": "tube"
+      {"pos": [  -30,  6,  10],"orient": [  0,  1,  0],"type": "tube"
       },
-      {
-        "pos": [
-          -30,
-          6,
-          -10
-        ],
-        "orient": [
-          0,
-          1,
-          0
-        ],
-        "type": "tube"
+      {"pos": [  -30,  6,  -10],"orient": [  0,  1,  0],"type": "tube"
       }
     ]
   },
   {
     "id": "26603",
     "connPoint": [
-      {
-        "pos": [
-          0,
-          6,
-          10
-        ],
-        "orient": [
-          0,
-          1,
-          0
-        ],
-        "type": "tube"
+      {"pos": [  0,  6,  10],"orient": [  0,  1,  0],"type": "tube"
       },
-      {
-        "pos": [
-          0,
-          6,
-          -10
-        ],
-        "orient": [
-          0,
-          1,
-          0
-        ],
-        "type": "tube"
+      {"pos": [  0,  6,  -10],"orient": [  0,  1,  0],"type": "tube"
       },
-      {
-        "pos": [
-          20,
-          6,
-          10
-        ],
-        "orient": [
-          0,
-          1,
-          0
-        ],
-        "type": "tube"
+      {"pos": [  20,  6,  10],"orient": [  0,  1,  0],"type": "tube"
       },
-      {
-        "pos": [
-          20,
-          6,
-          -10
-        ],
-        "orient": [
-          0,
-          1,
-          0
-        ],
-        "type": "tube"
+      {"pos": [  20,  6,  -10],"orient": [  0,  1,  0],"type": "tube"
       },
-      {
-        "pos": [
-          -20,
-          6,
-          10
-        ],
-        "orient": [
-          0,
-          1,
-          0
-        ],
-        "type": "tube"
+      {"pos": [  -20,  6,  10],"orient": [  0,  1,  0],"type": "tube"
       },
-      {
-        "pos": [
-          -20,
-          6,
-          -10
-        ],
-        "orient": [
-          0,
-          1,
-          0
-        ],
-        "type": "tube"
+      {"pos": [  -20,  6,  -10],"orient": [  0,  1,  0],"type": "tube"
       }
     ]
   },
   {
     "id": "25269",
     "connPoint": [
-      {
-        "pos": [
-          0,
-          6,
-          0
-        ],
-        "orient": [
-          0,
-          1,
-          0
-        ],
-        "type": "tube"
+      {"pos": [  0,  6,  0],"orient": [  0,  1,  0],"type": "tube"
       }
     ]
   },
   {
     "id": "24246",
     "connPoint": [
-      {
-        "pos": [
-          0,
-          6,
-          0
-        ],
-        "orient": [
-          0,
-          1,
-          0
-        ],
-        "type": "tube"
+      {"pos": [  0,  6,  0],"orient": [  0,  1,  0],"type": "tube"
       }
     ]
   },
   {
     "id": "6636",
     "connPoint": [
-      {
-        "pos": [
-          10,
-          6,
-          0
-        ],
-        "orient": [
-          0,
-          1,
-          0
-        ],
-        "type": "tube"
+      {"pos": [  10,  6,  0],"orient": [  0,  1,  0],"type": "tube"
       },
-      {
-        "pos": [
-          -10,
-          6,
-          0
-        ],
-        "orient": [
-          0,
-          1,
-          0
-        ],
-        "type": "tube"
+      {"pos": [  -10,  6,  0],"orient": [  0,  1,  0],"type": "tube"
       },
-      {
-        "pos": [
-          30,
-          6,
-          0
-        ],
-        "orient": [
-          0,
-          1,
-          0
-        ],
-        "type": "tube"
+      {"pos": [  30,  6,  0],"orient": [  0,  1,  0],"type": "tube"
       },
-      {
-        "pos": [
-          -30,
-          6,
-          0
-        ],
-        "orient": [
-          0,
-          1,
-          0
-        ],
-        "type": "tube"
+      {"pos": [  -30,  6,  0],"orient": [  0,  1,  0],"type": "tube"
       },
-      {
-        "pos": [
-          50,
-          6,
-          0
-        ],
-        "orient": [
-          0,
-          1,
-          0
-        ],
-        "type": "tube"
+      {"pos": [  50,  6,  0],"orient": [  0,  1,  0],"type": "tube"
       },
-      {
-        "pos": [
-          -50,
-          6,
-          0
-        ],
-        "orient": [
-          0,
-          1,
-          0
-        ],
-        "type": "tube"
+      {"pos": [  -50,  6,  0],"orient": [  0,  1,  0],"type": "tube"
       }
     ]
   },
@@ -482,109 +247,21 @@
   {
     "id": "4162",
     "connPoint": [
-      {
-        "pos": [
-          10,
-          6,
-          0
-        ],
-        "orient": [
-          0,
-          1,
-          0
-        ],
-        "type": "tube"
+      {"pos": [  10,  6,  0],"orient": [  0,  1,  0],"type": "tube"
       },
-      {
-        "pos": [
-          -10,
-          6,
-          0
-        ],
-        "orient": [
-          0,
-          1,
-          0
-        ],
-        "type": "tube"
+      {"pos": [  -10,  6,  0],"orient": [  0,  1,  0],"type": "tube"
       },
-      {
-        "pos": [
-          30,
-          6,
-          0
-        ],
-        "orient": [
-          0,
-          1,
-          0
-        ],
-        "type": "tube"
+      {"pos": [  30,  6,  0],"orient": [  0,  1,  0],"type": "tube"
       },
-      {
-        "pos": [
-          -30,
-          6,
-          0
-        ],
-        "orient": [
-          0,
-          1,
-          0
-        ],
-        "type": "tube"
+      {"pos": [  -30,  6,  0],"orient": [  0,  1,  0],"type": "tube"
       },
-      {
-        "pos": [
-          50,
-          6,
-          0
-        ],
-        "orient": [
-          0,
-          1,
-          0
-        ],
-        "type": "tube"
+      {"pos": [  50,  6,  0],"orient": [  0,  1,  0],"type": "tube"
       },
-      {
-        "pos": [
-          -50,
-          6,
-          0
-        ],
-        "orient": [
-          0,
-          1,
-          0
-        ],
-        "type": "tube"
+      {"pos": [  -50,  6,  0],"orient": [  0,  1,  0],"type": "tube"
       },
-      {
-        "pos": [
-          70,
-          6,
-          0
-        ],
-        "orient": [
-          0,
-          1,
-          0
-        ],
-        "type": "tube"
+      {"pos": [  70,  6,  0],"orient": [  0,  1,  0],"type": "tube"
       },
-      {
-        "pos": [
-          -70,
-          6,
-          0
-        ],
-        "orient": [
-          0,
-          1,
-          0
-        ],
-        "type": "tube"
+      {"pos": [  -70,  6,  0],"orient": [  0,  1,  0],"type": "tube"
       }
     ]
   },
@@ -592,972 +269,158 @@
     "id": "6141",
     "volume":0.1,
     "connPoint": [
-      {
-        "pos": [
-          0,
-          -2,
-          0
-        ],
-        "orient": [
-          0,
-          1,
-          0
-        ],
-        "type": "stud"
+      {"pos": [  0,  -2,  0],"orient": [  0,  1,  0],"type": "stud"
       },
-      {
-        "pos": [
-          0,
-          5.5,
-          0
-        ],
-        "orient": [
-          0,
-          1,
-          0
-        ],
-        "type": "tube"
+      {"pos": [  0,  5.5,  0],"orient": [  0,  1,  0],"type": "tube"
       }
     ]
   },
   {
     "id": "3958",
     "connPoint": [
-      {
-        "pos": [
-          10,
-          -2,
-          -10
-        ],
-        "orient": [
-          0,
-          1,
-          0
-        ],
-        "type": "stud"
-      },
-      {
-        "pos": [
-          10,
-          -2,
-          10
-        ],
-        "orient": [
-          0,
-          1,
-          0
-        ],
-        "type": "stud"
-      },
-      {
-        "pos": [
-          -10,
-          -2,
-          -10
-        ],
-        "orient": [
-          0,
-          1,
-          0
-        ],
-        "type": "stud"
-      },
-      {
-        "pos": [
-          -10,
-          -2,
-          10
-        ],
-        "orient": [
-          0,
-          1,
-          0
-        ],
-        "type": "stud"
-      },
-      {
-        "pos": [
-          10,
-          -2,
-          -30
-        ],
-        "orient": [
-          0,
-          1,
-          0
-        ],
-        "type": "stud"
-      },
-      {
-        "pos": [
-          10,
-          -2,
-          30
-        ],
-        "orient": [
-          0,
-          1,
-          0
-        ],
-        "type": "stud"
-      },
-      {
-        "pos": [
-          -10,
-          -2,
-          -30
-        ],
-        "orient": [
-          0,
-          1,
-          0
-        ],
-        "type": "stud"
-      },
-      {
-        "pos": [
-          -10,
-          -2,
-          30
-        ],
-        "orient": [
-          0,
-          1,
-          0
-        ],
-        "type": "stud"
-      },
-      {
-        "pos": [
-          10,
-          -2,
-          -50
-        ],
-        "orient": [
-          0,
-          1,
-          0
-        ],
-        "type": "stud"
-      },
-      {
-        "pos": [
-          10,
-          -2,
-          50
-        ],
-        "orient": [
-          0,
-          1,
-          0
-        ],
-        "type": "stud"
-      },
-      {
-        "pos": [
-          -10,
-          -2,
-          -50
-        ],
-        "orient": [
-          0,
-          1,
-          0
-        ],
-        "type": "stud"
-      },
-      {
-        "pos": [
-          -10,
-          -2,
-          50
-        ],
-        "orient": [
-          0,
-          1,
-          0
-        ],
-        "type": "stud"
-      },
-      {
-        "pos": [
-          30,
-          -2,
-          -10
-        ],
-        "orient": [
-          0,
-          1,
-          0
-        ],
-        "type": "stud"
-      },
-      {
-        "pos": [
-          30,
-          -2,
-          10
-        ],
-        "orient": [
-          0,
-          1,
-          0
-        ],
-        "type": "stud"
-      },
-      {
-        "pos": [
-          -30,
-          -2,
-          -10
-        ],
-        "orient": [
-          0,
-          1,
-          0
-        ],
-        "type": "stud"
-      },
-      {
-        "pos": [
-          -30,
-          -2,
-          10
-        ],
-        "orient": [
-          0,
-          1,
-          0
-        ],
-        "type": "stud"
-      },
-      {
-        "pos": [
-          30,
-          -2,
-          -30
-        ],
-        "orient": [
-          0,
-          1,
-          0
-        ],
-        "type": "stud"
-      },
-      {
-        "pos": [
-          30,
-          -2,
-          30
-        ],
-        "orient": [
-          0,
-          1,
-          0
-        ],
-        "type": "stud"
-      },
-      {
-        "pos": [
-          -30,
-          -2,
-          -30
-        ],
-        "orient": [
-          0,
-          1,
-          0
-        ],
-        "type": "stud"
-      },
-      {
-        "pos": [
-          -30,
-          -2,
-          30
-        ],
-        "orient": [
-          0,
-          1,
-          0
-        ],
-        "type": "stud"
-      },
-      {
-        "pos": [
-          30,
-          -2,
-          -50
-        ],
-        "orient": [
-          0,
-          1,
-          0
-        ],
-        "type": "stud"
-      },
-      {
-        "pos": [
-          30,
-          -2,
-          50
-        ],
-        "orient": [
-          0,
-          1,
-          0
-        ],
-        "type": "stud"
-      },
-      {
-        "pos": [
-          -30,
-          -2,
-          -50
-        ],
-        "orient": [
-          0,
-          1,
-          0
-        ],
-        "type": "stud"
-      },
-      {
-        "pos": [
-          -30,
-          -2,
-          50
-        ],
-        "orient": [
-          0,
-          1,
-          0
-        ],
-        "type": "stud"
-      },
-      {
-        "pos": [
-          50,
-          -2,
-          -10
-        ],
-        "orient": [
-          0,
-          1,
-          0
-        ],
-        "type": "stud"
-      },
-      {
-        "pos": [
-          50,
-          -2,
-          10
-        ],
-        "orient": [
-          0,
-          1,
-          0
-        ],
-        "type": "stud"
-      },
-      {
-        "pos": [
-          -50,
-          -2,
-          -10
-        ],
-        "orient": [
-          0,
-          1,
-          0
-        ],
-        "type": "stud"
-      },
-      {
-        "pos": [
-          -50,
-          -2,
-          10
-        ],
-        "orient": [
-          0,
-          1,
-          0
-        ],
-        "type": "stud"
-      },
-      {
-        "pos": [
-          50,
-          -2,
-          -30
-        ],
-        "orient": [
-          0,
-          1,
-          0
-        ],
-        "type": "stud"
-      },
-      {
-        "pos": [
-          50,
-          -2,
-          30
-        ],
-        "orient": [
-          0,
-          1,
-          0
-        ],
-        "type": "stud"
-      },
-      {
-        "pos": [
-          -50,
-          -2,
-          -30
-        ],
-        "orient": [
-          0,
-          1,
-          0
-        ],
-        "type": "stud"
-      },
-      {
-        "pos": [
-          -50,
-          -2,
-          30
-        ],
-        "orient": [
-          0,
-          1,
-          0
-        ],
-        "type": "stud"
-      },
-      {
-        "pos": [
-          50,
-          -2,
-          -50
-        ],
-        "orient": [
-          0,
-          1,
-          0
-        ],
-        "type": "stud"
-      },
-      {
-        "pos": [
-          50,
-          -2,
-          50
-        ],
-        "orient": [
-          0,
-          1,
-          0
-        ],
-        "type": "stud"
-      },
-      {
-        "pos": [
-          -50,
-          -2,
-          -50
-        ],
-        "orient": [
-          0,
-          1,
-          0
-        ],
-        "type": "stud"
-      },
-      {
-        "pos": [
-          -50,
-          -2,
-          50
-        ],
-        "orient": [
-          0,
-          1,
-          0
-        ],
-        "type": "stud"
-      },
-      {
-        "pos": [
-          10,
-          6,
-          -10
-        ],
-        "orient": [
-          0,
-          1,
-          0
-        ],
-        "type": "tube"
-      },
-      {
-        "pos": [
-          10,
-          6,
-          10
-        ],
-        "orient": [
-          0,
-          1,
-          0
-        ],
-        "type": "tube"
-      },
-      {
-        "pos": [
-          -10,
-          6,
-          -10
-        ],
-        "orient": [
-          0,
-          1,
-          0
-        ],
-        "type": "tube"
-      },
-      {
-        "pos": [
-          -10,
-          6,
-          10
-        ],
-        "orient": [
-          0,
-          1,
-          0
-        ],
-        "type": "tube"
-      },
-      {
-        "pos": [
-          10,
-          6,
-          -30
-        ],
-        "orient": [
-          0,
-          1,
-          0
-        ],
-        "type": "tube"
-      },
-      {
-        "pos": [
-          10,
-          6,
-          30
-        ],
-        "orient": [
-          0,
-          1,
-          0
-        ],
-        "type": "tube"
-      },
-      {
-        "pos": [
-          -10,
-          6,
-          -30
-        ],
-        "orient": [
-          0,
-          1,
-          0
-        ],
-        "type": "tube"
-      },
-      {
-        "pos": [
-          -10,
-          6,
-          30
-        ],
-        "orient": [
-          0,
-          1,
-          0
-        ],
-        "type": "tube"
-      },
-      {
-        "pos": [
-          10,
-          6,
-          -50
-        ],
-        "orient": [
-          0,
-          1,
-          0
-        ],
-        "type": "tube"
-      },
-      {
-        "pos": [
-          10,
-          6,
-          50
-        ],
-        "orient": [
-          0,
-          1,
-          0
-        ],
-        "type": "tube"
-      },
-      {
-        "pos": [
-          -10,
-          6,
-          -50
-        ],
-        "orient": [
-          0,
-          1,
-          0
-        ],
-        "type": "tube"
-      },
-      {
-        "pos": [
-          -10,
-          6,
-          50
-        ],
-        "orient": [
-          0,
-          1,
-          0
-        ],
-        "type": "tube"
-      },
-      {
-        "pos": [
-          30,
-          6,
-          -10
-        ],
-        "orient": [
-          0,
-          1,
-          0
-        ],
-        "type": "tube"
-      },
-      {
-        "pos": [
-          30,
-          6,
-          10
-        ],
-        "orient": [
-          0,
-          1,
-          0
-        ],
-        "type": "tube"
-      },
-      {
-        "pos": [
-          -30,
-          6,
-          -10
-        ],
-        "orient": [
-          0,
-          1,
-          0
-        ],
-        "type": "tube"
-      },
-      {
-        "pos": [
-          -30,
-          6,
-          10
-        ],
-        "orient": [
-          0,
-          1,
-          0
-        ],
-        "type": "tube"
-      },
-      {
-        "pos": [
-          30,
-          6,
-          -30
-        ],
-        "orient": [
-          0,
-          1,
-          0
-        ],
-        "type": "tube"
-      },
-      {
-        "pos": [
-          30,
-          6,
-          30
-        ],
-        "orient": [
-          0,
-          1,
-          0
-        ],
-        "type": "tube"
-      },
-      {
-        "pos": [
-          -30,
-          6,
-          -30
-        ],
-        "orient": [
-          0,
-          1,
-          0
-        ],
-        "type": "tube"
-      },
-      {
-        "pos": [
-          -30,
-          6,
-          30
-        ],
-        "orient": [
-          0,
-          1,
-          0
-        ],
-        "type": "tube"
-      },
-      {
-        "pos": [
-          30,
-          6,
-          -50
-        ],
-        "orient": [
-          0,
-          1,
-          0
-        ],
-        "type": "tube"
-      },
-      {
-        "pos": [
-          30,
-          6,
-          50
-        ],
-        "orient": [
-          0,
-          1,
-          0
-        ],
-        "type": "tube"
-      },
-      {
-        "pos": [
-          -30,
-          6,
-          -50
-        ],
-        "orient": [
-          0,
-          1,
-          0
-        ],
-        "type": "tube"
-      },
-      {
-        "pos": [
-          -30,
-          6,
-          50
-        ],
-        "orient": [
-          0,
-          1,
-          0
-        ],
-        "type": "tube"
-      },
-      {
-        "pos": [
-          50,
-          6,
-          -10
-        ],
-        "orient": [
-          0,
-          1,
-          0
-        ],
-        "type": "tube"
-      },
-      {
-        "pos": [
-          50,
-          6,
-          10
-        ],
-        "orient": [
-          0,
-          1,
-          0
-        ],
-        "type": "tube"
-      },
-      {
-        "pos": [
-          -50,
-          6,
-          -10
-        ],
-        "orient": [
-          0,
-          1,
-          0
-        ],
-        "type": "tube"
-      },
-      {
-        "pos": [
-          -50,
-          6,
-          10
-        ],
-        "orient": [
-          0,
-          1,
-          0
-        ],
-        "type": "tube"
-      },
-      {
-        "pos": [
-          50,
-          6,
-          -30
-        ],
-        "orient": [
-          0,
-          1,
-          0
-        ],
-        "type": "tube"
-      },
-      {
-        "pos": [
-          50,
-          6,
-          30
-        ],
-        "orient": [
-          0,
-          1,
-          0
-        ],
-        "type": "tube"
-      },
-      {
-        "pos": [
-          -50,
-          6,
-          -30
-        ],
-        "orient": [
-          0,
-          1,
-          0
-        ],
-        "type": "tube"
-      },
-      {
-        "pos": [
-          -50,
-          6,
-          30
-        ],
-        "orient": [
-          0,
-          1,
-          0
-        ],
-        "type": "tube"
-      },
-      {
-        "pos": [
-          50,
-          6,
-          -50
-        ],
-        "orient": [
-          0,
-          1,
-          0
-        ],
-        "type": "tube"
-      },
-      {
-        "pos": [
-          50,
-          6,
-          50
-        ],
-        "orient": [
-          0,
-          1,
-          0
-        ],
-        "type": "tube"
-      },
-      {
-        "pos": [
-          -50,
-          6,
-          -50
-        ],
-        "orient": [
-          0,
-          1,
-          0
-        ],
-        "type": "tube"
-      },
-      {
-        "pos": [
-          -50,
-          6,
-          50
-        ],
-        "orient": [
-          0,
-          1,
-          0
-        ],
-        "type": "tube"
+      {"pos": [  10,  -2,  -10],"orient": [  0,  1,  0],"type": "stud"
+      },
+      {"pos": [  10,  -2,  10],"orient": [  0,  1,  0],"type": "stud"
+      },
+      {"pos": [  -10,  -2,  -10],"orient": [  0,  1,  0],"type": "stud"
+      },
+      {"pos": [  -10,  -2,  10],"orient": [  0,  1,  0],"type": "stud"
+      },
+      {"pos": [  10,  -2,  -30],"orient": [  0,  1,  0],"type": "stud"
+      },
+      {"pos": [  10,  -2,  30],"orient": [  0,  1,  0],"type": "stud"
+      },
+      {"pos": [  -10,  -2,  -30],"orient": [  0,  1,  0],"type": "stud"
+      },
+      {"pos": [  -10,  -2,  30],"orient": [  0,  1,  0],"type": "stud"
+      },
+      {"pos": [  10,  -2,  -50],"orient": [  0,  1,  0],"type": "stud"
+      },
+      {"pos": [  10,  -2,  50],"orient": [  0,  1,  0],"type": "stud"
+      },
+      {"pos": [  -10,  -2,  -50],"orient": [  0,  1,  0],"type": "stud"
+      },
+      {"pos": [  -10,  -2,  50],"orient": [  0,  1,  0],"type": "stud"
+      },
+      {"pos": [  30,  -2,  -10],"orient": [  0,  1,  0],"type": "stud"
+      },
+      {"pos": [  30,  -2,  10],"orient": [  0,  1,  0],"type": "stud"
+      },
+      {"pos": [  -30,  -2,  -10],"orient": [  0,  1,  0],"type": "stud"
+      },
+      {"pos": [  -30,  -2,  10],"orient": [  0,  1,  0],"type": "stud"
+      },
+      {"pos": [  30,  -2,  -30],"orient": [  0,  1,  0],"type": "stud"
+      },
+      {"pos": [  30,  -2,  30],"orient": [  0,  1,  0],"type": "stud"
+      },
+      {"pos": [  -30,  -2,  -30],"orient": [  0,  1,  0],"type": "stud"
+      },
+      {"pos": [  -30,  -2,  30],"orient": [  0,  1,  0],"type": "stud"
+      },
+      {"pos": [  30,  -2,  -50],"orient": [  0,  1,  0],"type": "stud"
+      },
+      {"pos": [  30,  -2,  50],"orient": [  0,  1,  0],"type": "stud"
+      },
+      {"pos": [  -30,  -2,  -50],"orient": [  0,  1,  0],"type": "stud"
+      },
+      {"pos": [  -30,  -2,  50],"orient": [  0,  1,  0],"type": "stud"
+      },
+      {"pos": [  50,  -2,  -10],"orient": [  0,  1,  0],"type": "stud"
+      },
+      {"pos": [  50,  -2,  10],"orient": [  0,  1,  0],"type": "stud"
+      },
+      {"pos": [  -50,  -2,  -10],"orient": [  0,  1,  0],"type": "stud"
+      },
+      {"pos": [  -50,  -2,  10],"orient": [  0,  1,  0],"type": "stud"
+      },
+      {"pos": [  50,  -2,  -30],"orient": [  0,  1,  0],"type": "stud"
+      },
+      {"pos": [  50,  -2,  30],"orient": [  0,  1,  0],"type": "stud"
+      },
+      {"pos": [  -50,  -2,  -30],"orient": [  0,  1,  0],"type": "stud"
+      },
+      {"pos": [  -50,  -2,  30],"orient": [  0,  1,  0],"type": "stud"
+      },
+      {"pos": [  50,  -2,  -50],"orient": [  0,  1,  0],"type": "stud"
+      },
+      {"pos": [  50,  -2,  50],"orient": [  0,  1,  0],"type": "stud"
+      },
+      {"pos": [  -50,  -2,  -50],"orient": [  0,  1,  0],"type": "stud"
+      },
+      {"pos": [  -50,  -2,  50],"orient": [  0,  1,  0],"type": "stud"
+      },
+      {"pos": [  10,  6,  -10],"orient": [  0,  1,  0],"type": "tube"
+      },
+      {"pos": [  10,  6,  10],"orient": [  0,  1,  0],"type": "tube"
+      },
+      {"pos": [  -10,  6,  -10],"orient": [  0,  1,  0],"type": "tube"
+      },
+      {"pos": [  -10,  6,  10],"orient": [  0,  1,  0],"type": "tube"
+      },
+      {"pos": [  10,  6,  -30],"orient": [  0,  1,  0],"type": "tube"
+      },
+      {"pos": [  10,  6,  30],"orient": [  0,  1,  0],"type": "tube"
+      },
+      {"pos": [  -10,  6,  -30],"orient": [  0,  1,  0],"type": "tube"
+      },
+      {"pos": [  -10,  6,  30],"orient": [  0,  1,  0],"type": "tube"
+      },
+      {"pos": [  10,  6,  -50],"orient": [  0,  1,  0],"type": "tube"
+      },
+      {"pos": [  10,  6,  50],"orient": [  0,  1,  0],"type": "tube"
+      },
+      {"pos": [  -10,  6,  -50],"orient": [  0,  1,  0],"type": "tube"
+      },
+      {"pos": [  -10,  6,  50],"orient": [  0,  1,  0],"type": "tube"
+      },
+      {"pos": [  30,  6,  -10],"orient": [  0,  1,  0],"type": "tube"
+      },
+      {"pos": [  30,  6,  10],"orient": [  0,  1,  0],"type": "tube"
+      },
+      {"pos": [  -30,  6,  -10],"orient": [  0,  1,  0],"type": "tube"
+      },
+      {"pos": [  -30,  6,  10],"orient": [  0,  1,  0],"type": "tube"
+      },
+      {"pos": [  30,  6,  -30],"orient": [  0,  1,  0],"type": "tube"
+      },
+      {"pos": [  30,  6,  30],"orient": [  0,  1,  0],"type": "tube"
+      },
+      {"pos": [  -30,  6,  -30],"orient": [  0,  1,  0],"type": "tube"
+      },
+      {"pos": [  -30,  6,  30],"orient": [  0,  1,  0],"type": "tube"
+      },
+      {"pos": [  30,  6,  -50],"orient": [  0,  1,  0],"type": "tube"
+      },
+      {"pos": [  30,  6,  50],"orient": [  0,  1,  0],"type": "tube"
+      },
+      {"pos": [  -30,  6,  -50],"orient": [  0,  1,  0],"type": "tube"
+      },
+      {"pos": [  -30,  6,  50],"orient": [  0,  1,  0],"type": "tube"
+      },
+      {"pos": [  50,  6,  -10],"orient": [  0,  1,  0],"type": "tube"
+      },
+      {"pos": [  50,  6,  10],"orient": [  0,  1,  0],"type": "tube"
+      },
+      {"pos": [  -50,  6,  -10],"orient": [  0,  1,  0],"type": "tube"
+      },
+      {"pos": [  -50,  6,  10],"orient": [  0,  1,  0],"type": "tube"
+      },
+      {"pos": [  50,  6,  -30],"orient": [  0,  1,  0],"type": "tube"
+      },
+      {"pos": [  50,  6,  30],"orient": [  0,  1,  0],"type": "tube"
+      },
+      {"pos": [  -50,  6,  -30],"orient": [  0,  1,  0],"type": "tube"
+      },
+      {"pos": [  -50,  6,  30],"orient": [  0,  1,  0],"type": "tube"
+      },
+      {"pos": [  50,  6,  -50],"orient": [  0,  1,  0],"type": "tube"
+      },
+      {"pos": [  50,  6,  50],"orient": [  0,  1,  0],"type": "tube"
+      },
+      {"pos": [  -50,  6,  -50],"orient": [  0,  1,  0],"type": "tube"
+      },
+      {"pos": [  -50,  6,  50],"orient": [  0,  1,  0],"type": "tube"
       }
     ]
   },
@@ -1565,509 +428,91 @@
     "id": "3069b",
     "volume":0.37,
     "connPoint": [
-      {
-        "pos": [
-          10,
-          6,
-          0
-        ],
-        "orient": [
-          0,
-          1,
-          0
-        ],
-        "type": "tube"
+      {"pos": [  10,  6,  0],"orient": [  0,  1,  0],"type": "tube"
       },
-      {
-        "pos": [
-          -10,
-          6,
-          0
-        ],
-        "orient": [
-          0,
-          1,
-          0
-        ],
-        "type": "tube"
+      {"pos": [  -10,  6,  0],"orient": [  0,  1,  0],"type": "tube"
       }
     ]
   },
   {
     "id": "3068",
     "connPoint": [
-      {
-        "pos": [
-          10,
-          6,
-          10
-        ],
-        "orient": [
-          0,
-          1,
-          0
-        ],
-        "type": "tube"
+      {"pos": [  10,  6,  10],"orient": [  0,  1,  0],"type": "tube"
       },
-      {
-        "pos": [
-          10,
-          6,
-          -10
-        ],
-        "orient": [
-          0,
-          1,
-          0
-        ],
-        "type": "tube"
+      {"pos": [  10,  6,  -10],"orient": [  0,  1,  0],"type": "tube"
       },
-      {
-        "pos": [
-          -10,
-          6,
-          10
-        ],
-        "orient": [
-          0,
-          1,
-          0
-        ],
-        "type": "tube"
+      {"pos": [  -10,  6,  10],"orient": [  0,  1,  0],"type": "tube"
       },
-      {
-        "pos": [
-          -10,
-          6,
-          -10
-        ],
-        "orient": [
-          0,
-          1,
-          0
-        ],
-        "type": "tube"
+      {"pos": [  -10,  6,  -10],"orient": [  0,  1,  0],"type": "tube"
       }
     ]
   },
   {
     "id": "3031",
     "connPoint": [
-      {
-        "pos": [
-          10,
-          -2,
-          -10
-        ],
-        "orient": [
-          0,
-          1,
-          0
-        ],
-        "type": "stud"
+      {"pos": [  10,  -2,  -10],"orient": [  0,  1,  0],"type": "stud"
       },
-      {
-        "pos": [
-          10,
-          -2,
-          10
-        ],
-        "orient": [
-          0,
-          1,
-          0
-        ],
-        "type": "stud"
+      {"pos": [  10,  -2,  10],"orient": [  0,  1,  0],"type": "stud"
       },
-      {
-        "pos": [
-          -10,
-          -2,
-          -10
-        ],
-        "orient": [
-          0,
-          1,
-          0
-        ],
-        "type": "stud"
+      {"pos": [  -10,  -2,  -10],"orient": [  0,  1,  0],"type": "stud"
       },
-      {
-        "pos": [
-          -10,
-          -2,
-          10
-        ],
-        "orient": [
-          0,
-          1,
-          0
-        ],
-        "type": "stud"
+      {"pos": [  -10,  -2,  10],"orient": [  0,  1,  0],"type": "stud"
       },
-      {
-        "pos": [
-          10,
-          -2,
-          -30
-        ],
-        "orient": [
-          0,
-          1,
-          0
-        ],
-        "type": "stud"
+      {"pos": [  10,  -2,  -30],"orient": [  0,  1,  0],"type": "stud"
       },
-      {
-        "pos": [
-          10,
-          -2,
-          30
-        ],
-        "orient": [
-          0,
-          1,
-          0
-        ],
-        "type": "stud"
+      {"pos": [  10,  -2,  30],"orient": [  0,  1,  0],"type": "stud"
       },
-      {
-        "pos": [
-          -10,
-          -2,
-          -30
-        ],
-        "orient": [
-          0,
-          1,
-          0
-        ],
-        "type": "stud"
+      {"pos": [  -10,  -2,  -30],"orient": [  0,  1,  0],"type": "stud"
       },
-      {
-        "pos": [
-          -10,
-          -2,
-          30
-        ],
-        "orient": [
-          0,
-          1,
-          0
-        ],
-        "type": "stud"
+      {"pos": [  -10,  -2,  30],"orient": [  0,  1,  0],"type": "stud"
       },
-      {
-        "pos": [
-          30,
-          -2,
-          -10
-        ],
-        "orient": [
-          0,
-          1,
-          0
-        ],
-        "type": "stud"
+      {"pos": [  30,  -2,  -10],"orient": [  0,  1,  0],"type": "stud"
       },
-      {
-        "pos": [
-          30,
-          -2,
-          10
-        ],
-        "orient": [
-          0,
-          1,
-          0
-        ],
-        "type": "stud"
+      {"pos": [  30,  -2,  10],"orient": [  0,  1,  0],"type": "stud"
       },
-      {
-        "pos": [
-          -30,
-          -2,
-          -10
-        ],
-        "orient": [
-          0,
-          1,
-          0
-        ],
-        "type": "stud"
+      {"pos": [  -30,  -2,  -10],"orient": [  0,  1,  0],"type": "stud"
       },
-      {
-        "pos": [
-          -30,
-          -2,
-          10
-        ],
-        "orient": [
-          0,
-          1,
-          0
-        ],
-        "type": "stud"
+      {"pos": [  -30,  -2,  10],"orient": [  0,  1,  0],"type": "stud"
       },
-      {
-        "pos": [
-          30,
-          -2,
-          -30
-        ],
-        "orient": [
-          0,
-          1,
-          0
-        ],
-        "type": "stud"
+      {"pos": [  30,  -2,  -30],"orient": [  0,  1,  0],"type": "stud"
       },
-      {
-        "pos": [
-          30,
-          -2,
-          30
-        ],
-        "orient": [
-          0,
-          1,
-          0
-        ],
-        "type": "stud"
+      {"pos": [  30,  -2,  30],"orient": [  0,  1,  0],"type": "stud"
       },
-      {
-        "pos": [
-          -30,
-          -2,
-          -30
-        ],
-        "orient": [
-          0,
-          1,
-          0
-        ],
-        "type": "stud"
+      {"pos": [  -30,  -2,  -30],"orient": [  0,  1,  0],"type": "stud"
       },
-      {
-        "pos": [
-          -30,
-          -2,
-          30
-        ],
-        "orient": [
-          0,
-          1,
-          0
-        ],
-        "type": "stud"
+      {"pos": [  -30,  -2,  30],"orient": [  0,  1,  0],"type": "stud"
       },
-      {
-        "pos": [
-          10,
-          6,
-          -10
-        ],
-        "orient": [
-          0,
-          1,
-          0
-        ],
-        "type": "tube"
+      {"pos": [  10,  6,  -10],"orient": [  0,  1,  0],"type": "tube"
       },
-      {
-        "pos": [
-          10,
-          6,
-          10
-        ],
-        "orient": [
-          0,
-          1,
-          0
-        ],
-        "type": "tube"
+      {"pos": [  10,  6,  10],"orient": [  0,  1,  0],"type": "tube"
       },
-      {
-        "pos": [
-          10,
-          6,
-          -30
-        ],
-        "orient": [
-          0,
-          1,
-          0
-        ],
-        "type": "tube"
+      {"pos": [  10,  6,  -30],"orient": [  0,  1,  0],"type": "tube"
       },
-      {
-        "pos": [
-          10,
-          6,
-          30
-        ],
-        "orient": [
-          0,
-          1,
-          0
-        ],
-        "type": "tube"
+      {"pos": [  10,  6,  30],"orient": [  0,  1,  0],"type": "tube"
       },
-      {
-        "pos": [
-          -10,
-          6,
-          -10
-        ],
-        "orient": [
-          0,
-          1,
-          0
-        ],
-        "type": "tube"
+      {"pos": [  -10,  6,  -10],"orient": [  0,  1,  0],"type": "tube"
       },
-      {
-        "pos": [
-          -10,
-          6,
-          10
-        ],
-        "orient": [
-          0,
-          1,
-          0
-        ],
-        "type": "tube"
+      {"pos": [  -10,  6,  10],"orient": [  0,  1,  0],"type": "tube"
       },
-      {
-        "pos": [
-          -10,
-          6,
-          -30
-        ],
-        "orient": [
-          0,
-          1,
-          0
-        ],
-        "type": "tube"
+      {"pos": [  -10,  6,  -30],"orient": [  0,  1,  0],"type": "tube"
       },
-      {
-        "pos": [
-          -10,
-          6,
-          30
-        ],
-        "orient": [
-          0,
-          1,
-          0
-        ],
-        "type": "tube"
+      {"pos": [  -10,  6,  30],"orient": [  0,  1,  0],"type": "tube"
       },
-      {
-        "pos": [
-          30,
-          6,
-          -10
-        ],
-        "orient": [
-          0,
-          1,
-          0
-        ],
-        "type": "tube"
+      {"pos": [  30,  6,  -10],"orient": [  0,  1,  0],"type": "tube"
       },
-      {
-        "pos": [
-          30,
-          6,
-          10
-        ],
-        "orient": [
-          0,
-          1,
-          0
-        ],
-        "type": "tube"
+      {"pos": [  30,  6,  10],"orient": [  0,  1,  0],"type": "tube"
       },
-      {
-        "pos": [
-          30,
-          6,
-          -30
-        ],
-        "orient": [
-          0,
-          1,
-          0
-        ],
-        "type": "tube"
+      {"pos": [  30,  6,  -30],"orient": [  0,  1,  0],"type": "tube"
       },
-      {
-        "pos": [
-          30,
-          6,
-          30
-        ],
-        "orient": [
-          0,
-          1,
-          0
-        ],
-        "type": "tube"
+      {"pos": [  30,  6,  30],"orient": [  0,  1,  0],"type": "tube"
       },
-      {
-        "pos": [
-          -30,
-          6,
-          -10
-        ],
-        "orient": [
-          0,
-          1,
-          0
-        ],
-        "type": "tube"
+      {"pos": [  -30,  6,  -10],"orient": [  0,  1,  0],"type": "tube"
       },
-      {
-        "pos": [
-          -30,
-          6,
-          10
-        ],
-        "orient": [
-          0,
-          1,
-          0
-        ],
-        "type": "tube"
+      {"pos": [  -30,  6,  10],"orient": [  0,  1,  0],"type": "tube"
       },
-      {
-        "pos": [
-          -30,
-          6,
-          -30
-        ],
-        "orient": [
-          0,
-          1,
-          0
-        ],
-        "type": "tube"
+      {"pos": [  -30,  6,  -30],"orient": [  0,  1,  0],"type": "tube"
       },
-      {
-        "pos": [
-          -30,
-          6,
-          30
-        ],
-        "orient": [
-          0,
-          1,
-          0
-        ],
-        "type": "tube"
+      {"pos": [  -30,  6,  30],"orient": [  0,  1,  0],"type": "tube"
       }
     ]
   },
@@ -2075,57 +520,13 @@
     "id": "3023",
     "volume": 0.366,
     "connPoint": [
-      {
-        "pos": [
-          10,
-          -2,
-          0
-        ],
-        "orient": [
-          0,
-          1,
-          0
-        ],
-        "type": "stud"
+      {"pos": [  10,  -2,  0],"orient": [  0,  1,  0],"type": "stud"
       },
-      {
-        "pos": [
-          10,
-          6,
-          0
-        ],
-        "orient": [
-          0,
-          1,
-          0
-        ],
-        "type": "tube"
+      {"pos": [  10,  6,  0],"orient": [  0,  1,  0],"type": "tube"
       },
-      {
-        "pos": [
-          -10,
-          -2,
-          0
-        ],
-        "orient": [
-          0,
-          1,
-          0
-        ],
-        "type": "stud"
+      {"pos": [  -10,  -2,  0],"orient": [  0,  1,  0],"type": "stud"
       },
-      {
-        "pos": [
-          -10,
-          6,
-          0
-        ],
-        "orient": [
-          0,
-          1,
-          0
-        ],
-        "type": "tube"
+      {"pos": [  -10,  6,  0],"orient": [  0,  1,  0],"type": "tube"
       }
     ]
   },
@@ -2133,83 +534,17 @@
     "id": "3623",
     "volume": 0.549,
     "connPoint": [
-      {
-        "pos": [
-          0,
-          -2,
-          0
-        ],
-        "orient": [
-          0,
-          1,
-          0
-        ],
-        "type": "stud"
+      {"pos": [  0,  -2,  0],"orient": [  0,  1,  0],"type": "stud"
       },
-      {
-        "pos": [
-          0,
-          6,
-          0
-        ],
-        "orient": [
-          0,
-          1,
-          0
-        ],
-        "type": "tube"
+      {"pos": [  0,  6,  0],"orient": [  0,  1,  0],"type": "tube"
       },
-      {
-        "pos": [
-          -20,
-          -2,
-          0
-        ],
-        "orient": [
-          0,
-          1,
-          0
-        ],
-        "type": "stud"
+      {"pos": [  -20,  -2,  0],"orient": [  0,  1,  0],"type": "stud"
       },
-      {
-        "pos": [
-          -20,
-          6,
-          0
-        ],
-        "orient": [
-          0,
-          1,
-          0
-        ],
-        "type": "tube"
+      {"pos": [  -20,  6,  0],"orient": [  0,  1,  0],"type": "tube"
       },
-      {
-        "pos": [
-          20,
-          -2,
-          0
-        ],
-        "orient": [
-          0,
-          1,
-          0
-        ],
-        "type": "stud"
+      {"pos": [  20,  -2,  0],"orient": [  0,  1,  0],"type": "stud"
       },
-      {
-        "pos": [
-          20,
-          6,
-          0
-        ],
-        "orient": [
-          0,
-          1,
-          0
-        ],
-        "type": "tube"
+      {"pos": [  20,  6,  0],"orient": [  0,  1,  0],"type": "tube"
       }
     ]
   },
@@ -2217,31 +552,9 @@
     "id": "3024",
     "volume": 0.183,
     "connPoint": [
-      {
-        "pos": [
-          0,
-          -2,
-          0
-        ],
-        "orient": [
-          0,
-          1,
-          0
-        ],
-        "type": "stud"
+      {"pos": [  0,  -2,  0],"orient": [  0,  1,  0],"type": "stud"
       },
-      {
-        "pos": [
-          0,
-          6,
-          0
-        ],
-        "orient": [
-          0,
-          1,
-          0
-        ],
-        "type": "tube"
+      {"pos": [  0,  6,  0],"orient": [  0,  1,  0],"type": "tube"
       }
     ]
   },
@@ -2249,75 +562,20 @@
     "id": "3070a",
     "volume": 0.1825,
     "connPoint": [
-      {
-        "pos": [
-          0,
-          6,
-          0
-        ],
-        "orient": [
-          0,
-          1,
-          0
-        ],
-        "type": "tube"
+      {"pos": [  0,  6,  0],"orient": [  0,  1,  0],"type": "tube"
       }
     ]
   },
   {
     "id": "2431",
     "connPoint": [
-      {
-        "pos": [
-          10,
-          6,
-          0
-        ],
-        "orient": [
-          0,
-          1,
-          0
-        ],
-        "type": "tube"
+      {"pos": [  10,  6,  0],"orient": [  0,  1,  0],"type": "tube"
       },
-      {
-        "pos": [
-          -10,
-          6,
-          0
-        ],
-        "orient": [
-          0,
-          1,
-          0
-        ],
-        "type": "tube"
+      {"pos": [  -10,  6,  0],"orient": [  0,  1,  0],"type": "tube"
       },
-      {
-        "pos": [
-          30,
-          6,
-          0
-        ],
-        "orient": [
-          0,
-          1,
-          0
-        ],
-        "type": "tube"
+      {"pos": [  30,  6,  0],"orient": [  0,  1,  0],"type": "tube"
       },
-      {
-        "pos": [
-          -30,
-          6,
-          0
-        ],
-        "orient": [
-          0,
-          1,
-          0
-        ],
-        "type": "tube"
+      {"pos": [  -30,  6,  0],"orient": [  0,  1,  0],"type": "tube"
       }
     ]
   }

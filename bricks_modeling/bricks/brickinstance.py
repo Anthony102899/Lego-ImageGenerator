@@ -15,7 +15,7 @@ from bricks_modeling import config
 import util.cuboid_collision as cuboid_col
 
 def get_corner_pos(brick):
-    bbox_ls = brick.get_cpoint_bbox()
+    bbox_ls = brick.get_col_bbox()
     cub_corner = []
     corner_transform = np.array([[1, 1, 1], [-1, -1, -1]])
     for bbox in bbox_ls:
@@ -32,7 +32,7 @@ class BrickInstance:
         self.trans_matrix = trans_matrix
         self.color = color
     
-    def get_cpoint_bbox(self):
+    def get_col_bbox(self):
         bbox = []
         brick_id = self.template.id
         brick_rot = self.get_rotation()
@@ -62,7 +62,7 @@ class BrickInstance:
         max_z = np.amax(corner_pos[:,2])
         min_z = np.amin(corner_pos[:,2])
         origin = [(max_x + min_x) / 2, (max_y + min_y) / 2, (max_z + min_z) / 2]
-        dim = [max_x - min_x, max_x - min_x, max_x - min_x]
+        dim = [max_x - min_x, max_y - min_y, max_z - min_z]
         return {"Origin": origin, "Rotation": np.identity(3), "Dimension": dim}
 
     def __eq__(self, other):
@@ -98,8 +98,8 @@ class BrickInstance:
         if not cuboid_col.cub_collision_detect(self_brick_bbox, other_brick_bbox):
             return False
 
-        self_cp_bbox = self.get_cpoint_bbox()
-        other_cp_bbox = other.get_cpoint_bbox()
+        self_cp_bbox = self.get_col_bbox()
+        other_cp_bbox = other.get_col_bbox()
         for bb1, bb2 in iter.product(self_cp_bbox, other_cp_bbox):
             if cuboid_col.cub_collision_detect(bb1, bb2):
                 return True
@@ -176,7 +176,7 @@ if __name__ == "__main__":
     from bricks_modeling.file_IO.model_writer import write_bricks_to_file
     from bricks_modeling.connectivity_graph import ConnectivityGraph
     
-    bricks = read_bricks_from_file("./debug/3 11477+3024.ldr")
+    bricks = read_bricks_from_file("")
 
     for i in range(len(bricks)):
         for j in range(len(bricks)):
