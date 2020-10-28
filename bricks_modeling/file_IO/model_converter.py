@@ -35,4 +35,4 @@ def ldr_to_obj(
     return meshs
 
 if __name__ == "__main__":
-    ldr_to_obj("/Users/wuyifan/lego-solver/debug/truck.ldr", write_file=True)
+    ldr_to_obj("./debug/truck.ldr", write_file=True)

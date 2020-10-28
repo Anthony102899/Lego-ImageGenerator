@@ -5,22 +5,10 @@ import time
 from bricks_modeling.file_IO.model_reader import read_bricks_from_file
 from util.debugger import MyDebugger
 from bricks_modeling.file_IO.model_writer import write_bricks_to_file
-from bricks_modeling.bricks.brickinstance import BrickInstance
+from bricks_modeling.bricks.brickinstance import BrickInstance, get_corner_pos
 from multiprocessing import Pool
 from functools import partial
 from bricks_modeling import config
-
-def get_corner_pos(brick):
-    bbox_ls = brick.get_bbox()
-    cub_corner = []
-    corner_transform = np.array([[1, 1, 1], [-1, -1, -1]])
-    for bbox in bbox_ls:
-        cuboid_center = np.array([bbox["Dimension"][0] / 2, bbox["Dimension"][1] / 2, bbox["Dimension"][2] / 2])
-        cuboid_corner_relative = (np.tile(cuboid_center, (2, 1))) * corner_transform
-        cub_corners_pos = np.array(bbox["Rotation"] @ cuboid_corner_relative.transpose()).transpose() + np.array(bbox["Origin"])
-        cub_corner.append(cub_corners_pos[0])
-        cub_corner.append(cub_corners_pos[1])
-    return cub_corner
 
 def brick_inside(brick:BrickInstance, mesh):
     corner_pos = get_corner_pos(brick)
@@ -68,7 +56,6 @@ def crop_brick(mesh, tile_set, scale):
     return result_crop
 
 if __name__ == "__main__":
-    bricks = read_bricks_from_file("./debug/3005.ldr")
     obj_path = os.path.join(os.path.dirname(__file__), "super_graph/candle.ply")
     tile_path = os.path.join(os.path.dirname(__file__), 
                 "super_graph/3005+4733+3024+54200+3070+59900/3005+4733+3023+3024+54200+3070+59900 3 n=4134 t=524.41.ldr")

@@ -1,3 +1,4 @@
+import os
 import numpy as np
 from util.debugger import MyDebugger
 from bricks_modeling.bricks.brick_factory import get_all_brick_templates
@@ -25,7 +26,6 @@ def draw_bbox(bbox,i):
 def write_bricks_w_bbox(bricks: List[BrickInstance], file_path):
     file = open(file_path, "a")
     for brick in bricks:
-        #print(brick_rot)
         bbox = brick.get_bbox()
         draw_bbox(bbox[0],0)
         ldr_content = "\n0 STEP\n".join([brick.to_ldraw()])

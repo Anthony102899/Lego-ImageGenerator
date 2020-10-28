@@ -20,6 +20,7 @@ def cub_collision_detect(cuboid_ref, cuboid):
     projection_axis = []
     rotation_ref = cuboid_ref["Rotation"]
     rotation_cub = cuboid["Rotation"]
+    center_AB_vec = np.array(cuboid_ref["Origin"]) - np.array(cuboid["Origin"])
 
     cuboid_dis = np.array([cuboid["Dimension"][0] / 2, cuboid["Dimension"][1] / 2, cuboid["Dimension"][2] / 2])
     cuboid_corner_relative = (np.tile(cuboid_dis, (4, 1))) * corner_transform
@@ -32,18 +33,18 @@ def cub_collision_detect(cuboid_ref, cuboid):
     projection_axis, A_local_axis = get_edge_axis(projection_axis, cub_corners_pos)
     projection_axis, B_local_axis = get_edge_axis(projection_axis, ref_corners_pos)
 
-    for Aedge in projection_axis[0:3]:
-        for Bedge in projection_axis[3:6]:
-            projection_axis.append(np.cross(Aedge, Bedge))
-    projection_axis = np.unique(np.array(projection_axis), axis=0)
-
     cub_vec = A_local_axis * np.array([cuboid_dis]).transpose()
     ref_vec = B_local_axis * np.array([ref_dis]).transpose()
 
-    center_AB_vec = np.array(cuboid_ref["Origin"]) - np.array(cuboid["Origin"])
     for axis in projection_axis:
         if check_ineq(center_AB_vec, axis, cub_vec, ref_vec):
             return False
+
+    for Aedge in A_local_axis:
+        for Bedge in B_local_axis:
+            cross = np.cross(Aedge, Bedge)
+            if check_ineq(center_AB_vec, cross, cub_vec, ref_vec):
+                return False
     return True
 
 def main():

@@ -1,3 +1,4 @@
+import os
 from bricks_modeling.file_IO.model_reader import read_bricks_from_file
 
 relation_type = {
