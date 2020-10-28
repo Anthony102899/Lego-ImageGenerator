@@ -15,6 +15,10 @@ def get_edge_axis(projection_axis, cub_corners_pos):
     return projection_axis, local_axis
 
 def cub_collision_detect(cuboid_ref, cuboid):
+    center_distance = norm(np.array(cuboid_ref["Origin"]) - np.array(cuboid["Origin"]))
+    if center_distance > norm(np.array(cuboid_ref["Dimension"])/2) + norm(np.array(cuboid["Dimension"])/2):
+        return False
+
     corner_transform = np.array([[1, 1, 1], [-1, 1, 1], [1, -1, 1], [1, 1, -1]])
 
     projection_axis = []
