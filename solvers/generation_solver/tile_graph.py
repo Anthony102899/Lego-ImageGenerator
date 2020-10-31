@@ -31,7 +31,7 @@ class Tiling:
         self.total_time = total_time
 
 # get eight or four matrices
-def get_orient_matrices(cpoint_base, cpoint_align):
+def get_orient_matrices(cpoint_base, cpoint_align, sketch, base_dim):
     transformations = []
     orient_matrices = get_orient_align_matrices(cpoint_base, cpoint_align)
     rotations = get_four_self_rotation(cpoint_base.orient)
@@ -40,6 +40,9 @@ def get_orient_matrices(cpoint_base, cpoint_align):
             transformation = np.identity(4)
             transform_mat = orient_rotate_mat @ orien_align_mat
             new_align_pos = transform_mat @ cpoint_align.pos
+            dis = cpoint_base.pos - new_align_pos
+            if sketch and (dis[0] > base_dim or dis[2] > base_dim):
+                continue
             transformation[:3, 3] = cpoint_base.pos - new_align_pos
             transformation[:3, :3] = transform_mat
             transformations.append(transformation)
@@ -66,17 +69,16 @@ def get_orient_align_matrices(cpoint_base, cpoint_align):
     return matrices
 
 """ Returns immediate possible aligns using "align_tile" for "base_brick" """
-def generate_all_neighbor_tiles(
-    base_brick: BrickInstance, align_tile: BrickInstance, color: int
-):
+def generate_all_neighbor_tiles(base_brick: BrickInstance, align_tile: BrickInstance, color: int, sketch, base_num):
     result_tiles = []
     base_cpoints = base_brick.get_current_conn_points()  # a list of cpoints in base
     align_cpoints = align_tile.get_current_conn_points()  # a list of cpoints in align
 
     for cpoint_base, cpoint_align in iter.product(base_cpoints, align_cpoints):
-        if {cpoint_base.type, cpoint_align.type} in connect_type:  # can connect
+        condition = not (sketch and not cpoint_base.type == ConnPointType.STUD)
+        if {cpoint_base.type, cpoint_align.type} in connect_type and condition:  # can connect
             # get all possible rotation matrices
-            matrices = get_orient_matrices(cpoint_base, cpoint_align)
+            matrices = get_orient_matrices(cpoint_base, cpoint_align, sketch, base_num * 20)
             for trans_mat in matrices:  # 2 possible orientations consistent with the normal
                 new_tile = BrickInstance(align_tile.template, trans_mat, color)
                 # TODO: detect if new tile collide with the base tile (for concave shape)
@@ -93,10 +95,17 @@ def unique_brick_list(bricks: List[BrickInstance]):
     return unique_list
 
 """ Returns a list of "num_rings" neighbours of brick "base_brick" """
-def find_brick_placements(num_rings: int, base_tile: BrickInstance, tile_set: list, initial_time):
+def find_brick_placements(num_rings: int, base_tile, tile_set: list, initial_time, sketch=False, base_num=0):
     debugger = MyDebugger("middle")
-    result_tiles = [base_tile]  # the resulting tiles
-    last_ring = [base_tile]  # the tiles in the last ring
+    if sketch:
+        result_tiles = []
+        last_ring = []
+        for brick in base_tile:
+            last_ring.append(brick)
+            result_tiles.append(brick)
+    else:
+        result_tiles = [base_tile]  # the resulting tiles
+        last_ring = [base_tile]  # the tiles in the last ring
     snd_last_ring = []
     for i in range(0, num_rings):
         print(f"\ncomputing ring {i}")
@@ -114,7 +123,7 @@ def find_brick_placements(num_rings: int, base_tile: BrickInstance, tile_set: li
             for align_tile in tile_set:
                 # a list of neighbour bricks of "base_brick"
                 neighbour_tiles = generate_all_neighbor_tiles(
-                    base_brick=last_brick, align_tile=align_tile, color=i + 1)
+                    base_brick=last_brick, align_tile=align_tile, color=i + 1, sketch=sketch, base_num=base_num)
 
                 neighbour_tiles = unique_brick_list(neighbour_tiles)
 

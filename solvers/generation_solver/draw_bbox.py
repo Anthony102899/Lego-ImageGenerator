@@ -26,8 +26,7 @@ def draw_bbox(bbox,i):
 def write_bricks_w_bbox(bricks: List[BrickInstance], file_path):
     file = open(file_path, "a")
     for brick in bricks:
-        bbox = brick.get_bbox()
-        draw_bbox(bbox[0],0)
+        bbox = brick.get_col_bbox()
         ldr_content = "\n0 STEP\n".join([brick.to_ldraw()])
 
         bbox_text = "\n".join([draw_bbox(bbox[i],i) for i in range(len(bbox))])
@@ -41,7 +40,7 @@ if __name__ == "__main__":
     mode = 1
     if mode == 1:
         debugger = MyDebugger("drawbbox")
-        file_path = "./debug/0 3024+54200.ldr"
+        file_path = "./debug/1 3023+3024.ldr"
         bricks = read_bricks_from_file(file_path)
         _, filename = os.path.split(file_path)
         filename = (filename.split("."))[0]
