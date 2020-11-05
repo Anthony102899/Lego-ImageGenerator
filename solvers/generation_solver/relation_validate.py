@@ -15,7 +15,7 @@ def print_error_msg(relation, eq, collide, connect):
     print(f"  equal:  ",eq,"\n")
 
 if __name__ == "__main__":
-    folder = "./bricks_modeling/bricks/spacial_relation_test_cases"
+    folder = "./bricks_modeling/bricks/spatial_relation_test_cases"
     entries = os.listdir(folder)
     entries = [entry for entry in entries if not entry.startswith('.')]
     for entry in entries:

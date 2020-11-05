@@ -4,7 +4,7 @@ from numpy.linalg import norm
 
 def check_ineq(T, L, cub_vec, ref_vec):
     right = abs(cub_vec[0].dot(L)) + abs(cub_vec[1].dot(L)) + abs(cub_vec[2].dot(L)) + abs(ref_vec[0].dot(L)) + abs(ref_vec[1].dot(L)) + abs(ref_vec[2].dot(L))
-    return abs(T.dot(L)) > right
+    return abs(T.dot(L)) > right + 1e-10
 
 def get_edge_axis(projection_axis, cub_corners_pos):
     local_axis = []
