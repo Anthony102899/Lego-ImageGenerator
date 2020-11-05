@@ -16,13 +16,14 @@ from util.geometry_util import get_random_transformation
 from solvers.generation_solver.adjacency_graph import AdjacencyGraph
 from solvers.generation_solver.minizinc_solver import MinizincSolver
 
-brick_IDs = [#"3005",
+brick_IDs = ["3004",
+             #"3005",
              #"4733",
              #"3023",
              #"3024",
-             "54200",
+             #"54200",
              #"3069b",
-             "4081b",
+             #"4081b",
              #"6141",
              #"3623",
              #"3070",
@@ -69,8 +70,7 @@ def get_brick_templates(brick_IDs):
 def generate_new(brick_set, num_rings, debugger):
     start_time = time.time()
     seed_brick = copy.deepcopy(brick_set[0])
-    bricks = find_brick_placements(
-        num_rings, base_tile=seed_brick, tile_set=brick_set, initial_time=start_time)
+    bricks = find_brick_placements(num_rings, base_tile=seed_brick, tile_set=brick_set)
     print(f"generate finished in {round(time.time() - start_time, 2)}")
     print(f"number of tiles neighbours in ring{num_rings}:", len(bricks))
     write_bricks_to_file(

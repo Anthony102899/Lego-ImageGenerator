@@ -1,26 +1,5 @@
 [
   {
-    "id": "30357",
-    "connPoint": [
-      {"pos": [0, -2, 0], "orient": [0, 1, 0], "type": "stud"},
-      {"pos": [0, 6, 0], "orient": [0, 1, 0], "type": "tube"},
-      {"pos": [0, -2, 20], "orient": [0, 1, 0], "type": "stud"},
-      {"pos": [0, 6, 20], "orient": [0, 1, 0], "type": "tube"},
-      {"pos": [0, -2, 40], "orient": [0, 1, 0], "type": "stud"},
-      {"pos": [0, 6, 40], "orient": [0, 1, 0], "type": "tube"},
-      {"pos": [20, -2, 0], "orient": [0, 1, 0], "type": "stud"},
-      {"pos": [20, 6, 0], "orient": [0, 1, 0], "type": "tube"},
-      {"pos": [40, -2, 0], "orient": [0, 1, 0], "type": "stud"},
-      {"pos": [40, 6, 0], "orient": [0, 1, 0], "type": "tube"},
-      {"pos": [20, -2, 20], "orient": [0, 1, 0], "type": "stud"},
-      {"pos": [20, 6, 20], "orient": [0, 1, 0], "type": "tube"},
-      {"pos": [20, -2, 40], "orient": [0, 1, 0], "type": "stud"},
-      {"pos": [20, 6, 40], "orient": [0, 1, 0], "type": "tube"},
-      {"pos": [40, -2, 20], "orient": [0, 1, 0], "type": "stud"},
-      {"pos": [40, 6, 20], "orient": [0, 1, 0], "type": "tube"}
-      ]
-  },
-  {
     "id": "25269",
     "connPoint": [
       {"pos": [0, 6, 0], "orient": [0, 1, 0], "type": "tube"}
@@ -44,6 +23,27 @@
       {"pos": [10, 6, -10], "orient": [0, 1, 0], "type": "tube"},
       {"pos": [10, -2, 10], "orient": [0, 1, 0], "type": "stud"},
       {"pos": [10, 6, 10], "orient": [0, 1, 0], "type": "tube"}
+      ]
+  },
+  {
+    "id": "30357",
+    "connPoint": [
+      {"pos": [0, -2, 0], "orient": [0, 1, 0], "type": "stud"},
+      {"pos": [0, 6, 0], "orient": [0, 1, 0], "type": "tube"},
+      {"pos": [0, -2, 20], "orient": [0, 1, 0], "type": "stud"},
+      {"pos": [0, 6, 20], "orient": [0, 1, 0], "type": "tube"},
+      {"pos": [0, -2, 40], "orient": [0, 1, 0], "type": "stud"},
+      {"pos": [0, 6, 40], "orient": [0, 1, 0], "type": "tube"},
+      {"pos": [20, -2, 0], "orient": [0, 1, 0], "type": "stud"},
+      {"pos": [20, 6, 0], "orient": [0, 1, 0], "type": "tube"},
+      {"pos": [40, -2, 0], "orient": [0, 1, 0], "type": "stud"},
+      {"pos": [40, 6, 0], "orient": [0, 1, 0], "type": "tube"},
+      {"pos": [20, -2, 20], "orient": [0, 1, 0], "type": "stud"},
+      {"pos": [20, 6, 20], "orient": [0, 1, 0], "type": "tube"},
+      {"pos": [20, -2, 40], "orient": [0, 1, 0], "type": "stud"},
+      {"pos": [20, 6, 40], "orient": [0, 1, 0], "type": "tube"},
+      {"pos": [40, -2, 20], "orient": [0, 1, 0], "type": "stud"},
+      {"pos": [40, 6, 20], "orient": [0, 1, 0], "type": "tube"}
       ]
   },
   {

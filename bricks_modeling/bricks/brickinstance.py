@@ -14,16 +14,25 @@ from bricks_modeling.file_IO.util import to_ldr_format
 from bricks_modeling import config
 import util.cuboid_collision as cuboid_col
 
-def get_corner_pos(brick):
+def get_corner_pos(brick, four_point=False):
     bbox_ls = brick.get_col_bbox()
     cub_corner = []
-    corner_transform = np.array([[1, 1, 1], [-1, -1, -1]])
+    if four_point:
+        corner_transform = np.array([[1, 1, 1], [1, 1, -1], [-1, 1, -1], [-1, 1, 1]])
+    else:
+        corner_transform = np.array([[1, 1, 1], [-1, -1, -1]])
     for bbox in bbox_ls:
         cuboid_center = np.array([bbox["Dimension"][0] / 2, bbox["Dimension"][1] / 2, bbox["Dimension"][2] / 2])
-        cuboid_corner_relative = (np.tile(cuboid_center, (2, 1))) * corner_transform
+        if four_point:
+            cuboid_corner_relative = (np.tile(cuboid_center, (4, 1))) * corner_transform
+        else:
+            cuboid_corner_relative = (np.tile(cuboid_center, (2, 1))) * corner_transform
         cub_corners_pos = np.array(bbox["Rotation"] @ cuboid_corner_relative.transpose()).transpose() + np.array(bbox["Origin"])
         cub_corner.append(cub_corners_pos[0])
         cub_corner.append(cub_corners_pos[1])
+        if four_point:
+            cub_corner.append(cub_corners_pos[2])
+            cub_corner.append(cub_corners_pos[3])
     return cub_corner
 
 class BrickInstance:
