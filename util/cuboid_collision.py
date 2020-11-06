@@ -4,7 +4,7 @@ from numpy.linalg import norm
 
 def check_ineq(T, L, cub_vec, ref_vec):
     right = abs(cub_vec[0].dot(L)) + abs(cub_vec[1].dot(L)) + abs(cub_vec[2].dot(L)) + abs(ref_vec[0].dot(L)) + abs(ref_vec[1].dot(L)) + abs(ref_vec[2].dot(L))
-    return abs(T.dot(L)) > right + 1e-10
+    return abs(T.dot(L)) + 1e-1  >= right
 
 def get_edge_axis(projection_axis, cub_corners_pos):
     local_axis = []
@@ -48,13 +48,17 @@ def cub_collision_detect(cuboid_ref, cuboid):
     for Aedge in A_local_axis:
         for Bedge in B_local_axis:
             cross = np.cross(Aedge, Bedge)
+            if norm(cross) < 1e-7:
+                cross = np.cross(Aedge, center_AB_vec)
+                if norm(cross) < 1e-7:
+                    continue
             if check_ineq(center_AB_vec, cross, cub_vec, ref_vec):
                 return False
     return True
 
 def main():
-    cuboid_1 = {"Origin": [1.3033025, -9.3033025,5.656856], "Rotation": [[ 0.5, -0.707107, -0.5],[ 0.5,0.707107, -0.5],[ 0.707107,0 ,0.707107]], "Dimension": [18, 11, 2]}
-    cuboid_2 = {"Origin": [-1.414214, 1.414214, 0], "Rotation": [[ 0.5, -0.707107, -0.5],[ 0.5,0.707107, -0.5],[ 0.707107,0 ,0.707107]], "Dimension": [18, 2, 18]}
+    cuboid_1 = {"Origin": [0.9999999, 0, 0], "Rotation": [[ 1, 0,0],[ 0, 1,0],[ 0, 0,1]], "Dimension": [1, 1, 1]}
+    cuboid_2 = {"Origin": [0, 0, 0], "Rotation": [[ 1, 0,0],[ 0, 1,0],[ 0, 0,1]], "Dimension": [1, 1, 1]}
     print(cub_collision_detect(cuboid_1,cuboid_2))
 
 if __name__ == '__main__':
