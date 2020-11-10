@@ -1,6 +1,7 @@
 import numpy as np
 import time
 import os
+import math
 import cv2
 from shapely.geometry import Polygon, Point
 from shapely.ops import unary_union
@@ -24,17 +25,19 @@ def proj_bbox(brick:BrickInstance):
     polygon = unary_union(polygon_ls)
     return polygon
 
-def sum_pixel_color(img, brick):
+def get_color_sd(img, brick, offset_i, offset_j):
     polygon = proj_bbox(brick)
-    """
-    point = Point(x, y)
-    if polygon.contains(point):
-        print(x,y)
-    """
-    return
+    mini, minj, maxi, maxj = polygon.bounds
+    rgbs = []
+    for x in range(math.floor(mini), math.ceil(maxi)+ 1):
+        for y in range(math.floor(minj), math.ceil(maxj) + 1):
+            point = Point(x, y)
+            if polygon.contains(point):
+                rgbs.append((img[y - offset_j, x - offset_i])[::-1])
+    return np.std(rgbs, axis = 0)
 
 # get a new brick with the nearest color
-def check_sketch(brick, img, minx):
+def check_sketch(brick, img, minx, minz):
     center = brick.get_translation()
     x,y = int(round(center[0] - minx)), int(round(center[2] - minx))
     color = (img[y, x])[::-1] # the nearest color
@@ -42,9 +45,9 @@ def check_sketch(brick, img, minx):
     new_brick = BrickInstance(brick.template, brick.trans_matrix, nearby_hex)
     return new_brick
 
-def get_sketch(img, plate_set, minx):
+def get_sketch(img, plate_set, minx, minz):
     with Pool(20) as p:
-        result_crop = p.map(partial(check_sketch, img=img, minx=minx), plate_set)
+        result_crop = p.map(partial(check_sketch, img=img, minx=minx, minz=minz), plate_set)
     return result_crop
 
 if __name__ == "__main__":
@@ -57,6 +60,7 @@ if __name__ == "__main__":
     plate_set = plate_set[2:]
     centers = np.array([brick.get_translation() for brick in plate_set])
     maxx, minx = np.amax(centers[:,0]), np.amin(centers[:,0])
+    maxz, minz = np.amax(centers[:,2]), np.amin(centers[:,2])
     print("#bricks in plate: ", len(plate_set))
 
     _, filename = os.path.split(img_path)
@@ -67,11 +71,10 @@ if __name__ == "__main__":
     platename = platename[0]
 
     # resize image to fit the brick
-    size = int(maxx - minx)
-    img = cv2.resize(img, (size + 1, size + 1))
+    img = cv2.resize(img, (int(maxx - minx) + 1, int(maxz - minz) + 1))
 
     start_time = time.time()
-    result = get_sketch(img, plate_set, minx) + plate_base
+    result = get_sketch(img, plate_set, minx, minz) + plate_base
     end_time = time.time()
 
     debugger = MyDebugger("sketch")
