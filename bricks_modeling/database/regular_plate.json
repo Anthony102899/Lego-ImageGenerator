@@ -1,5 +1,17 @@
 [
   {
+    "id": "2420",
+    "volume": 0.774,
+    "connPoint": [
+      {"pos": [0, -2, 0], "orient": [0, 1, 0], "type": "stud"},
+      {"pos": [0, 6, 0], "orient": [0, 1, 0], "type": "tube"},
+      {"pos": [20, -2, 0], "orient": [0, 1, 0], "type": "stud"},
+      {"pos": [20, 6, 0], "orient": [0, 1, 0], "type": "tube"},
+      {"pos": [0, -2, 20], "orient": [0, 1, 0], "type": "stud"},
+      {"pos": [0, 6, 20], "orient": [0, 1, 0], "type": "tube"}
+      ]
+  },
+  {
     "id": "25269",
     "connPoint": [
       {"pos": [0, 6, 0], "orient": [0, 1, 0], "type": "tube"}

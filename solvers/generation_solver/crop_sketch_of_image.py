@@ -1,5 +1,4 @@
 import numpy as np
-import time
 import os
 import math
 import cv2
@@ -25,7 +24,8 @@ def proj_bbox(brick:BrickInstance):
     polygon = unary_union(polygon_ls)
     return polygon
 
-def get_color_sd(img, brick, offset_i, offset_j):
+# return a vector of sd
+def color_sd_av(img, brick, offset_i, offset_j):
     polygon = proj_bbox(brick)
     mini, minj, maxi, maxj = polygon.bounds
     rgbs = []
@@ -33,21 +33,22 @@ def get_color_sd(img, brick, offset_i, offset_j):
         for y in range(math.floor(minj), math.ceil(maxj) + 1):
             point = Point(x, y)
             if polygon.contains(point):
-                rgbs.append((img[y - offset_j, x - offset_i])[::-1])
-    return np.std(rgbs, axis = 0)
+                try:
+                    rgbs.append((img[y - offset_j, x - offset_i])[::-1])
+                except:
+                    continue
+    return np.std(rgbs, axis = 0), np.average(rgbs, axis = 0)
 
 # get a new brick with the nearest color
 def check_sketch(brick, img, minx, minz):
-    center = brick.get_translation()
-    x,y = int(round(center[0] - minx)), int(round(center[2] - minx))
-    color = (img[y, x])[::-1] # the nearest color
+    sd, color = color_sd_av(img, brick, minx, minz) # the nearest color
     nearby_hex = RGB_to_Hex(color)
     new_brick = BrickInstance(brick.template, brick.trans_matrix, nearby_hex)
     return new_brick
 
 def get_sketch(img, plate_set, minx, minz):
     with Pool(20) as p:
-        result_crop = p.map(partial(check_sketch, img=img, minx=minx, minz=minz), plate_set)
+        result_crop = p.map(partial(check_sketch, img=img, minx=int(minx), minz=int(minz)), plate_set)
     return result_crop
 
 if __name__ == "__main__":
@@ -56,8 +57,16 @@ if __name__ == "__main__":
     plate_path = "super_graph/for sketch/" + input("Enter file name in sketch folder: ")
     plate_path = os.path.join(os.path.dirname(__file__), plate_path)
     plate_set = read_bricks_from_file(plate_path)
-    plate_base = plate_set[:2]
-    plate_set = plate_set[2:]
+    
+    base_count = 0
+    for i in range(10):
+        if plate_set[i].color == 15:
+            base_count += 1
+        else:
+            break
+    plate_base = plate_set[:base_count]
+    plate_set = plate_set[base_count:]
+
     centers = np.array([brick.get_translation() for brick in plate_set])
     maxx, minx = np.amax(centers[:,0]), np.amin(centers[:,0])
     maxz, minz = np.amax(centers[:,2]), np.amin(centers[:,2])
@@ -73,9 +82,6 @@ if __name__ == "__main__":
     # resize image to fit the brick
     img = cv2.resize(img, (int(maxx - minx) + 1, int(maxz - minz) + 1))
 
-    start_time = time.time()
     result = get_sketch(img, plate_set, minx, minz) + plate_base
-    end_time = time.time()
-
     debugger = MyDebugger("sketch")
-    write_bricks_to_file(result, file_path=debugger.file_path(f"{filename} n={len(result)} {platename} t={round(end_time - start_time, 2)}.ldr"))
+    write_bricks_to_file(result, file_path=debugger.file_path(f"{filename} b={base_count} n={len(result)} {platename}.ldr"))
