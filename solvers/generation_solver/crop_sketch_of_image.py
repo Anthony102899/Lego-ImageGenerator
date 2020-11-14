@@ -52,6 +52,19 @@ def get_sketch(img, plate_set, basename):
         result_crop = p.map(partial(check_sketch, img=img, basename=basename), plate_set)
     return result_crop
 
+def change_color_to_gray(brick, gray):
+    color = np.ones(3) * gray
+    color_hex = RGB_to_Hex(color)
+    new_brick = BrickInstance(brick.template, brick.trans_matrix, color_hex)
+    return new_brick
+
+def sd_as_gray(brickset, img, basename):
+    sd_ls = [round(np.sum(np.std(get_cover_rgb(img, brick, basename), axis = 0))) for brick in brickset]
+    maxx = np.max(sd_ls)
+    gray_ls = 255 - sd_ls / maxx * 255
+    result = [change_color_to_gray(plate_set[i], gray_ls[i]) for i in range(len(plate_set))]
+    return result
+
 if __name__ == "__main__":
     img_path = os.path.join(os.path.dirname(__file__), "super_graph/test.png")
     img = cv2.imread(img_path)
