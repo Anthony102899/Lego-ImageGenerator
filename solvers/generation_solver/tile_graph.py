@@ -42,7 +42,7 @@ def get_orient_matrices(cpoint_base, cpoint_align, sketch, base_dim):
             transform_mat = orient_rotate_mat @ orien_align_mat
             new_align_pos = transform_mat @ cpoint_align.pos
             dis = cpoint_base.pos - new_align_pos
-            if sketch and (dis[0] > base_dim or dis[2] > base_dim or dis[0] < - base_dim or dis[2] < - base_dim):
+            if sketch and (dis[0] > base_dim or dis[2] > base_dim or dis[0] < 0 or dis[2] < 0):
                 continue
             transformation[:3, 3] = cpoint_base.pos - new_align_pos
             transformation[:3, :3] = transform_mat
@@ -74,7 +74,7 @@ def generate_all_neighbor_tiles(base_brick: BrickInstance, align_tile: BrickInst
     result_tiles = []
     base_cpoints = base_brick.get_current_conn_points()  # a list of cpoints in base
     align_cpoints = align_tile.get_current_conn_points()  # a list of cpoints in align
-    base_dim = base_num * 10
+    base_dim = base_num * 20
 
     for cpoint_base, cpoint_align in iter.product(base_cpoints, align_cpoints):
         condition = not (sketch and not cpoint_base.type == ConnPointType.STUD)
