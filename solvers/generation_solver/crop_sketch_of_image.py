@@ -13,6 +13,21 @@ from solvers.generation_solver.draw_bbox import write_bricks_w_bbox
 from multiprocessing import Pool
 from functools import partial
 
+def output_pixel(brick, img, basename):
+    polygon = proj_bbox(brick)
+    dim = basename * 20 + 1
+    mini, minj, maxi, maxj = polygon.bounds
+    output_img = np.zeros([dim, dim,3])
+    for x in range(math.floor(mini), math.ceil(maxi) + 1):
+        for y in range(math.floor(minj), math.ceil(maxj) + 1):
+            point = Point(x, y)
+            if polygon.contains(point):
+                try:
+                    output_img[y][x] = img[y, x]
+                except:
+                    continue
+    cv2.imwrite('./solvers/generation_solver/super_graph/brick_img.jpg', output_img)
+
 # return a polygon obj 
 def proj_bbox(brick:BrickInstance): 
     bbox_corner = np.array(get_corner_pos(brick, four_point=True))
@@ -92,6 +107,6 @@ if __name__ == "__main__":
     # resize image to fit the brick
     img = cv2.resize(img, (basename * 20 + 1, basename * 20 + 1))
 
-    result = get_sketch(img, plate_set, basename) + plate_base
+    result = plate_base + get_sketch(img, plate_set, basename)
     debugger = MyDebugger("sketch")
     write_bricks_to_file(result, file_path=debugger.file_path(f"{filename} b={base_count} n={len(result)} {platename}.ldr"))
