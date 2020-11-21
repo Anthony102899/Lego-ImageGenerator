@@ -2,6 +2,8 @@ import numpy as np
 import os
 import math
 import cv2
+from solvers.generation_solver.minizinc_solver import MinizincSolver
+import pickle5 as pickle
 from shapely.geometry import Polygon, Point
 from shapely.ops import unary_union
 from bricks_modeling.file_IO.model_reader import read_bricks_from_file
@@ -10,6 +12,7 @@ from bricks_modeling.file_IO.model_writer import write_bricks_to_file
 from bricks_modeling.bricks.brickinstance import BrickInstance, get_corner_pos
 from solvers.generation_solver.crop_model import RGB_to_Hex
 from solvers.generation_solver.draw_bbox import write_bricks_w_bbox
+from solvers.generation_solver.adjacency_graph import AdjacencyGraph
 from multiprocessing import Pool
 from functools import partial
 
@@ -29,7 +32,7 @@ def output_pixel(brick, img, basename):
     cv2.imwrite('./solvers/generation_solver/super_graph/brick_img.jpg', output_img)
 
 # return a polygon obj 
-def proj_bbox(brick:BrickInstance): 
+def proj_bbox(brick:BrickInstance):
     bbox_corner = np.array(get_corner_pos(brick, four_point=True))
     bbox_corner = [[coord[0], coord[2]] for coord in bbox_corner]
     polygon_ls = []
@@ -60,7 +63,7 @@ def check_sketch(brick, img, basename):
     color = np.average(rgbs, axis = 0)
     color_hex = RGB_to_Hex(color)
     new_brick = BrickInstance(brick.template, brick.trans_matrix, color_hex)
-    return new_brick
+    return new_brick, rgbs
 
 def get_sketch(img, plate_set, basename):
     with Pool(20) as p:
@@ -81,9 +84,9 @@ def sd_as_gray(brickset, img, basename):
     return result
 
 if __name__ == "__main__":
-    img_path = os.path.join(os.path.dirname(__file__), "super_graph/test.png")
+    img_path = os.path.join(os.path.dirname(__file__), "super_graph/apple-rainbow.JPG")
     img = cv2.imread(img_path)
-    plate_path = "super_graph/for sketch/" + input("Enter file name in sketch folder: ")
+    plate_path = "super_graph/for sketch/" + "['3024'] base=10 n=102 r=1.ldr"#input("Enter file name in sketch folder: ")
     plate_path = os.path.join(os.path.dirname(__file__), plate_path)
     plate_set = read_bricks_from_file(plate_path)
     
@@ -107,6 +110,30 @@ if __name__ == "__main__":
     # resize image to fit the brick
     img = cv2.resize(img, (basename * 20 + 1, basename * 20 + 1))
 
-    result = plate_base + get_sketch(img, plate_set, basename)
+    result_crop = get_sketch(img, plate_set, basename)
     debugger = MyDebugger("sketch")
+    
+    result = plate_base + [i[0] for i in result_crop]
     write_bricks_to_file(result, file_path=debugger.file_path(f"{filename} b={base_count} n={len(result)} {platename}.ldr"))
+    exit()
+
+    model_file = "./solvers/generation_solver/solve_sketch.mzn"
+    path = "solvers/generation_solver/connectivity/"
+    path = path + input("Enter path in connectivity: ")
+    solver = MinizincSolver(model_file, "gurobi")
+
+    structure_graph = pickle.load(open(path, "rb"))
+    node_volume = [round(np.sum(np.std(i[1], axis = 0))) + 1e-6 for i in result_crop]
+    results, time_used = solver.solve(structure_graph=structure_graph,
+                                      node_volume=node_volume,
+                                      flag=[int(f) for f in np.ones(len(structure_graph.bricks))])
+    
+    selected_bricks = []
+    for i in range(len(structure_graph.bricks)):
+        if results[i] == 1:
+            selected_bricks.append(structure_graph.bricks[i])
+
+    write_bricks_to_file(
+        selected_bricks, file_path=debugger.file_path(f"selected {filename} n={len(selected_bricks)}.ldr"))
+
+    print("done!")
