@@ -2,7 +2,7 @@ import numpy as np
 import os
 import math
 import cv2
-from solvers.generation_solver.minizinc_solver import MinizincSolver
+from solvers.generation_solver.minizinc_sketch import MinizincSolver
 import pickle5 as pickle
 from shapely.geometry import Polygon, Point
 from shapely.ops import unary_union
@@ -86,7 +86,7 @@ def sd_as_gray(brickset, img, basename):
 if __name__ == "__main__":
     img_path = os.path.join(os.path.dirname(__file__), "super_graph/apple-rainbow.JPG")
     img = cv2.imread(img_path)
-    plate_path = "super_graph/for sketch/" + "['3024'] base=10 n=102 r=1.ldr"#input("Enter file name in sketch folder: ")
+    plate_path = "super_graph/for sketch/" + input("Enter file name in sketch folder: ")
     plate_path = os.path.join(os.path.dirname(__file__), plate_path)
     plate_set = read_bricks_from_file(plate_path)
     
@@ -111,8 +111,9 @@ if __name__ == "__main__":
     img = cv2.resize(img, (basename * 20 + 1, basename * 20 + 1))
 
     result_crop = get_sketch(img, plate_set, basename)
-    debugger = MyDebugger("sketch")
     
+    """ """ 
+    debugger = MyDebugger("sketch")
     result = plate_base + [i[0] for i in result_crop]
     write_bricks_to_file(result, file_path=debugger.file_path(f"{filename} b={base_count} n={len(result)} {platename}.ldr"))
     exit()
@@ -120,19 +121,20 @@ if __name__ == "__main__":
     model_file = "./solvers/generation_solver/solve_sketch.mzn"
     path = "solvers/generation_solver/connectivity/"
     path = path + input("Enter path in connectivity: ")
-    solver = MinizincSolver(model_file, "gurobi")
 
+    solver = MinizincSolver(model_file, "gurobi")
     structure_graph = pickle.load(open(path, "rb"))
-    node_volume = [round(np.sum(np.std(i[1], axis = 0))) + 1e-6 for i in result_crop]
+    node_volume = [0.0001 for i in range(base_count)] + [round(np.sum(np.std(i[1], axis = 0))) + 0.0001 for i in result_crop]
     results, time_used = solver.solve(structure_graph=structure_graph,
                                       node_volume=node_volume,
-                                      flag=[int(f) for f in np.ones(len(structure_graph.bricks))])
+                                      base_count = base_count)
     
     selected_bricks = []
     for i in range(len(structure_graph.bricks)):
         if results[i] == 1:
             selected_bricks.append(structure_graph.bricks[i])
 
+    debugger = MyDebugger("solve")
     write_bricks_to_file(
         selected_bricks, file_path=debugger.file_path(f"selected {filename} n={len(selected_bricks)}.ldr"))
 
