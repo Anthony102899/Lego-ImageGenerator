@@ -5,32 +5,16 @@ import time
 from bricks_modeling.file_IO.model_reader import read_bricks_from_file
 from util.debugger import MyDebugger
 from bricks_modeling.file_IO.model_writer import write_bricks_to_file
-from bricks_modeling.bricks.brickinstance import BrickInstance
+from bricks_modeling.bricks.brickinstance import BrickInstance, get_corner_pos
 from multiprocessing import Pool
 from functools import partial
+from bricks_modeling import config
 
-collider_path = "/Applications/Studio 2.0/ldraw/collider"
-
-def get_p_pos(brick):
-    cp_pos = []
-    brick_id = brick.template.id
-    brick_rot = brick.get_rotation()
-    brick_trans = brick.get_translation()
-    for line in open(os.path.join(collider_path, f"{brick_id}.col")):
-        line = (line.split(" "))[:17]
-        line = [float(x) for x in line]
-        init_origin = np.array(line[11:14])
-        #print("init_origin = ", init_origin)
-        origin = brick_rot @ init_origin + brick_trans
-        #print("\norigin =\n", origin)
-        cp_pos.append(list(origin))
-    return cp_pos
-
-def brick_inside(brick, mesh):
-    cpoint_pos = list(map(lambda cp: list(cp.pos), brick.get_current_conn_points()))  # position of cpoints of *brick*
-    cpoint_inside = mesh.contains(cpoint_pos)
+def brick_inside(brick:BrickInstance, mesh):
+    corner_pos = get_corner_pos(brick)
+    corner_inside = mesh.contains(corner_pos)
     nearby_faces = trimesh.proximity.nearby_faces(mesh, [brick.trans_matrix[:, 3][:3]])
-    if cpoint_inside.all():# or (len(cpoint_inside) == 2 and cpoint_inside.any()):
+    if corner_inside.all():
         return True, nearby_faces[0][0]
     return False, -1
 
@@ -59,7 +43,7 @@ def get_color(mesh):
             colors_rgb = colors_rgb.face_colors
         else:
             print("No valid color, using white!")
-            colors_rgb = np.c_[np.zeros((len(mesh.faces),3)), np.array([10 for face in mesh.faces])]
+            colors_rgb = np.c_[np.ones((len(mesh.faces),3)) * 255, np.array([255 for face in mesh.faces])]
     return colors_rgb
 
 def crop_brick(mesh, tile_set, scale):
@@ -72,17 +56,19 @@ def crop_brick(mesh, tile_set, scale):
     return result_crop
 
 if __name__ == "__main__":
-    obj_path = os.path.join(os.path.dirname(__file__), "super_graph/thick_pikachu.ply")
+    obj_path = os.path.join(os.path.dirname(__file__), "super_graph/candle.ply")
     tile_path = os.path.join(os.path.dirname(__file__), 
-                "super_graph/3005+4287/['3005', '4287'] 6 n=11209 t=30374.85.ldr")
+                "super_graph/3005+4733+3024+54200+3070+59900/3005+4733+3023+3024+54200+3070+59900 3 n=4134 t=524.41.ldr")
     tile_set = read_bricks_from_file(tile_path)
     print("#bricks in tile: ", len(tile_set))
     mesh = trimesh.load_mesh(obj_path)
+    print(mesh.is_watertight)
+
     if not type(mesh) == trimesh.Trimesh:
         mesh = mesh.dump(True)
     flip = np.array([[-1, 0, 0, 0], [0, -1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]])
     mesh.apply_transform(flip)
-    debugger = MyDebugger("test")
+    debugger = MyDebugger("crop")
 
     scale = float(input("Enter scale of obj: "))
     start_time = time.time()
@@ -94,5 +80,5 @@ if __name__ == "__main__":
     filename = (filename.split("."))[0]
     _, tilename = os.path.split(tile_path)
     tilename = ((tilename.split("."))[0]).split(" ")
-    tilename = tilename[0] + tilename[1]
-    write_bricks_to_file(result, file_path=debugger.file_path(f"{filename} s={scale} n={len(result)} {tilename} t={round(end_time - start_time, 2)}.ldr"))
+    tilename = tilename[0] + " " + tilename[1]
+    write_bricks_to_file(result, file_path=debugger.file_path(f"n{filename} s={scale} n={len(result)} {tilename} t={round(end_time - start_time, 2)}.ldr"))

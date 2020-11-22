@@ -1,7 +1,7 @@
 [
   {
     "id": "4081b",
-    "volume": 0.2825,
+    "volume": 0.1825,
     "connPoint": [
       {
         "pos": [0,-2,0],
@@ -403,7 +403,6 @@
   {
     "id": "11477",
     "volume": 0.38,
-    "concave": 1,
     "connPoint": [
       {
         "pos": [0,-10,10],
@@ -414,21 +413,6 @@
         "pos": [0,-2,-10],
         "orient": [0,1,0],
         "type": "tube"
-      },
-      {
-        "pos": [0,-6,-10],
-        "orient": [0,1,0],
-        "type": "plate"
-      },
-      {
-        "pos": [0,-10,-10],
-        "orient": [0,1,0],
-        "type": "plate"
-      },
-      {
-        "pos": [0,-14,10],
-        "orient": [0,1,0],
-        "type": "plate"
       }
     ]
   },

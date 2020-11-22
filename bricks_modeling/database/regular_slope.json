@@ -2,7 +2,6 @@
   {
     "id": "54200",
     "volume":0.29,
-    "concave": 0,
     "connPoint": [
       {
         "pos": [
@@ -16,19 +15,6 @@
           0
         ],
         "type": "tube"
-      },
-      {
-        "pos": [
-          0,
-          -9.5,
-          0
-        ],
-        "orient": [
-          0,
-          1,
-          0
-        ],
-        "type": "slope"
       }
     ]
   },
@@ -168,23 +154,9 @@
     ]
   },
   {
-    "id": "4287",
+    "id": "4287a",
     "volume": 1.26,
-    "concave": 0,
     "connPoint": [
-      {
-        "pos":[
-          0,
-          10,
-          0
-        ],
-        "orient":[
-          0,
-          1,
-          0
-        ],
-        "type":"cuboid_solid"
-      },
       {
         "pos": [
           0,

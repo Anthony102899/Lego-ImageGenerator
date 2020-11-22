@@ -10,7 +10,7 @@ from solvers.rigidity_solver.algo_core import solve_rigidity
 if __name__ == "__main__":
     debugger = MyDebugger("test")
 
-    points, fixed_points_index, edges, joints = cases2d.case_6()
+    points, fixed_points_index, edges, joints = cases2d.case_11_1()
 
     trivial_motions, non_trivial_motions, non_zero_eigenspace = \
         solve_rigidity(points, edges, joints, fixed_points_idx=fixed_points_index, dim=2)
@@ -22,7 +22,7 @@ if __name__ == "__main__":
     if len(non_trivial_motions) == 0: # rigid structure
         vec, value = get_weakest_displacement(non_zero_eigenspace, dim=2)
         print(f"worse case value: {value}")
-        vis.visualize_2D(points, edges, vec)
+        vis.visualize_2D(points, edges, vec*1)
         print("The structure is RIGID.")
     else:
         motion_vecs = get_motions(non_trivial_motions, points, dim=2)
