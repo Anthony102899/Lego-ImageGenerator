@@ -104,6 +104,32 @@ def case_6():
 
     return points.astype(np.float64), fixed_points_index, edges, joints
 
+def case_6_1(width=8, layer_num=1, unit=1.0):
+    length = width + 1 
+    points = [
+        (i + 0.5 * j, np.sqrt(3) / 2 * (j - 1)) 
+        for j in range(layer_num + 1)
+        for i in range(length - j)]
+    assert len(points) == (length + (length - layer_num)) * (layer_num + 1) / 2
+
+    points = np.array(points) * unit
+
+    edges = []
+    start = 0
+    for layer in range(layer_num):
+        edges.extend([(i, i + length - layer) for i in range(start, start + length - layer - 1)])
+        edges.extend([(i, i + length - layer - 1) for i in range(start + 1, start + length - layer)])
+        edges.extend([(i, i + 1) for i in range(start, start + length - layer - 1)])
+        start += length - layer
+    else:
+        layer += 1
+        edges.extend([(i, i + 1) for i in range(start, start + length - layer - 1)])
+    
+    fixed_points_index = [0, length - 1]
+    joints = []
+
+    return np.array(points, dtype=np.float64), np.array(fixed_points_index), np.array(edges), np.array(joints)
+
 # a triangular shaped truss structure
 def case_7():
     points = np.array([[0, 0], [1, 0], [2, 0], [4, 0], [5, 0], [6, 0], [1, 1], [2, 2], [3, 3], [4, 2], [5, 1]])
