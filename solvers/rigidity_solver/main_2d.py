@@ -1,3 +1,6 @@
+import sys
+sys.path.append('.')
+
 from util.debugger import MyDebugger
 import visualization.model_visualizer as vis
 from solvers.rigidity_solver.eigen_analysis import get_motions, get_weakest_displacement

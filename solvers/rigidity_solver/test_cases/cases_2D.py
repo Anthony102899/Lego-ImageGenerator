@@ -23,13 +23,21 @@ def case_1_2():
     joints = [(0, [2, 3], [("R", (1, 0))]), (1, [4, 5], [("R", (0, 1.732))]), (2, [0, 1], [("R", (-1, 0))])]
     return points, fixed_points_index, edges, joints
 
+# a rigid triangle with two vertices fixed
+def case_1_3():
+    points = np.array([[-1, 0], [1, 0], [0, 0.2]])
+    fixed_points_index = [0, 1]
+    edges = [(0, 1), (1, 2), (2, 0)]
+    joints = [(2, [2], [("T", (0, 1))])]
+    return points.astype(np.float64), fixed_points_index, edges, joints
+
 # a rigid square
 def case_2():
     points = np.array([[0, 0], [1, 0], [1, 1], [0, 1]])
     fixed_points_index = []
     edges = [(0, 1), (1, 2), (2, 3), (3, 0), (0, 2)]
     joints = []
-    return points, fixed_points_index, edges, joints
+    return points.astype(np.float64), fixed_points_index, edges, joints
 
 # a hinge
 def case_3():
@@ -37,7 +45,7 @@ def case_3():
     fixed_points_index = []
     edges = [(0, 1), (0, 2)]
     joints = []
-    return points, fixed_points_index, edges, joints
+    return points.astype(np.float64), fixed_points_index, edges, joints
 
 # a hinge with one edge fixed
 def case_3_1():
@@ -45,7 +53,7 @@ def case_3_1():
     fixed_points_index = [0, 1]
     edges = [(0, 1), (0, 2)]
     joints = []
-    return points, fixed_points_index, edges, joints
+    return points.astype(np.float64), fixed_points_index, edges, joints
 
 # a triangle with one point not connected
 def case_4():
@@ -53,7 +61,7 @@ def case_4():
     fixed_points_index = []
     edges = [(0, 1), (1, 2), (0, 3)]
     joints = []
-    return points, fixed_points_index, edges, joints
+    return points.astype(np.float64), fixed_points_index, edges, joints
 
 # a triangle with one point not connected and one edge fixed
 def case_4_1():
@@ -61,7 +69,7 @@ def case_4_1():
     fixed_points_index = [0, 1]
     edges = [(0, 1), (1, 2), (0, 3)]
     joints = []
-    return points, fixed_points_index, edges, joints
+    return points.astype(np.float64), fixed_points_index, edges, joints
 
 # a triangle with one point not connected and one edge fixed. The dangling point can slide over adjacent edge
 def case_5():
@@ -69,14 +77,14 @@ def case_5():
     fixed_points_index = [0, 1]
     edges = [(0, 1), (1, 2), (0, 3)]
     joints = [(2, [2], [("T", (0, 1))])]
-    return points, fixed_points_index, edges, joints
+    return points.astype(np.float64), fixed_points_index, edges, joints
 
 def case_5_1():
     points = np.array([[0, 0], [1, 0], [0, 0.90],[0, 1]])
     fixed_points_index = [0, 1, 3]
     edges = [(0, 1), (1, 2), (0, 3)]
     joints = [(2, [2], [("T", (0, 1))])]
-    return points, fixed_points_index, edges, joints
+    return points.astype(np.float64), fixed_points_index, edges, joints
 
 # a bar-shaped truss structure
 def case_6():
@@ -94,7 +102,33 @@ def case_6():
     # fixed_points_index = []
     joints = []
 
-    return points, fixed_points_index, edges, joints
+    return points.astype(np.float64), fixed_points_index, edges, joints
+
+def case_6_1(width=8, layer_num=1, unit=1.0):
+    length = width + 1 
+    points = [
+        (i + 0.5 * j, np.sqrt(3) / 2 * (j - 1)) 
+        for j in range(layer_num + 1)
+        for i in range(length - j)]
+    assert len(points) == (length + (length - layer_num)) * (layer_num + 1) / 2
+
+    points = np.array(points) * unit
+
+    edges = []
+    start = 0
+    for layer in range(layer_num):
+        edges.extend([(i, i + length - layer) for i in range(start, start + length - layer - 1)])
+        edges.extend([(i, i + length - layer - 1) for i in range(start + 1, start + length - layer)])
+        edges.extend([(i, i + 1) for i in range(start, start + length - layer - 1)])
+        start += length - layer
+    else:
+        layer += 1
+        edges.extend([(i, i + 1) for i in range(start, start + length - layer - 1)])
+    
+    fixed_points_index = [0, length - 1]
+    joints = []
+
+    return np.array(points, dtype=np.float64), np.array(fixed_points_index), np.array(edges), np.array(joints)
 
 # a triangular shaped truss structure
 def case_7():
@@ -104,7 +138,7 @@ def case_7():
              (3, 9), (4, 10), (2, 6), (2, 8), (3, 8), (4, 9)]
 
     joints = []
-    return points, fixed_points_index, edges, joints
+    return points.astype(np.float64), fixed_points_index, edges, joints
 
 # a pump mechanism in new format
 def case_8():
@@ -112,7 +146,7 @@ def case_8():
     edges = [(0, 1), (2, 3)]
     fixed_points_index = [0, 2]
     joints = [(1, [1], [("T", (0, 1))])]  # edge#1 and edge#2 can only "T"ranslate relative to each other in the direction (0,1)
-    return points, fixed_points_index, edges, joints
+    return points.astype(np.float64), fixed_points_index, edges, joints
 
 # a pump mechanism in new format
 def case_8_2():
@@ -120,7 +154,7 @@ def case_8_2():
     fixed_points_index = [0, 3, 4]
     edges = [(0, 1), (1, 2), (3, 4)]
     joints = [(2, [2], [("T", (0, 1))])]  # edge#2 and points #1 and #2 can only "T"ranslate relative to each other along the direction (0,1)
-    return points, fixed_points_index, edges, joints
+    return points.astype(np.float64), fixed_points_index, edges, joints
 
 # a robot leg
 def case_9():
@@ -129,7 +163,8 @@ def case_9():
     edges = [(0, 1), (0, 2), (1, 2), (0, 3), (2, 4), (1, 5), (3, 7), (6, 7), (4, 6), (4, 8), (8, 9), (5, 9), (3, 4),
              (4, 5)]
     joints = []
-    return points, fixed_points_index, edges, joints
+
+    return points.astype(np.float64), fixed_points_index, edges, joints
 
 def case_10():
     height = 5
@@ -171,7 +206,7 @@ def case_10():
         edges += [(points_base_middle_base + i, points_base_upper_slope + i) for i in range(height)]
 
     joints = []
-    return np.array(points), fixed_points_index, edges, joints
+    return np.array(points, dtype=np.float64), fixed_points_index, edges, joints
 
 
 # a rigid U shape
@@ -180,7 +215,7 @@ def case_11():
     fixed_points_index = []
     edges = [(0, 1), (1, 2), (2, 0), (2,4), (1,4), (1,3), (0,3), (0,5), (3,5)]
     joints = []
-    return points, fixed_points_index, edges, joints
+    return points.astype(np.float64), fixed_points_index, edges, joints
 
 # another rigid U shape
 def case_11_1():
@@ -203,4 +238,4 @@ def case_11_1():
     fixed_points_index = []
     joints = []
 
-    return np.array(points), fixed_points_index, edges, joints
+    return np.array(points, dtype=np.float64), fixed_points_index, edges, joints

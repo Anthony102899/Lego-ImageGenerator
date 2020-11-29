@@ -116,9 +116,7 @@ def transform_matrix_fitting(points_start, points_end, dim=3):
 
     return M, T
 
-def solve_rigidity(points: np.ndarray, edges: np.ndarray, joints, fixed_points_idx = [], dim: int = 3) -> (bool, List[np.ndarray]):
-    M = spring_energy_matrix(points, edges, dim=dim)
-
+def constraint_matrix(points, edges, joints, fixed_points_idx, dim):
     A = np.zeros((1, len(points) * dim))
     for joint in joints:
         edge_idx, motion_points, allowed_motions = joint[0], joint[1], joint[2]
@@ -126,26 +124,63 @@ def solve_rigidity(points: np.ndarray, edges: np.ndarray, joints, fixed_points_i
         A_joint = constraints_for_one_joint(points[np.array(list(edges[edge_idx]))], list(edges[edge_idx]),
                                       points[np.array(motion_points)], motion_points,
                                       points,
-                                      allowed_motions=allowed_motions, dim = dim)
+                                      allowed_motions=allowed_motions, dim=dim)
         A = np.append(A, A_joint, 0)
 
     # adding the fixed points constraints
     C = get_matrix_for_fixed_points(fixed_points_idx, len(points), dim)
     A = np.append(A, C, 0)
+    return A
+
+def quadratic_matrix(points, edges, joints, fixed_points_idx, dim, verbose=False):
+    """
+    compute the quad matrix (the one used to extract eigenvalues)
+
+    se_matrix:   spring_energy_matrix
+    cstr_matrix: constraint_matrix
+    """
+    M = spring_energy_matrix(points, edges, dim=dim)
+    A = constraint_matrix(points, edges, joints, fixed_points_idx, dim)
 
     # mathmatical computation
     B = null_space(A)
     T = np.transpose(B) @ B
-    L = cholesky(T)
     S = B.T @ M @ B
+
+    if verbose:
+        print("T rank:", matrix_rank(T))
+        print("S rank:", matrix_rank(S))
+
+    L = cholesky(T)
+    L_inv = inv(L)
+
+    Q = LA.multi_dot([L_inv.T, S, L_inv])
+    return Q
+
+def solve_rigidity(points: np.ndarray, edges: np.ndarray, joints, fixed_points_idx=None, dim: int = 3) -> (bool, List[np.ndarray]):
+    if fixed_points_idx is None:
+        fixed_points_idx = []
+
+    M = spring_energy_matrix(points, edges, dim=dim)
+    A = constraint_matrix(points, edges, joints, fixed_points_idx, dim)
+
+    # mathmatical computation
+    B = null_space(A)
+    T = np.transpose(B) @ B
+    S = B.T @ M @ B
+
     print("T rank:", matrix_rank(T))
     print("S rank:", matrix_rank(S))
 
-    # compute eigen value / vectors
-    eigen_pairs = geo_util.eigen(inv(L).T @ S @ inv(L), symmetric=True)
+    L = cholesky(T)
+    L_inv = inv(L)
+
+    Q = LA.multi_dot([L_inv.T, S, L_inv])
+    # compute eigenvalues / vectors
+    eigen_pairs = geo_util.eigen(Q, symmetric=True)
     eigen_pairs = [(e_val, B @ e_vec) for e_val, e_vec in eigen_pairs]
 
-    # judge rigid or not
+    # determine rigidity by the number of non-zero eigenvalues
     print("DoF:", len([(e_val, e_vec) for e_val, e_vec in eigen_pairs if abs(e_val) < 1e-6]))
 
     trivial_motions     = [(e_val, e_vec) for e_val, e_vec in eigen_pairs if
@@ -181,12 +216,12 @@ def constraints_for_one_joint(source_pts, source_pts_idx, target_pts, target_pts
 
     A = constraint_mat @ project_mat
 
-    print(f"constraint matrix: rank{matrix_rank(constraint_mat)}")
-    print(constraint_mat)
-    print(f"projection matrix: rank{matrix_rank(project_mat)}")
-    print(project_mat)
-    print(f"A: rank{matrix_rank(A)}")
-    print(A)
+    # print(f"constraint matrix: rank{matrix_rank(constraint_mat)}")
+    # print(constraint_mat)
+    # print(f"projection matrix: rank{matrix_rank(project_mat)}")
+    # print(project_mat)
+    # print(f"A: rank{matrix_rank(A)}")
+    # print(A)
 
     return A
 
