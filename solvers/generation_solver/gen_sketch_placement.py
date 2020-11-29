@@ -10,14 +10,11 @@ import copy
 import os
 import time
 
-brick_IDs = [# tile "3069b",
-             # plate
-             "3024",
-             "3023",
-             "3623",
-             "24299",
-             "24307",
-             # other "11477"
+brick_IDs = [# tile
+             # plate 
+             "2420",
+             
+             # other
             ]
 
 def get_brick_templates(brick_IDs):

@@ -74,7 +74,7 @@ def generate_all_neighbor_tiles(base_brick: BrickInstance, align_tile: BrickInst
     result_tiles = []
     base_cpoints = base_brick.get_current_conn_points()  # a list of cpoints in base
     align_cpoints = align_tile.get_current_conn_points()  # a list of cpoints in align
-    base_dim = base_num * 20
+    base_dim = base_num * 20 - 10
 
     for cpoint_base, cpoint_align in iter.product(base_cpoints, align_cpoints):
         condition = not (sketch and not cpoint_base.type == ConnPointType.STUD)

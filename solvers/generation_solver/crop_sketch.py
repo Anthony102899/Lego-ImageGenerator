@@ -2,7 +2,6 @@ import numpy as np
 import os
 import math
 import cv2
-from solvers.generation_solver.minizinc_sketch import MinizincSolver
 import pickle5 as pickle
 from shapely.geometry import Polygon, Point
 from shapely.ops import unary_union
@@ -16,6 +15,14 @@ from solvers.generation_solver.adjacency_graph import AdjacencyGraph
 from multiprocessing import Pool
 from functools import partial
 
+class Crop:
+    def __init__(self, result_crop, base_count, filename, platename):
+        self.result_crop = result_crop
+        self.base_count = base_count
+        self.filename = filename
+        self.platename = platename
+
+# output the pixels inside a brick
 def output_pixel(brick, img, basename):
     polygon = proj_bbox(brick)
     dim = basename * 20 + 1
@@ -76,6 +83,7 @@ def change_color_to_gray(brick, gray):
     new_brick = BrickInstance(brick.template, brick.trans_matrix, color_hex)
     return new_brick
 
+# return a list of bricks with gray scale color representing its sd
 def sd_as_gray(brickset, img, basename):
     sd_ls = [round(np.sum(np.std(get_cover_rgb(img, brick, basename), axis = 0))) for brick in brickset]
     maxx = np.max(sd_ls)
@@ -84,7 +92,7 @@ def sd_as_gray(brickset, img, basename):
     return result
 
 if __name__ == "__main__":
-    img_path = os.path.join(os.path.dirname(__file__), "super_graph/pepsi.png")
+    img_path = os.path.join(os.path.dirname(__file__), "super_graph/apple-rainbow.JPG")
     img = cv2.imread(img_path)
     plate_path = "super_graph/for sketch/" + input("Enter file name in sketch folder: ")
     plate_path = os.path.join(os.path.dirname(__file__), plate_path)
@@ -112,29 +120,12 @@ if __name__ == "__main__":
 
     result_crop = get_sketch(img, plate_set, basename)
     
-    """ """
     debugger = MyDebugger("sketch")
     result = plate_base + [i[0] for i in result_crop]
     write_bricks_to_file(result, file_path=debugger.file_path(f"{filename} b={base_count} n={len(result)} {platename}.ldr"))
-    exit()
-    
 
-    model_file = "./solvers/generation_solver/solve_sketch.mzn"
-    path = "solvers/generation_solver/connectivity/"
-    path = path + input("Enter path in connectivity: ")
-
-    solver = MinizincSolver(model_file, "gurobi")
-    structure_graph = pickle.load(open(path, "rb"))
-    node_sd = [0.0001 for i in range(base_count)] + [round(np.sum(np.std(i[1], axis = 0))) + 0.0001 for i in result_crop]
-    results, time_used = solver.solve(structure_graph=structure_graph, node_volume=node_sd, base_count=base_count)
-    
-    selected_bricks = []
-    for i in range(len(structure_graph.bricks)):
-        if results[i] == 1:
-            selected_bricks.append(structure_graph.bricks[i])
-
-    debugger = MyDebugger("solve")
-    write_bricks_to_file(
-        selected_bricks, file_path=debugger.file_path(f"selected {filename} {platename} n={len(selected_bricks)}.ldr"))
-
-    print("done!")
+    debug_path, _ = os.path.split(debugger.file_path(""))
+    debug_path = (debug_path.split("util/../"))
+    debug_path = debug_path[0] + debug_path[1]
+    crop_result = Crop(result_crop, base_count, filename, platename)
+    pickle.dump(crop_result, open(os.path.join(debug_path, f"crop_{filename} b={base_count} n={len(result)} {platename}.pkl"), "wb"))

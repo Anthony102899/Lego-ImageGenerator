@@ -1,5 +1,16 @@
 [
   {
+    "id": "26601",
+    "connPoint": [
+      {"pos": [10, -2, 10], "orient": [0, 1, 0], "type": "stud"},
+      {"pos": [10, 6, 10], "orient": [0, 1, 0], "type": "tube"},
+      {"pos": [-10, -2, -10], "orient": [0, 1, 0], "type": "stud"},
+      {"pos": [-10, 6, -10], "orient": [0, 1, 0], "type": "tube"},
+      {"pos": [-10, -2, 10], "orient": [0, 1, 0], "type": "stud"},
+      {"pos": [-10, 6, 10], "orient": [0, 1, 0], "type": "tube"}
+      ]
+  },
+  {
     "id": "2450",
     "connPoint": [
       {"pos": [0, -2, 0], "orient": [0, 1, 0], "type": "stud"},
