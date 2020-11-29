@@ -34,7 +34,7 @@ class MinizincSolver(BaseSolver):
         # add data to the solver
         overlap_edges = np.array(structure_graph.overlap_edges)
         connect_edges = np.array(structure_graph.connect_edges)
-        instance["base_count"]            = base_count
+        instance["base_count"]          = base_count
         instance["nodes_num"]           = len(structure_graph.bricks)
         instance["nums_edge_collision"] = len(structure_graph.overlap_edges)
         instance["nums_edge_connect"]   = len(structure_graph.connect_edges)
@@ -55,4 +55,3 @@ class MinizincSolver(BaseSolver):
             print(f"solve finished in {time.time() - start_time}")
 
         return selected_nodes, time.time() - start_time
-

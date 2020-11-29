@@ -1,5 +1,35 @@
 [
   {
+    "id": "2450",
+    "connPoint": [
+      {"pos": [0, -2, 0], "orient": [0, 1, 0], "type": "stud"},
+      {"pos": [0, 6, 0], "orient": [0, 1, 0], "type": "tube"},
+      {"pos": [0, -2, 20], "orient": [0, 1, 0], "type": "stud"},
+      {"pos": [0, 6, 20], "orient": [0, 1, 0], "type": "tube"},
+      {"pos": [20, -2, 20], "orient": [0, 1, 0], "type": "stud"},
+      {"pos": [20, 6, 20], "orient": [0, 1, 0], "type": "tube"},
+      {"pos": [-20, -2, 20], "orient": [0, 1, 0], "type": "stud"},
+      {"pos": [-20, 6, 20], "orient": [0, 1, 0], "type": "tube"},
+      {"pos": [-20, -2, 0], "orient": [0, 1, 0], "type": "stud"},
+      {"pos": [-20, 6, 0], "orient": [0, 1, 0], "type": "tube"},
+      {"pos": [-20, -2, -20], "orient": [0, 1, 0], "type": "stud"},
+      {"pos": [-20, 6, -20], "orient": [0, 1, 0], "type": "tube"}
+      ]
+  },
+  {
+    "id": "51739",
+    "connPoint": [
+      {"pos": [10, -2, 10], "orient": [0, 1, 0], "type": "stud"},
+      {"pos": [10, 6, 10], "orient": [0, 1, 0], "type": "tube"},
+      {"pos": [10, -2, -10], "orient": [0, 1, 0], "type": "stud"},
+      {"pos": [10, 6, -10], "orient": [0, 1, 0], "type": "tube"},
+      {"pos": [-10, -2, -10], "orient": [0, 1, 0], "type": "stud"},
+      {"pos": [-10, 6, -10], "orient": [0, 1, 0], "type": "tube"},
+      {"pos": [-10, -2, 10], "orient": [0, 1, 0], "type": "stud"},
+      {"pos": [-10, 6, 10], "orient": [0, 1, 0], "type": "tube"}
+      ]
+  },
+  {
     "id": "2420",
     "volume": 0.774,
     "connPoint": [

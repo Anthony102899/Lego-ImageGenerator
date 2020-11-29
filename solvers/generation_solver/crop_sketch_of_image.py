@@ -84,7 +84,7 @@ def sd_as_gray(brickset, img, basename):
     return result
 
 if __name__ == "__main__":
-    img_path = os.path.join(os.path.dirname(__file__), "super_graph/apple-rainbow.JPG")
+    img_path = os.path.join(os.path.dirname(__file__), "super_graph/pepsi.png")
     img = cv2.imread(img_path)
     plate_path = "super_graph/for sketch/" + input("Enter file name in sketch folder: ")
     plate_path = os.path.join(os.path.dirname(__file__), plate_path)
@@ -103,8 +103,8 @@ if __name__ == "__main__":
     _, filename = os.path.split(img_path)
     filename = (filename.split("."))[0]
     _, platename = os.path.split(plate_path)
-    platename = ((platename.split("."))[0]).split(" ")
-    basename = int(platename[1].split("=")[1]) # a number indicating shape of base
+    platename = ((platename.split("."))[0]).split("base=")
+    basename = int(platename[1].split(" ")[0]) # a number indicating shape of base
     platename = platename[0]
 
     # resize image to fit the brick
@@ -112,11 +112,12 @@ if __name__ == "__main__":
 
     result_crop = get_sketch(img, plate_set, basename)
     
-    """ """ 
+    """ """
     debugger = MyDebugger("sketch")
     result = plate_base + [i[0] for i in result_crop]
     write_bricks_to_file(result, file_path=debugger.file_path(f"{filename} b={base_count} n={len(result)} {platename}.ldr"))
     exit()
+    
 
     model_file = "./solvers/generation_solver/solve_sketch.mzn"
     path = "solvers/generation_solver/connectivity/"
@@ -124,10 +125,8 @@ if __name__ == "__main__":
 
     solver = MinizincSolver(model_file, "gurobi")
     structure_graph = pickle.load(open(path, "rb"))
-    node_volume = [0.0001 for i in range(base_count)] + [round(np.sum(np.std(i[1], axis = 0))) + 0.0001 for i in result_crop]
-    results, time_used = solver.solve(structure_graph=structure_graph,
-                                      node_volume=node_volume,
-                                      base_count = base_count)
+    node_sd = [0.0001 for i in range(base_count)] + [round(np.sum(np.std(i[1], axis = 0))) + 0.0001 for i in result_crop]
+    results, time_used = solver.solve(structure_graph=structure_graph, node_volume=node_sd, base_count=base_count)
     
     selected_bricks = []
     for i in range(len(structure_graph.bricks)):
@@ -136,6 +135,6 @@ if __name__ == "__main__":
 
     debugger = MyDebugger("solve")
     write_bricks_to_file(
-        selected_bricks, file_path=debugger.file_path(f"selected {filename} n={len(selected_bricks)}.ldr"))
+        selected_bricks, file_path=debugger.file_path(f"selected {filename} {platename} n={len(selected_bricks)}.ldr"))
 
     print("done!")
