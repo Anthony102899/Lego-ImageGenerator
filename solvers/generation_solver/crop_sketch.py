@@ -11,7 +11,6 @@ from bricks_modeling.file_IO.model_writer import write_bricks_to_file
 from bricks_modeling.bricks.brickinstance import BrickInstance, get_corner_pos
 from solvers.generation_solver.crop_model import RGB_to_Hex
 from solvers.generation_solver.draw_bbox import write_bricks_w_bbox
-from solvers.generation_solver.adjacency_graph import AdjacencyGraph
 from multiprocessing import Pool
 from functools import partial
 
@@ -92,7 +91,7 @@ def sd_as_gray(brickset, img, basename):
     return result
 
 if __name__ == "__main__":
-    img_path = os.path.join(os.path.dirname(__file__), "super_graph/apple-rainbow.JPG")
+    img_path = os.path.join(os.path.dirname(__file__), "super_graph/google.png")
     img = cv2.imread(img_path)
     plate_path = "super_graph/for sketch/" + input("Enter file name in sketch folder: ")
     plate_path = os.path.join(os.path.dirname(__file__), plate_path)
@@ -111,21 +110,18 @@ if __name__ == "__main__":
     _, filename = os.path.split(img_path)
     filename = (filename.split("."))[0]
     _, platename = os.path.split(plate_path)
-    platename = ((platename.split("."))[0]).split("base=")
-    basename = int(platename[1].split(" ")[0]) # a number indicating shape of base
-    platename = platename[0]
+    platename = (((platename.split("."))[0]).split("base="))[0]
+
+    cpoints = np.array([len(base.get_current_conn_points()) / 2 for base in plate_base])
+    basename = int(math.sqrt(np.sum(cpoints)))
 
     # resize image to fit the brick
     img = cv2.resize(img, (basename * 20 + 1, basename * 20 + 1))
-
     result_crop = get_sketch(img, plate_set, basename)
     
     debugger = MyDebugger("sketch")
     result = plate_base + [i[0] for i in result_crop]
     write_bricks_to_file(result, file_path=debugger.file_path(f"{filename} b={base_count} n={len(result)} {platename}.ldr"))
 
-    debug_path, _ = os.path.split(debugger.file_path(""))
-    debug_path = (debug_path.split("util/../"))
-    debug_path = debug_path[0] + debug_path[1]
     crop_result = Crop(result_crop, base_count, filename, platename)
-    pickle.dump(crop_result, open(os.path.join(debug_path, f"crop_{filename} b={base_count} n={len(result)} {platename}.pkl"), "wb"))
+    pickle.dump(crop_result, open(os.path.join(os.path.dirname(__file__), f"connectivity/crop_{filename} b={base_count} n={len(result)} {platename}.pkl"), "wb"))
