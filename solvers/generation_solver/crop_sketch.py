@@ -48,13 +48,15 @@ def proj_bbox(brick:BrickInstance):
     polygon = unary_union(polygon_ls)
     return polygon
 
-# return a vector of sd
+# return a list of rgb colors covered by brick
 def get_cover_rgb(img, brick, basename):
     polygon = proj_bbox(brick)
     mini, minj, maxi, maxj = polygon.bounds
     rgbs = []
     for x in range(math.floor(mini), math.ceil(maxi) + 1):
         for y in range(math.floor(minj), math.ceil(maxj) + 1):
+            if x < 0 or y < 0 or x > basename * 20 or y > basename * 20:
+                return []
             point = Point(x, y)
             if polygon.contains(point):
                 try:
@@ -66,6 +68,8 @@ def get_cover_rgb(img, brick, basename):
 # get a new brick with the nearest color
 def check_sketch(brick, img, basename):
     rgbs = get_cover_rgb(img, brick, basename) # the nearest color
+    if len(rgbs) == 0:
+        return
     color = np.average(rgbs, axis = 0)
     color_hex = RGB_to_Hex(color)
     new_brick = BrickInstance(brick.template, brick.trans_matrix, color_hex)
@@ -74,7 +78,7 @@ def check_sketch(brick, img, basename):
 def get_sketch(img, plate_set, basename):
     with Pool(20) as p:
         result_crop = p.map(partial(check_sketch, img=img, basename=basename), plate_set)
-    return result_crop
+    return [i for i in result_crop if i]
 
 def change_color_to_gray(brick, gray):
     color = np.ones(3) * gray
@@ -91,7 +95,7 @@ def sd_as_gray(brickset, img, basename):
     return result
 
 if __name__ == "__main__":
-    img_path = os.path.join(os.path.dirname(__file__), "super_graph/google.png")
+    img_path = os.path.join(os.path.dirname(__file__), "super_graph/pepsi.png")
     img = cv2.imread(img_path)
     plate_path = "super_graph/for sketch/" + input("Enter file name in sketch folder: ")
     plate_path = os.path.join(os.path.dirname(__file__), plate_path)

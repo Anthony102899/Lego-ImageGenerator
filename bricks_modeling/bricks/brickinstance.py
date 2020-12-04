@@ -14,6 +14,7 @@ from bricks_modeling.file_IO.util import to_ldr_format
 from bricks_modeling import config
 import util.cuboid_collision as cuboid_col
 
+# return a list of bbox corners
 def get_corner_pos(brick, four_point=False):
     bbox_ls = brick.get_col_bbox()
     cub_corner = []
