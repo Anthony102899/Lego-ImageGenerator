@@ -15,7 +15,7 @@ import util.geometry_util as geo_util
 from solvers.rigidity_solver.algo_core import spring_energy_matrix
 from solvers.rigidity_solver.joint_construction import construct_joints
 
-def get_crystal_vertices(contact_pt: np.array, contact_orient: np.array):
+def get_crystal_vertices(contact_pt: np.array, contact_orient: np.array) -> np.ndarray:
     p0 = contact_pt
     p1 = contact_pt + 5 * contact_orient
     p2 = contact_pt - 5 * contact_orient
@@ -25,7 +25,7 @@ def get_crystal_vertices(contact_pt: np.array, contact_orient: np.array):
     p5 = contact_pt + 5 * p_vec2
     p6 = contact_pt - 5 * p_vec2
 
-    return [p0, p1, p2, p3, p4, p5, p6]
+    return np.array([p0, p1, p2, p3, p4, p5, p6])
 
 
 # Requirements on the sample points and their connection:

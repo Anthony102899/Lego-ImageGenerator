@@ -65,7 +65,6 @@ def spring_energy_matrix(
     matrices=False,
     ) -> np.ndarray:
     """
-    fixed_points_idx: list of indices of points to be fixed
     matrices: return K, P, A if true
     """
 
@@ -121,10 +120,11 @@ def constraint_matrix(points, edges, joints, fixed_points_idx, dim):
     for joint in joints:
         edge_idx, motion_points, allowed_motions = joint[0], joint[1], joint[2]
 
-        A_joint = constraints_for_one_joint(points[np.array(list(edges[edge_idx]))], list(edges[edge_idx]),
-                                      points[np.array(motion_points)], motion_points,
-                                      points,
-                                      allowed_motions=allowed_motions, dim=dim)
+        A_joint = constraints_for_one_joint(
+            points[np.array(list(edges[edge_idx]))], list(edges[edge_idx]),
+            points[np.array(motion_points)], motion_points,
+            points,
+            allowed_motions=allowed_motions, dim=dim)
         A = np.append(A, A_joint, 0)
 
     # adding the fixed points constraints
@@ -257,14 +257,16 @@ def project_matrix_2D(source_pts, source_pts_idx,target_pts, target_pts_idx, poi
     return project_mat, basis1, basis2
 
 # TODO: not tested yet
-def project_matrix_3D(source_pts, source_pts_idx,target_pts, target_pts_idx, points, dim = 2):
+def project_matrix_3D(source_pts, source_pts_idx,target_pts, target_pts_idx, points):
     assert len(source_pts) == 3
+    dim = 3
 
     points_num = len(points)
     project_mat = np.zeros((len(target_pts) * dim, points_num * dim))
 
     l_b1 = LA.norm(source_pts[1] - source_pts[0])
     basis1 = (source_pts[1] - source_pts[0]) / l_b1
+
     l_b2 = LA.norm(np.cross(basis1, source_pts[1] - source_pts[0]))
     basis2 = np.cross(basis1, source_pts[1] - source_pts[0]) / l_b2
     basis3 = np.cross(basis1, basis2)
@@ -273,7 +275,7 @@ def project_matrix_3D(source_pts, source_pts_idx,target_pts, target_pts_idx, poi
     Db1, Db2, Db3 = source_pts_idx[1] * dim, source_pts_idx[1] * dim + 1, source_pts_idx[1] * dim + 2
     Dc1, Dc2, Dc3 = source_pts_idx[2] * dim, source_pts_idx[2] * dim + 1, source_pts_idx[2] * dim + 2
 
-    a, b, c = source_pts[0], source_pts[1], source_pts[1]
+    a, b, c = source_pts[0], source_pts[1], source_pts[2]
 
     # assemble projection matrix
     for i in range(len(target_pts)):
