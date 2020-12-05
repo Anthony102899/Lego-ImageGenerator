@@ -1,6 +1,7 @@
 [
   {
     "id": "26601",
+    "area": 2.24,
     "connPoint": [
       {"pos": [10, -2, 10], "orient": [0, 1, 0], "type": "stud"},
       {"pos": [10, 6, 10], "orient": [0, 1, 0], "type": "tube"},
@@ -12,6 +13,7 @@
   },
   {
     "id": "2450",
+    "area": 4.48,
     "connPoint": [
       {"pos": [0, -2, 0], "orient": [0, 1, 0], "type": "stud"},
       {"pos": [0, 6, 0], "orient": [0, 1, 0], "type": "tube"},
@@ -29,6 +31,7 @@
   },
   {
     "id": "51739",
+    "area": 3.8328,
     "connPoint": [
       {"pos": [10, -2, 10], "orient": [0, 1, 0], "type": "stud"},
       {"pos": [10, 6, 10], "orient": [0, 1, 0], "type": "tube"},
@@ -42,6 +45,7 @@
   },
   {
     "id": "2420",
+    "area": 1.92,
     "volume": 0.774,
     "connPoint": [
       {"pos": [0, -2, 0], "orient": [0, 1, 0], "type": "stud"},
@@ -80,6 +84,7 @@
   },
   {
     "id": "30357",
+    "area": 3.4826,
     "connPoint": [
       {"pos": [0, -2, 0], "orient": [0, 1, 0], "type": "stud"},
       {"pos": [0, 6, 0], "orient": [0, 1, 0], "type": "tube"},
@@ -680,6 +685,7 @@
   {
     "id": "3023",
     "volume": 0.366,
+    "area": 1.28,
     "connPoint": [
       {"pos": [  10,  -2,  0],"orient": [0, 1, 0],"type": "stud"},
       {"pos": [  10,  6,  0],"orient": [0, 1, 0],"type": "tube"},
@@ -691,6 +697,7 @@
   {
     "id": "3623",
     "volume": 0.549,
+    "area": 1.92,
     "connPoint": [
       {"pos": [  0,  -2,  0],"orient": [0, 1, 0],"type": "stud"},
       {"pos": [  0,  6,  0],"orient": [0, 1, 0],"type": "tube"},

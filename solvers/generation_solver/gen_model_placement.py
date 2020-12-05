@@ -50,7 +50,7 @@ def get_volume(
             data.extend(temp)
     volume = {}
     for brick in data:
-        if len(brick) > 2:
+        if "volume" in brick.keys():
             volume.update({brick["id"]: brick["volume"]})
     return volume
 
