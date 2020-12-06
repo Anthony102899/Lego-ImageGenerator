@@ -127,5 +127,5 @@ if __name__ == "__main__":
     result = plate_base + [i[0] for i in result_crop]
     write_bricks_to_file(result, file_path=debugger.file_path(f"{filename} b={base_count} n={len(result)} {platename}.ldr"))
 
-    crop_result = Crop(result_crop, base_count, filename, platename)
+    crop_result = Crop([i[1] for i in result_crop], base_count, filename, platename)
     pickle.dump(crop_result, open(os.path.join(os.path.dirname(__file__), f"connectivity/crop_{filename} b={base_count} n={len(result)} {platename}.pkl"), "wb"))

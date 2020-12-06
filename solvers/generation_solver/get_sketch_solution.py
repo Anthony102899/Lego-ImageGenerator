@@ -39,8 +39,9 @@ if __name__ == "__main__":
     result_crop = crop.result_crop
     filename = crop.filename
     platename = crop.platename
-    node_sd = [0.0001 for i in range(base_count)] + [round(np.sum(np.std(i[1], axis = 0))) + 0.0001 for i in result_crop]
+    node_sd = [0.0001 for i in range(base_count)] + [round(np.sum(np.std(i, axis = 0))) + 0.0001 for i in result_crop]
     area = get_area()
+    area = [0 for i in range(base_count)] + [area[b.template.id] for b in structure_graph.bricks[base_count:]]
 
     results, time_used = solver.solve(structure_graph=structure_graph, node_sd=node_sd, node_area=area, base_count=base_count)
     
