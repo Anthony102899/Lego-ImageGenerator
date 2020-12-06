@@ -21,7 +21,7 @@ class MinizincSolver(BaseSolver):
         self.solver = Solver.lookup(solver_type) # Find the MiniZinc solver configuration 
         self.model_file = model_file
 
-    def solve(self, structure_graph, node_volume, base_count, verbose = True):
+    def solve(self, structure_graph, node_sd, node_area, base_count, verbose = True):
         if verbose:
             print(f"start solving by {self.solver_type} ...")
         start_time = time.time()
@@ -42,7 +42,8 @@ class MinizincSolver(BaseSolver):
         instance["to_collision"]        = [int(edge + 1) for edge in overlap_edges[:, 1]]   if len(overlap_edges.shape) > 1 else []
         instance["from_connect"]        = [int(edge + 1) for edge in connect_edges[:, 0]]   if len(connect_edges.shape) > 1 else []
         instance["to_connect"]          = [int(edge + 1) for edge in connect_edges[:, 1]]   if len(connect_edges.shape) > 1 else []
-        instance["node_volume"]         = node_volume
+        instance["node_sd"]             = node_sd
+        instance["node_area"]           = node_area
 
         result = instance.solve()
         if result.status.has_solution():
