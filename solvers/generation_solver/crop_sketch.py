@@ -22,9 +22,9 @@ class Crop:
         self.platename = platename
 
 # output the pixels inside a brick
-def output_pixel(brick, img, basename):
+def output_pixel(brick, img, base_int):
     polygon = proj_bbox(brick)
-    dim = basename * 20 + 1
+    dim = base_int * 20 + 1
     mini, minj, maxi, maxj = polygon.bounds
     output_img = np.zeros([dim, dim,3])
     for x in range(math.floor(mini), math.ceil(maxi) + 1):
@@ -49,13 +49,13 @@ def proj_bbox(brick:BrickInstance):
     return polygon
 
 # return a list of rgb colors covered by brick
-def get_cover_rgb(img, brick, basename):
+def get_cover_rgb(img, brick, base_int):
     polygon = proj_bbox(brick)
     mini, minj, maxi, maxj = polygon.bounds
     rgbs = []
     for x in range(math.floor(mini), math.ceil(maxi) + 1):
         for y in range(math.floor(minj), math.ceil(maxj) + 1):
-            if x < 0 or y < 0 or x > basename * 20 or y > basename * 20:
+            if x < 0 or y < 0 or x > base_int * 20 or y > base_int * 20:
                 return []
             point = Point(x, y)
             if polygon.contains(point):
@@ -66,8 +66,8 @@ def get_cover_rgb(img, brick, basename):
     return rgbs
 
 # get a new brick with the nearest color
-def check_sketch(brick, img, basename):
-    rgbs = get_cover_rgb(img, brick, basename) # the nearest color
+def check_sketch(brick, img, base_int):
+    rgbs = get_cover_rgb(img, brick, base_int) # the nearest color
     if len(rgbs) == 0:
         return
     color = np.average(rgbs, axis = 0)
@@ -75,9 +75,9 @@ def check_sketch(brick, img, basename):
     new_brick = BrickInstance(brick.template, brick.trans_matrix, color_hex)
     return new_brick, rgbs
 
-def get_sketch(img, plate_set, basename):
+def get_sketch(img, plate_set, base_int):
     with Pool(20) as p:
-        result_crop = p.map(partial(check_sketch, img=img, basename=basename), plate_set)
+        result_crop = p.map(partial(check_sketch, img=img, base_int=base_int), plate_set)
     return [i for i in result_crop if i]
 
 def change_color_to_gray(brick, gray):
@@ -87,15 +87,15 @@ def change_color_to_gray(brick, gray):
     return new_brick
 
 # return a list of bricks with gray scale color representing its sd
-def sd_as_gray(brickset, img, basename):
-    sd_ls = [round(np.sum(np.std(get_cover_rgb(img, brick, basename), axis = 0))) for brick in brickset]
+def sd_as_gray(brickset, img, base_int):
+    sd_ls = [round(np.sum(np.std(get_cover_rgb(img, brick, base_int), axis = 0))) for brick in brickset]
     maxx = np.max(sd_ls)
     gray_ls = 255 - sd_ls / maxx * 255
     result = [change_color_to_gray(plate_set[i], gray_ls[i]) for i in range(len(plate_set))]
     return result
 
 if __name__ == "__main__":
-    img_path = os.path.join(os.path.dirname(__file__), "super_graph/pepsi.png")
+    img_path = os.path.join(os.path.dirname(__file__), "super_graph/apple-rainbow.JPG")
     img = cv2.imread(img_path)
     plate_path = "super_graph/for sketch/" + input("Enter file name in sketch folder: ")
     plate_path = os.path.join(os.path.dirname(__file__), plate_path)
@@ -114,14 +114,14 @@ if __name__ == "__main__":
     _, filename = os.path.split(img_path)
     filename = (filename.split("."))[0]
     _, platename = os.path.split(plate_path)
-    platename = (((platename.split("."))[0]).split("base="))[0]
+    platename = (((platename.split("."))[0]).split("n="))[0]
 
     cpoints = np.array([len(base.get_current_conn_points()) / 2 for base in plate_base])
-    basename = int(math.sqrt(np.sum(cpoints)))
+    base_int = int(math.sqrt(np.sum(cpoints)))
 
     # resize image to fit the brick
-    img = cv2.resize(img, (basename * 20 + 1, basename * 20 + 1))
-    result_crop = get_sketch(img, plate_set, basename)
+    img = cv2.resize(img, (base_int * 20 + 1, base_int * 20 + 1))
+    result_crop = get_sketch(img, plate_set, base_int)
     
     debugger = MyDebugger("sketch")
     result = plate_base + [i[0] for i in result_crop]

@@ -115,7 +115,7 @@ if __name__ == "__main__":
     
     start_time = time.time()
     solver = MinizincSolver(model_file, "gurobi")
-    results, time_used = solver.solve(structure_graph=structure_graph,
+    results = solver.solve(structure_graph=structure_graph,
                                       node_volume=[volume[b.template.id] for b in structure_graph.bricks],
                                       flag=[int(f) for f in np.ones(len(structure_graph.bricks))])
     

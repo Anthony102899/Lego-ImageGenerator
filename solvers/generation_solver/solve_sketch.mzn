@@ -2,6 +2,7 @@ int : base_count;
 int : nodes_num;
 int : nums_edge_collision;
 int : nums_edge_connect;
+int : sd_scale;
 set of int: NODE = 1..nodes_num;
 set of int: EDGE_COLL = 1..nums_edge_collision;
 set of int: EDGE_CON = 1..nums_edge_connect;
@@ -32,7 +33,7 @@ constraint forall(i in 1..base_count) (node[i] = 1);
 
 %%%%%%%%%%%%%%%%%% objectives
 % calculate total brick sd
-var float : node_sd_obj = sum(n in NODE) (node[n] / node_sd[n]);
+var float : node_sd_obj = sum(n in NODE) (node[n] * (sd_scale / node_sd[n] + node_area[n]));
 
 var float : obj;
 obj = node_sd_obj;
