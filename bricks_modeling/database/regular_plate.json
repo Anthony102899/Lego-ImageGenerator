@@ -1,5 +1,47 @@
 [
   {
+    "id": "3021",
+    "area": 3.84,
+    "connPoint": [
+      {"pos": [0, -2, 10],"orient": [0, 1, 0],"type": "stud"},
+      {"pos": [0, 6, 10],"orient": [0, 1, 0],"type": "tube"},
+      {"pos": [-20, -2, 10],"orient": [0, 1, 0],"type": "stud"},
+      {"pos": [-20, 6, 10],"orient": [0, 1, 0],"type": "tube"},
+      {"pos": [20, -2, 10],"orient": [0, 1, 0],"type": "stud"},
+      {"pos": [20, 6, 10],"orient": [0, 1, 0],"type": "tube"},
+      {"pos": [0, -2, -10],"orient": [0, 1, 0],"type": "stud"},
+      {"pos": [0, 6, -10],"orient": [0, 1, 0],"type": "tube"},
+      {"pos": [-20, -2, -10],"orient": [0, 1, 0],"type": "stud"},
+      {"pos": [-20, 6, -10],"orient": [0, 1, 0],"type": "tube"},
+      {"pos": [20, -2, -10],"orient": [0, 1, 0],"type": "stud"},
+      {"pos": [20, 6, -10],"orient": [0, 1, 0],"type": "tube"}
+      ]
+  },
+  {
+    "id": "43722",
+    "area": 2.88,
+    "connPoint": [
+      {"pos": [10, -2, 0], "orient": [0, 1, 0], "type": "stud"},
+      {"pos": [10, 6, 0], "orient": [0, 1, 0], "type": "tube"},
+      {"pos": [10, -2, 20], "orient": [0, 1, 0], "type": "stud"},
+      {"pos": [10, 6, 20], "orient": [0, 1, 0], "type": "tube"},
+      {"pos": [10, -2, -20], "orient": [0, 1, 0], "type": "stud"},
+      {"pos": [10, 6, -20], "orient": [0, 1, 0], "type": "tube"}
+      ]
+  },
+  {
+    "id": "43723",
+    "area": 2.88,
+    "connPoint": [
+      {"pos": [-10, -2, 0], "orient": [0, 1, 0], "type": "stud"},
+      {"pos": [-10, 6, 0], "orient": [0, 1, 0], "type": "tube"},
+      {"pos": [-10, -2, 20], "orient": [0, 1, 0], "type": "stud"},
+      {"pos": [-10, 6, 20], "orient": [0, 1, 0], "type": "tube"},
+      {"pos": [-10, -2, -20], "orient": [0, 1, 0], "type": "stud"},
+      {"pos": [-10, 6, -20], "orient": [0, 1, 0], "type": "tube"}
+      ]
+  },
+  {
     "id": "26601",
     "area": 2.24,
     "connPoint": [

@@ -10,7 +10,6 @@ from util.debugger import MyDebugger
 from bricks_modeling.file_IO.model_writer import write_bricks_to_file
 from bricks_modeling.bricks.brickinstance import BrickInstance, get_corner_pos
 from solvers.generation_solver.crop_model import RGB_to_Hex
-from solvers.generation_solver.draw_bbox import write_bricks_w_bbox
 from multiprocessing import Pool
 from functools import partial
 
@@ -20,22 +19,6 @@ class Crop:
         self.base_count = base_count
         self.filename = filename
         self.platename = platename
-
-# output the pixels inside a brick
-def output_pixel(brick, img, base_int):
-    polygon = proj_bbox(brick)
-    dim = base_int * 20 + 1
-    mini, minj, maxi, maxj = polygon.bounds
-    output_img = np.zeros([dim, dim,3])
-    for x in range(math.floor(mini), math.ceil(maxi) + 1):
-        for y in range(math.floor(minj), math.ceil(maxj) + 1):
-            point = Point(x, y)
-            if polygon.contains(point):
-                try:
-                    output_img[y][x] = img[y, x]
-                except:
-                    continue
-    cv2.imwrite('./solvers/generation_solver/super_graph/brick_img.jpg', output_img)
 
 # return a polygon obj 
 def proj_bbox(brick:BrickInstance):
@@ -79,20 +62,6 @@ def get_sketch(img, plate_set, base_int):
     with Pool(20) as p:
         result_crop = p.map(partial(check_sketch, img=img, base_int=base_int), plate_set)
     return [i for i in result_crop if i]
-
-def change_color_to_gray(brick, gray):
-    color = np.ones(3) * gray
-    color_hex = RGB_to_Hex(color)
-    new_brick = BrickInstance(brick.template, brick.trans_matrix, color_hex)
-    return new_brick
-
-# return a list of bricks with gray scale color representing its sd
-def sd_as_gray(brickset, img, base_int):
-    sd_ls = [round(np.sum(np.std(get_cover_rgb(img, brick, base_int), axis = 0))) for brick in brickset]
-    maxx = np.max(sd_ls)
-    gray_ls = 255 - sd_ls / maxx * 255
-    result = [change_color_to_gray(plate_set[i], gray_ls[i]) for i in range(len(plate_set))]
-    return result
 
 if __name__ == "__main__":
     img_path = os.path.join(os.path.dirname(__file__), "super_graph/apple-rainbow.JPG")

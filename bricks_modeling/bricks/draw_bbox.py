@@ -36,11 +36,10 @@ def write_bricks_w_bbox(bricks: List[BrickInstance], file_path):
     print(f"file {file_path} saved!")
 
 if __name__ == "__main__":
-    #mode = int(input("Enter mode: "))
-    mode = 1
+    mode = int(input("Enter mode: "))
     if mode == 1:
         debugger = MyDebugger("drawbbox")
-        file_path = "./debug/1 3023+3024.ldr"
+        file_path = "./debug/43723.ldr"
         bricks = read_bricks_from_file(file_path)
         _, filename = os.path.split(file_path)
         filename = (filename.split("."))[0]
