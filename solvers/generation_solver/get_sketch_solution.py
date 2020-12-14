@@ -20,11 +20,12 @@ def hex_to_rgb(hexx):
     return np.array(rgb)
 
 # return difference between input and brickset (solution) (without base)
-def calculate_v(brick_set,img, base_int):
+def calculate_v(brick_set,img, base_int, polygon_ls):
     dif_sum = [0, 0, 0]
-    for brick in brick_set:
+    for i in range(len(brick_set)):
+        brick = brick_set[i]
+        polygon = polygon_ls[i]
         brick_color = hex_to_rgb(brick.color)
-        polygon = proj_bbox(brick)
         mini, minj, maxi, maxj = polygon.bounds
         dif = [0, 0, 0]
         for x in range(math.floor(mini), math.ceil(maxi) + 1):
@@ -44,21 +45,7 @@ def calculate_overlap_v(brick, brick2, img, base_int):
     polygon1 = proj_bbox(brick)
     polygon2 = proj_bbox(brick2)
     dif_polygon = polygon1.difference(polygon2)
-    
-    brick_color = hex_to_rgb(brick.color)
-    mini, minj, maxi, maxj = dif_polygon.bounds
-    dif = [0, 0, 0]
-    for x in range(math.floor(mini), math.ceil(maxi) + 1):
-        for y in range(math.floor(minj), math.ceil(maxj) + 1):
-            point = Point(x, y)
-            if dif_polygon.contains(point):
-                try:
-                    img_color = (img[y, x])[::-1]
-                    dif = [dif[i] + abs(brick_color[i] - img_color[i]) * 1e-6 for i in range(3)]
-                except:
-                    continue
-    dif_sum = [round(dif[i], 3) for i in range(3)]
-    return - np.sum(dif_sum)
+    return calculate_v([brick], img, base_int, [dif_polygon])
 
 def get_area(
     brick_database=[
@@ -116,7 +103,8 @@ if __name__ == "__main__":
             if results[i] == 1:
                 selected_bricks_scale.append(structure_graph.bricks[i])
 
-        value_of_solution = calculate_v(selected_bricks_scale[base_count:],img, base_int)
+        selected_scale_without_base = selected_bricks_scale[base_count:]
+        value_of_solution = calculate_v(selected_scale_without_base,img, base_int, [proj_bbox(brick) for brick in selected_scale_without_base])
         if value_of_solution > max_v:
             max_v = value_of_solution
             scale_with_max_v = scale
