@@ -43,7 +43,7 @@
   },
   {
     "id": "26601",
-    "area": 2.24,
+    "area": 2.25,
     "connPoint": [
       {"pos": [10, -2, 10], "orient": [0, 1, 0], "type": "stud"},
       {"pos": [10, 6, 10], "orient": [0, 1, 0], "type": "tube"},
@@ -727,7 +727,7 @@
   {
     "id": "3023",
     "volume": 0.366,
-    "area": 1.28,
+    "area": 1.275,
     "connPoint": [
       {"pos": [  10,  -2,  0],"orient": [0, 1, 0],"type": "stud"},
       {"pos": [  10,  6,  0],"orient": [0, 1, 0],"type": "tube"},
@@ -739,7 +739,7 @@
   {
     "id": "3623",
     "volume": 0.549,
-    "area": 1.92,
+    "area": 1.87,
     "connPoint": [
       {"pos": [  0,  -2,  0],"orient": [0, 1, 0],"type": "stud"},
       {"pos": [  0,  6,  0],"orient": [0, 1, 0],"type": "tube"},
@@ -753,7 +753,7 @@
   {
     "id": "3024",
     "volume": 0.183,
-    "area": 0.64,
+    "area": 0.635,
     "connPoint": [
       {"pos": [  0,  -2,  0],"orient": [0, 1, 0],"type": "stud"},
       {"pos": [  0,  6,  0],"orient": [0, 1, 0],"type": "tube"

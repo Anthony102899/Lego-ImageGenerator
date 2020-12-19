@@ -47,6 +47,20 @@ def calculate_overlap_v(brick, brick2, img, base_int):
     dif_polygon = polygon1.difference(polygon2)
     return calculate_v([brick], img, base_int, [dif_polygon])
 
+def coord_covered(brickset, x, y):
+    minx, maxx = max(x - 30, 0), x + 31
+    miny, maxy = max(y - 30, 0), y + 31
+    for brick in brickset:
+        i, _, j = brick.get_translation()
+        if i > maxx or i < minx or j > maxy or j < miny:
+            continue
+        cpoints = brick.get_current_conn_points()
+        for cp in cpoints:
+            cp_i, _, cp_j = cp.pos
+            if cp_i == x and cp_j == y:
+                return True
+    return False
+
 def get_area(
     brick_database=[
         "regular_plate.json",
@@ -77,7 +91,7 @@ if __name__ == "__main__":
 
     crop = pickle.load(open(crop_path, "rb"))
     base_count = crop.base_count
-    result_crop = crop.result_crop
+    node_sd = crop.result_crop
     filename = crop.filename
     cpoints = np.array([len(base.get_current_conn_points()) / 2 for base in structure_graph.bricks[:base_count]])
     base_int = int(math.sqrt(np.sum(cpoints)))
@@ -86,17 +100,16 @@ if __name__ == "__main__":
     img_path = os.path.join(os.path.dirname(__file__), "super_graph" + img_name)
     img = cv2.imread(img_path)
 
-    node_sd = [0.0001 for i in range(base_count)] + [round(np.sum(np.std(i, axis = 0)), 4) + 0.0001 for i in result_crop]
     area = get_area()
     area = [0 for i in range(base_count)] + [area[b.template.id] for b in structure_graph.bricks[base_count:]]
     area_max = np.amax(np.array(area))
     area_normal = [round(i / area_max, 3) for i in area]
 
-    max_v = -1e5
+    max_v = - 1e5
     selected_bricks = []
     scale_with_max_v = 0
     
-    for scale in range(20, 61, 10):
+    for scale in range(20, 30, 10):
         results = solver.solve(structure_graph=structure_graph, node_sd=node_sd, node_area=area_normal, base_count=base_count, scale=scale)
         selected_bricks_scale = []
         for i in range(len(structure_graph.bricks)):
