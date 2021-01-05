@@ -2,7 +2,7 @@ int : base_count;
 int : nodes_num;
 int : nums_edge_collision;
 int : nums_edge_connect;
-int : sd_scale;
+float : sd_scale;
 set of int: NODE = 1..nodes_num;
 set of int: EDGE_COLL = 1..nums_edge_collision;
 set of int: EDGE_CON = 1..nums_edge_connect;
@@ -21,8 +21,7 @@ array[EDGE_CON] of var bool : selected_edges;
 % constraint no collisions
 constraint
 forall(e in EDGE_COLL) (
-        node[from_collision[e]] + node[to_collision[e]] <= 1
-);
+        node[from_collision[e]] + node[to_collision[e]] <= 1);
 
 % constraint all connected
 include "connected.mzn";

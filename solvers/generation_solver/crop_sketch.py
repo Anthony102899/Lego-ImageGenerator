@@ -13,7 +13,7 @@ from solvers.generation_solver.crop_model import RGB_to_Hex
 from multiprocessing import Pool
 from functools import partial
 
-class Crop:
+class Crop:            # sd of nodes
     def __init__(self, result_crop, base_count, filename, platename):
         self.result_crop = result_crop
         self.base_count = base_count
@@ -64,7 +64,7 @@ def get_sketch(img, plate_set, base_int):
     return [i for i in result_crop if i]
 
 if __name__ == "__main__":
-    img_path = os.path.join(os.path.dirname(__file__), "super_graph/apple-rainbow.JPG")
+    img_path = os.path.join(os.path.dirname(__file__), "super_graph/snap.png")
     img = cv2.imread(img_path)
     plate_path = "super_graph/for sketch/" + input("Enter file name in sketch folder: ")
     plate_path = os.path.join(os.path.dirname(__file__), plate_path)
@@ -96,5 +96,5 @@ if __name__ == "__main__":
     result = plate_base + [i[0] for i in result_crop]
     write_bricks_to_file(result, file_path=debugger.file_path(f"{filename} b={base_count} n={len(result)} {platename}.ldr"))
 
-    crop_result = Crop([i[1] for i in result_crop], base_count, filename, platename)
+    crop_result = Crop([0.0001 for i in range(base_count)] + [float(round(np.sum(np.std(i[1], axis = 0)), 4) + 0.0001) for i in result_crop], base_count, filename, platename)
     pickle.dump(crop_result, open(os.path.join(os.path.dirname(__file__), f"connectivity/crop_{filename} b={base_count} n={len(result)} {platename}.pkl"), "wb"))

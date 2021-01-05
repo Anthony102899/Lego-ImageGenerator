@@ -47,19 +47,22 @@ def calculate_overlap_v(brick, brick2, img, base_int):
     dif_polygon = polygon1.difference(polygon2)
     return calculate_v([brick], img, base_int, [dif_polygon])
 
-def coord_covered(brickset, x, y):
-    minx, maxx = max(x - 30, 0), x + 31
-    miny, maxy = max(y - 30, 0), y + 31
+# return an integer in [0,1]
+def cal_border(brickset, base_int):
+    standard = base_int * 4 - 4
+    maxx = base_int * 20 - 10
+    count = 0
     for brick in brickset:
-        i, _, j = brick.get_translation()
-        if i > maxx or i < minx or j > maxy or j < miny:
-            continue
         cpoints = brick.get_current_conn_points()
-        for cp in cpoints:
-            cp_i, _, cp_j = cp.pos
-            if cp_i == x and cp_j == y:
-                return True
-    return False
+        cpoints_pos = [[cp.pos[0], cp.pos[2]] for cp in cpoints]
+        for z in range(10, base_int * 20 -9, 10):
+            if [10, z] in cpoints_pos or [maxx, z] in cpoints_pos:
+                count += 1
+            if z < 20 or z > maxx - 10:
+                continue
+            if [z, 10] in cpoints_pos or [z, maxx] in cpoints_pos:
+                count += 1
+    return count / standard
 
 def get_area(
     brick_database=[
@@ -107,9 +110,8 @@ if __name__ == "__main__":
 
     max_v = - 1e5
     selected_bricks = []
-    scale_with_max_v = 0
-    
-    for scale in range(20, 30, 10):
+    scale_with_max_v = -1
+    for scale in range(20, 61, 10):
         results = solver.solve(structure_graph=structure_graph, node_sd=node_sd, node_area=area_normal, base_count=base_count, scale=scale)
         selected_bricks_scale = []
         for i in range(len(structure_graph.bricks)):
@@ -117,13 +119,14 @@ if __name__ == "__main__":
                 selected_bricks_scale.append(structure_graph.bricks[i])
 
         selected_scale_without_base = selected_bricks_scale[base_count:]
-        value_of_solution = calculate_v(selected_scale_without_base,img, base_int, [proj_bbox(brick) for brick in selected_scale_without_base])
+        value_of_solution = calculate_v(selected_scale_without_base,img, base_int, [proj_bbox(brick) for brick in selected_scale_without_base]) + \
+                            0.5 * cal_border(selected_scale_without_base, base_int)
         if value_of_solution > max_v:
             max_v = value_of_solution
             scale_with_max_v = scale
             selected_bricks = selected_bricks_scale.copy()
 
-    print("Maximum difference obtained at scale = ", scale_with_max_v)
+    print("Minimum difference obtained at scale = ", scale_with_max_v)
     debugger = MyDebugger("solve")
     write_bricks_to_file(
         selected_bricks, file_path=debugger.file_path(f"selected {filename} {crop.platename} n={len(selected_bricks)}.ldr"))

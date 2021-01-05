@@ -1,5 +1,28 @@
 [
   {
+    "id": "49668",
+    "volume": 0.1825,
+    "connPoint": [
+        { "orient": [ 0, 1, 0 ], "pos": [ 0, -2, 0 ], "type": "stud"},
+        { "orient": [ 0, 1, 0 ], "pos": [ 0, 6, 0 ], "type": "tube"}
+    ]
+  },
+  {
+    "id": "27263",
+    "volume": 0.37,
+    "connPoint": [
+        { "orient": [ 0, 1, 0 ], "pos": [ 20, 6, 0 ], "type": "tube"},
+        { "orient": [ 0, 1, 0 ], "pos": [ 0, 6, 20 ], "type": "tube"}
+    ]
+  },
+  {
+    "id": "27925",
+    "volume": 0.37,
+    "connPoint": [
+        { "orient": [ 0, 1, 0 ], "pos": [ 20, 6, 0 ], "type": "tube"},
+        { "orient": [ 0, 1, 0 ], "pos": [ 0, 6, -20 ], "type": "tube"}]
+  },
+  {
     "id": "3021",
     "area": 3.84,
     "connPoint": [
