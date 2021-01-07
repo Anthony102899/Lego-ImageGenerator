@@ -64,22 +64,31 @@ def cal_border(brickset, base_int):
                 count += 1
     return count / standard
 
-def get_area(
-    brick_database=[
-        "regular_plate.json",
-        "regular_slope.json",
-        "regular_other.json",
-        "regular_circular.json"]):
+def load_data(brick_database=["regular_plate.json"]):
     data = []
     for data_base in brick_database:
         database_file = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "bricks_modeling", "database", data_base)
         with open(database_file) as f:
             temp = json.load(f)
             data.extend(temp)
+    return data
+
+def get_area():
+    data = load_data()
     area = {}
     for brick in data:
         if "area" in brick.keys():
             area.update({brick["id"]: brick["area"]})
+    return area
+
+def get_weight():
+    data = load_data()
+    area = {}
+    for brick in data:
+        if "weight" in brick.keys():
+            area.update({brick["id"]: brick["weight"]})
+        else:
+            area.update({brick["id"]: 1})
     return area
 
 if __name__ == "__main__":
@@ -94,7 +103,6 @@ if __name__ == "__main__":
 
     crop = pickle.load(open(crop_path, "rb"))
     base_count = crop.base_count
-    node_sd = crop.result_crop
     filename = crop.filename
     cpoints = np.array([len(base.get_current_conn_points()) / 2 for base in structure_graph.bricks[:base_count]])
     base_int = int(math.sqrt(np.sum(cpoints)))
@@ -103,16 +111,28 @@ if __name__ == "__main__":
     img_path = os.path.join(os.path.dirname(__file__), "super_graph" + img_name)
     img = cv2.imread(img_path)
 
+    node_sd = [1 / i for i in crop.result_crop]
+    sd_max = np.amax(np.array(node_sd))
+    sd_normal = [round(i / sd_max, 3) for i in node_sd]
+
     area = get_area()
     area = [0 for i in range(base_count)] + [area[b.template.id] for b in structure_graph.bricks[base_count:]]
     area_max = np.amax(np.array(area))
     area_normal = [round(i / area_max, 3) for i in area]
 
+    weight = get_weight()
+    weight = [weight[b.template.id] for b in structure_graph.bricks]
+
     max_v = - 1e5
     selected_bricks = []
     scale_with_max_v = -1
-    for scale in range(20, 61, 10):
-        results = solver.solve(structure_graph=structure_graph, node_sd=node_sd, node_area=area_normal, base_count=base_count, scale=scale)
+    for scale in range(20, 21, 10):
+        results = solver.solve(structure_graph=structure_graph,
+                               node_sd=sd_normal,
+                               node_area=area_normal,
+                               node_weight=weight,
+                               base_count=base_count,
+                               scale=scale)
         selected_bricks_scale = []
         for i in range(len(structure_graph.bricks)):
             if results[i] == 1:
