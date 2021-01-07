@@ -1,6 +1,72 @@
 [
   {
+    "id": "49668",
+    "volume": 0.1825,
+    "connPoint": [
+        { "orient": [ 0, 1, 0 ], "pos": [ 0, -2, 0 ], "type": "stud"},
+        { "orient": [ 0, 1, 0 ], "pos": [ 0, 6, 0 ], "type": "tube"}
+    ]
+  },
+  {
+    "id": "27263",
+    "volume": 0.37,
+    "connPoint": [
+        { "orient": [ 0, 1, 0 ], "pos": [ 20, 6, 0 ], "type": "tube"},
+        { "orient": [ 0, 1, 0 ], "pos": [ 0, 6, 20 ], "type": "tube"}
+    ]
+  },
+  {
+    "id": "27925",
+    "volume": 0.37,
+    "connPoint": [
+        { "orient": [ 0, 1, 0 ], "pos": [ 20, 6, 0 ], "type": "tube"},
+        { "orient": [ 0, 1, 0 ], "pos": [ 0, 6, -20 ], "type": "tube"}]
+  },
+  {
+    "id": "3021",
+    "area": 3.84,
+    "connPoint": [
+      {"pos": [0, -2, 10],"orient": [0, 1, 0],"type": "stud"},
+      {"pos": [0, 6, 10],"orient": [0, 1, 0],"type": "tube"},
+      {"pos": [-20, -2, 10],"orient": [0, 1, 0],"type": "stud"},
+      {"pos": [-20, 6, 10],"orient": [0, 1, 0],"type": "tube"},
+      {"pos": [20, -2, 10],"orient": [0, 1, 0],"type": "stud"},
+      {"pos": [20, 6, 10],"orient": [0, 1, 0],"type": "tube"},
+      {"pos": [0, -2, -10],"orient": [0, 1, 0],"type": "stud"},
+      {"pos": [0, 6, -10],"orient": [0, 1, 0],"type": "tube"},
+      {"pos": [-20, -2, -10],"orient": [0, 1, 0],"type": "stud"},
+      {"pos": [-20, 6, -10],"orient": [0, 1, 0],"type": "tube"},
+      {"pos": [20, -2, -10],"orient": [0, 1, 0],"type": "stud"},
+      {"pos": [20, 6, -10],"orient": [0, 1, 0],"type": "tube"}
+      ]
+  },
+  {
+    "id": "43722",
+    "area": 2.88,
+    "connPoint": [
+      {"pos": [10, -2, 0], "orient": [0, 1, 0], "type": "stud"},
+      {"pos": [10, 6, 0], "orient": [0, 1, 0], "type": "tube"},
+      {"pos": [10, -2, 20], "orient": [0, 1, 0], "type": "stud"},
+      {"pos": [10, 6, 20], "orient": [0, 1, 0], "type": "tube"},
+      {"pos": [10, -2, -20], "orient": [0, 1, 0], "type": "stud"},
+      {"pos": [10, 6, -20], "orient": [0, 1, 0], "type": "tube"}
+      ]
+  },
+  {
+    "id": "43723",
+    "area": 2.88,
+    "connPoint": [
+      {"pos": [-10, -2, 0], "orient": [0, 1, 0], "type": "stud"},
+      {"pos": [-10, 6, 0], "orient": [0, 1, 0], "type": "tube"},
+      {"pos": [-10, -2, 20], "orient": [0, 1, 0], "type": "stud"},
+      {"pos": [-10, 6, 20], "orient": [0, 1, 0], "type": "tube"},
+      {"pos": [-10, -2, -20], "orient": [0, 1, 0], "type": "stud"},
+      {"pos": [-10, 6, -20], "orient": [0, 1, 0], "type": "tube"}
+      ]
+  },
+  {
     "id": "26601",
+    "area": 2.25,
     "connPoint": [
       {"pos": [10, -2, 10], "orient": [0, 1, 0], "type": "stud"},
       {"pos": [10, 6, 10], "orient": [0, 1, 0], "type": "tube"},
@@ -12,6 +78,7 @@
   },
   {
     "id": "2450",
+    "area": 4.48,
     "connPoint": [
       {"pos": [0, -2, 0], "orient": [0, 1, 0], "type": "stud"},
       {"pos": [0, 6, 0], "orient": [0, 1, 0], "type": "tube"},
@@ -29,6 +96,7 @@
   },
   {
     "id": "51739",
+    "area": 3.8328,
     "connPoint": [
       {"pos": [10, -2, 10], "orient": [0, 1, 0], "type": "stud"},
       {"pos": [10, 6, 10], "orient": [0, 1, 0], "type": "tube"},
@@ -42,6 +110,7 @@
   },
   {
     "id": "2420",
+    "area": 1.92,
     "volume": 0.774,
     "connPoint": [
       {"pos": [0, -2, 0], "orient": [0, 1, 0], "type": "stud"},
@@ -80,6 +149,7 @@
   },
   {
     "id": "30357",
+    "area": 3.4826,
     "connPoint": [
       {"pos": [0, -2, 0], "orient": [0, 1, 0], "type": "stud"},
       {"pos": [0, 6, 0], "orient": [0, 1, 0], "type": "tube"},
@@ -680,6 +750,7 @@
   {
     "id": "3023",
     "volume": 0.366,
+    "area": 1.275,
     "connPoint": [
       {"pos": [  10,  -2,  0],"orient": [0, 1, 0],"type": "stud"},
       {"pos": [  10,  6,  0],"orient": [0, 1, 0],"type": "tube"},
@@ -691,6 +762,7 @@
   {
     "id": "3623",
     "volume": 0.549,
+    "area": 1.87,
     "connPoint": [
       {"pos": [  0,  -2,  0],"orient": [0, 1, 0],"type": "stud"},
       {"pos": [  0,  6,  0],"orient": [0, 1, 0],"type": "tube"},
@@ -704,6 +776,7 @@
   {
     "id": "3024",
     "volume": 0.183,
+    "area": 0.635,
     "connPoint": [
       {"pos": [  0,  -2,  0],"orient": [0, 1, 0],"type": "stud"},
       {"pos": [  0,  6,  0],"orient": [0, 1, 0],"type": "tube"

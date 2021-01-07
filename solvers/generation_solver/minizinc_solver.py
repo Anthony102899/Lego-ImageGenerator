@@ -54,5 +54,5 @@ class MinizincSolver(BaseSolver):
         if verbose:
             print(f"solve finished in {time.time() - start_time}")
 
-        return selected_nodes, time.time() - start_time
+        return selected_nodes
 
