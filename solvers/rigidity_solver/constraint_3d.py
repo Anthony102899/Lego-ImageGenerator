@@ -5,77 +5,171 @@ from scipy.linalg import null_space
 from itertools import combinations
 
 
-def select_points_on_plane(points):
+def projection_matrix(source_points, target_point):
+    """
+    compute project matrix that maps deltas of source and target points in world coordinates
+    to the delta of target point in source point coordinate
+    :param source_points: (3, 3) array, 3 points not on the same line
+    :param target_point: (3, ) array
+    :return: tuple[(3, 12) array, (3, 3) current source coordinates basis]
+    """
+    assert len(source_points) == 3
+    dim = 3
+
+    projection_matrix = np.zeros((dim, 4 * dim))
+
+    x0, x1, x2 = source_points
+    x0_x, x0_y, x0_z = x0
+    x1_x, x1_y, x1_z = x1
+    x2_x, x2_y, x2_z = x2
+    t_x, t_y, t_z = target_point
+
+    norm_1 = np.linalg.norm(x1 - x0)
+    basis_1 = (x1 - x0) / norm_1
+
+    norm_2 = np.linalg.norm(np.cross(basis_1, x2 - x0))
+    basis_2 = np.cross(basis_1, x2 - x0) / norm_2
+
+    basis_3 = np.cross(basis_1, basis_2)
+
+    if np.isclose(norm_1, 0):
+        print("Norm(x1 - x0) nears 0", "x0", x0, "x1", x1)
+    if np.isclose(norm_2, 0):
+        print("Norm(x2 - x0) nears 0", "x0", x0, "x1", x1, "x2", x2)
+
+    # Sympy generated code
+    # >>>>>>>>>>>>>>>>>>>>
+    projection_matrix[0, 0] = (-t_x + 2*x0_x - x1_x)/norm_1
+    projection_matrix[0, 1] = (-t_y + 2*x0_y - x1_y)/norm_1
+    projection_matrix[0, 2] = (-t_z + 2*x0_z - x1_z)/norm_1
+    projection_matrix[0, 3] = (t_x - x0_x)/norm_1
+    projection_matrix[0, 4] = (t_y - x0_y)/norm_1
+    projection_matrix[0, 5] = (t_z - x0_z)/norm_1
+    projection_matrix[0, 6] = 0
+    projection_matrix[0, 7] = 0
+    projection_matrix[0, 8] = 0
+    projection_matrix[0, 9] = (-x0_x + x1_x)/norm_1
+    projection_matrix[0, 10] = (-x0_y + x1_y)/norm_1
+    projection_matrix[0, 11] = (-x0_z + x1_z)/norm_1
+    projection_matrix[1, 0] = (t_y*x1_z - t_y*x2_z - t_z*x1_y + t_z*x2_y + x1_y*x2_z - x1_z*x2_y)/(norm_1*norm_2)
+    projection_matrix[1, 1] = (-t_x*x1_z + t_x*x2_z + t_z*x1_x - t_z*x2_x - x1_x*x2_z + x1_z*x2_x)/(norm_1*norm_2)
+    projection_matrix[1, 2] = (t_x*x1_y - t_x*x2_y - t_y*x1_x + t_y*x2_x + x1_x*x2_y - x1_y*x2_x)/(norm_1*norm_2)
+    projection_matrix[1, 3] = (-t_y*x0_z + t_y*x2_z + t_z*x0_y - t_z*x2_y - x0_y*x2_z + x0_z*x2_y)/(norm_1*norm_2)
+    projection_matrix[1, 4] = (t_x*x0_z - t_x*x2_z - t_z*x0_x + t_z*x2_x + x0_x*x2_z - x0_z*x2_x)/(norm_1*norm_2)
+    projection_matrix[1, 5] = (-t_x*x0_y + t_x*x2_y + t_y*x0_x - t_y*x2_x - x0_x*x2_y + x0_y*x2_x)/(norm_1*norm_2)
+    projection_matrix[1, 6] = (t_y*x0_z - t_y*x1_z - t_z*x0_y + t_z*x1_y + x0_y*x1_z - x0_z*x1_y)/(norm_1*norm_2)
+    projection_matrix[1, 7] = (-t_x*x0_z + t_x*x1_z + t_z*x0_x - t_z*x1_x - x0_x*x1_z + x0_z*x1_x)/(norm_1*norm_2)
+    projection_matrix[1, 8] = (t_x*x0_y - t_x*x1_y - t_y*x0_x + t_y*x1_x + x0_x*x1_y - x0_y*x1_x)/(norm_1*norm_2)
+    projection_matrix[1, 9] = (-x0_y*x1_z + x0_y*x2_z + x0_z*x1_y - x0_z*x2_y - x1_y*x2_z + x1_z*x2_y)/(norm_1*norm_2)
+    projection_matrix[1, 10] = (x0_x*x1_z - x0_x*x2_z - x0_z*x1_x + x0_z*x2_x + x1_x*x2_z - x1_z*x2_x)/(norm_1*norm_2)
+    projection_matrix[1, 11] = (-x0_x*x1_y + x0_x*x2_y + x0_y*x1_x - x0_y*x2_x - x1_x*x2_y + x1_y*x2_x)/(norm_1*norm_2)
+    projection_matrix[2, 0] = (t_x*x0_y*x1_y - t_x*x0_y*x2_y + t_x*x0_z*x1_z - t_x*x0_z*x2_z - t_x*x1_y**2 + t_x*x1_y*x2_y - t_x*x1_z**2 + t_x*x1_z*x2_z - 2*t_y*x0_x*x1_y + 2*t_y*x0_x*x2_y + t_y*x0_y*x1_x - t_y*x0_y*x2_x + t_y*x1_x*x1_y - 2*t_y*x1_x*x2_y + t_y*x1_y*x2_x - 2*t_z*x0_x*x1_z + 2*t_z*x0_x*x2_z + t_z*x0_z*x1_x - t_z*x0_z*x2_x + t_z*x1_x*x1_z - 2*t_z*x1_x*x2_z + t_z*x1_z*x2_x + 2*x0_x*x1_y**2 - 2*x0_x*x1_y*x2_y + 2*x0_x*x1_z**2 - 2*x0_x*x1_z*x2_z - 2*x0_y*x1_x*x1_y + x0_y*x1_x*x2_y + x0_y*x1_y*x2_x - 2*x0_z*x1_x*x1_z + x0_z*x1_x*x2_z + x0_z*x1_z*x2_x + x1_x*x1_y*x2_y + x1_x*x1_z*x2_z - x1_y**2*x2_x - x1_z**2*x2_x)/(norm_1**2*norm_2)
+    projection_matrix[2, 1] = (t_x*x0_x*x1_y - t_x*x0_x*x2_y - 2*t_x*x0_y*x1_x + 2*t_x*x0_y*x2_x + t_x*x1_x*x1_y + t_x*x1_x*x2_y - 2*t_x*x1_y*x2_x + t_y*x0_x*x1_x - t_y*x0_x*x2_x + t_y*x0_z*x1_z - t_y*x0_z*x2_z - t_y*x1_x**2 + t_y*x1_x*x2_x - t_y*x1_z**2 + t_y*x1_z*x2_z - 2*t_z*x0_y*x1_z + 2*t_z*x0_y*x2_z + t_z*x0_z*x1_y - t_z*x0_z*x2_y + t_z*x1_y*x1_z - 2*t_z*x1_y*x2_z + t_z*x1_z*x2_y - 2*x0_x*x1_x*x1_y + x0_x*x1_x*x2_y + x0_x*x1_y*x2_x + 2*x0_y*x1_x**2 - 2*x0_y*x1_x*x2_x + 2*x0_y*x1_z**2 - 2*x0_y*x1_z*x2_z - 2*x0_z*x1_y*x1_z + x0_z*x1_y*x2_z + x0_z*x1_z*x2_y - x1_x**2*x2_y + x1_x*x1_y*x2_x + x1_y*x1_z*x2_z - x1_z**2*x2_y)/(norm_1**2*norm_2)
+    projection_matrix[2, 2] = (t_x*x0_x*x1_z - t_x*x0_x*x2_z - 2*t_x*x0_z*x1_x + 2*t_x*x0_z*x2_x + t_x*x1_x*x1_z + t_x*x1_x*x2_z - 2*t_x*x1_z*x2_x + t_y*x0_y*x1_z - t_y*x0_y*x2_z - 2*t_y*x0_z*x1_y + 2*t_y*x0_z*x2_y + t_y*x1_y*x1_z + t_y*x1_y*x2_z - 2*t_y*x1_z*x2_y + t_z*x0_x*x1_x - t_z*x0_x*x2_x + t_z*x0_y*x1_y - t_z*x0_y*x2_y - t_z*x1_x**2 + t_z*x1_x*x2_x - t_z*x1_y**2 + t_z*x1_y*x2_y - 2*x0_x*x1_x*x1_z + x0_x*x1_x*x2_z + x0_x*x1_z*x2_x - 2*x0_y*x1_y*x1_z + x0_y*x1_y*x2_z + x0_y*x1_z*x2_y + 2*x0_z*x1_x**2 - 2*x0_z*x1_x*x2_x + 2*x0_z*x1_y**2 - 2*x0_z*x1_y*x2_y - x1_x**2*x2_z + x1_x*x1_z*x2_x - x1_y**2*x2_z + x1_y*x1_z*x2_y)/(norm_1**2*norm_2)
+    projection_matrix[2, 3] = (-t_x*x0_y**2 + t_x*x0_y*x1_y + t_x*x0_y*x2_y - t_x*x0_z**2 + t_x*x0_z*x1_z + t_x*x0_z*x2_z - t_x*x1_y*x2_y - t_x*x1_z*x2_z + t_y*x0_x*x0_y + t_y*x0_x*x1_y - 2*t_y*x0_x*x2_y - 2*t_y*x0_y*x1_x + t_y*x0_y*x2_x + 2*t_y*x1_x*x2_y - t_y*x1_y*x2_x + t_z*x0_x*x0_z + t_z*x0_x*x1_z - 2*t_z*x0_x*x2_z - 2*t_z*x0_z*x1_x + t_z*x0_z*x2_x + 2*t_z*x1_x*x2_z - t_z*x1_z*x2_x - 2*x0_x*x0_y*x1_y + x0_x*x0_y*x2_y - 2*x0_x*x0_z*x1_z + x0_x*x0_z*x2_z + x0_x*x1_y*x2_y + x0_x*x1_z*x2_z + 2*x0_y**2*x1_x - x0_y**2*x2_x - 2*x0_y*x1_x*x2_y + x0_y*x1_y*x2_x + 2*x0_z**2*x1_x - x0_z**2*x2_x - 2*x0_z*x1_x*x2_z + x0_z*x1_z*x2_x)/(norm_1**2*norm_2)
+    projection_matrix[2, 4] = (t_x*x0_x*x0_y - 2*t_x*x0_x*x1_y + t_x*x0_x*x2_y + t_x*x0_y*x1_x - 2*t_x*x0_y*x2_x - t_x*x1_x*x2_y + 2*t_x*x1_y*x2_x - t_y*x0_x**2 + t_y*x0_x*x1_x + t_y*x0_x*x2_x - t_y*x0_z**2 + t_y*x0_z*x1_z + t_y*x0_z*x2_z - t_y*x1_x*x2_x - t_y*x1_z*x2_z + t_z*x0_y*x0_z + t_z*x0_y*x1_z - 2*t_z*x0_y*x2_z - 2*t_z*x0_z*x1_y + t_z*x0_z*x2_y + 2*t_z*x1_y*x2_z - t_z*x1_z*x2_y + 2*x0_x**2*x1_y - x0_x**2*x2_y - 2*x0_x*x0_y*x1_x + x0_x*x0_y*x2_x + x0_x*x1_x*x2_y - 2*x0_x*x1_y*x2_x - 2*x0_y*x0_z*x1_z + x0_y*x0_z*x2_z + x0_y*x1_x*x2_x + x0_y*x1_z*x2_z + 2*x0_z**2*x1_y - x0_z**2*x2_y - 2*x0_z*x1_y*x2_z + x0_z*x1_z*x2_y)/(norm_1**2*norm_2)
+    projection_matrix[2, 5] = (t_x*x0_x*x0_z - 2*t_x*x0_x*x1_z + t_x*x0_x*x2_z + t_x*x0_z*x1_x - 2*t_x*x0_z*x2_x - t_x*x1_x*x2_z + 2*t_x*x1_z*x2_x + t_y*x0_y*x0_z - 2*t_y*x0_y*x1_z + t_y*x0_y*x2_z + t_y*x0_z*x1_y - 2*t_y*x0_z*x2_y - t_y*x1_y*x2_z + 2*t_y*x1_z*x2_y - t_z*x0_x**2 + t_z*x0_x*x1_x + t_z*x0_x*x2_x - t_z*x0_y**2 + t_z*x0_y*x1_y + t_z*x0_y*x2_y - t_z*x1_x*x2_x - t_z*x1_y*x2_y + 2*x0_x**2*x1_z - x0_x**2*x2_z - 2*x0_x*x0_z*x1_x + x0_x*x0_z*x2_x + x0_x*x1_x*x2_z - 2*x0_x*x1_z*x2_x + 2*x0_y**2*x1_z - x0_y**2*x2_z - 2*x0_y*x0_z*x1_y + x0_y*x0_z*x2_y + x0_y*x1_y*x2_z - 2*x0_y*x1_z*x2_y + x0_z*x1_x*x2_x + x0_z*x1_y*x2_y)/(norm_1**2*norm_2)
+    projection_matrix[2, 6] = (t_x*x0_y**2 - 2*t_x*x0_y*x1_y + t_x*x0_z**2 - 2*t_x*x0_z*x1_z + t_x*x1_y**2 + t_x*x1_z**2 - t_y*x0_x*x0_y + t_y*x0_x*x1_y + t_y*x0_y*x1_x - t_y*x1_x*x1_y - t_z*x0_x*x0_z + t_z*x0_x*x1_z + t_z*x0_z*x1_x - t_z*x1_x*x1_z + x0_x*x0_y*x1_y + x0_x*x0_z*x1_z - x0_x*x1_y**2 - x0_x*x1_z**2 - x0_y**2*x1_x + x0_y*x1_x*x1_y - x0_z**2*x1_x + x0_z*x1_x*x1_z)/(norm_1**2*norm_2)
+    projection_matrix[2, 7] = (-t_x*x0_x*x0_y + t_x*x0_x*x1_y + t_x*x0_y*x1_x - t_x*x1_x*x1_y + t_y*x0_x**2 - 2*t_y*x0_x*x1_x + t_y*x0_z**2 - 2*t_y*x0_z*x1_z + t_y*x1_x**2 + t_y*x1_z**2 - t_z*x0_y*x0_z + t_z*x0_y*x1_z + t_z*x0_z*x1_y - t_z*x1_y*x1_z - x0_x**2*x1_y + x0_x*x0_y*x1_x + x0_x*x1_x*x1_y + x0_y*x0_z*x1_z - x0_y*x1_x**2 - x0_y*x1_z**2 - x0_z**2*x1_y + x0_z*x1_y*x1_z)/(norm_1**2*norm_2)
+    projection_matrix[2, 8] = (-t_x*x0_x*x0_z + t_x*x0_x*x1_z + t_x*x0_z*x1_x - t_x*x1_x*x1_z - t_y*x0_y*x0_z + t_y*x0_y*x1_z + t_y*x0_z*x1_y - t_y*x1_y*x1_z + t_z*x0_x**2 - 2*t_z*x0_x*x1_x + t_z*x0_y**2 - 2*t_z*x0_y*x1_y + t_z*x1_x**2 + t_z*x1_y**2 - x0_x**2*x1_z + x0_x*x0_z*x1_x + x0_x*x1_x*x1_z - x0_y**2*x1_z + x0_y*x0_z*x1_y + x0_y*x1_y*x1_z - x0_z*x1_x**2 - x0_z*x1_y**2)/(norm_1**2*norm_2)
+    projection_matrix[2, 9] = (x0_x*x0_y*x1_y - x0_x*x0_y*x2_y + x0_x*x0_z*x1_z - x0_x*x0_z*x2_z - x0_x*x1_y**2 + x0_x*x1_y*x2_y - x0_x*x1_z**2 + x0_x*x1_z*x2_z - x0_y**2*x1_x + x0_y**2*x2_x + x0_y*x1_x*x1_y + x0_y*x1_x*x2_y - 2*x0_y*x1_y*x2_x - x0_z**2*x1_x + x0_z**2*x2_x + x0_z*x1_x*x1_z + x0_z*x1_x*x2_z - 2*x0_z*x1_z*x2_x - x1_x*x1_y*x2_y - x1_x*x1_z*x2_z + x1_y**2*x2_x + x1_z**2*x2_x)/(norm_1**2*norm_2)
+    projection_matrix[2, 10] = (-x0_x**2*x1_y + x0_x**2*x2_y + x0_x*x0_y*x1_x - x0_x*x0_y*x2_x + x0_x*x1_x*x1_y - 2*x0_x*x1_x*x2_y + x0_x*x1_y*x2_x + x0_y*x0_z*x1_z - x0_y*x0_z*x2_z - x0_y*x1_x**2 + x0_y*x1_x*x2_x - x0_y*x1_z**2 + x0_y*x1_z*x2_z - x0_z**2*x1_y + x0_z**2*x2_y + x0_z*x1_y*x1_z + x0_z*x1_y*x2_z - 2*x0_z*x1_z*x2_y + x1_x**2*x2_y - x1_x*x1_y*x2_x - x1_y*x1_z*x2_z + x1_z**2*x2_y)/(norm_1**2*norm_2)
+    projection_matrix[2, 11] = (-x0_x**2*x1_z + x0_x**2*x2_z + x0_x*x0_z*x1_x - x0_x*x0_z*x2_x + x0_x*x1_x*x1_z - 2*x0_x*x1_x*x2_z + x0_x*x1_z*x2_x - x0_y**2*x1_z + x0_y**2*x2_z + x0_y*x0_z*x1_y - x0_y*x0_z*x2_y + x0_y*x1_y*x1_z - 2*x0_y*x1_y*x2_z + x0_y*x1_z*x2_y - x0_z*x1_x**2 + x0_z*x1_x*x2_x - x0_z*x1_y**2 + x0_z*x1_y*x2_y + x1_x**2*x2_z - x1_x*x1_z*x2_x + x1_y**2*x2_z - x1_y*x1_z*x2_y)/(norm_1**2*norm_2)
+    # <<<<<<<<<<<<<<<<<<<<
+
+    return projection_matrix, np.vstack((basis_1, basis_2, basis_3))
+
+def is_colinear(points):
     count = len(points)
     for p1_i, p2_i, p3_i in combinations(range(count), 3):
         p1, p2, p3 = points[p1_i], points[p2_i], points[p3_i]
         u = p2 - p1
         v = p3 - p1
-        if np.abs(np.linalg.norm(np.cross(u, v))) > 1e-6:
-            return np.vstack((p1, p2, p3)), np.array([p1_i, p2_i, p3_i])
+        if np.abs(np.linalg.norm(np.cross(u, v))) > 1e-8:
+            return False
+
+    return True
+
+def select_non_colinear_points(points, num, near=None):
+    index_point_pairs = [(i, p) for i, p in enumerate(points)]
+    if near is not None:
+        index_point_pairs.sort(key=lambda p: np.linalg.norm(p[1] - near))
+
+    for indices_points in combinations(index_point_pairs, num):
+        indices, pts = map(np.array, zip(*indices_points))
+        # if np.linalg.matrix_rank(pts) >= 3:
+        #     return pts, indices
+        u = pts[1] - pts[0]
+        v = pts[2] - pts[0]
+        if not np.isclose(np.linalg.norm(np.cross(u, v)), 0):
+            return pts, indices
 
     raise Exception("Everything is on the same line")
 
 
-def null_space_of_allowed_motions(
-        translations: np.ndarray,
-        rotations: np.ndarray,
-        target_points: np.ndarray,
+def prohibitive_space_of_allowed_relative_rotation(
+        target_point: np.ndarray,
+        pivot_point: np.ndarray,
+        rotation_axis: np.ndarray,
 ):
-    dim = 3
-    target_point_count = len(target_points)
-    allowed_translations = np.zeros((len(translations) * target_point_count, target_point_count * dim))
-    allowed_rotations = np.zeros((len(rotations) * target_point_count, target_point_count * dim))
+    """
+    Compute the null space of a rotation wrt to axis
+    :param target_point: (3, )
+    :param pivot_point: (3, )
+    :param rotation_axis: (3, )
+    :return: (2, 3)
+    """
+    allowed_direction = np.cross(target_point - pivot_point, rotation_axis)
+    if np.abs(np.linalg.norm(allowed_direction)) > 1e-8:
+        allowed_direction = normalize(allowed_direction)
+        null_basis = null_space(np.array([allowed_direction, allowed_direction])).transpose()
+        return null_basis
+    else:
+        allowed_direction = np.zeros((3, ))
+        null_basis = null_space(np.array([allowed_direction, allowed_direction])).transpose()
+        return null_basis
 
-    for index, allowed_motion in enumerate(allowed_translations):
-        for j in range(target_point_count):
-            row_num = index * target_point_count + j
-            allowed_translations[row_num, j * dim: j * dim + dim] = allowed_motion
-
-    for index, allowed_motion in enumerate(allowed_rotations):
-        for j in range(0, target_point_count * 2, 2):
-            row_num = index * target_point_count + j
-            r1, r2 = null_space(np.array([allowed_motion, allowed_motion])).T
-            allowed_rotations[row_num, j * dim: j * dim + dim] = r1
-            allowed_rotations[row_num + 1, j * dim: j * dim + dim] = r2
-
-    allowed_motions = np.vstack([allowed_translations, allowed_rotations])
-    return null_space(allowed_motions).T
 
 
 def constraints_for_allowed_motions(
-        model,
         source_points,
-        source_point_indices,
         target_points,
-        target_point_indices,
-        translations=None,
-        rotations=None
-) -> np.ndarray:
+        rotation_axis=None,
+        rotation_pivot=None,
+):
     dim = 3
-    forbidden_motion_bases = null_space_of_allowed_motions(
-        translations if translations is not None else [],
-        rotations if rotations is not None else [],
-        target_points,
-    )
-    projection, basis1, basis2, basis3 = project_matrix_3D(
-        source_points,
-        source_point_indices,
-        target_points,
-        target_point_indices,
-        points=[0] * model.point_count
-    )
 
-    bases = (basis1, basis2, basis3)
+    print("source", source_points, sep='\n')
+    print("target", target_points, sep='\n')
 
-    target_point_count = len(target_points)
-    constraints = np.zeros((len(forbidden_motion_bases), target_point_count * 3))
+    constraints = []
+    for target_point in target_points:
+        relative_projection, source_transform = projection_matrix(
+            source_points,
+            target_point,
+        )
 
-    # motion basis : np motion allowed in the direction of basis
-    for index, motion_basis in enumerate(forbidden_motion_bases):
-        for j in range(target_point_count):
-            constraints[index, j * dim] = np.dot(motion_basis, bases[0])
-            constraints[index, j * dim + 1] = np.dot(motion_basis, bases[1])
-            constraints[index, j * dim + 2] = np.dot(motion_basis, bases[2])
+        if rotation_axis is not None and rotation_pivot is not None:
+            assert len(rotation_axis) == len(rotation_pivot)
 
-    return constraints @ projection
+            relative_target_point = source_transform @ target_point
+            relative_rotation_pivot = source_transform @ rotation_pivot
+            relative_rotation_axis = source_transform @ rotation_axis
+
+            allowed_motion = np.cross(relative_target_point - relative_rotation_pivot, relative_rotation_axis)
+
+            prohibitive_space = prohibitive_space_of_allowed_relative_rotation(
+                relative_target_point,
+                relative_rotation_pivot,
+                relative_rotation_axis,
+            )
+
+            print("world allowed motion", source_transform.T @ allowed_motion.T)
+            # print("world prohibitive space", source_transform.T @ prohibitive_space.T)
+            assert np.linalg.matrix_rank(source_transform.T @ prohibitive_space.T) >= 2
+
+            prohibitive_space_on_deltas = prohibitive_space @ relative_projection
+
+            constraints.append(prohibitive_space_on_deltas)
+
+    return constraints

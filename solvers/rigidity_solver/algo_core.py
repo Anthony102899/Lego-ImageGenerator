@@ -267,9 +267,14 @@ def project_matrix_3D(source_pts, source_pts_idx,target_pts, target_pts_idx, poi
     l_b1 = LA.norm(source_pts[1] - source_pts[0])
     basis1 = (source_pts[1] - source_pts[0]) / l_b1
 
-    l_b2 = LA.norm(np.cross(basis1, source_pts[1] - source_pts[0]))
-    basis2 = np.cross(basis1, source_pts[1] - source_pts[0]) / l_b2
+    l_b2 = LA.norm(np.cross(basis1, source_pts[2] - source_pts[0]))
+    basis2 = np.cross(basis1, source_pts[2] - source_pts[0]) / l_b2
     basis3 = np.cross(basis1, basis2)
+
+    if abs(l_b1) < 1e-6:
+        print("Warning l_b1", l_b1)
+    if abs(l_b2) < 1e-6:
+        print("Warning l_b2", l_b2)
 
     Da1, Da2, Da3 = source_pts_idx[0] * dim, source_pts_idx[0] * dim + 1, source_pts_idx[0] * dim + 2
     Db1, Db2, Db3 = source_pts_idx[1] * dim, source_pts_idx[1] * dim + 1, source_pts_idx[1] * dim + 2
