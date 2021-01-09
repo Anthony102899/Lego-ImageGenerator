@@ -32,8 +32,8 @@ def proj_bbox(brick:BrickInstance):
     polygon = unary_union(polygon_ls)
     return polygon
 
-# return a list of rgb colors covered by brick
-def get_cover_rgb(img, brick, base_int):
+# return a list of rgb colors covered by brick *rgbs*
+def get_cover_rgb(brick, img, base_int):
     polygon = proj_bbox(brick)
     mini, minj, maxi, maxj = polygon.bounds
     rgbs = []
@@ -61,27 +61,9 @@ def color_brick(brick, color):
     new_brick = BrickInstance(brick.template, brick.trans_matrix, color_hex)
     return new_brick
 
-"""
-1. 保留的brick返回rgbs，不保留的返回空集 get_cover_rgb(img, brick, base_int)
-2. crop_ls(rgbs)
-  2.1 Crop的structure改变
-  TODO:
-  2.2 在crop里存储的是sd或者-1  def一个函数，对一个rgbs返回-1或sd
-  2.3 存一个list是color或者-1  def函数，对一个rgbs返回-1或np.average
-3. 解的时候让color==-1的直接不选
-4. 在get_sketch_solution里面改变颜色
-"""
-
-# return color or sd or -1
-def crop_ls(rgbs, sd=True):
-    if len(rgbs) == 0:
-            return -1
-    if sd:
-        return float(round(np.sum(np.std(rgbs, axis = 0)), 4) + 0.0001)
-    return np.average(rgbs, axis = 0)
-
+# return new brick and its *rgbs*
 def color_brick_ls(brick, img, base_int):
-    rgbs = get_cover_rgb(img, brick, base_int)
+    rgbs = get_cover_rgb(brick, img, base_int)
     if len(rgbs) == 0:
         return
     color = np.average(rgbs, axis = 0)
@@ -89,8 +71,38 @@ def color_brick_ls(brick, img, base_int):
 
 def sketch_from_layout(img, plate_set, base_int):
     with Pool(20) as p:
-        result_crop = p.map(partial(color_brick_ls, img=img, base_int=base_int), plate_set)
+        result_crop = p.map(partial(get_cover_rgb, img=img, base_int=base_int), plate_set)
     return [i for i in result_crop if i]
+
+
+"""
+1. 保留的brick返回rgbs，不保留的返回空集 get_cover_rgb(brick, img, base_int)
+2. crop_ls(rgbs)
+  2.1 Crop的structure改变
+  TODO:
+  2.2 在crop里存储的是sd或者-1  def一个函数，对一个rgbs返回-1或sd
+  2.3 存一个list是color或者[]  def函数，对一个rgbs返回-1或np.average
+3. 解的时候让color==-1的直接不选
+4. 在get_sketch_solution里面改变颜色
+"""
+
+# return color or sd or -1
+def crop_ls(rgbs, sd):
+    if len(rgbs) == 0:
+        if sd:
+            return -1
+        return []
+    if sd:
+        return float(round(np.sum(np.std(rgbs, axis = 0)), 4) + 0.0001)
+    return np.average(rgbs, axis = 0)
+
+# return *result_sd* and *result_color*
+def ls_from_layout(img, plate_set, base_int):
+    with Pool(20) as p:
+        rgbs_ls = p.map(partial(get_cover_rgb, img=img, base_int=base_int), plate_set)
+        result_sd = p.map(partial(crop_ls, sd=True), rgbs_ls)
+        result_color = p.map(partial(crop_ls, sd=False), rgbs_ls)
+    return result_sd, result_color
 
 if __name__ == "__main__":
     img_path = os.path.join(os.path.dirname(__file__), "super_graph/images/heart.png")
@@ -121,15 +133,17 @@ if __name__ == "__main__":
     # resize image to fit the brick
     img = cv2.resize(img, (base_int * 20 + 1, base_int * 20 + 1))
 
+    """
     result_crop = sketch_from_layout(img, plate_set, base_int)
-
     debugger = MyDebugger("sketch")
     result = plate_base + [i[0] for i in result_crop]
     write_bricks_to_file(result, file_path=debugger.file_path(f"{filename} b={base_count} n={len(result)} {platename}.ldr"))
+    """
 
-    # TODO: change
-    result_sd = [0.0001 for i in range(base_count)] + [float(round(np.sum(np.std(i[1], axis = 0)), 4) + 0.0001) for i in result_crop]
-    result_color = []
-
-    crop_result = Crop(result_sd, result_color, base_count, filename, platename)
-    pickle.dump(crop_result, open(os.path.join(os.path.dirname(__file__), f"connectivity/crop_{filename} b={base_count} n={len(result)} {platename}.pkl"), "wb"))
+    # TODO: test
+    result_sd, result_color = ls_from_layout(img, plate_set, base_int)
+    result_sd = [0.0001 for i in range(base_count)] + result_sd
+    result_color = [np.array([255, 255, 255]) for i in range(base_count)] + result_color
+    
+    #crop_result = Crop(result_sd, result_color, base_count, filename, platename)
+    #pickle.dump(crop_result, open(os.path.join(os.path.dirname(__file__), f"connectivity/crop_{filename} b={base_count} n={len(result)} {platename}.pkl"), "wb"))
