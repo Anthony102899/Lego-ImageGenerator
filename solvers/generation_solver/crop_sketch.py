@@ -36,6 +36,7 @@ def get_cover_rgb(img, brick, base_int):
     polygon = proj_bbox(brick)
     mini, minj, maxi, maxj = polygon.bounds
     rgbs = []
+    channel = len(img[0][0])
     for x in range(math.floor(mini), math.ceil(maxi) + 1):
         for y in range(math.floor(minj), math.ceil(maxj) + 1):
             if x < 0 or y < 0 or x > base_int * 20 or y > base_int * 20:
@@ -43,29 +44,38 @@ def get_cover_rgb(img, brick, base_int):
             point = Point(x, y)
             if polygon.contains(point):
                 try:
-                    rgbs.append((img[y, x])[::-1])
+                    rgb_color = (img[y, x][:3])[::-1]
+                    if channel == 4 and (img[y, x][0] == 0 or sum(np.array(rgb_color)) == 0):
+                        continue
+                    # not transparent
+                    else:
+                        rgbs.append(rgb_color)
                 except:
                     continue
     return rgbs
 
-# get a new brick with the nearest color
-def check_sketch(brick, img, base_int):
-    rgbs = get_cover_rgb(img, brick, base_int) # the nearest color
+# get a new brick with the input color
+def colored_brick(brick, color):
+    color_hex = RGB_to_Hex(color)
+    new_brick = BrickInstance(brick.template, brick.trans_matrix, color_hex)
+    return new_brick
+
+def color_brick_ls(brick, img, base_int):
+    rgbs = get_cover_rgb(img, brick, base_int)
     if len(rgbs) == 0:
         return
     color = np.average(rgbs, axis = 0)
-    color_hex = RGB_to_Hex(color)
-    new_brick = BrickInstance(brick.template, brick.trans_matrix, color_hex)
-    return new_brick, rgbs
+    return colored_brick(brick, color), rgbs
 
-def get_sketch(img, plate_set, base_int):
+def sketch_from_layout(img, plate_set, base_int):
     with Pool(20) as p:
-        result_crop = p.map(partial(check_sketch, img=img, base_int=base_int), plate_set)
+        result_crop = p.map(partial(color_brick_ls, img=img, base_int=base_int), plate_set)
     return [i for i in result_crop if i]
 
 if __name__ == "__main__":
-    img_path = os.path.join(os.path.dirname(__file__), "super_graph/snap.png")
-    img = cv2.imread(img_path)
+    img_path = os.path.join(os.path.dirname(__file__), "super_graph/images/heart.png")
+    img = cv2.imread(img_path, cv2.IMREAD_UNCHANGED)
+
     plate_path = "super_graph/for sketch/" + input("Enter file name in sketch folder: ")
     plate_path = os.path.join(os.path.dirname(__file__), plate_path)
     plate_set = read_bricks_from_file(plate_path)
@@ -90,8 +100,9 @@ if __name__ == "__main__":
 
     # resize image to fit the brick
     img = cv2.resize(img, (base_int * 20 + 1, base_int * 20 + 1))
-    result_crop = get_sketch(img, plate_set, base_int)
-    
+
+    result_crop = sketch_from_layout(img, plate_set, base_int)
+
     debugger = MyDebugger("sketch")
     result = plate_base + [i[0] for i in result_crop]
     write_bricks_to_file(result, file_path=debugger.file_path(f"{filename} b={base_count} n={len(result)} {platename}.ldr"))
