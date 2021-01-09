@@ -111,9 +111,12 @@ if __name__ == "__main__":
     img_path = os.path.join(os.path.dirname(__file__), "super_graph" + img_name)
     img = cv2.imread(img_path)
 
-    node_sd = [1 / i for i in crop.result_crop]
+    node_sd = [1 / i for i in crop.result_sd]
     sd_max = np.amax(np.array(node_sd))
     sd_normal = [round(i / sd_max, 3) for i in node_sd]
+
+    # TODO: add to solver
+    node_color = crop.result_color
 
     area = get_area()
     area = [0 for i in range(base_count)] + [area[b.template.id] for b in structure_graph.bricks[base_count:]]
@@ -126,7 +129,7 @@ if __name__ == "__main__":
     max_v = - 1e5
     selected_bricks = []
     scale_with_max_v = -1
-    for scale in range(20, 21, 10):
+    for scale in range(10, 11, 10):
         results = solver.solve(structure_graph=structure_graph,
                                node_sd=sd_normal,
                                node_area=area_normal,
@@ -136,8 +139,11 @@ if __name__ == "__main__":
         selected_bricks_scale = []
         for i in range(len(structure_graph.bricks)):
             if results[i] == 1:
+                # TODO: change color
                 selected_bricks_scale.append(structure_graph.bricks[i])
 
+        selected_bricks = selected_bricks_scale.copy()
+        
         selected_scale_without_base = selected_bricks_scale[base_count:]
         value_of_solution = calculate_v(selected_scale_without_base,img, base_int, [proj_bbox(brick) for brick in selected_scale_without_base]) + \
                             0.5 * cal_border(selected_scale_without_base, base_int)

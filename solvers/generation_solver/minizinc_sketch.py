@@ -21,9 +21,8 @@ class MinizincSolver(BaseSolver):
         self.solver = Solver.lookup(solver_type) # Find the MiniZinc solver configuration 
         self.model_file = model_file
 
-    def solve(self, structure_graph, node_sd, node_area, node_weight, base_count, scale, verbose = True):
-        if verbose:
-            print(f"start solving by {self.solver_type} ...")
+    def solve(self, structure_graph, node_sd, node_area, node_weight, base_count, scale):
+        print(f"start solving by {self.solver_type} ...")
         start_time = time.time()
         model = Model()
 
@@ -55,7 +54,6 @@ class MinizincSolver(BaseSolver):
             print("No solution found")
 
         time_used = round(time.time() - start_time, 2)
-        if verbose:
-            print(f"solve scale {scale} finished in {time_used}")
+        print(f"solve scale {scale} finished in {time_used}")
 
         return selected_nodes

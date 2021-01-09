@@ -14,8 +14,9 @@ from multiprocessing import Pool
 from functools import partial
 
 class Crop:            # sd of nodes
-    def __init__(self, result_crop, base_count, filename, platename):
-        self.result_crop = result_crop
+    def __init__(self, result_sd, result_color, base_count, filename, platename):
+        self.result_sd = result_sd
+        self.result_color = result_color
         self.base_count = base_count
         self.filename = filename
         self.platename = platename
@@ -45,7 +46,7 @@ def get_cover_rgb(img, brick, base_int):
             if polygon.contains(point):
                 try:
                     rgb_color = (img[y, x][:3])[::-1]
-                    if channel == 4 and (img[y, x][0] == 0 or sum(np.array(rgb_color)) == 0):
+                    if channel == 4 and (img[y, x][0] == 0 or sum(np.array(rgb_color)) <= 10):
                         continue
                     # not transparent
                     else:
@@ -55,17 +56,36 @@ def get_cover_rgb(img, brick, base_int):
     return rgbs
 
 # get a new brick with the input color
-def colored_brick(brick, color):
+def color_brick(brick, color):
     color_hex = RGB_to_Hex(color)
     new_brick = BrickInstance(brick.template, brick.trans_matrix, color_hex)
     return new_brick
+
+"""
+1. 保留的brick返回rgbs，不保留的返回空集 get_cover_rgb(img, brick, base_int)
+2. crop_ls(rgbs)
+  2.1 Crop的structure改变
+  TODO:
+  2.2 在crop里存储的是sd或者-1  def一个函数，对一个rgbs返回-1或sd
+  2.3 存一个list是color或者-1  def函数，对一个rgbs返回-1或np.average
+3. 解的时候让color==-1的直接不选
+4. 在get_sketch_solution里面改变颜色
+"""
+
+# return color or sd or -1
+def crop_ls(rgbs, sd=True):
+    if len(rgbs) == 0:
+            return -1
+    if sd:
+        return float(round(np.sum(np.std(rgbs, axis = 0)), 4) + 0.0001)
+    return np.average(rgbs, axis = 0)
 
 def color_brick_ls(brick, img, base_int):
     rgbs = get_cover_rgb(img, brick, base_int)
     if len(rgbs) == 0:
         return
     color = np.average(rgbs, axis = 0)
-    return colored_brick(brick, color), rgbs
+    return color_brick(brick, color), rgbs
 
 def sketch_from_layout(img, plate_set, base_int):
     with Pool(20) as p:
@@ -107,5 +127,9 @@ if __name__ == "__main__":
     result = plate_base + [i[0] for i in result_crop]
     write_bricks_to_file(result, file_path=debugger.file_path(f"{filename} b={base_count} n={len(result)} {platename}.ldr"))
 
-    crop_result = Crop([0.0001 for i in range(base_count)] + [float(round(np.sum(np.std(i[1], axis = 0)), 4) + 0.0001) for i in result_crop], base_count, filename, platename)
+    # TODO: change
+    result_sd = [0.0001 for i in range(base_count)] + [float(round(np.sum(np.std(i[1], axis = 0)), 4) + 0.0001) for i in result_crop]
+    result_color = []
+
+    crop_result = Crop(result_sd, result_color, base_count, filename, platename)
     pickle.dump(crop_result, open(os.path.join(os.path.dirname(__file__), f"connectivity/crop_{filename} b={base_count} n={len(result)} {platename}.pkl"), "wb"))
