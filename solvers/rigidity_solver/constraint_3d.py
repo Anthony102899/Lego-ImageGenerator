@@ -33,9 +33,9 @@ def projection_matrix(source_points, target_point):
     basis_3 = np.cross(basis_1, basis_2)
 
     if np.isclose(norm_1, 0):
-        print("Norm(x1 - x0) nears 0", "x0", x0, "x1", x1)
+        raise Exception("Norm(x1 - x0) nears 0", "x0", x0, "x1", x1)
     if np.isclose(norm_2, 0):
-        print("Norm(x2 - x0) nears 0", "x0", x0, "x1", x1, "x2", x2)
+        raise Exception("Norm(x2 - x0) nears 0", "x0", x0, "x1", x1, "x2", x2)
 
     # Sympy generated code
     # >>>>>>>>>>>>>>>>>>>>
@@ -90,7 +90,8 @@ def is_colinear(points):
 
     return True
 
-def select_non_colinear_points(points, num, near=None):
+def select_non_colinear_points(points, near=None):
+    num = 3
     index_point_pairs = [(i, p) for i, p in enumerate(points)]
     if near is not None:
         index_point_pairs.sort(key=lambda p: np.linalg.norm(p[1] - near))
@@ -137,11 +138,6 @@ def constraints_for_allowed_motions(
         rotation_axis=None,
         rotation_pivot=None,
 ):
-    dim = 3
-
-    print("source", source_points, sep='\n')
-    print("target", target_points, sep='\n')
-
     constraints = []
     for target_point in target_points:
         relative_projection, source_transform = projection_matrix(
@@ -164,8 +160,6 @@ def constraints_for_allowed_motions(
                 relative_rotation_axis,
             )
 
-            print("world allowed motion", source_transform.T @ allowed_motion.T)
-            # print("world prohibitive space", source_transform.T @ prohibitive_space.T)
             assert np.linalg.matrix_rank(source_transform.T @ prohibitive_space.T) >= 2
 
             prohibitive_space_on_deltas = prohibitive_space @ relative_projection
