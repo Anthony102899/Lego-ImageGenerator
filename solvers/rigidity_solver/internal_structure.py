@@ -10,10 +10,12 @@ import copy
 from typing import List
 import itertools
 from numpy import linalg as LA
-from numpy.linalg import matrix_rank
+from numpy.linalg import matrix_rank, matrix_power
 import util.geometry_util as geo_util
 from solvers.rigidity_solver.algo_core import spring_energy_matrix
 from solvers.rigidity_solver.joint_construction import construct_joints
+from scipy.spatial import transform
+
 
 def get_crystal_vertices(contact_pt: np.array, contact_orient: np.array) -> np.ndarray:
     p0 = contact_pt
@@ -28,10 +30,60 @@ def get_crystal_vertices(contact_pt: np.array, contact_orient: np.array) -> np.n
     return np.array([p0, p1, p2, p3, p4, p5, p6])
 
 
+def find_rotation_matrix(a, b):
+    """
+    find 3-by-3 matrix that rotates unit vector a to unit vector b
+    """
+    v = np.cross(a, b)
+    s = np.linalg.norm(v)
+    c = np.dot(a, b)
+
+    v_skew = np.array([
+        [0, -v[2], v[1]],
+        [v[2], 0, -v[0]],
+        [-v[1], v[0], 0],
+    ])
+
+    rot = np.identity(3) + v_skew + (1 - c) / (s * s) * matrix_power(v_skew, 2)
+
+    return rot
+
+
+def tetrahedronize(p, q, thickness=1):
+    vertices = np.array([
+        [0, 1, 0],
+        [np.sqrt(3) / 2, -1 / 2, 0],
+        [-np.sqrt(3) / 2, -1 / 2, 0],
+    ]) * thickness
+
+    z = np.array([0, 0, 1])
+    n = geo_util.normalize(p - q)
+
+    rot = find_rotation_matrix(z, n)
+
+    base = (rot @ vertices.T).T
+    points = np.vstack(np.linspace(base + p, base + q, num=5))
+    edges = np.array(
+        [[3 * i + 0, 3 * i + 1] for i in range(5)] +
+        [[3 * i + 1, 3 * i + 2] for i in range(5)] +
+        [[3 * i + 2, 3 * i + 0] for i in range(5)] +
+
+        [[3 * i + 0, 3 * i + 3] for i in range(5 - 1)] +
+        [[3 * i + 1, 3 * i + 4] for i in range(5 - 1)] +
+        [[3 * i + 2, 3 * i + 5] for i in range(5 - 1)] +
+
+        [[3 * i + 0, 3 * i + 5] for i in range(5 - 1)] +
+        [[3 * i + 1, 3 * i + 5] for i in range(5 - 1)] +
+        [[3 * i + 1, 3 * i + 3] for i in range(5 - 1)]
+    )
+
+    return points, edges
+
+
 # Requirements on the sample points and their connection:
-    # 1) respect symmetric property of the brick
-    # 2) self-rigid connection inside each brick
-    # 3) respect the joint property
+# 1) respect symmetric property of the brick
+# 2) self-rigid connection inside each brick
+# 3) respect the joint property
 def structure_sampling(structure_graph: ConnectivityGraph):
     bricks = structure_graph.bricks
     points = []
