@@ -61,28 +61,14 @@ def color_brick(brick, color):
     new_brick = BrickInstance(brick.template, brick.trans_matrix, color_hex)
     return new_brick
 
-# return new brick and its *rgbs*
-def color_brick_ls(brick, img, base_int):
-    rgbs = get_cover_rgb(brick, img, base_int)
-    if len(rgbs) == 0:
-        return
-    color = np.average(rgbs, axis = 0)
-    return color_brick(brick, color), rgbs
-
-def sketch_from_layout(img, plate_set, base_int):
-    with Pool(20) as p:
-        result_crop = p.map(partial(get_cover_rgb, img=img, base_int=base_int), plate_set)
-    return [i for i in result_crop if i]
-
-
 """
 1. 保留的brick返回rgbs，不保留的返回空集 get_cover_rgb(brick, img, base_int)
 2. crop_ls(rgbs)
   2.1 Crop的structure改变
-  TODO:
-  2.2 在crop里存储的是sd或者-1  def一个函数，对一个rgbs返回-1或sd
-  2.3 存一个list是color或者[]  def函数，对一个rgbs返回-1或np.average
+  2.2 在crop里存储的是sd或者-1
+  2.3 存一个list是color或者[]
 3. 解的时候让color==-1的直接不选
+TODO:
 4. 在get_sketch_solution里面改变颜色
 """
 
@@ -105,7 +91,7 @@ def ls_from_layout(img, plate_set, base_int):
     return result_sd, result_color
 
 if __name__ == "__main__":
-    img_path = os.path.join(os.path.dirname(__file__), "super_graph/images/heart.png")
+    img_path = os.path.join(os.path.dirname(__file__), "super_graph/images/hexagon.png")
     img = cv2.imread(img_path, cv2.IMREAD_UNCHANGED)
 
     plate_path = "super_graph/for sketch/" + input("Enter file name in sketch folder: ")
@@ -133,17 +119,11 @@ if __name__ == "__main__":
     # resize image to fit the brick
     img = cv2.resize(img, (base_int * 20 + 1, base_int * 20 + 1))
 
-    """
-    result_crop = sketch_from_layout(img, plate_set, base_int)
-    debugger = MyDebugger("sketch")
-    result = plate_base + [i[0] for i in result_crop]
-    write_bricks_to_file(result, file_path=debugger.file_path(f"{filename} b={base_count} n={len(result)} {platename}.ldr"))
-    """
-
     # TODO: test
     result_sd, result_color = ls_from_layout(img, plate_set, base_int)
     result_sd = [0.0001 for i in range(base_count)] + result_sd
     result_color = [np.array([255, 255, 255]) for i in range(base_count)] + result_color
-    
-    #crop_result = Crop(result_sd, result_color, base_count, filename, platename)
-    #pickle.dump(crop_result, open(os.path.join(os.path.dirname(__file__), f"connectivity/crop_{filename} b={base_count} n={len(result)} {platename}.pkl"), "wb"))
+    print(len(result_sd), len(result_color))
+
+    crop_result = Crop(result_sd, result_color, base_count, filename, platename)
+    pickle.dump(crop_result, open(os.path.join(os.path.dirname(__file__), f"connectivity/crop_{filename} b={base_count} {platename}.pkl"), "wb"))

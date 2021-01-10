@@ -45,6 +45,9 @@ class MinizincSolver(BaseSolver):
         instance["node_area"]           = node_area
         instance["node_weight"]         = node_weight
         instance["sd_scale"]            = scale
+        discard_position                = [i for i, x in enumerate(node_sd) if x < 0]
+        instance["discard_position"]    = discard_position
+        instance["discard_num"]         = len(discard_position)
 
         result = instance.solve()
         if result.status.has_solution():
