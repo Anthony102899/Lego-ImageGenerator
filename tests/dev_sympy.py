@@ -154,21 +154,21 @@ for i, j in tqdm(product(range(3), range(12))):
 #     projection_offset[i, 0] = order_zero_coeff
 #%%
 
-for var_index in [3, 4, 5]:
-    valuelist = constant_values[:9] + constant_values[var_index * 3: var_index * 3 + 3] + \
-                norm_values + \
-                delta_values[:9] + delta_values[var_index * 3: var_index * 3 + 3]
-    results = listsubs(projection_matrix, varlist, valuelist)
-    results = results @ Matrix(deltas)
-    results = listsubs(results, varlist, valuelist)
-    print(results)
-    print("\n\n")
+# for var_index in [3, 4, 5]:
+#     valuelist = constant_values[:9] + constant_values[var_index * 3: var_index * 3 + 3] + \
+#                 norm_values + \
+#                 delta_values[:9] + delta_values[var_index * 3: var_index * 3 + 3]
+#     results = listsubs(projection_matrix, varlist, valuelist)
+#     results = results @ Matrix(deltas)
+#     results = listsubs(results, varlist, valuelist)
+#     print(results)
+#     print("\n\n")
 
 # %%
 for i, j in product(range(3), range(12)):
     print(f"projection_matrix[{i}, {j}] = {projection_matrix[i, j]}")
 #%%
 
-with open("projection-matrix.txt", "w") as fp:
+with open("dev-projection-matrix.txt", "w") as fp:
     for i, j in product(range(3), range(12)):
         print(f"projection_matrix[{i}, {j}] = {projection_matrix[i, j]}", file=fp)

@@ -34,7 +34,12 @@ def find_rotation_matrix(a, b):
     """
     find 3-by-3 matrix that rotates unit vector a to unit vector b
     """
+    assert np.isclose(np.linalg.norm(a), 1)
+    assert np.isclose(np.linalg.norm(b), 1)
+
     v = np.cross(a, b)
+    if np.allclose(v, 0):
+        return np.identity(3)
     s = np.linalg.norm(v)
     c = np.dot(a, b)
 

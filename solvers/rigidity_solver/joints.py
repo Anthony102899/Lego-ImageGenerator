@@ -3,6 +3,7 @@ import itertools
 import util.geometry_util as geo_util
 from solvers.rigidity_solver.internal_structure import get_crystal_vertices
 from .constraint_3d import select_non_colinear_points, constraints_for_allowed_motions
+from .internal_structure import tetrahedronize
 
 
 class Model:
@@ -77,28 +78,35 @@ class Model:
 
 
 class Beam:
-    def __init__(self, p1, p2, crystal_counts):
-        orient = (p2 - p1) / np.linalg.norm(p2 - p1)
-        self.crystals = [get_crystal_vertices(c, orient) for c in np.linspace(p1, p2, num=crystal_counts)]
-        self.points = np.vstack(self.crystals)
+    def __init__(self, points, edges=None):
+        if edges is None:
+            index_range = range(len(self.points))
+            edges = np.array(list(itertools.combinations(index_range, 2)))
+
+        self._edges = edges
+        self.points = points
 
     @classmethod
-    def points(cls, points):
-        beam = Beam(points[0], points[1], 2)
-        beam.points = points
-        return beam
+    def crystal(cls, p1, p2, crystal_counts):
+        orient = (p2 - p1) / np.linalg.norm(p2 - p1)
+        crystals = [get_crystal_vertices(c, orient) for c in np.linspace(p1, p2, num=crystal_counts)]
+        points = np.vstack(crystals)
+        return Beam(points)
+
+    @classmethod
+    def tetra(cls, p, q, thickness=1):
+        points, edges = tetrahedronize(p, q, thickness)
+        return Beam(points, edges)
 
     @classmethod
     def vertices(cls, points, orient):
-        beam = Beam(points[0], points[1], 2)
         orient = orient / np.linalg.norm(orient) * 10
-        beam.points = np.vstack((points, points + orient))
-        return beam
+        points = np.vstack((points, points + orient))
+        return Beam(points)
 
+    @property
     def edges(self) -> np.ndarray:
-        index_range = range(len(self.points))
-        pair_indices = np.array(list(itertools.combinations(index_range, 2)))
-        return pair_indices
+        return self._edges
 
     @property
     def point_count(self):
