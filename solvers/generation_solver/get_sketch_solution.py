@@ -2,7 +2,7 @@ import os
 from solvers.generation_solver.minizinc_sketch import MinizincSolver
 from util.debugger import MyDebugger
 from bricks_modeling.file_IO.model_writer import write_bricks_to_file
-from solvers.generation_solver.crop_sketch import Crop, proj_bbox
+from solvers.generation_solver.crop_sketch import Crop, proj_bbox, color_brick
 from solvers.generation_solver.adjacency_graph import AdjacencyGraph
 import numpy as np
 import json
@@ -94,9 +94,9 @@ def get_weight():
 if __name__ == "__main__":
     model_file = "./solvers/generation_solver/solve_sketch.mzn"
     folder_path = "solvers/generation_solver/connectivity/"
-    graph_path = input("Enter path in connectivity: ")
+    graph_path = input("Enter adj path in connectivity: ")
     path = folder_path + graph_path
-    crop_path = folder_path + "crop_" + graph_path
+    crop_path = folder_path + input("Enter crop path in connectivity: ")
 
     solver = MinizincSolver(model_file, "gurobi")
     structure_graph = pickle.load(open(path, "rb"))
@@ -113,9 +113,9 @@ if __name__ == "__main__":
 
     node_sd = [1 / i for i in crop.result_sd]
     sd_max = np.amax(np.array(node_sd))
-    sd_normal = [round(i / sd_max, 3) for i in node_sd]
+    if not sd_max == 0:
+        sd_normal = [round(i / sd_max, 3)  if i > 0 else i for i in node_sd]
 
-    # TODO: add to solver
     node_color = crop.result_color
 
     area = get_area()
@@ -129,7 +129,8 @@ if __name__ == "__main__":
     max_v = - 1e5
     selected_bricks = []
     scale_with_max_v = -1
-    for scale in range(10, 11, 10):
+    debugger = MyDebugger("solve")
+    for scale in range(1, 122, 20):
         results = solver.solve(structure_graph=structure_graph,
                                node_sd=sd_normal,
                                node_area=area_normal,
@@ -139,11 +140,12 @@ if __name__ == "__main__":
         selected_bricks_scale = []
         for i in range(len(structure_graph.bricks)):
             if results[i] == 1:
-                # TODO: change color
-                selected_bricks_scale.append(structure_graph.bricks[i])
+                if i < base_count:
+                    selected_bricks_scale.append(structure_graph.bricks[i])
+                else:
+                    colored_brick = color_brick(structure_graph.bricks[i], np.array(node_color))
+                    selected_bricks_scale.append(colored_brick)
 
-        selected_bricks = selected_bricks_scale.copy()
-        
         selected_scale_without_base = selected_bricks_scale[base_count:]
         value_of_solution = calculate_v(selected_scale_without_base,img, base_int, [proj_bbox(brick) for brick in selected_scale_without_base]) + \
                             0.5 * cal_border(selected_scale_without_base, base_int)
@@ -151,7 +153,6 @@ if __name__ == "__main__":
             max_v = value_of_solution
             scale_with_max_v = scale
             selected_bricks = selected_bricks_scale.copy()
-
     print("Minimum difference obtained at scale = ", scale_with_max_v)
     debugger = MyDebugger("solve")
     write_bricks_to_file(

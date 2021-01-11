@@ -47,7 +47,7 @@ def get_cover_rgb(brick, img, base_int):
                 try:
                     rgb_color = (img[y, x][:3])[::-1]
                     if channel == 4 and (img[y, x][0] == 0 or sum(np.array(rgb_color)) <= 10):
-                        continue
+                        return []
                     # not transparent
                     else:
                         rgbs.append(rgb_color)
@@ -56,19 +56,19 @@ def get_cover_rgb(brick, img, base_int):
     return rgbs
 
 # get a new brick with the input color
-def color_brick(brick, color):
-    color_hex = RGB_to_Hex(color)
+def color_brick(brick, rgb_color):
+    color_hex = RGB_to_Hex(rgb_color)
     new_brick = BrickInstance(brick.template, brick.trans_matrix, color_hex)
     return new_brick
 
 """
 1. 保留的brick返回rgbs，不保留的返回空集 get_cover_rgb(brick, img, base_int)
+    bbox超出范围的不保留
 2. crop_ls(rgbs)
   2.1 Crop的structure改变
   2.2 在crop里存储的是sd或者-1
   2.3 存一个list是color或者[]
 3. 解的时候让color==-1的直接不选
-TODO:
 4. 在get_sketch_solution里面改变颜色
 """
 
@@ -91,7 +91,7 @@ def ls_from_layout(img, plate_set, base_int):
     return result_sd, result_color
 
 if __name__ == "__main__":
-    img_path = os.path.join(os.path.dirname(__file__), "super_graph/images/hexagon.png")
+    img_path = os.path.join(os.path.dirname(__file__), "super_graph/images/waterdrop.png")
     img = cv2.imread(img_path, cv2.IMREAD_UNCHANGED)
 
     plate_path = "super_graph/for sketch/" + input("Enter file name in sketch folder: ")
@@ -119,11 +119,11 @@ if __name__ == "__main__":
     # resize image to fit the brick
     img = cv2.resize(img, (base_int * 20 + 1, base_int * 20 + 1))
 
-    # TODO: test
     result_sd, result_color = ls_from_layout(img, plate_set, base_int)
     result_sd = [0.0001 for i in range(base_count)] + result_sd
-    result_color = [np.array([255, 255, 255]) for i in range(base_count)] + result_color
-    print(len(result_sd), len(result_color))
+    result_color = [i for i in result_color if len(i) == 3]
+    result_color = np.average(result_color, axis = 0)
+    print(len(result_sd), result_color)
 
     crop_result = Crop(result_sd, result_color, base_count, filename, platename)
     pickle.dump(crop_result, open(os.path.join(os.path.dirname(__file__), f"connectivity/crop_{filename} b={base_count} {platename}.pkl"), "wb"))
