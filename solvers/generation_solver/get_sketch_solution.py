@@ -2,94 +2,13 @@ import os
 from solvers.generation_solver.minizinc_sketch import MinizincSolver
 from util.debugger import MyDebugger
 from bricks_modeling.file_IO.model_writer import write_bricks_to_file
-from solvers.generation_solver.crop_sketch import Crop, proj_bbox, color_brick
+from solvers.generation_solver.crop_sketch import color_brick
 from solvers.generation_solver.adjacency_graph import AdjacencyGraph
+from solvers.generation_solver.sketch_util import hex_to_rgb, Crop, proj_bbox, get_area, get_weight
 import numpy as np
-import json
 import cv2
 import math
-from shapely.geometry import Point
 import pickle5 as pickle
-
-def hex_to_rgb(hexx):
-    value = hexx.lstrip('0x2')
-    lv = len(value)
-    if lv == 0:
-        return np.array([0,0,0])
-    rgb = [int(value[i:i + lv // 3], 16) for i in range(0, lv, lv // 3)]
-    return np.array(rgb)
-
-# return difference between input and brickset (solution) (without base)
-def calculate_v(brick_set,img, base_int, polygon_ls):
-    dif_sum = [0, 0, 0]
-    for i in range(len(brick_set)):
-        brick = brick_set[i]
-        polygon = polygon_ls[i]
-        brick_color = hex_to_rgb(brick.color)
-        mini, minj, maxi, maxj = polygon.bounds
-        dif = [0, 0, 0]
-        for x in range(math.floor(mini), math.ceil(maxi) + 1):
-            for y in range(math.floor(minj), math.ceil(maxj) + 1):
-                point = Point(x, y)
-                if polygon.contains(point):
-                    try:
-                        img_color = (img[y, x])[::-1]
-                        dif = [dif[i] + abs(brick_color[i] - img_color[i]) * 1e-6 for i in range(3)]
-                    except:
-                        continue
-        dif_sum = [round(dif_sum[i] + dif[i], 3) for i in range(3)]
-    return - np.sum(dif_sum)
-
-# *brick* is the lower one
-def calculate_overlap_v(brick, brick2, img, base_int):
-    polygon1 = proj_bbox(brick)
-    polygon2 = proj_bbox(brick2)
-    dif_polygon = polygon1.difference(polygon2)
-    return calculate_v([brick], img, base_int, [dif_polygon])
-
-# return an integer in [0,1]
-def cal_border(brickset, base_int):
-    standard = base_int * 4 - 4
-    maxx = base_int * 20 - 10
-    count = 0
-    for brick in brickset:
-        cpoints = brick.get_current_conn_points()
-        cpoints_pos = [[cp.pos[0], cp.pos[2]] for cp in cpoints]
-        for z in range(10, base_int * 20 -9, 10):
-            if [10, z] in cpoints_pos or [maxx, z] in cpoints_pos:
-                count += 1
-            if z < 20 or z > maxx - 10:
-                continue
-            if [z, 10] in cpoints_pos or [z, maxx] in cpoints_pos:
-                count += 1
-    return count / standard
-
-def load_data(brick_database=["regular_plate.json"]):
-    data = []
-    for data_base in brick_database:
-        database_file = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "bricks_modeling", "database", data_base)
-        with open(database_file) as f:
-            temp = json.load(f)
-            data.extend(temp)
-    return data
-
-def get_area():
-    data = load_data()
-    area = {}
-    for brick in data:
-        if "area" in brick.keys():
-            area.update({brick["id"]: brick["area"]})
-    return area
-
-def get_weight():
-    data = load_data()
-    area = {}
-    for brick in data:
-        if "weight" in brick.keys():
-            area.update({brick["id"]: brick["weight"]})
-        else:
-            area.update({brick["id"]: 1})
-    return area
 
 if __name__ == "__main__":
     model_file = "./solvers/generation_solver/solve_sketch.mzn"
@@ -147,8 +66,7 @@ if __name__ == "__main__":
                     selected_bricks_scale.append(colored_brick)
 
         selected_scale_without_base = selected_bricks_scale[base_count:]
-        value_of_solution = calculate_v(selected_scale_without_base,img, base_int, [proj_bbox(brick) for brick in selected_scale_without_base]) + \
-                            0.5 * cal_border(selected_scale_without_base, base_int)
+        value_of_solution = 0 # TODO
         if value_of_solution > max_v:
             max_v = value_of_solution
             scale_with_max_v = scale

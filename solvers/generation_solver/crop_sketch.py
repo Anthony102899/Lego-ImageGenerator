@@ -4,62 +4,13 @@ import math
 import cv2
 import pickle5 as pickle
 from shapely.geometry import Polygon, Point
-from shapely.ops import unary_union
 from bricks_modeling.file_IO.model_reader import read_bricks_from_file
 from util.debugger import MyDebugger
 from bricks_modeling.file_IO.model_writer import write_bricks_to_file
 from bricks_modeling.bricks.brickinstance import BrickInstance, get_corner_pos
-from solvers.generation_solver.crop_model import RGB_to_Hex
+from solvers.generation_solver.sketch_util import Crop, RGB_to_Hex, proj_bbox, color_brick, get_cover_rgb
 from multiprocessing import Pool
 from functools import partial
-
-class Crop:            # sd of nodes
-    def __init__(self, result_sd, result_color, base_count, filename, platename):
-        self.result_sd = result_sd
-        self.result_color = result_color
-        self.base_count = base_count
-        self.filename = filename
-        self.platename = platename
-
-# return a polygon obj 
-def proj_bbox(brick:BrickInstance):
-    bbox_corner = np.array(get_corner_pos(brick, four_point=True))
-    bbox_corner = [[coord[0], coord[2]] for coord in bbox_corner]
-    polygon_ls = []
-    for i in range(0, len(bbox_corner), 4):
-        polygon = Polygon(bbox_corner[i:i+4])
-        polygon_ls.append(polygon)
-    polygon = unary_union(polygon_ls)
-    return polygon
-
-# return a list of rgb colors covered by brick *rgbs*
-def get_cover_rgb(brick, img, base_int):
-    polygon = proj_bbox(brick)
-    mini, minj, maxi, maxj = polygon.bounds
-    rgbs = []
-    channel = len(img[0][0])
-    for x in range(math.floor(mini), math.ceil(maxi) + 1):
-        for y in range(math.floor(minj), math.ceil(maxj) + 1):
-            if x < 0 or y < 0 or x > base_int * 20 or y > base_int * 20:
-                return []
-            point = Point(x, y)
-            if polygon.contains(point):
-                try:
-                    rgb_color = (img[y, x][:3])[::-1]
-                    if channel == 4 and (img[y, x][0] == 0 or sum(np.array(rgb_color)) <= 10):
-                        return []
-                    # not transparent
-                    else:
-                        rgbs.append(rgb_color)
-                except:
-                    continue
-    return rgbs
-
-# get a new brick with the input color
-def color_brick(brick, rgb_color):
-    color_hex = RGB_to_Hex(rgb_color)
-    new_brick = BrickInstance(brick.template, brick.trans_matrix, color_hex)
-    return new_brick
 
 """
 1. 保留的brick返回rgbs，不保留的返回空集 get_cover_rgb(brick, img, base_int)
