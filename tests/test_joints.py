@@ -11,8 +11,9 @@ import util.geometry_util as geo_util
 from visualization.model_visualizer import visualize_3D
 
 import testcases
+from testcases import simple
 
-model = testcases.square_2_layers()
+model = simple.hinge_with_mid_axis()
 
 dim = 3
 points = model.point_matrix()
@@ -26,7 +27,7 @@ fixed_coordinates = np.zeros((len(model.beams[0].points) * 3, points.shape[0] * 
 for r, c in enumerate(range(len(model.beams[0].points) * 3)):
     fixed_coordinates[r, c] = 1
 # A = np.vstack((A, fixed_coordinates))
-A = np.vstack((A, np.take(trivial_motions, [0, 1, 2, 3, 4, 5], axis=0)))
+# A = np.vstack((A, np.take(trivial_motions, [0, 1, 2, 3, 4, 5], axis=0)))
 
 
 M = spring_energy_matrix(points, edges, dim=dim)
@@ -57,6 +58,20 @@ zero_eigenspace = [(e_val, e_vec) for e_val, e_vec in eigen_pairs if abs(e_val) 
 print("DoF:", len(zero_eigenspace))
 
 trivial_motions = geo_util.trivial_basis(points, dim=3)
+non_rigid_motion = np.array([
+    [0, 0, -1],
+    [1, -1, -1],
+    [0, 0, -2],
+    [0, 0, -1],
+    [-1, 1, -1],
+    [0, 0, -2],
+]).reshape(-1)
+
+print("motion rank", matrix_rank(np.vstack([non_rigid_motion, trivial_motions])))
+print(A @ non_rigid_motion)
+for motion in trivial_motions:
+    print(A @ motion)
+
 
 non_zero_eigenspace = [(e_val, e_vec) for e_val, e_vec in eigen_pairs if abs(e_val) >= 1e-6]
 
@@ -66,7 +81,7 @@ if len(zero_eigenspace) > 0:
         arrows = v.reshape(-1, 3)
         for i, v in enumerate(arrows):
             print(i, points[i], v)
-        visualize_3D(points, edges=edges, arrows=arrows)
+        # visualize_3D(points, edges=edges, arrows=arrows)
         # visualize_3D(points, edges=edges)
 else:
     print("rigid")
@@ -78,4 +93,4 @@ else:
     e, v = non_zero_eigenspace[0]
     arrows = v.reshape(-1, 3)
     # visualize_3D(points, edges=edges)
-    visualize_3D(points, edges=edges, arrows=np.where(np.isclose(arrows, 0), 0, arrows))
+    # visualize_3D(points, edges=edges, arrows=np.where(np.isclose(arrows, 0), 0, arrows))
