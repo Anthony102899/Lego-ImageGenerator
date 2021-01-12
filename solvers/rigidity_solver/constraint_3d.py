@@ -1,4 +1,5 @@
 import numpy as np
+import scipy
 from util.geometry_util import normalize, get_perpendicular_vecs
 from solvers.rigidity_solver.algo_core import project_matrix_3D
 from scipy.linalg import null_space
@@ -27,8 +28,8 @@ def projection_matrix(source_points, target_point):
     norm_1 = np.linalg.norm(x1 - x0)
     basis_1 = (x1 - x0) / norm_1
 
-    norm_2 = np.linalg.norm(np.cross(basis_1, x2 - x0))
-    basis_2 = np.cross(basis_1, x2 - x0) / norm_2
+    norm_2 = np.linalg.norm(np.cross(x2 - x0, basis_1))
+    basis_2 = np.cross(x2 - x0, basis_1) / norm_2
 
     basis_3 = np.cross(basis_1, basis_2)
 
@@ -118,16 +119,20 @@ def prohibitive_space_of_allowed_relative_rotation(
     :param target_point: (3, )
     :param pivot_point: (3, )
     :param rotation_axis: (3, )
-    :return: (2, 3)
+    :return: (m, 3)
     """
     allowed_direction = np.cross(target_point - pivot_point, rotation_axis)
     if np.abs(np.linalg.norm(allowed_direction)) > 1e-8:
         allowed_direction = normalize(allowed_direction)
-        null_basis = null_space(np.array([allowed_direction, allowed_direction])).transpose()
+        null_basis = np.vstack(get_perpendicular_vecs(allowed_direction))
         return null_basis
     else:
-        allowed_direction = np.zeros((3, ))
-        null_basis = null_space(np.array([allowed_direction, allowed_direction])).transpose()
+        sqrt_half = np.sqrt(0.5)
+        null_basis = np.array([
+            [1, 0, 0],
+            [0, sqrt_half, sqrt_half],
+            [0, sqrt_half, -sqrt_half],
+        ])
         return null_basis
 
 
@@ -153,6 +158,9 @@ def constraints_for_allowed_motions(
             relative_rotation_axis = source_transform @ rotation_axis
 
             allowed_motion = np.cross(relative_target_point - relative_rotation_pivot, relative_rotation_axis)
+            allowed_motion /= np.linalg.norm(allowed_motion)
+
+            print(relative_projection)
 
             prohibitive_space = prohibitive_space_of_allowed_relative_rotation(
                 relative_target_point,

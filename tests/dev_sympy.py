@@ -107,11 +107,12 @@ varlist = [
     norm_1, norm_2,
 ] + deltas
 
+#%%
 constant_values = np.array([
-    0, 0, 0,
-    1, 0, 0,
     0, 1, 0,
-    0, 0, 1,
+    0, 1, 1,
+    0, 2, 0,
+    1, 0, 1,
 ])
 x1_minus_x0 = np.array(constant_values[3: 6]) - np.array(constant_values[0: 3])
 v1 = x1_minus_x0
@@ -124,13 +125,13 @@ norm_values = [
 ]
 delta_values = np.array([
     0, 0, 1,
-    0, 0, 1,
-    0, 0, 1,
-    0, 0, 1,
-]) * 1e-9
+    -1, 1, 1,
+    0, 0, 2,
+    1, -1, 1,
+]) 
 
 context = {var: value for var, value in zip(varlist, np.hstack((constant_values, norm_values, delta_values)))}
-dictsubs(T_prime, context)
+dictsubs(delta_b, context)
 
 #%%
 
@@ -147,11 +148,10 @@ for i, j in tqdm(product(range(3), range(12))):
 
     projection_matrix[i, j] = sympy.simplify(order_one_coeff)
 
-# projection_offset = zeros(3, 1)
-# for i in range(3):
-#     coeff = expanded_delta_b[i]
-#     order_zero_coeff = (coeff + O_deltas).removeO()
-#     projection_offset[i, 0] = order_zero_coeff
+dictsubs(projection_matrix, context)
+#%%
+dictsubs(projection_matrix @ Matrix(deltas), context)
+
 #%%
 
 # for var_index in [3, 4, 5]:

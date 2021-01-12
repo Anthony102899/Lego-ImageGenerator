@@ -23,7 +23,7 @@ class Model:
         edge_indices = []
         index_offset = 0
         for beam in self.beams:
-            edge_indices.append(beam.edges() + index_offset)
+            edge_indices.append(beam.edges + index_offset)
             index_offset += beam.point_count
         # for joint in self.joints:
         #     edge_indices.append(joint.edges() + index_offset)
@@ -43,7 +43,7 @@ class Model:
 
     @property
     def point_count(self):
-        return sum(beam.point_count for beam in self.beams) + sum(joint.virtual_point_count for joint in self.joints)
+        return sum(beam.point_count for beam in self.beams)
 
     def add_beam(self, beam):
         self.beams.append(beam)
@@ -80,7 +80,7 @@ class Model:
 class Beam:
     def __init__(self, points, edges=None):
         if edges is None:
-            index_range = range(len(self.points))
+            index_range = range(len(points))
             edges = np.array(list(itertools.combinations(index_range, 2)))
 
         self._edges = edges

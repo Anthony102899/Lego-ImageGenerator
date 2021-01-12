@@ -67,7 +67,9 @@ def tetrahedronize(p, q, thickness=1):
     rot = find_rotation_matrix(z, n)
 
     base = (rot @ vertices.T).T
-    points = np.vstack(np.linspace(base + p, base + q, num=5))
+    start = base + (p + 0.01 * (q - p))
+    end = base + (q + 0.01 * (p - q))
+    points = np.vstack(np.linspace(start, end, num=5))
     edges = np.array(
         [[3 * i + 0, 3 * i + 1] for i in range(5)] +
         [[3 * i + 1, 3 * i + 2] for i in range(5)] +
