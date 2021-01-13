@@ -96,6 +96,9 @@ def project(v: np.ndarray, base: np.ndarray) -> np.ndarray:
     length = np.dot(v, base) / np.dot(base, base)
     return length * base
 
+def normalize(vec: np.ndarray) -> np.ndarray:
+    return vec / LA.norm(vec)
+
 def rowwise_normalize(mat: np.ndarray) -> np.ndarray:
     """
     Row wise normalize a matrix, using L2 norm
