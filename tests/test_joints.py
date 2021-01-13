@@ -10,10 +10,9 @@ from numpy.linalg import cholesky, inv, matrix_rank
 import util.geometry_util as geo_util
 from visualization.model_visualizer import visualize_3D
 
-import testcases
 from testcases import simple
 
-model = simple.hinge_with_mid_axis()
+model = simple.hinge_with_yaw_axis()
 
 dim = 3
 points = model.point_matrix()
@@ -59,12 +58,12 @@ print("DoF:", len(zero_eigenspace))
 
 trivial_motions = geo_util.trivial_basis(points, dim=3)
 non_rigid_motion = np.array([
-    [0, 0, -1],
-    [1, -1, -1],
-    [0, 0, -2],
-    [0, 0, -1],
-    [-1, 1, -1],
-    [0, 0, -2],
+    [0, 0, 1],
+    [-1, 1, 1],
+    [0, 0, 2],
+    [0, 0, 1],
+    [1, -1, 1],
+    [0, 0, 2],
 ]).reshape(-1)
 
 print("motion rank", matrix_rank(np.vstack([non_rigid_motion, trivial_motions])))

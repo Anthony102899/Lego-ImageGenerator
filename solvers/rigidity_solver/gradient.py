@@ -28,12 +28,12 @@ def gradient_analysis(
 
     optimizer = torch.optim.Adam([hinge_axes], lr=1e-2)
 
-    from tqdm import tqdm
-    for i in tqdm(range(iters)):
+    for i in range(iters):
         optimizer.zero_grad()
 
         energy = spring_energy_matrix(points, edges, 3)
         constraint = constraint_matrix(points, hinge_axes, hinge_pivots, hinge_point_indices)
+        print(constraint)
 
         if extra_constraints is not None:
             constraint = torch.vstack([constraint, torch.from_numpy(extra_constraints).double()])
@@ -47,6 +47,7 @@ def gradient_analysis(
         Q = torch.chain_matmul(L_inv.t(), S, L_inv)
 
         eigenvalues, eigenvectors = torch.symeig(Q, eigenvectors=True)
+        print(eigenvalues)
 
         obj = torch.min(eigenvalues)
 
@@ -146,7 +147,8 @@ def perpendicular_vectors(v: torch.Tensor):
     w = torch.cross(u, v)
     return u, w
 
-def torch_null_space(A: torch.Tensor):
+def torch_null_space(A: torch.Tensor, disturb_s=False):
+    dist = 0
     with torch.no_grad():
         g, d, h = torch.svd(A, some=False)
         eps = torch.linspace(1e-6, 1e-4, len(d))
@@ -154,14 +156,15 @@ def torch_null_space(A: torch.Tensor):
         eps_diag[:len(d), :len(d)] = torch.diag_embed(eps)
         C = torch.chain_matmul(g, eps_diag, h.t())
 
-    B = A + C
-
-    # B = A
+    if disturb_s:
+        B = A + C
+    else:
+        B = A
 
     u, s, v = torch.svd(B, some=False)
     vt = v.t()
     M, N = u.size()[0], vt.size()[1]
-    rcond = torch.finfo(s.dtype).eps * max(M, N) + 1e-4
+    rcond = torch.finfo(s.dtype).eps * max(M, N) + dist
     tol = torch.max(s) * rcond
     num = torch.sum(s > tol, dtype=torch.int)
 
@@ -239,8 +242,8 @@ def projection_matrix(
     norm_1 = (x1 - x0).norm()
     basis_1 = (x1 - x0) / norm_1
 
-    norm_2 = torch.cross(basis_1, x2 - x0).norm()
-    basis_2 = torch.cross(basis_1, x2 - x0) / norm_2
+    norm_2 = torch.cross(x2 - x0, basis_1).norm()
+    basis_2 = torch.cross(x2 - x0, basis_1) / norm_2
 
     basis_3 = torch.cross(basis_1, basis_2)
 

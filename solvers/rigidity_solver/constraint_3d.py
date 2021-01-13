@@ -160,8 +160,6 @@ def constraints_for_allowed_motions(
             allowed_motion = np.cross(relative_target_point - relative_rotation_pivot, relative_rotation_axis)
             allowed_motion /= np.linalg.norm(allowed_motion)
 
-            print(relative_projection)
-
             prohibitive_space = prohibitive_space_of_allowed_relative_rotation(
                 relative_target_point,
                 relative_rotation_pivot,
