@@ -197,9 +197,9 @@ def points_span_dim(points: np.ndarray) -> bool:
     points: shape(n, 3)
     If the points spans a
         i) 0D space (the points are identical), return 0
-        i) 1D space (on the same line), return 1
-        ii) 2D space (on the same plane), return 2
-        iii) higher-than-2D space, return 3
+        ii) 1D space (on the same line), return 1
+        iii) 2D space (on the same plane), return 2
+        iv) higher-than-2D space, return 3
     """
     assert len(np.shape(points)) == 2 and np.shape(points)[1] == 3
     rank = np.linalg.matrix_rank(points)
@@ -253,3 +253,32 @@ def get_random_transformation() -> np.ndarray:
     trans_matrix[:3, :3] = gen_random_rotation()
     trans_matrix[:3, 3] = 5 * np.random.rand(3)
     return trans_matrix
+
+
+def cart2sphere(cartesian: np.ndarray) -> np.ndarray:
+    """
+    Convert cartesian coordinates to spherical coordinates
+    """
+    def _cart2sphere(row):
+        x, y, z = row
+        hxy = np.hypot(x, y)
+        r = np.hypot(hxy, z)
+        theta = np.arctan2(hxy, z)
+        phi = np.arctan2(y, x)
+        return np.array([r, theta, phi], dtype=np.double)
+
+    spherical = np.apply_along_axis(_cart2sphere, axis=1, arr=cartesian)
+    return spherical
+
+
+def sphere2cart(spherical: np.ndarray) -> np.ndarray:
+    def _sphere2cart(row):
+        r, theta, phi = row
+        x = r * np.sin(theta) * np.cos(phi)
+        y = r * np.sin(theta) * np.sin(phi)
+        z = r * np.cos(theta)
+        return np.array([x, y, z], dtype=np.double)
+
+    cart = np.apply_along_axis(_sphere2cart, axis=1, arr=spherical)
+    return cart
+

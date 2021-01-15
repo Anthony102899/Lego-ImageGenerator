@@ -80,6 +80,20 @@ def visualize_3D(points: np.array, lego_bricks = None, edges: List[Tuple] = None
     else:
         o3d.visualization.draw_geometries([hybrid_mesh])
 
+
+def visualize_hinges(points, edges, pivots, axes):
+    hybrid_mesh = o3d.geometry.TriangleMesh()
+
+    pivot_meshes = get_mesh_for_points(pivots)
+    hybrid_mesh += pivot_meshes
+
+    arrows = get_mesh_for_arrows(pivots, axes)
+    hybrid_mesh += arrows
+
+    edge_line_set = get_lineset_for_edges(points, edges)
+    o3d.visualization.draw_geometries([hybrid_mesh, edge_line_set])
+
+
 def visualize_2D(points: np.array, edges: List[Tuple] = None, arrows = None):
     # create Graph
     G_symmetric = nx.Graph()

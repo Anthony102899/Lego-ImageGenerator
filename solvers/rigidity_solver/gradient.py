@@ -10,6 +10,34 @@ Gradient analysis:
     - joint orientation
 """
 
+def least_eigenvalue(
+        points: torch.Tensor,
+        edges: torch.Tensor,
+        hinge_axes,
+        hinge_pivots,
+        hinge_point_indices,
+        extra_constraints=None,
+) -> torch.Tensor:
+    energy = spring_energy_matrix(points, edges, 3)
+    constraint = constraint_matrix(points, hinge_axes, hinge_pivots, hinge_point_indices)
+
+    if extra_constraints is not None:
+        constraint = torch.vstack([constraint, torch.from_numpy(extra_constraints).double()])
+
+    B = torch_null_space(constraint, disturb_s=True)
+    T = torch.mm(B.t(), B)
+    S = torch.chain_matmul(B.t(), energy, B)
+    L = torch.cholesky(T)
+    L_inv = torch.inverse(L)
+
+    Q = torch.chain_matmul(L_inv.t(), S, L_inv)
+
+    eigenvalues, eigenvectors = torch.symeig(Q, eigenvectors=True)
+
+    obj = torch.min(eigenvalues)
+
+    return obj
+
 def gradient_analysis(
         points: np.ndarray,
         edges: np.ndarray,
@@ -17,44 +45,35 @@ def gradient_analysis(
         hinge_pivots,
         hinge_point_indices,
         extra_constraints=None,
-        iters=10000
+        iters=1000
 ) -> torch.Tensor:
-
+    hinge_rad = torch.tensor(geo_util.cart2sphere(hinge_axes)[:, 1:], requires_grad=True)
+    theta, phi = hinge_rad[:, 0], hinge_rad[:, 1]
     points = torch.tensor(points, dtype=torch.double, requires_grad=True)
     edges = torch.tensor(edges)
-    hinge_axes = torch.tensor(hinge_axes, dtype=torch.double, requires_grad=True)
+    # hinge_axes = torch.tensor(hinge_axes, dtype=torch.double, requires_grad=True)
     hinge_pivots = torch.tensor(hinge_pivots, dtype=torch.double, requires_grad=True)
     hinge_point_indices = torch.tensor(hinge_point_indices, dtype=torch.long)
 
-    optimizer = torch.optim.Adam([hinge_axes], lr=1e-2)
+    optimizer = torch.optim.Adam([hinge_rad], lr=1e-3)
 
     for i in range(iters):
         optimizer.zero_grad()
 
-        energy = spring_energy_matrix(points, edges, 3)
-        constraint = constraint_matrix(points, hinge_axes, hinge_pivots, hinge_point_indices)
-        print(constraint)
+        hinge_axes = torch.hstack([
+            torch.unsqueeze(torch.sin(theta) * torch.cos(phi), 1),
+            torch.unsqueeze(torch.sin(theta) * torch.sin(phi), 1),
+            torch.unsqueeze(torch.cos(theta), 1)
+        ])
 
-        if extra_constraints is not None:
-            constraint = torch.vstack([constraint, torch.from_numpy(extra_constraints).double()])
+        # Negate it as torch optimizer minimizes objective by default
+        obj = -least_eigenvalue(
+            points, edges, hinge_axes, hinge_pivots, hinge_point_indices, extra_constraints
+        )
 
-        B = torch_null_space(constraint)
-        T = torch.mm(B.t(), B)
-        S = torch.chain_matmul(B.t(), energy, B)
-        L = torch.cholesky(T)
-        L_inv = torch.inverse(L)
-
-        Q = torch.chain_matmul(L_inv.t(), S, L_inv)
-
-        eigenvalues, eigenvectors = torch.symeig(Q, eigenvectors=True)
-        print(eigenvalues)
-
-        obj = torch.min(eigenvalues)
-
-        # if i % 20 == 0:
-        #     print("Objective", obj.detach().numpy())
-        #     print("Axes", hinge_axes)
-
+        if i % 10 == 0:
+            print(f"{i}-th iteration: ", -obj.detach().numpy())
+            print("Axes", hinge_rad)
         obj.backward()
         optimizer.step()
 
@@ -148,10 +167,10 @@ def perpendicular_vectors(v: torch.Tensor):
     return u, w
 
 def torch_null_space(A: torch.Tensor, disturb_s=False):
-    dist = 0
+    dist = 1e-8
     with torch.no_grad():
         g, d, h = torch.svd(A, some=False)
-        eps = torch.linspace(1e-6, 1e-4, len(d))
+        eps = torch.linspace(dist / 1000, dist, len(d))
         eps_diag = torch.zeros_like(A)
         eps_diag[:len(d), :len(d)] = torch.diag_embed(eps)
         C = torch.chain_matmul(g, eps_diag, h.t())
