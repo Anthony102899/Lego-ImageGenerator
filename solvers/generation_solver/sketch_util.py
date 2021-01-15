@@ -1,9 +1,13 @@
+import os
 import numpy as np
 import math
 import json
 from shapely.geometry import Polygon, Point
+import cv2
 from bricks_modeling.bricks.brickinstance import BrickInstance, get_corner_pos
 from shapely.ops import unary_union
+from bricks_modeling.file_IO.model_writer import write_bricks_to_file
+from bricks_modeling.file_IO.model_reader import read_bricks_from_file
 
 class Crop:            # sd of nodes
     def __init__(self, result_sd, result_color, base_count, filename, platename):
@@ -12,6 +16,16 @@ class Crop:            # sd of nodes
         self.base_count = base_count
         self.filename = filename
         self.platename = platename
+
+def center_crop(img, dim):
+    width, height = img.shape[1], img.shape[0]
+    #process crop width and height for max available dimension
+    crop_width = dim[0] if dim[0] < img.shape[1] else img.shape[1]
+    crop_height = dim[1] if dim[1] < img.shape[0] else img.shape[0] 
+    mid_x, mid_y = int(width / 2), int(height / 2)
+    cw2, ch2 = int(crop_width / 2), int(crop_height / 2) 
+    crop_img = img[mid_y - ch2:mid_y + ch2, mid_x - cw2:mid_x + cw2]
+    return crop_img
 
 # return a polygon obj 
 def proj_bbox(brick:BrickInstance):
@@ -23,6 +37,13 @@ def proj_bbox(brick:BrickInstance):
         polygon_ls.append(polygon)
     polygon = unary_union(polygon_ls)
     return polygon
+
+def move_layer(brickset, layer_num):
+    current_y = (brickset[0].get_translation())[1]
+    new_set = brickset.copy()
+    dis = 8 * layer_num - current_y
+    [b.translate([0, dis, 0]) for b in new_set]
+    return new_set
 
 def hex_to_rgb(hexx):
     value = hexx.lstrip('0x2')
@@ -59,7 +80,7 @@ def get_cover_rgb(brick, img, base_int):
             if polygon.contains(point):
                 try:
                     rgb_color = (img[y, x][:3])[::-1]
-                    if channel == 4 and (img[y, x][0] == 0 or sum(np.array(rgb_color)) <= 10):
+                    if channel == 4 and img[y, x][0] == 0:
                         return []
                     # not transparent
                     else:
@@ -67,6 +88,33 @@ def get_cover_rgb(brick, img, base_int):
                 except:
                     continue
     return rgbs
+
+def load_data(brick_database=["regular_plate.json"]):
+    data = []
+    for data_base in brick_database:
+        database_file = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "bricks_modeling", "database", data_base)
+        with open(database_file) as f:
+            temp = json.load(f)
+            data.extend(temp)
+    return data
+
+def get_weight():
+    data = load_data()
+    area = {}
+    for brick in data:
+        if "weight" in brick.keys():
+            area.update({brick["id"]: brick["weight"]})
+        else:
+            area.update({brick["id"]: 1})
+    return area
+
+def get_area():
+    data = load_data()
+    area = {}
+    for brick in data:
+        if "area" in brick.keys():
+            area.update({brick["id"]: brick["area"]})
+    return area
 
 # return difference between input and brickset (solution) (without base)
 def calculate_v(brick_set,img, base_int, polygon_ls):
@@ -113,32 +161,17 @@ def cal_border(brickset, base_int):
                 count += 1
     return count / standard
 
-def load_data(brick_database=["regular_plate.json"]):
-    data = []
-    for data_base in brick_database:
-        database_file = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "bricks_modeling", "database", data_base)
-        with open(database_file) as f:
-            temp = json.load(f)
-            data.extend(temp)
-    return data
 
-def get_weight():
-    data = load_data()
-    area = {}
-    for brick in data:
-        if "weight" in brick.keys():
-            area.update({brick["id"]: brick["weight"]})
-        else:
-            area.update({brick["id"]: 1})
-    return area
-
-def get_area():
-    data = load_data()
-    area = {}
-    for brick in data:
-        if "area" in brick.keys():
-            area.update({brick["id"]: brick["area"]})
-    return area
+def rotate_image(image, angle):
+  image_center = tuple(np.array(image.shape[1::-1]) / 2)
+  rot_mat = cv2.getRotationMatrix2D(image_center, angle, 1.0)
+  result = cv2.warpAffine(image, rot_mat, image.shape[1::-1], flags=cv2.INTER_LINEAR)
+  return result
 
 if __name__ == "__main__":
-    print(RGB_to_Hex([20, 153, 233]))
+    img_path = os.path.join(os.path.dirname(__file__), "super_graph/images/waterdrop.png")
+    img = cv2.imread(img_path, cv2.IMREAD_UNCHANGED)
+
+    image = rotate_image(img, 45)
+    
+    cv2.imwrite('./solvers/generation_solver/super_graph/waterdrop_45.png', image)

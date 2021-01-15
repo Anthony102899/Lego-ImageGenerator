@@ -3,6 +3,7 @@
     "id": "3710",
     "concave": 0,
     "area": 2.56,
+    "weight": 1.5,
     "connPoint": [
         {"orient": [0, 1, 0],"pos": [10, -2, 0],"type": "stud"},
         {"orient": [0, 1, 0],"pos": [10, 6, 0],"type": "tube"},
@@ -745,7 +746,8 @@
   {
     "id": "3023",
     "volume": 0.366,
-    "area": 1.2795,
+    "weight": 0.9,
+    "area": 1.275,
     "connPoint": [
       {"pos": [10, -2, 0],"orient": [0, 1, 0],"type": "stud"},
       {"pos": [10, 6, 0],"orient": [0, 1, 0],"type": "tube"},
@@ -770,7 +772,7 @@
     "id": "3024",
     "volume": 0.183,
     "weight": 0.4,
-    "area": 0.639,
+    "area": 0.637,
     "connPoint": [
       {"pos": [0, -2, 0],"orient": [0, 1, 0],"type": "stud"},
       {"pos": [0, 6, 0],"orient": [0, 1, 0],"type": "tube"

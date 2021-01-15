@@ -8,20 +8,9 @@ from bricks_modeling.file_IO.model_reader import read_bricks_from_file
 from util.debugger import MyDebugger
 from bricks_modeling.file_IO.model_writer import write_bricks_to_file
 from bricks_modeling.bricks.brickinstance import BrickInstance, get_corner_pos
-from solvers.generation_solver.sketch_util import Crop, RGB_to_Hex, proj_bbox, color_brick, get_cover_rgb
+from solvers.generation_solver.sketch_util import Crop, RGB_to_Hex, proj_bbox, color_brick, get_cover_rgb, rotate_image
 from multiprocessing import Pool
 from functools import partial
-
-"""
-1. 保留的brick返回rgbs，不保留的返回空集 get_cover_rgb(brick, img, base_int)
-    bbox超出范围的不保留
-2. crop_ls(rgbs)
-  2.1 Crop的structure改变
-  2.2 在crop里存储的是sd或者-1
-  2.3 存一个list是color或者[]
-3. 解的时候让color==-1的直接不选
-4. 在get_sketch_solution里面改变颜色
-"""
 
 # return color or sd or -1
 def crop_ls(rgbs, sd):
@@ -44,6 +33,8 @@ def ls_from_layout(img, plate_set, base_int):
 if __name__ == "__main__":
     img_path = os.path.join(os.path.dirname(__file__), "super_graph/images/waterdrop.png")
     img = cv2.imread(img_path, cv2.IMREAD_UNCHANGED)
+    degree = 45
+    img = rotate_image(img, degree)
 
     plate_path = "super_graph/for sketch/" + input("Enter file name in sketch folder: ")
     plate_path = os.path.join(os.path.dirname(__file__), plate_path)
@@ -61,6 +52,7 @@ if __name__ == "__main__":
 
     _, filename = os.path.split(img_path)
     filename = (filename.split("."))[0]
+    cv2.imwrite(os.path.join(os.path.dirname(__file__), f"super_graph/images/waterdrop_{degree}.png"), img)
     _, platename = os.path.split(plate_path)
     platename = (((platename.split("."))[0]).split("n="))[0]
 
@@ -77,4 +69,4 @@ if __name__ == "__main__":
     print(len(result_sd), result_color)
 
     crop_result = Crop(result_sd, result_color, base_count, filename, platename)
-    pickle.dump(crop_result, open(os.path.join(os.path.dirname(__file__), f"connectivity/crop_{filename} b={base_count} {platename}.pkl"), "wb"))
+    pickle.dump(crop_result, open(os.path.join(os.path.dirname(__file__), f"connectivity/crop_{filename} {degree} b={base_count} {platename}.pkl"), "wb"))
