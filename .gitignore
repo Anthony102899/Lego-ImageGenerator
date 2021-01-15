@@ -6,9 +6,6 @@ __pycache__
 
 # exectuables
 build/
-solver
-gurobi_solver
-constraint_matrix_extractor
 
 # auto-generated files
 output
@@ -18,6 +15,8 @@ data/auto
 *.drt
 ./*.log
 debug/
+model_params
+runs
 
 # desmond's folder
-tests/
+tests/*
