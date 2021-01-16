@@ -55,28 +55,19 @@ def find_rotation_matrix(a, b):
     return rot
 
 
-def tetrahedronize(p, q, thickness=1, ori=None):
-    if ori is None:
-        vertices = np.array([
-            [0, 1, 0],
-            [np.sqrt(3) / 2, -1 / 2, 0],
-            [-np.sqrt(3) / 2, -1 / 2, 0],
-        ])
+def tetrahedronize(p, q, ori=None, thickness=1):
+    vertices = np.array([
+        [0, 1, 0],
+        [np.sqrt(3) / 2, -1 / 2, 0],
+        [-np.sqrt(3) / 2, -1 / 2, 0],
+    ]) * thickness
 
-        z = np.array([0, 0, 1])
-        n = geo_util.normalize(p - q)
-        rot = find_rotation_matrix(z, n)
-        base = (rot @ vertices.T).T * thickness
-    else:
-        ori = geo_util.normalize(ori)
-        offset = geo_util.normalize(np.cross(p - q, ori)) * np.sqrt(3) / 2
-        base = np.vstack((
-            ori,
-            -ori * 0.5 + offset,
-            -ori * 0.5 - offset
-        )) * thickness
-        print(base)
+    z = np.array([0, 0, 1])
+    n = geo_util.normalize(p - q)
 
+    rot = find_rotation_matrix(z, n)
+
+    base = (rot @ vertices.T).T
     start_center = (p + 0.01 * (q - p))
     end_center = (q + 0.01 * (p - q))
     start = base + start_center
@@ -84,37 +75,38 @@ def tetrahedronize(p, q, thickness=1, ori=None):
 
     num = 5
     triangles = np.linspace(start, end, num)
-    centers = np.linspace(start_center, end_center, num) + (end_center - start_center) / (num - 1) / 2
+    centers = np.linspace(start_center, end_center, num) + (end_center - start_center) / num / 2
 
     points = np.vstack(
          (np.vstack([np.vstack([tri, c]) for tri, c in zip(triangles[:-1], centers[:-1])]),
           triangles[-1])
     )
     edges = np.array(
-        # triangle on the same layer
-        [(4 * s + 0, 4 * s + 1) for s in range(num)] +
-        [(4 * s + 1, 4 * s + 2) for s in range(num)] +
-        [(4 * s + 2, 4 * s + 0) for s in range(num)] +
+        [(s + 0, s + 1) for s in range(0, (num - 1) * 4, 4)] +
+        [(s + 1, s + 2) for s in range(0, (num - 1) * 4, 4)] +
+        [(s + 2, s + 0) for s in range(0, (num - 1) * 4, 4)] +
 
-        # triangle vertices to center
-        [(4 * s + 0, 4 * s + 3) for s in range(num - 1)] +
-        [(4 * s + 1, 4 * s + 3) for s in range(num - 1)] +
-        [(4 * s + 2, 4 * s + 3) for s in range(num - 1)] +
+        [(s + 0, s + 3) for s in range(0, (num - 1) * 4, 4)] +
+        [(s + 1, s + 3) for s in range(0, (num - 1) * 4, 4)] +
+        [(s + 2, s + 3) for s in range(0, (num - 1) * 4, 4)] +
 
-        # next triangle vertices to center
-        [(4 * s + 3, 4 * s + 4) for s in range(num - 1)] +
-        [(4 * s + 3, 4 * s + 5) for s in range(num - 1)] +
-        [(4 * s + 3, 4 * s + 6) for s in range(num - 1)] +
+        [(s + 3, s + 4) for s in range(0, (num - 1) * 4, 4)] +
+        [(s + 3, s + 5) for s in range(0, (num - 1) * 4, 4)] +
+        [(s + 3, s + 6) for s in range(0, (num - 1) * 4, 4)] +
 
-        # vertical bars between neighbor triangles
-        [(4 * s + 0, 4 * s + 4) for s in range(num - 1)] +
-        [(4 * s + 1, 4 * s + 5) for s in range(num - 1)] +
-        [(4 * s + 2, 4 * s + 6) for s in range(num - 1)] +
+        [(s + 0, s + 4) for s in range(0, (num - 1) * 4, 4)] +
+        [(s + 1, s + 5) for s in range(0, (num - 1) * 4, 4)] +
+        [(s + 2, s + 6) for s in range(0, (num - 1) * 4, 4)] +
 
-        # oblique bars between neighbor triangles
-        [(4 * s + 0, 4 * s + 6) for s in range(num - 1)] +
-        [(4 * s + 1, 4 * s + 4) for s in range(num - 1)] +
-        [(4 * s + 2, 4 * s + 5) for s in range(num - 1)]
+        [(s + 0, s + 6) for s in range(0, (num - 1) * 4, 4)] +
+        [(s + 1, s + 4) for s in range(0, (num - 1) * 4, 4)] +
+        [(s + 2, s + 5) for s in range(0, (num - 1) * 4, 4)] +
+
+        [
+            (len(points) - 1, len(points) - 2),
+            (len(points) - 2, len(points) - 3),
+            (len(points) - 3, len(points) - 1)
+        ]
     )
 
     return points, edges

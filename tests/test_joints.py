@@ -10,8 +10,18 @@ from visualization.model_visualizer import visualize_3D, visualize_hinges
 
 from testcases import simple, tetra
 
-model = tetra.square_centering_axes()
-
+model = tetra.square_pyramid_axes()
+# axes = np.array([
+#     [-0.6002, 0.2442, 0.7616],
+#     [0.6295, 0.3026, 0.7157],
+#     [0.2777, -0.2236, 0.9343],
+#     [0.5090, 0.2976, 0.8077],
+# ])
+# axes = np.array([[-0.67047648, 0.73671675, 0.08780502],
+#  [-0.99870806, 0.04578672, 0.02204064],
+#  [0.35756634, -0.71508136, 0.60067042],
+#  [0.38999463, -0.34514895, 0.85368401]])
+# model = tetra.square(axes)
 
 dim = 3
 points = model.point_matrix()
@@ -68,6 +78,7 @@ if len(zero_eigenspace) > 0:
     print("Non-rigid")
     for e, v in zero_eigenspace:
         arrows = v.reshape(-1, 3)
+        print(e)
         visualize_3D(points, edges=edges, arrows=arrows)
         # visualize_3D(points, edges=edges)
 else:
@@ -77,6 +88,7 @@ else:
     #     visualize_3D(points, edges=edges, arrows=arrows)
     #
     e, v = non_zero_eigenspace[0]
+    print("smallest eigenvalue:", e)
     arrows = v.reshape(-1, 3)
     # visualize_3D(points, edges=edges)
-    # visualize_3D(points, edges=edges, arrows=np.where(np.isclose(arrows, 0), 0, arrows))
+    visualize_3D(points, edges=edges, arrows=np.where(np.isclose(arrows, 0), 0, arrows))

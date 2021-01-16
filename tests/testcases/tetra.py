@@ -18,7 +18,7 @@ def square(axes):
     ]) * 100
 
     beams = [
-        Beam.tetra(points[i], points[(i + 1) % 4], thickness=20) for i in range(4)
+        Beam.tetra(points[i], points[(i + 1) % 4], thickness=20, ori=np.array([0, 0, 1])) for i in range(4)
     ]
 
     hinges = [

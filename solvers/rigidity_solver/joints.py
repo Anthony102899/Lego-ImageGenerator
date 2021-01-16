@@ -94,8 +94,8 @@ class Beam:
         return Beam(points)
 
     @classmethod
-    def tetra(cls, p, q, thickness=1):
-        points, edges = tetrahedronize(p, q, thickness)
+    def tetra(cls, p, q, thickness=1, ori=None):
+        points, edges = tetrahedronize(p, q, thickness, ori)
         return Beam(points, edges)
 
     @classmethod
