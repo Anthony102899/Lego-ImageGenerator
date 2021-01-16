@@ -5,6 +5,9 @@ sys.path.append("..")
 import scipy
 import numpy as np
 from numpy.linalg import matrix_rank, matrix_power, cholesky, inv
+import torch
+from torch.utils.tensorboard import SummaryWriter
+from tqdm import tqdm
 
 import util.geometry_util as geo_util
 
@@ -12,7 +15,7 @@ from solvers.rigidity_solver.gradient import gradient_analysis
 from solvers.rigidity_solver.internal_structure import tetrahedronize
 from solvers.rigidity_solver.algo_core import solve_rigidity, spring_energy_matrix
 from solvers.rigidity_solver.joints import Beam, Model, Hinge
-from solvers.rigidity_solver.gradient import gradient_analysis
+from solvers.rigidity_solver import gradient as gd
 
 from visualization.model_visualizer import visualize_3D
 
@@ -26,17 +29,25 @@ def sample_spherical(npoints, ndim=3):
 
 
 axes_list = [
-    sample_spherical(4) for i in range(10000)
+    np.array([
+        [-1, 1, 2],
+        [-1, -1, 2],
+        [1, -1, 2],
+        [1, -1, 2],
+    ])
 ]
 
 
 objectives = []
 
 from testcases import tetra
-from tqdm import tqdm
-# for axes in tqdm(axes_list):
-if True:
-    model = tetra.square_centering_axes()
+# if True:
+for axes in (axes_list):
+    axes_string = "c".join([str(n) for n in axes.reshape(-1)])
+    print(axes_string)
+
+    writer = SummaryWriter(comment=axes_string)
+    model = tetra.square(axes)
 
     points = model.point_matrix()
     edges = model.edge_matrix()
@@ -68,28 +79,61 @@ if True:
 
     pairs = geo_util.eigen(Q, symmetric=True)
     eigenvalues = np.array([v for v, e in pairs])
-    print("DoF:", np.sum(np.isclose(eigenvalues, 0)))
-    obj, eigenvector = pairs[0]
+    np_obj, eigenvector = pairs[0]
     arrows = B @ eigenvector
 
-    torch_obj = gradient_analysis(
-        points,
-        edges,
-        hinge_axes,
-        hinge_pivots,
-        hinge_point_indices,
-        extra_constraints=extra_constraints,
-        iters=1
-    ).detach().numpy()
+    print("DoF:", np.sum(np.isclose(eigenvalues, 0)))
+    print("numpy obj:", np_obj)
 
-    print(torch_obj, obj)
+    hinge_rad = torch.tensor(geo_util.cart2sphere(hinge_axes)[:, 1:], requires_grad=True)
+    theta, phi = hinge_rad[:, 0], hinge_rad[:, 1]
+    points = torch.tensor(points, dtype=torch.double, requires_grad=True)
+    edges = torch.tensor(edges)
+    # hinge_axes = torch.tensor(hinge_axes, dtype=torch.double, requires_grad=True)
+    hinge_pivots = torch.tensor(hinge_pivots, dtype=torch.double, requires_grad=True)
+    hinge_point_indices = torch.tensor(hinge_point_indices, dtype=torch.long)
+
+    step_size = 1e-3
+    iters = 2000
+
+    optimizer = torch.optim.Adam([hinge_rad], lr=1e-3)
+    writer.add_text("Adam", f"Step size: {step_size}")
+
+    for it in tqdm(range(iters)):
+        optimizer.zero_grad()
+
+        hinge_axes = torch.hstack([
+            torch.unsqueeze(torch.sin(theta) * torch.cos(phi), 1),
+            torch.unsqueeze(torch.sin(theta) * torch.sin(phi), 1),
+            torch.unsqueeze(torch.cos(theta), 1)
+        ])
+
+        # Negate it as torch optimizer minimizes objective
+        obj = -gd.least_eigenvalue(
+            points, edges, hinge_axes, hinge_pivots, hinge_point_indices, extra_constraints
+        )
+
+        axes_cart = hinge_axes.detach().numpy()
+        writer.add_scalar("Objective/Least Eigenvalue", -obj.detach().numpy(), it)
+        for i, cartesian in enumerate(axes_cart):
+            writer.add_scalars(f"Params/Hinge {i}", {
+                "x": cartesian[0],
+                "y": cartesian[1],
+                "z": cartesian[2],
+            }, it)
+
+        obj.backward()
+        optimizer.step()
+
+        if it == 0:
+            print(obj)
+
+        if it == 1000:
+            print("obj", obj, "init:", axes, "opt:", axes_cart)
+
+    writer.close()
 
     # visualize_3D(points, edges=edges, arrows=arrows.reshape(-1, 3))
-    objectives.append((obj, axes))
 
 
-print(objectives)
-
-#%%
-print(max(objectives, key=lambda p: p[0]))
-print(min(objectives, key=lambda p: p[0]))
+# %%

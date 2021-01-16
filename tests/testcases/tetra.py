@@ -1,6 +1,11 @@
 import numpy as np
 from solvers.rigidity_solver.joints import Model, Hinge, Beam
 
+def beam():
+    model = Model()
+    beam = Beam.tetra(np.zeros(3), np.ones(3) * 100, thickness=20)
+    model.add_beam(beam)
+    return model
 
 def square(axes):
     model = Model()
@@ -39,9 +44,9 @@ def square_perpendicular_axes():
 
 def square_diverting_axes():
     axes = np.array([
-        [1, 1, 0],
         [-1, 1, 0],
-        [-1, 1, 0],
+        [-1, -1, 0],
+        [1, -1, 0],
         [1, 1, 0],
     ])
     return square(axes)
@@ -49,8 +54,8 @@ def square_diverting_axes():
 def square_centering_axes():
     axes = np.array([
         [-1, 1, 0],
-        [1, 1, 0],
-        [-1, 1, 0],
+        [-1, -1, 0],
+        [1, -1, 0],
         [1, 1, 0],
     ])
     return square(axes)
@@ -59,8 +64,17 @@ def square_centering_axes():
 def square_pyramid_axes():
     axes = np.array([
         [-1, 1, 1],
+        [-1, -1, 1],
+        [1, -1, 1],
         [1, 1, 1],
-        [-1, 1, 1],
-        [1, 1, 1],
+    ])
+    return square(axes)
+
+def square_closed_axes():
+    axes = np.array([
+        [0, 1, 0],
+        [1, 0, 0],
+        [0, 1, 0],
+        [1, 0, 0],
     ])
     return square(axes)
