@@ -192,6 +192,7 @@ def is_trivial_motions(eigen_vecs, points, dim) -> bool:
     basis = trivial_basis(points, dim)
     return is_subspace(eigen_vecs, basis)
 
+
 def points_span_dim(points: np.ndarray) -> bool:
     """
     points: shape(n, 3)
@@ -281,4 +282,3 @@ def sphere2cart(spherical: np.ndarray) -> np.ndarray:
 
     cart = np.apply_along_axis(_sphere2cart, axis=1, arr=spherical)
     return cart
-
