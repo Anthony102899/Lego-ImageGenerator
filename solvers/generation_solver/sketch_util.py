@@ -17,8 +17,9 @@ class Crop:            # sd of nodes
         self.filename = filename
         self.platename = platename
 
-def center_crop(img, dim):
+def center_crop(img, scale):
     width, height = img.shape[1], img.shape[0]
+    dim = (height / scale, width / scale)
     #process crop width and height for max available dimension
     crop_width = dim[0] if dim[0] < img.shape[1] else img.shape[1]
     crop_height = dim[1] if dim[1] < img.shape[0] else img.shape[0] 
@@ -169,9 +170,9 @@ def rotate_image(image, angle):
   return result
 
 if __name__ == "__main__":
-    img_path = os.path.join(os.path.dirname(__file__), "super_graph/images/waterdrop.png")
+    img_path = os.path.join(os.path.dirname(__file__), "super_graph/images/pepsi.png")
     img = cv2.imread(img_path, cv2.IMREAD_UNCHANGED)
 
-    image = rotate_image(img, 45)
+    image = center_crop(img, 2)
     
-    cv2.imwrite('./solvers/generation_solver/super_graph/waterdrop_45.png', image)
+    cv2.imwrite('./solvers/generation_solver/super_graph/test.png', image)

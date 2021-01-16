@@ -8,7 +8,7 @@ from bricks_modeling.file_IO.model_reader import read_bricks_from_file
 from util.debugger import MyDebugger
 from bricks_modeling.file_IO.model_writer import write_bricks_to_file
 from bricks_modeling.bricks.brickinstance import BrickInstance, get_corner_pos
-from solvers.generation_solver.sketch_util import Crop, RGB_to_Hex, proj_bbox, color_brick, get_cover_rgb, rotate_image
+from solvers.generation_solver.sketch_util import Crop, RGB_to_Hex, proj_bbox, color_brick, get_cover_rgb, rotate_image, center_crop
 from multiprocessing import Pool
 from functools import partial
 
@@ -31,12 +31,14 @@ def ls_from_layout(img, plate_set, base_int):
     return result_sd, result_color
 
 if __name__ == "__main__":
-    img_path = os.path.join(os.path.dirname(__file__), "super_graph/images/waterdrop.png")
+    img_path = os.path.join(os.path.dirname(__file__), "super_graph/images/flag.png")
     img = cv2.imread(img_path, cv2.IMREAD_UNCHANGED)
-    degree = 45
+    degree = int(input("Enter rotation angle: "))
+    scale = int(input("Enter scalling factor: "))
+    img = center_crop(img, scale)
     img = rotate_image(img, degree)
 
-    plate_path = "super_graph/for sketch/" + input("Enter file name in sketch folder: ")
+    plate_path = "super_graph/for sketch/" + "['49668', '27263', '27925', '3024', '3023', '3710', '24299', '24307', '43722', '43723'] base=24 n=9629 r=1.ldr"
     plate_path = os.path.join(os.path.dirname(__file__), plate_path)
     plate_set = read_bricks_from_file(plate_path)
     
@@ -52,7 +54,7 @@ if __name__ == "__main__":
 
     _, filename = os.path.split(img_path)
     filename = (filename.split("."))[0]
-    cv2.imwrite(os.path.join(os.path.dirname(__file__), f"super_graph/images/waterdrop_{degree}.png"), img)
+    cv2.imwrite(os.path.join(os.path.dirname(__file__), f"super_graph/images/{filename}_{degree}_{scale}.png"), img)
     _, platename = os.path.split(plate_path)
     platename = (((platename.split("."))[0]).split("n="))[0]
 
@@ -69,4 +71,4 @@ if __name__ == "__main__":
     print(len(result_sd), result_color)
 
     crop_result = Crop(result_sd, result_color, base_count, filename, platename)
-    pickle.dump(crop_result, open(os.path.join(os.path.dirname(__file__), f"connectivity/crop_{filename} {degree} b={base_count} {platename}.pkl"), "wb"))
+    pickle.dump(crop_result, open(os.path.join(os.path.dirname(__file__), f"connectivity/crop_{filename}_{degree}_{scale} b={base_count} {platename}.pkl"), "wb"))
