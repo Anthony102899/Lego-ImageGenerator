@@ -8,7 +8,7 @@ from bricks_modeling.file_IO.model_reader import read_bricks_from_file
 from util.debugger import MyDebugger
 from bricks_modeling.file_IO.model_writer import write_bricks_to_file
 from bricks_modeling.bricks.brickinstance import BrickInstance, get_corner_pos
-from solvers.generation_solver.sketch_util import Crop, RGB_to_Hex, proj_bbox, color_brick, get_cover_rgb, rotate_image, center_crop
+import solvers.generation_solver.sketch_util as util
 from multiprocessing import Pool
 from functools import partial
 
@@ -25,36 +25,31 @@ def crop_ls(rgbs, sd):
 # return *result_sd* and *result_color*
 def ls_from_layout(img, plate_set, base_int):
     with Pool(20) as p:
-        rgbs_ls = p.map(partial(get_cover_rgb, img=img, base_int=base_int), plate_set)
+        rgbs_ls = p.map(partial(util.get_cover_rgb, img=img, base_int=base_int), plate_set)
         result_sd = p.map(partial(crop_ls, sd=True), rgbs_ls)
         result_color = p.map(partial(crop_ls, sd=False), rgbs_ls)
     return result_sd, result_color
 
 if __name__ == "__main__":
-    img_path = os.path.join(os.path.dirname(__file__), "super_graph/images/flag.png")
+    img_path = os.path.join(os.path.dirname(__file__), "super_graph/images/Google-Photos_blue.png")
     img = cv2.imread(img_path, cv2.IMREAD_UNCHANGED)
     degree = int(input("Enter rotation angle: "))
     scale = int(input("Enter scalling factor: "))
-    img = center_crop(img, scale)
-    img = rotate_image(img, degree)
+    img = util.center_crop(img, scale)
+    img = util.rotate_image(img, degree)
 
     plate_path = "super_graph/for sketch/" + "['49668', '27263', '27925', '3024', '3023', '3710', '24299', '24307', '43722', '43723'] base=24 n=9629 r=1.ldr"
     plate_path = os.path.join(os.path.dirname(__file__), plate_path)
     plate_set = read_bricks_from_file(plate_path)
-    
-    base_count = 0
-    for i in range(10):
-        if plate_set[i].color == 15:
-            base_count += 1
-        else:
-            break
+    base_count = util.count_base(plate_set)
     plate_base = plate_set[:base_count]
     plate_set = plate_set[base_count:]
     print("#bricks in plate: ", len(plate_set))
 
     _, filename = os.path.split(img_path)
     filename = (filename.split("."))[0]
-    cv2.imwrite(os.path.join(os.path.dirname(__file__), f"super_graph/images/{filename}_{degree}_{scale}.png"), img)
+    if not scale == 1 and degree == 0:
+        cv2.imwrite(os.path.join(os.path.dirname(__file__), f"super_graph/images/{filename}_{degree}_{scale}.png"), img)
     _, platename = os.path.split(plate_path)
     platename = (((platename.split("."))[0]).split("n="))[0]
 
@@ -68,7 +63,7 @@ if __name__ == "__main__":
     result_sd = [0.0001 for i in range(base_count)] + result_sd
     result_color = [i for i in result_color if len(i) == 3]
     result_color = np.average(result_color, axis = 0)
-    print(len(result_sd), result_color)
 
-    crop_result = Crop(result_sd, result_color, base_count, filename, platename)
-    pickle.dump(crop_result, open(os.path.join(os.path.dirname(__file__), f"connectivity/crop_{filename}_{degree}_{scale} b={base_count} {platename}.pkl"), "wb"))
+    crop_result = util.Crop(result_sd, result_color, base_count, filename + f"_{degree}_{scale}", platename)
+    pickle.dump(crop_result, open(os.path.join(os.path.dirname(__file__), f"connectivity/crop {filename}_{degree}_{scale} b={base_count} {platename}.pkl"), "wb"))
+    print(f"Saved at {filename}_{degree}_{scale}")

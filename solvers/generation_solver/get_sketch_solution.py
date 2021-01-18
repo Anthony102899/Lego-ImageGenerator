@@ -2,9 +2,8 @@ import os
 from solvers.generation_solver.minizinc_sketch import MinizincSolver
 from util.debugger import MyDebugger
 from bricks_modeling.file_IO.model_writer import write_bricks_to_file
-from solvers.generation_solver.crop_sketch import color_brick
 from solvers.generation_solver.adjacency_graph import AdjacencyGraph
-from solvers.generation_solver.sketch_util import hex_to_rgb, Crop, proj_bbox, get_area, get_weight
+import solvers.generation_solver.sketch_util as util
 import numpy as np
 import cv2
 import math
@@ -37,12 +36,12 @@ if __name__ == "__main__":
 
     node_color = crop.result_color
 
-    area = get_area()
+    area = util.get_area()
     area = [0 for i in range(base_count)] + [area[b.template.id] for b in structure_graph.bricks[base_count:]]
     area_max = np.amax(np.array(area))
     area_normal = [round(i / area_max, 3) for i in area]
 
-    weight = get_weight()
+    weight = util.get_weight()
     weight = [weight[b.template.id] for b in structure_graph.bricks]
 
     max_v = - 1e5

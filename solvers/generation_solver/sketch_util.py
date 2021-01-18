@@ -62,9 +62,10 @@ def RGB_to_Hex(rgb):
     return color
 
 # get a new brick with the input color
-def color_brick(brick, rgb_color):
-    color_hex = RGB_to_Hex(rgb_color)
-    new_brick = BrickInstance(brick.template, brick.trans_matrix, color_hex)
+def color_brick(brick, color, rgb=True):
+    if rgb:
+        color = RGB_to_Hex(color)
+    new_brick = BrickInstance(brick.template, brick.trans_matrix, color)
     return new_brick
 
 # return a list of rgb colors covered by brick *rgbs*
@@ -162,12 +163,25 @@ def cal_border(brickset, base_int):
                 count += 1
     return count / standard
 
-
 def rotate_image(image, angle):
   image_center = tuple(np.array(image.shape[1::-1]) / 2)
   rot_mat = cv2.getRotationMatrix2D(image_center, angle, 1.0)
   result = cv2.warpAffine(image, rot_mat, image.shape[1::-1], flags=cv2.INTER_LINEAR)
   return result
+
+def count_base(plate_set):
+    base_count = 0
+    for i in range(100):
+        if plate_set[i].color == 15:
+            base_count += 1
+        else:
+            break
+    return base_count
+
+def move_brickset(brickset, rgb_color, x, z):
+    new_set = [color_brick(brick, rgb_color) for brick in brickset]
+    [brick.translate([x, 0, z]) for brick in new_set]
+    return new_set
 
 if __name__ == "__main__":
     img_path = os.path.join(os.path.dirname(__file__), "super_graph/images/pepsi.png")
