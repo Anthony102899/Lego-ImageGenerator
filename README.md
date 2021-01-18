@@ -8,7 +8,12 @@ LEGO Solver
 
 ## Dependency
 - open3d
-- json
+- trimesh
+- scipy
+- numpy
+- sympy
+- networkx
+- pytorch
 
 ## Debugger
 Everytime you run the program with `util.debugger.MyDebugger` instantiated, a folder will be created in the `debugger` folder under the root directory, with folder name `yyyy-mm-dd_hh-mm-ss_XXX`. Relevant run-time result and files will be stored in the folder.

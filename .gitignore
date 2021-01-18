@@ -1,6 +1,7 @@
 # development tools
 .vs
 .vscode
+.env
 .idea
 __pycache__
 
