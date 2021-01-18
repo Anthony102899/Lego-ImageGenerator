@@ -12,7 +12,7 @@ from tqdm import tqdm
 import util.geometry_util as geo_util
 
 from solvers.rigidity_solver.gradient import gradient_analysis
-from solvers.rigidity_solver.internal_structure import tetrahedronize
+from solvers.rigidity_solver.internal_structure import tetrahedralize
 from solvers.rigidity_solver.algo_core import solve_rigidity, spring_energy_matrix
 from solvers.rigidity_solver.joints import Beam, Model, Hinge
 from solvers.rigidity_solver import gradient as gd
@@ -96,7 +96,7 @@ for axes in (axes_list):
     step_size = 1e-3
     iters = 2000
 
-    optimizer = torch.optim.Adam([hinge_rad], lr=1e-3)
+    optimizer = torch.optim.Adam([hinge_rad], lr=step_size)
     writer.add_text("Adam", f"Step size: {step_size}")
 
     for it in tqdm(range(iters)):
@@ -109,9 +109,11 @@ for axes in (axes_list):
         ])
 
         # Negate it as torch optimizer minimizes objective
-        obj = -gd.least_eigenvalue(
+        eigenvalues, eigenvectors = gd.smallest_eigenpair(
             points, edges, hinge_axes, hinge_pivots, hinge_point_indices, extra_constraints
         )
+
+        obj = -eigenvalues[7]
 
         axes_cart = hinge_axes.detach().numpy()
         writer.add_scalar("Objective/Least Eigenvalue", -obj.detach().numpy(), it)
@@ -128,7 +130,7 @@ for axes in (axes_list):
         if it == 0:
             print(obj)
 
-        if it == 1000:
+        if it in [1000 - 1, 2000 - 1]:
             print("obj", obj, "init:", axes, "opt:", axes_cart)
 
     writer.close()

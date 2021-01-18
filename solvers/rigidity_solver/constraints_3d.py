@@ -1,7 +1,6 @@
 import numpy as np
 import scipy
 from util.geometry_util import normalize, get_perpendicular_vecs
-from solvers.rigidity_solver.algo_core import project_matrix_3D
 from scipy.linalg import null_space
 from itertools import combinations
 

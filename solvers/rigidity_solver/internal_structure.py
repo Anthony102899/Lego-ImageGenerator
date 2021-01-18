@@ -55,7 +55,7 @@ def find_rotation_matrix(a, b):
     return rot
 
 
-def tetrahedronize(p, q, thickness=1, ori=None):
+def tetrahedralize(p, q, thickness=1, ori=None):
     if ori is None:
         vertices = np.array([
             [0, 1, 0],
@@ -75,7 +75,6 @@ def tetrahedronize(p, q, thickness=1, ori=None):
             -ori * 0.5 + offset,
             -ori * 0.5 - offset
         )) * thickness
-        print(base)
 
     start_center = (p + 0.01 * (q - p))
     end_center = (q + 0.01 * (p - q))

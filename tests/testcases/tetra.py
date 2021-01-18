@@ -3,7 +3,7 @@ from solvers.rigidity_solver.joints import Model, Hinge, Beam
 
 def beam():
     model = Model()
-    beam = Beam.tetra(np.zeros(3), np.ones(3) * 100, thickness=20)
+    beam = Beam.tetra(np.zeros(3), np.ones(3) * 250, thickness=20)
     model.add_beam(beam)
     return model
 
@@ -15,7 +15,7 @@ def square(axes):
         [1, 0, 0],
         [1, 1, 0],
         [0, 1, 0],
-    ]) * 100
+    ]) * 250
 
     beams = [
         Beam.tetra(points[i], points[(i + 1) % 4], thickness=20, ori=np.array([0, 0, 1])) for i in range(4)

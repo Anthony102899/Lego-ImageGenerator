@@ -1,5 +1,30 @@
 import util.geometry_util as geo_util
 from numpy import linalg as LA
+import numpy as np
+import scipy
+
+import solvers.rigidity_solver.algo_core as core
+from solvers.rigidity_solver import constraints_3d
+
+
+def eigen_analysis(points, edges, constraints):
+    dim = 3
+    M = core.spring_energy_matrix(points, edges, dim=dim)
+    A = constraints
+
+    B = scipy.linalg.null_space(A)
+    T = np.transpose(B) @ B
+    S = B.T @ M @ B
+
+    L = scipy.linalg.cholesky(T)
+    L_inv = np.linalg.inv(L)
+
+    Q = LA.multi_dot([L_inv.T, S, L_inv])
+    # compute eigenvalues / vectors
+    eigen_pairs = geo_util.eigen(Q, symmetric=True)
+    eigen_pairs = [(e_val, B @ e_vec) for e_val, e_vec in eigen_pairs]
+
+    return eigen_pairs
 
 
 # to get basis forming the motion space
@@ -29,6 +54,7 @@ def get_motions(eigen_pairs, points, dim):
         result_motions.append(delta_x)
 
     return result_motions
+
 
 def get_weakest_displacement(eigen_pairs, dim):
     e_val, e_vec = eigen_pairs[0]

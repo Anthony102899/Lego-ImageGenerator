@@ -1,6 +1,7 @@
 from bricks_modeling.file_IO.model_reader import read_bricks_from_file
 from bricks_modeling.file_IO.model_writer import write_bricks_to_file
 from bricks_modeling.connectivity_graph import ConnectivityGraph
+from solvers.rigidity_solver import constraints_3d
 from util.debugger import MyDebugger
 from bricks_modeling.connections.conn_type import ConnType
 import numpy as np
@@ -12,10 +13,7 @@ import itertools
 from numpy import linalg as LA
 from numpy.linalg import inv, matrix_rank
 from visualization.model_visualizer import visualize_3D, visualize_2D
-from scipy.linalg import null_space
-from numpy.linalg import cholesky
-from numpy.linalg import inv
-from numpy.linalg import matrix_rank
+from scipy.linalg import null_space, cholesky
 
 def rigidity_matrix(
     points: np.ndarray,
@@ -132,6 +130,8 @@ def constraint_matrix(points, edges, joints, fixed_points_idx, dim):
     A = np.append(A, C, 0)
     return A
 
+
+
 def quadratic_matrix(points, edges, joints, fixed_points_idx, dim, verbose=False):
     """
     compute the quad matrix (the one used to extract eigenvalues)
@@ -156,6 +156,7 @@ def quadratic_matrix(points, edges, joints, fixed_points_idx, dim, verbose=False
 
     Q = LA.multi_dot([L_inv.T, S, L_inv])
     return Q
+
 
 def solve_rigidity(points: np.ndarray, edges: np.ndarray, joints, fixed_points_idx=None, dim: int = 3) -> (bool, List[np.ndarray]):
     if fixed_points_idx is None:

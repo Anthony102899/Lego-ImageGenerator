@@ -1,9 +1,10 @@
 import numpy as np
 import itertools
 import util.geometry_util as geo_util
+from visualization.model_visualizer import visualize_hinges, visualize_3D
 from solvers.rigidity_solver.internal_structure import get_crystal_vertices
-from .constraint_3d import select_non_colinear_points, constraints_for_allowed_motions
-from .internal_structure import tetrahedronize
+from .constraints_3d import select_non_colinear_points, constraints_for_allowed_motions
+from .internal_structure import tetrahedralize
 
 
 class Model:
@@ -76,6 +77,13 @@ class Model:
 
         return indices
 
+    def visualize(self):
+        try:
+            pivots, axes = zip(*[(j.pivot_point, j.axis) for j in self.joints])
+            visualize_hinges(self.point_matrix(), self.edge_matrix(), pivots=pivots, axes=axes)
+        except ValueError:
+            visualize_3D(self.point_matrix(), edges=self.edge_matrix())
+
 
 class Beam:
     def __init__(self, points, edges=None):
@@ -95,7 +103,7 @@ class Beam:
 
     @classmethod
     def tetra(cls, p, q, thickness=1, ori=None):
-        points, edges = tetrahedronize(p, q, thickness, ori)
+        points, edges = tetrahedralize(p, q, thickness, ori)
         return Beam(points, edges)
 
     @classmethod

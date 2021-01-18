@@ -10,14 +10,15 @@ Gradient analysis:
     - joint orientation
 """
 
-def least_eigenvalue(
+
+def differentiable_eigen(
         points: torch.Tensor,
         edges: torch.Tensor,
         hinge_axes,
         hinge_pivots,
         hinge_point_indices,
         extra_constraints=None,
-) -> torch.Tensor:
+):
     energy = spring_energy_matrix(points, edges, 3)
     constraint = constraint_matrix(points, hinge_axes, hinge_pivots, hinge_point_indices)
 
@@ -34,9 +35,30 @@ def least_eigenvalue(
 
     eigenvalues, eigenvectors = torch.symeig(Q, eigenvectors=True)
 
-    obj = torch.min(eigenvalues)
+    # sort eigenvalue and vectors
+    indices = torch.argsort(eigenvalues)
+    sorted_eigenvalues = eigenvalues[indices]
+    sorted_eigenvectors = eigenvectors[indices]
 
-    return obj
+    assert sorted_eigenvalues[0] <= sorted_eigenvalues[-1]
+
+    return sorted_eigenvalues, sorted_eigenvectors
+
+
+def smallest_eigenpair(
+        points: torch.Tensor,
+        edges: torch.Tensor,
+        hinge_axes,
+        hinge_pivots,
+        hinge_point_indices,
+        extra_constraints=None,
+):
+    eigenvalues, eigenvectors = differentiable_eigen(
+        points, edges,
+        hinge_axes, hinge_pivots, hinge_point_indices,
+        extra_constraints
+    )
+    return eigenvalues[0], eigenvectors[0]
 
 def gradient_analysis(
         points: np.ndarray,
@@ -67,7 +89,7 @@ def gradient_analysis(
         ])
 
         # Negate it as torch optimizer minimizes objective by default
-        obj = -least_eigenvalue(
+        obj, _ = -smallest_eigenpair(
             points, edges, hinge_axes, hinge_pivots, hinge_point_indices, extra_constraints
         )
 

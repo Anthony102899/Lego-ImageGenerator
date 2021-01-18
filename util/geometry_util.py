@@ -282,3 +282,8 @@ def sphere2cart(spherical: np.ndarray) -> np.ndarray:
 
     cart = np.apply_along_axis(_sphere2cart, axis=1, arr=spherical)
     return cart
+
+def unitsphere2cart(thetaphi: np.ndarray) -> np.ndarray:
+    spherical = np.hstack((np.ones((len(thetaphi), 1)), thetaphi))
+    cart = sphere2cart(spherical)
+    return cart

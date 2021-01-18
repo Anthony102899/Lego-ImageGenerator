@@ -16,20 +16,34 @@ model = tetra.square_pyramid_axes()
 #     [0.6295, 0.3026, 0.7157],
 #     [0.2777, -0.2236, 0.9343],
 #     [0.5090, 0.2976, 0.8077],
-# ])
+# )
 # axes = np.array([[-0.67047648, 0.73671675, 0.08780502],
 #  [-0.99870806, 0.04578672, 0.02204064],
 #  [0.35756634, -0.71508136, 0.60067042],
 #  [0.38999463, -0.34514895, 0.85368401]])
-# model = tetra.square(axes)
+
+axes = np.array([[0.75262934, -0.07756639, 0.65385972],
+                 [0.37093456, -0.22086993, 0.9020111],
+                 [0.6943383, 0.27738536, 0.66404193],
+                 [0.31134789, -0.85239178, 0.42010802]])
+
+model = np.array([[-0.98563743, -0.12848687, 0.10959004],
+                  [-0.19268917, -0.07277234, 0.97855765],
+                  [0.08891251, -0.0505588, 0.99475543],
+                  [0.43746994, -0.55973823, 0.70378488]])
+model = np.array([[-0.13048289, 0.28694951, 0.94901749],
+ [-0.00646574,-0.05100298, 0.99867757],
+ [ 0.02604103,-0.09707922, 0.99493592],
+ [ 0.37766785,-0.43840374, 0.81557903]])
+model = tetra.square(axes)
+model.visualize()
+
+model = tetra.square(axes)
 
 dim = 3
 points = model.point_matrix()
 edges = model.edge_matrix()
 A = model.constraint_matrix()
-
-visualize_3D(points, edges=edges)
-
 
 A = A if A.size != 0 else np.zeros((1, len(points) * dim))
 
@@ -42,6 +56,7 @@ A = np.vstack((A, np.take(trivial_motions, [0, 1, 2, 3, 4, 5], axis=0)))
 
 pivots = np.array([j.pivot_point for j in model.joints])
 axes = np.array([j.axis for j in model.joints])
+visualize_hinges(points, edges=edges, pivots=pivots, axes=axes)
 
 M = spring_energy_matrix(points, edges, dim=dim)
 print("M rank:", matrix_rank(M))
