@@ -81,8 +81,9 @@ def get_cover_rgb(brick, img, base_int):
             point = Point(x, y)
             if polygon.contains(point):
                 try:
-                    rgb_color = (img[y, x][:3])[::-1]
-                    if channel == 4 and img[y, x][0] == 0:
+                    bgra = img[y, x]
+                    rgb_color = (bgra[:3])[::-1]
+                    if channel == 4 and bgra[3] == 0:
                         return []
                     # not transparent
                     else:

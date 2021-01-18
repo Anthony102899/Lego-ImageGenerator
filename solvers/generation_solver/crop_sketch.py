@@ -1,5 +1,5 @@
-import numpy as np
 import os
+import numpy as np
 import math
 import cv2
 import pickle5 as pickle
@@ -31,39 +31,46 @@ def ls_from_layout(img, plate_set, base_int):
     return result_sd, result_color
 
 if __name__ == "__main__":
-    img_path = os.path.join(os.path.dirname(__file__), "super_graph/images/Google-Photos_blue.png")
-    img = cv2.imread(img_path, cv2.IMREAD_UNCHANGED)
+    layer = int(input("Enter layer: "))
+    images = input("Enter image names in each layer, separated by space: ")
+    images = images.split(" ")
     degree = int(input("Enter rotation angle: "))
     scale = int(input("Enter scalling factor: "))
-    img = util.center_crop(img, scale)
-    img = util.rotate_image(img, degree)
 
     plate_path = "super_graph/for sketch/" + "['49668', '27263', '27925', '3024', '3023', '3710', '24299', '24307', '43722', '43723'] base=24 n=9629 r=1.ldr"
     plate_path = os.path.join(os.path.dirname(__file__), plate_path)
     plate_set = read_bricks_from_file(plate_path)
+    
     base_count = util.count_base(plate_set)
     plate_base = plate_set[:base_count]
     plate_set = plate_set[base_count:]
     print("#bricks in plate: ", len(plate_set))
 
-    _, filename = os.path.split(img_path)
-    filename = (filename.split("."))[0]
-    if not scale == 1 and degree == 0:
-        cv2.imwrite(os.path.join(os.path.dirname(__file__), f"super_graph/images/{filename}_{degree}_{scale}.png"), img)
     _, platename = os.path.split(plate_path)
-    platename = (((platename.split("."))[0]).split("n="))[0]
-
+    platename = platename.split(".ldr")[0]
     cpoints = np.array([len(base.get_current_conn_points()) / 2 for base in plate_base])
     base_int = int(math.sqrt(np.sum(cpoints)))
+    
+    for l in range(layer):
+        img_path = "super_graph/images/" + images[l]
+        img_path = os.path.join(os.path.dirname(__file__), img_path)
+        img = cv2.imread(img_path, cv2.IMREAD_UNCHANGED)
+        _, filename = os.path.split(img_path)
+        filename = (filename.split("."))[0]
 
-    # resize image to fit the brick
-    img = cv2.resize(img, (base_int * 20 + 1, base_int * 20 + 1))
+        if not scale == 1 and degree == 0:
+            img = util.center_crop(img, scale)
+            img = util.rotate_image(img, degree)
+            cv2.imwrite(os.path.join(os.path.dirname(__file__), f"super_graph/images/{filename}_{degree}_{scale}.png"), img)
+        
+        # resize image to fit the brick
+        img = cv2.resize(img, (base_int * 20 + 1, base_int * 20 + 1))
 
-    result_sd, result_color = ls_from_layout(img, plate_set, base_int)
-    result_sd = [0.0001 for i in range(base_count)] + result_sd
-    result_color = [i for i in result_color if len(i) == 3]
-    result_color = np.average(result_color, axis = 0)
+        result_sd, result_color = ls_from_layout(img, plate_set, base_int)
+        result_sd = [0.0001 for i in range(base_count)] + result_sd
+        result_color = [i for i in result_color if len(i) == 3]
+        result_color = np.average(result_color, axis = 0)
 
-    crop_result = util.Crop(result_sd, result_color, base_count, filename + f"_{degree}_{scale}", platename)
-    pickle.dump(crop_result, open(os.path.join(os.path.dirname(__file__), f"connectivity/crop {filename}_{degree}_{scale} b={base_count} {platename}.pkl"), "wb"))
-    print(f"Saved at {filename}_{degree}_{scale}")
+        crop_result = util.Crop(result_sd, result_color, base_count, filename + f"_{degree}_{scale}", platename)
+        pickle.dump(crop_result, open(os.path.join(os.path.dirname(__file__), f"connectivity/crop {filename}_{degree}_{scale} {platename}.pkl"), "wb"))
+        print(f"Saved at {filename}_{degree}_{scale}")
