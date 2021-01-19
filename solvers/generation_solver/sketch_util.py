@@ -9,14 +9,6 @@ from shapely.ops import unary_union
 from bricks_modeling.file_IO.model_writer import write_bricks_to_file
 from bricks_modeling.file_IO.model_reader import read_bricks_from_file
 
-class Crop:            # sd of nodes
-    def __init__(self, result_sd, result_color, base_count, filename, platename):
-        self.result_sd = result_sd
-        self.result_color = result_color
-        self.base_count = base_count
-        self.filename = filename
-        self.platename = platename
-
 def center_crop(img, scale):
     width, height = img.shape[1], img.shape[0]
     dim = (height / scale, width / scale)
@@ -118,51 +110,6 @@ def get_area():
         if "area" in brick.keys():
             area.update({brick["id"]: brick["area"]})
     return area
-
-# return difference between input and brickset (solution) (without base)
-def calculate_v(brick_set,img, base_int, polygon_ls):
-    dif_sum = [0, 0, 0]
-    for i in range(len(brick_set)):
-        brick = brick_set[i]
-        polygon = polygon_ls[i]
-        brick_color = hex_to_rgb(brick.color)
-        mini, minj, maxi, maxj = polygon.bounds
-        dif = [0, 0, 0]
-        for x in range(math.floor(mini), math.ceil(maxi) + 1):
-            for y in range(math.floor(minj), math.ceil(maxj) + 1):
-                point = Point(x, y)
-                if polygon.contains(point):
-                    try:
-                        img_color = (img[y, x])[::-1]
-                        dif = [dif[i] + abs(brick_color[i] - img_color[i]) * 1e-6 for i in range(3)]
-                    except:
-                        continue
-        dif_sum = [round(dif_sum[i] + dif[i], 3) for i in range(3)]
-    return - np.sum(dif_sum)
-
-# *brick* is the lower one
-def calculate_overlap_v(brick, brick2, img, base_int):
-    polygon1 = proj_bbox(brick)
-    polygon2 = proj_bbox(brick2)
-    dif_polygon = polygon1.difference(polygon2)
-    return calculate_v([brick], img, base_int, [dif_polygon])
-
-# return an integer in [0,1]
-def cal_border(brickset, base_int):
-    standard = base_int * 4 - 4
-    maxx = base_int * 20 - 10
-    count = 0
-    for brick in brickset:
-        cpoints = brick.get_current_conn_points()
-        cpoints_pos = [[cp.pos[0], cp.pos[2]] for cp in cpoints]
-        for z in range(10, base_int * 20 -9, 10):
-            if [10, z] in cpoints_pos or [maxx, z] in cpoints_pos:
-                count += 1
-            if z < 20 or z > maxx - 10:
-                continue
-            if [z, 10] in cpoints_pos or [z, maxx] in cpoints_pos:
-                count += 1
-    return count / standard
 
 def rotate_image(image, angle):
   image_center = tuple(np.array(image.shape[1::-1]) / 2)

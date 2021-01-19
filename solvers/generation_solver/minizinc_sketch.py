@@ -53,7 +53,4 @@ class MinizincSolver(BaseSolver):
             selected_nodes = np.zeros(len(structure_graph.bricks))
             print("No solution found")
 
-        time_used = round(time.time() - start_time, 2)
-        print(f"solve scale {scale} finished in {time_used}")
-
         return selected_nodes
