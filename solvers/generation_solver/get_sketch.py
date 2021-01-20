@@ -30,8 +30,8 @@ def ls_from_layout(img, plate_set, base_int):
     return node_sd, node_color
 
 if __name__ == "__main__":
-    layer = int(input("Enter layer: "))
-    layer_names = input("Enter names in each layer, separated by space: ")
+    img_num = int(input("Enter image number: "))
+    layer_names = input("Enter names and layer numbers, separated by space: ")
     layer_names = layer_names.split(" ")
     degree = int(input("Enter rotation angle: "))
     scale = int(input("Enter scalling factor: "))
@@ -61,14 +61,15 @@ if __name__ == "__main__":
     weight = [weight[b.template.id] for b in plate_set]
 
     selected_bricks = base_bricks
-    for l in range(layer):
-        img_path = "super_graph/images/" + layer_names[l]
+    for k in range(img_num):
+        layer = int(layer_names[k * 2 + 1])
+        img_name = layer_names[k * 2]
+        img_path = "super_graph/images/" + img_name
         img_path = os.path.join(os.path.dirname(__file__), img_path)
         img = cv2.imread(img_path, cv2.IMREAD_UNCHANGED)
-        _, img_name = os.path.split(img_path)
         img_name = (img_name.split("."))[0]
 
-        if not scale == 1 and degree == 0:
+        if not (scale == 1 and degree == 0):
             img = util.center_crop(img, scale)
             img = util.rotate_image(img, degree)
             cv2.imwrite(os.path.join(os.path.dirname(__file__), f"super_graph/images/{img_name}_{degree}_{scale}.png"), img)
@@ -98,12 +99,12 @@ if __name__ == "__main__":
                 colored_brick = util.color_brick(plate_set[i], np.array(node_color))
                 selected_bricks_layer.append(colored_brick)
 
-        if not l == 0:
-            selected_bricks_layer = util.move_layer(selected_bricks_layer, l + 1)
+        if not layer == 1:
+            selected_bricks_layer = util.move_layer(selected_bricks_layer, layer)
         selected_bricks += selected_bricks_layer
     
     debugger = MyDebugger("solve")
     write_bricks_to_file(
-        selected_bricks, file_path=debugger.file_path(f"{img_name} {plate_name} n={len(selected_bricks)}.ldr"))
+        selected_bricks, file_path=debugger.file_path(f"{img_name} d={degree} s={scale} {plate_name}n={len(selected_bricks)}.ldr"))
         
     print("done!")
