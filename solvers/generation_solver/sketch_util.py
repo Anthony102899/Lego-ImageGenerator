@@ -8,6 +8,7 @@ from bricks_modeling.bricks.brickinstance import BrickInstance, get_corner_pos
 from shapely.ops import unary_union
 from bricks_modeling.file_IO.model_writer import write_bricks_to_file
 from bricks_modeling.file_IO.model_reader import read_bricks_from_file
+from util.debugger import MyDebugger
 
 def center_crop(img, scale):
     width, height = img.shape[1], img.shape[0]
@@ -20,45 +21,29 @@ def center_crop(img, scale):
     crop_img = img[mid_y - ch2:mid_y + ch2, mid_x - cw2:mid_x + cw2]
     return crop_img
 
-# return a polygon obj 
-def proj_bbox(brick:BrickInstance):
-    bbox_corner = np.array(get_corner_pos(brick, four_point=True))
-    bbox_corner = [[coord[0], coord[2]] for coord in bbox_corner]
-    polygon_ls = []
-    for i in range(0, len(bbox_corner), 4):
-        polygon = Polygon(bbox_corner[i:i+4])
-        polygon_ls.append(polygon)
-    polygon = unary_union(polygon_ls)
-    return polygon
-
-def move_layer(brickset, layer_num):
-    current_y = (brickset[0].get_translation())[1]
-    new_set = brickset.copy()
-    dis = 8 * layer_num - current_y
-    [b.translate([0, dis, 0]) for b in new_set]
-    return new_set
-
-def hex_to_rgb(hexx):
-    value = hexx.lstrip('0x2')
-    lv = len(value)
-    if lv == 0:
-        return np.array([0,0,0])
-    rgb = [int(value[i:i + lv // 3], 16) for i in range(0, lv, lv // 3)]
-    return np.array(rgb)
-
-def RGB_to_Hex(rgb):
-    color = '0x2'
-    for i in rgb[:3]:
-        num = int(i)
-        color += str(hex(num))[-2:].replace('x', '0').upper()
-    return color
-
 # get a new brick with the input color
 def color_brick(brick, color, rgb=True):
     if rgb:
         color = RGB_to_Hex(color)
     new_brick = BrickInstance(brick.template, brick.trans_matrix, color)
     return new_brick
+
+def count_base(plate_set):
+    base_count = 0
+    for i in range(100):
+        if plate_set[i].color == 15:
+            base_count += 1
+        else:
+            break
+    return base_count
+
+def get_area():
+    data = load_data()
+    area = {}
+    for brick in data:
+        if "area" in brick.keys():
+            area.update({brick["id"]: brick["area"]})
+    return area
 
 # return a list of rgb colors covered by brick *rgbs*
 def get_cover_rgb(brick, img, base_int):
@@ -84,15 +69,6 @@ def get_cover_rgb(brick, img, base_int):
                     continue
     return rgbs
 
-def load_data(brick_database=["regular_plate.json"]):
-    data = []
-    for data_base in brick_database:
-        database_file = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "bricks_modeling", "database", data_base)
-        with open(database_file) as f:
-            temp = json.load(f)
-            data.extend(temp)
-    return data
-
 def get_weight():
     data = load_data()
     area = {}
@@ -103,33 +79,60 @@ def get_weight():
             area.update({brick["id"]: 1})
     return area
 
-def get_area():
-    data = load_data()
-    area = {}
-    for brick in data:
-        if "area" in brick.keys():
-            area.update({brick["id"]: brick["area"]})
-    return area
+def hex_to_rgb(hexx):
+    value = hexx.lstrip('0x2')
+    lv = len(value)
+    if lv == 0:
+        return np.array([0,0,0])
+    rgb = [int(value[i:i + lv // 3], 16) for i in range(0, lv, lv // 3)]
+    return np.array(rgb)
+
+def load_data(brick_database=["regular_plate.json"]):
+    data = []
+    for data_base in brick_database:
+        database_file = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "bricks_modeling", "database", data_base)
+        with open(database_file) as f:
+            temp = json.load(f)
+            data.extend(temp)
+    return data
+
+def move_brickset(brickset, rgb_color, x, z):
+    new_set = [color_brick(brick, rgb_color) for brick in brickset]
+    [brick.translate([x, 0, z]) for brick in new_set]
+    return new_set
+
+def move_layer(brickset, layer_num):
+    current_y = (brickset[0].get_translation())[1]
+    if current_y == 8 * layer_num:
+        return brickset
+    new_set = brickset.copy()
+    dis = 8 * layer_num - current_y
+    [b.translate([0, dis, 0]) for b in new_set]
+    return new_set
+
+# return a polygon obj 
+def proj_bbox(brick:BrickInstance):
+    bbox_corner = np.array(get_corner_pos(brick, four_point=True))
+    bbox_corner = [[coord[0], coord[2]] for coord in bbox_corner]
+    polygon_ls = []
+    for i in range(0, len(bbox_corner), 4):
+        polygon = Polygon(bbox_corner[i:i+4])
+        polygon_ls.append(polygon)
+    polygon = unary_union(polygon_ls)
+    return polygon
+
+def RGB_to_Hex(rgb):
+    color = '0x2'
+    for i in rgb[:3]:
+        num = int(i)
+        color += str(hex(num))[-2:].replace('x', '0').upper()
+    return color
 
 def rotate_image(image, angle):
   image_center = tuple(np.array(image.shape[1::-1]) / 2)
   rot_mat = cv2.getRotationMatrix2D(image_center, angle, 1.0)
   result = cv2.warpAffine(image, rot_mat, image.shape[1::-1], flags=cv2.INTER_LINEAR)
   return result
-
-def count_base(plate_set):
-    base_count = 0
-    for i in range(100):
-        if plate_set[i].color == 15:
-            base_count += 1
-        else:
-            break
-    return base_count
-
-def move_brickset(brickset, rgb_color, x, z):
-    new_set = [color_brick(brick, rgb_color) for brick in brickset]
-    [brick.translate([x, 0, z]) for brick in new_set]
-    return new_set
 
 if __name__ == "__main__":
     img_path = os.path.join(os.path.dirname(__file__), "super_graph/images/pepsi.png")

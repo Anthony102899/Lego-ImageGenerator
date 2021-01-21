@@ -2,6 +2,7 @@ import os
 from solvers.generation_solver.minizinc_sketch import MinizincSolver
 from util.debugger import MyDebugger
 from bricks_modeling.file_IO.model_writer import write_bricks_to_file
+from bricks_modeling.file_IO.model_reader import read_bricks_from_file
 from solvers.generation_solver.adjacency_graph import AdjacencyGraph
 import solvers.generation_solver.sketch_util as util
 import numpy as np
@@ -32,24 +33,29 @@ def ls_from_layout(img, plate_set, base_int):
 if __name__ == "__main__":
     img_num = int(input("Enter image number: "))
     layer_names = input("Enter names and layer numbers, separated by space: ")
+    background_bool = int(input("Need a background layer (1/0)? "))
+    if background_bool:
+        background_rgb = input("Enter RGB color of background: ")
+        background_rgb = background_rgb.split(" ")
+        background_rgb = [float(i) for i in background_rgb]
     layer_names = layer_names.split(" ")
     degree = int(input("Enter rotation angle: "))
     scale = int(input("Enter scalling factor: "))
-
-    model_file = "./solvers/generation_solver/solve_sketch.mzn"
-    solver = MinizincSolver(model_file, "gurobi")
 
     folder_path = "solvers/generation_solver/connectivity/"
     graph_name = input("Enter adj path in connectivity: ")
     path = folder_path + graph_name
     plate_name = graph_name.split("base=")[0]
+    
+    model_file = "./solvers/generation_solver/solve_sketch.mzn"
+    solver = MinizincSolver(model_file, "gurobi")
 
     structure_graph = pickle.load(open(path, "rb"))
     plate_set = structure_graph.bricks
+    print("#bricks in plate: ", len(plate_set))
     base_count = util.count_base(plate_set)
     base_bricks = plate_set[:base_count]
     sketch_bricks = plate_set[base_count:]
-    print("#bricks in plate: ", len(plate_set))
     cpoints = np.array([len(base.get_current_conn_points()) / 2 for base in base_bricks])
     base_int = int(math.sqrt(np.sum(cpoints)))
 
@@ -64,7 +70,7 @@ if __name__ == "__main__":
     for k in range(img_num):
         layer = int(layer_names[k * 2 + 1])
         img_name = layer_names[k * 2]
-        img_path = "super_graph/images/" + img_name
+        img_path = "inputs/images/" + img_name
         img_path = os.path.join(os.path.dirname(__file__), img_path)
         img = cv2.imread(img_path, cv2.IMREAD_UNCHANGED)
         img_name = (img_name.split("."))[0]
@@ -72,7 +78,7 @@ if __name__ == "__main__":
         if not (scale == 1 and degree == 0):
             img = util.center_crop(img, scale)
             img = util.rotate_image(img, degree)
-            cv2.imwrite(os.path.join(os.path.dirname(__file__), f"super_graph/images/{img_name}_{degree}_{scale}.png"), img)
+            cv2.imwrite(os.path.join(os.path.dirname(__file__), f"inputs/images/{img_name}_{degree}_{scale}.png"), img)
         
         # resize image to fit the brick
         img = cv2.resize(img, (base_int * 20 + 1, base_int * 20 + 1))
@@ -99,12 +105,19 @@ if __name__ == "__main__":
                 colored_brick = util.color_brick(plate_set[i], np.array(node_color))
                 selected_bricks_layer.append(colored_brick)
 
-        if not layer == 1:
+        if background_bool:
+            selected_bricks_layer = util.move_layer(selected_bricks_layer, layer + 1)
+        else:
             selected_bricks_layer = util.move_layer(selected_bricks_layer, layer)
         selected_bricks += selected_bricks_layer
     
-    debugger = MyDebugger("solve")
+    if background_bool:
+        background = "solvers/generation_solver/inputs/" + "back " + graph_name.split(".pkl")[0] + ".ldr"
+        background = read_bricks_from_file(background)
+        selected_bricks += util.move_brickset(background, background_rgb, 0, 0)
+    
+    debugger = MyDebugger(f"{img_name}")
     write_bricks_to_file(
-        selected_bricks, file_path=debugger.file_path(f"{img_name} d={degree} s={scale} {plate_name}n={len(selected_bricks)}.ldr"))
+        selected_bricks, file_path=debugger.file_path(f"{img_name} b={base_int} d={degree} s={scale} {plate_name}.ldr"))
         
     print("done!")

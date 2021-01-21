@@ -23,7 +23,6 @@ class MinizincSolver(BaseSolver):
 
     def solve(self, structure_graph, node_sd, node_area, node_weight, base_count, scale):
         print(f"start solving by {self.solver_type} ...")
-        start_time = time.time()
         model = Model()
 
         # Load model from file
