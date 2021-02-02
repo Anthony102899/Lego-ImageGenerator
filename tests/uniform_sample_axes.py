@@ -35,8 +35,12 @@ for rad in tqdm(axes_radians):
     constraints = model.constraint_matrix()
     eigen_pairs = eigen_analysis(points, edges, constraints)
     objective, eigenvector = eigen_pairs[7]
-    trace.append((objective, list(eigenvector)))
+    trace.append({
+        "objective": objective,
+        "eigenvector": eigenvector,
+        "axes": axes,
+    })
 
 import pickle
-with open("uniform.pickle", "w") as fp:
+with open("uniform.pickle", "wb") as fp:
     pickle.dump(trace, fp)

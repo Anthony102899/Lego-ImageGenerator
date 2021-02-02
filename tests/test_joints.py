@@ -22,6 +22,15 @@ model = tetra.square_pyramid_axes()
 #  [0.35756634, -0.71508136, 0.60067042],
 #  [0.38999463, -0.34514895, 0.85368401]])
 
+points = np.array([
+    [0, 0, 0],
+    [0, 0, 0],
+    [0, 0, 0],
+    [0, 0, 0],
+    [0, 0, 0],
+    [0, 0, 0],
+])
+
 axes = np.array([[0.75262934, -0.07756639, 0.65385972],
                  [0.37093456, -0.22086993, 0.9020111],
                  [0.6943383, 0.27738536, 0.66404193],
@@ -35,6 +44,11 @@ model = np.array([[-0.13048289, 0.28694951, 0.94901749],
  [-0.00646574,-0.05100298, 0.99867757],
  [ 0.02604103,-0.09707922, 0.99493592],
  [ 0.37766785,-0.43840374, 0.81557903]])
+model = np.array([[ 0.85433678, 0.17596682,-0.48902387],
+ [-0.60376715,-0.24374286, 0.75898264],
+ [ 0.40050693,-0.36615589, 0.8399548 ],
+ [ 0.69355212,-0.03185574, 0.71970179]
+])
 model = tetra.square(axes)
 model.visualize()
 
@@ -87,7 +101,7 @@ print("DoF:", len(zero_eigenspace))
 
 trivial_motions = geo_util.trivial_basis(points, dim=3)
 
-non_zero_eigenspace = [(e_val, e_vec) for e_val, e_vec in eigen_pairs if abs(e_val) >= 1e-6]
+non_zero_eigenspace = [(e_val, e_vec) for e_val, e_vec in eigen_pairs if abs(e_val) >= 1e-8]
 
 if len(zero_eigenspace) > 0:
     print("Non-rigid")

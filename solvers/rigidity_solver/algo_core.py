@@ -57,13 +57,15 @@ def _remove_fixed_edges(points: np.ndarray, edges: np.ndarray, fixed_points_idx)
 
 
 def spring_energy_matrix(
-    points: np.ndarray,
-    edges: np.ndarray,
-    dim: int = 3,
-    matrices=False,
-    ) -> np.ndarray:
+        points: np.ndarray,
+        edges: np.ndarray,
+        dim: int = 3,
+        matrices=False,
+        fix_stiffness=False,
+    ):
     """
     matrices: return K, P, A if true
+    fix_stiffness: use constant for value K if true, use 1/norm(vec) if false
     """
 
     n, m = len(points), len(edges)
@@ -82,11 +84,14 @@ def spring_energy_matrix(
             assert len(e) == 2 + dim
             assert LA.norm(points[e[0]] - points[e[1]]) < 1e-6
             edge_vec = np.array(e[2:])
-            edge_vec = normalized(edge_vec)/1e-4 # making the spring strong by shorter the edge
+            edge_vec = normalized(edge_vec) / 1e-4 # making the spring strong by shorter the edge
 
         P[idx, idx * dim : idx * dim + dim] = normalized(edge_vec).T
-        K[idx, idx] = 1 / LA.norm(edge_vec)
-        # K[idx, idx] = 1 # set as the same material for debugging
+
+        if fix_stiffness:
+            K[idx, idx] = 1
+        else:
+            K[idx, idx] = 1 / LA.norm(edge_vec)
 
         for d in range(dim):
             A[dim * idx + d, dim * e[0] + d] = 1

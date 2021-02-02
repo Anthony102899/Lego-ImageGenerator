@@ -273,6 +273,7 @@ def cart2sphere(cartesian: np.ndarray) -> np.ndarray:
 
 
 def sphere2cart(spherical: np.ndarray) -> np.ndarray:
+    "Order of the coordinate: r theta phi"
     def _sphere2cart(row):
         r, theta, phi = row
         x = r * np.sin(theta) * np.cos(phi)

@@ -113,7 +113,10 @@ def tetrahedralize(p, q, thickness=1, ori=None):
         # oblique bars between neighbor triangles
         [(4 * s + 0, 4 * s + 6) for s in range(num - 1)] +
         [(4 * s + 1, 4 * s + 4) for s in range(num - 1)] +
-        [(4 * s + 2, 4 * s + 5) for s in range(num - 1)]
+        [(4 * s + 2, 4 * s + 5) for s in range(num - 1)] +
+        [(4 * s + 0, 4 * s + 5) for s in range(num - 1)] +
+        [(4 * s + 1, 4 * s + 6) for s in range(num - 1)] +
+        [(4 * s + 2, 4 * s + 4) for s in range(num - 1)]
     )
 
     return points, edges

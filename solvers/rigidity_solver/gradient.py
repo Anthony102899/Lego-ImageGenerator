@@ -14,16 +14,16 @@ Gradient analysis:
 def differentiable_eigen(
         points: torch.Tensor,
         edges: torch.Tensor,
-        hinge_axes,
-        hinge_pivots,
-        hinge_point_indices,
+        hinge_axes: torch.Tensor,
+        hinge_pivots: torch.Tensor,
+        hinge_point_indices: torch.Tensor,
         extra_constraints=None,
 ):
     energy = spring_energy_matrix(points, edges, 3)
     constraint = constraint_matrix(points, hinge_axes, hinge_pivots, hinge_point_indices)
 
     if extra_constraints is not None:
-        constraint = torch.vstack([constraint, torch.from_numpy(extra_constraints).double()])
+        constraint = torch.vstack([constraint, extra_constraints])
 
     B = torch_null_space(constraint, disturb_s=True)
     T = torch.mm(B.t(), B)
@@ -69,6 +69,8 @@ def gradient_analysis(
         extra_constraints=None,
         iters=1000
 ) -> torch.Tensor:
+    assert iters > 0
+
     hinge_rad = torch.tensor(geo_util.cart2sphere(hinge_axes)[:, 1:], requires_grad=True)
     theta, phi = hinge_rad[:, 0], hinge_rad[:, 1]
     points = torch.tensor(points, dtype=torch.double, requires_grad=True)
@@ -77,7 +79,7 @@ def gradient_analysis(
     hinge_pivots = torch.tensor(hinge_pivots, dtype=torch.double, requires_grad=True)
     hinge_point_indices = torch.tensor(hinge_point_indices, dtype=torch.long)
 
-    optimizer = torch.optim.Adam([hinge_rad], lr=1e-3)
+    optimizer = torch.optim.Adam([hinge_rad, hinge_pivots, points], lr=1e-3)
 
     for i in range(iters):
         optimizer.zero_grad()
@@ -88,14 +90,13 @@ def gradient_analysis(
             torch.unsqueeze(torch.cos(theta), 1)
         ])
 
-        # Negate it as torch optimizer minimizes objective by default
-        obj, _ = -smallest_eigenpair(
+        eigenvalue, _ = smallest_eigenpair(
             points, edges, hinge_axes, hinge_pivots, hinge_point_indices, extra_constraints
         )
 
-        if i % 10 == 0:
-            print(f"{i}-th iteration: ", -obj.detach().numpy())
-            print("Axes", hinge_rad)
+        # Negate it as torch optimizer minimizes objective by default
+        obj = -eigenvalue
+
         obj.backward()
         optimizer.step()
 
@@ -189,10 +190,11 @@ def perpendicular_vectors(v: torch.Tensor):
     return u, w
 
 def torch_null_space(A: torch.Tensor, disturb_s=False):
-    dist = 1e-8
+    dist = 1e-9
     with torch.no_grad():
         g, d, h = torch.svd(A, some=False)
-        eps = torch.linspace(dist / 1000, dist, len(d))
+        max_dist = dist * len(d)
+        eps = torch.arange(0, len(d), dtype=torch.double) * dist
         eps_diag = torch.zeros_like(A)
         eps_diag[:len(d), :len(d)] = torch.diag_embed(eps)
         C = torch.chain_matmul(g, eps_diag, h.t())
@@ -205,8 +207,8 @@ def torch_null_space(A: torch.Tensor, disturb_s=False):
     u, s, v = torch.svd(B, some=False)
     vt = v.t()
     M, N = u.size()[0], vt.size()[1]
-    rcond = torch.finfo(s.dtype).eps * max(M, N) + dist
-    tol = torch.max(s) * rcond
+    rcond = torch.finfo(s.dtype).eps * max(M, N)
+    tol = torch.max(s) * rcond + max_dist
     num = torch.sum(s > tol, dtype=torch.int)
 
     Q = vt[num:, :].t().conj()
@@ -271,7 +273,6 @@ def projection_matrix(
         target_point: torch.Tensor
 ):
     dim = 3
-
     projection_matrix = torch.zeros((dim, 4 * dim), dtype=torch.double)
 
     x0, x1, x2 = source_points

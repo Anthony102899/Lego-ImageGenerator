@@ -75,14 +75,18 @@ class Model:
 
             indices.append((indice_on_part_1, indice_on_part_2))
 
-        return indices
+        return np.array(indices)
 
-    def visualize(self):
-        try:
-            pivots, axes = zip(*[(j.pivot_point, j.axis) for j in self.joints])
-            visualize_hinges(self.point_matrix(), self.edge_matrix(), pivots=pivots, axes=axes)
-        except ValueError:
-            visualize_3D(self.point_matrix(), edges=self.edge_matrix())
+
+    def visualize(self, arrows=None):
+        if arrows is not None:
+            visualize_3D(self.point_matrix(), edges=self.edge_matrix(), arrows=arrows.reshape(-1, 3))
+        else:
+            try:
+                pivots, axes = zip(*[(j.pivot_point, j.axis) for j in self.joints])
+                visualize_hinges(self.point_matrix(), self.edge_matrix(), pivots=pivots, axes=axes)
+            except ValueError:
+                visualize_3D(self.point_matrix(), edges=self.edge_matrix())
 
 
 class Beam:
@@ -105,6 +109,11 @@ class Beam:
     def tetra(cls, p, q, thickness=1, ori=None):
         points, edges = tetrahedralize(p, q, thickness, ori)
         return Beam(points, edges)
+
+    @classmethod
+    def dense_tetra(cls, p, q, thickness=1, ori=None):
+        points, _ = tetrahedralize(p, q, thickness, ori)
+        return Beam(points)
 
     @classmethod
     def vertices(cls, points, orient):

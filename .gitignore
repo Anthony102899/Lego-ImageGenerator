@@ -18,5 +18,4 @@ debug/
 model_params
 runs
 
-# desmond's folder
-tests/*
+*.pickle
