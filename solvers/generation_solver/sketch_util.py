@@ -10,17 +10,6 @@ from bricks_modeling.file_IO.model_writer import write_bricks_to_file
 from bricks_modeling.file_IO.model_reader import read_bricks_from_file
 from util.debugger import MyDebugger
 
-def center_crop(img, scale):
-    width, height = img.shape[1], img.shape[0]
-    dim = (height / scale, width / scale)
-    #process crop width and height for max available dimension
-    crop_width = dim[0] if dim[0] < img.shape[1] else img.shape[1]
-    crop_height = dim[1] if dim[1] < img.shape[0] else img.shape[0] 
-    mid_x, mid_y = int(width / 2), int(height / 2)
-    cw2, ch2 = int(crop_width / 2), int(crop_height / 2) 
-    crop_img = img[mid_y - ch2:mid_y + ch2, mid_x - cw2:mid_x + cw2]
-    return crop_img
-
 # get a new brick with the input color
 def color_brick(brick, color, rgb=True):
     if rgb:
@@ -28,7 +17,7 @@ def color_brick(brick, color, rgb=True):
     new_brick = BrickInstance(brick.template, brick.trans_matrix, color)
     return new_brick
 
-def count_base(plate_set):
+def count_base_number(plate_set):
     base_count = 0
     for i in range(100):
         if plate_set[i].color == 15:
@@ -128,16 +117,33 @@ def RGB_to_Hex(rgb):
         color += str(hex(num))[-2:].replace('x', '0').upper()
     return color
 
-def rotate_image(image, angle):
-  image_center = tuple(np.array(image.shape[1::-1]) / 2)
+def rotate_image(img, angle):
+  image_center = tuple(np.array(img.shape[1::-1]) / 2)
   rot_mat = cv2.getRotationMatrix2D(image_center, angle, 1.0)
-  result = cv2.warpAffine(image, rot_mat, image.shape[1::-1], flags=cv2.INTER_LINEAR)
+  result = cv2.warpAffine(img, rot_mat, img.shape[1::-1], flags=cv2.INTER_LINEAR)
   return result
 
+def scale_image(img, scale):
+    width, height = img.shape[1], img.shape[0]
+    dim = (height / scale, width / scale)
+    #process crop width and height for max available dimension
+    crop_width = dim[0] if dim[0] < img.shape[1] else img.shape[1]
+    crop_height = dim[1] if dim[1] < img.shape[0] else img.shape[0] 
+    mid_x, mid_y = int(width / 2), int(height / 2)
+    cw2, ch2 = int(crop_width / 2), int(crop_height / 2) 
+    crop_img = img[mid_y - ch2:mid_y + ch2, mid_x - cw2:mid_x + cw2]
+    return crop_img
+
+def translate_image(img, width_dis, height_dis):
+    height, width = img.shape[:2] 
+    T = np.float32([[1, 0, width_dis], [0, 1, height_dis]]) 
+    img_translation = cv2.warpAffine(img, T, (width, height)) 
+    return img_translation
+
 if __name__ == "__main__":
-    img_path = os.path.join(os.path.dirname(__file__), "super_graph/images/pepsi.png")
+    img_path = os.path.join(os.path.dirname(__file__), "inputs/images/Twitter_blue.png")
     img = cv2.imread(img_path, cv2.IMREAD_UNCHANGED)
 
-    image = center_crop(img, 2)
+    image = translate_image(img, 192.5, 100)
     
-    cv2.imwrite('./solvers/generation_solver/super_graph/test.png', image)
+    cv2.imwrite('./solvers/generation_solver/inputs/test.png', image)

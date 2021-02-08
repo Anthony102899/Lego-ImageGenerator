@@ -21,7 +21,7 @@ class MinizincSolver(BaseSolver):
         self.solver = Solver.lookup(solver_type) # Find the MiniZinc solver configuration 
         self.model_file = model_file
 
-    def solve(self, structure_graph, node_sd, node_area, node_weight, base_count, scale):
+    def solve(self, structure_graph, node_sd, node_area, node_weight, base_count):
         print(f"start solving by {self.solver_type} ...")
         model = Model()
 
@@ -43,7 +43,6 @@ class MinizincSolver(BaseSolver):
         instance["node_sd"]             = node_sd
         instance["node_area"]           = node_area
         instance["node_weight"]         = node_weight
-        instance["sd_scale"]            = scale
 
         result = instance.solve()
         if result.status.has_solution():
@@ -51,5 +50,7 @@ class MinizincSolver(BaseSolver):
         else:
             selected_nodes = np.zeros(len(structure_graph.bricks))
             print("No solution found")
+        
+        print("Solving complete")
 
         return selected_nodes

@@ -2,7 +2,6 @@ int : base_count;
 int : nodes_num;
 int : nums_edge_collision;
 int : nums_edge_connect;
-float : sd_scale;
 
 set of int: NODE = 1..nodes_num;
 set of int: EDGE_COLL = 1..nums_edge_collision;
@@ -31,7 +30,7 @@ include "connected.mzn";
 
 %%%%%%%%%%%%%%%%%% objectives
 % calculate total brick sd
-var float : node_sd_obj = sum(n in NODE) (node[n] * node_weight[n] * (sd_scale * node_sd[n] + node_area[n]));
+var float : node_sd_obj = sum(n in NODE) (node[n] * node_weight[n] * (node_sd[n] + node_area[n]));
 
 var float : obj;
 obj = node_sd_obj;

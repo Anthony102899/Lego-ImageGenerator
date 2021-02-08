@@ -5,6 +5,7 @@ from bricks_modeling.file_IO.model_writer import write_bricks_to_file
 from bricks_modeling.file_IO.model_reader import read_bricks_from_file
 from solvers.generation_solver.adjacency_graph import AdjacencyGraph
 import solvers.generation_solver.sketch_util as util
+from solvers.generation_solver.img_interface import show_interface
 import numpy as np
 import cv2
 import math
@@ -31,16 +32,12 @@ def ls_from_layout(img, plate_set, base_int):
     return node_sd, node_color
 
 if __name__ == "__main__":
-    img_num = int(input("Enter image number: "))
-    layer_names = input("Enter names and layer numbers, separated by space: ")
-    background_bool = int(input("Need a background layer (1/0)? "))
-    if background_bool:
-        background_rgb = input("Enter RGB color of background: ")
-        background_rgb = background_rgb.split(" ")
-        background_rgb = [float(i) for i in background_rgb]
-    layer_names = layer_names.split(" ")
-    degree = int(input("Enter rotation angle: "))
-    scale = int(input("Enter scalling factor: "))
+    img_num, layer_names, layer_nums, rgb, degree, scale = show_interface()
+    background_bool = 1
+    if len(rgb) == 0:
+        background_bool = 0
+
+    width_dis, height_dis = 0, 0
 
     folder_path = "solvers/generation_solver/connectivity/"
     graph_name = input("Enter adj path in connectivity: ")
@@ -52,8 +49,7 @@ if __name__ == "__main__":
 
     structure_graph = pickle.load(open(path, "rb"))
     plate_set = structure_graph.bricks
-    print("#bricks in plate: ", len(plate_set))
-    base_count = util.count_base(plate_set)
+    base_count = util.count_base_number(plate_set)
     base_bricks = plate_set[:base_count]
     sketch_bricks = plate_set[base_count:]
     cpoints = np.array([len(base.get_current_conn_points()) / 2 for base in base_bricks])
@@ -68,17 +64,18 @@ if __name__ == "__main__":
 
     selected_bricks = base_bricks
     for k in range(img_num):
-        layer = int(layer_names[k * 2 + 1])
-        img_name = layer_names[k * 2]
+        layer = int(layer_nums[k])
+        img_name = layer_names[k]
+        print("Layer number ", layer, " Image name: ", img_name)
         img_path = "inputs/images/" + img_name
         img_path = os.path.join(os.path.dirname(__file__), img_path)
         img = cv2.imread(img_path, cv2.IMREAD_UNCHANGED)
         img_name = (img_name.split("."))[0]
 
         if not (scale == 1 and degree == 0):
-            img = util.center_crop(img, scale)
-            img = util.rotate_image(img, degree)
-            cv2.imwrite(os.path.join(os.path.dirname(__file__), f"inputs/images/{img_name}_{degree}_{scale}.png"), img)
+            img = util.rotate_image(util.scale_image(img, scale), degree)
+        if not (width_dis == 0 and height_dis == 0):
+            img = util.translate_image(img, width_dis, height_dis)
         
         # resize image to fit the brick
         img = cv2.resize(img, (base_int * 20 + 1, base_int * 20 + 1))
@@ -97,8 +94,7 @@ if __name__ == "__main__":
                                 node_sd=sd_normal,
                                 node_area=area_normal,
                                 node_weight=weight,
-                                base_count=base_count,
-                                scale=1)
+                                base_count=base_count)
         selected_bricks_layer = []
         for i in range(base_count, len(plate_set)):
             if results[i] == 1:
@@ -116,8 +112,16 @@ if __name__ == "__main__":
         background = read_bricks_from_file(background)
         selected_bricks += util.move_brickset(background, background_rgb, 0, 0)
     
+    img_ls = img_name.split("_")
+    if len(img_ls) > 1:
+        img_name = '_'.join(map(str, img_ls[:-1]))
+
     debugger = MyDebugger(f"{img_name}")
-    write_bricks_to_file(
-        selected_bricks, file_path=debugger.file_path(f"{img_name} b={base_int} d={degree} s={scale} {plate_name}.ldr"))
+    if scale == 1 and degree == 0:
+        write_bricks_to_file(
+            selected_bricks, file_path=debugger.file_path(f"{img_name} b={base_int} {plate_name}.ldr"))
+    else:
+        write_bricks_to_file(
+            selected_bricks, file_path=debugger.file_path(f"{img_name} b={base_int} d={degree} s={scale} {plate_name}.ldr"))
         
     print("done!")

@@ -1,18 +1,49 @@
 [
   {
+    "id": "3020",
+    "concave": 0,
+    "connPoint": [
+        {"orient": [0, 1, 0], "pos": [10, -2, 10], "type": "stud"}, 
+        {"orient": [0, 1, 0], "pos": [10, 6, 10], "type": "tube"}, 
+        {"orient": [0, 1, 0], "pos": [-10, -2, 10], "type": "stud"}, 
+        {"orient": [0, 1, 0], "pos": [-10, 6, 10], "type": "tube"}, 
+        {"orient": [0, 1, 0], "pos": [30, -2, 10], "type": "stud"}, 
+        {"orient": [0, 1, 0], "pos": [30, 6, 10], "type": "tube"}, 
+        {"orient": [0, 1, 0], "pos": [-30, -2, 10], "type": "stud"}, 
+        {"orient": [0, 1, 0], "pos": [-30, 6, 10], "type": "tube"}, 
+        {"orient": [0, 1, 0], "pos": [10, -2, -10], "type": "stud"}, 
+        {"orient": [0, 1, 0], "pos": [10, 6, -10], "type": "tube"}, 
+        {"orient": [0, 1, 0], "pos": [-10, -2, -10], "type": "stud"}, 
+        {"orient": [0, 1, 0], "pos": [-10, 6, -10], "type": "tube"}, 
+        {"orient": [0, 1, 0], "pos": [30, -2, -10], "type": "stud"}, 
+        {"orient": [0, 1, 0], "pos": [30, 6, -10], "type": "tube"}, 
+        {"orient": [0, 1, 0], "pos": [-30, -2, -10], "type": "stud"}, 
+        {"orient": [0, 1, 0], "pos": [-30, 6, -10], "type": "tube"
+        }
+    ],
+    "volume": 0.3651
+},
+  {
+    "id": "3022",
+    "concave": 0,
+    "area": 2.55,
+    "connPoint": [
+      {"orient": [0, 1, 0], "pos": [10, -2, 10], "type": "stud"}, 
+      {"orient": [0, 1, 0], "pos": [10, 6, 10], "type": "tube"}, 
+      {"orient": [0, 1, 0], "pos": [-10, -2, 10], "type": "stud"}, 
+      {"orient": [0, 1, 0], "pos": [-10, 6, 10], "type": "tube"}, 
+      {"orient": [0, 1, 0], "pos": [10, -2, -10], "type": "stud"}, 
+      {"orient": [0, 1, 0], "pos": [10, 6, -10], "type": "tube"}, 
+      {"orient": [0, 1, 0], "pos": [-10, -2, -10], "type": "stud"}, 
+      {"orient": [0, 1, 0], "pos": [-10, 6, -10], "type": "tube"}],
+    "volume": 0.3651
+  },
+  {
     "id": "3710",
     "concave": 0,
     "area": 2.56,
-    "weight": 1.5,
-    "connPoint": [
-        {"orient": [0, 1, 0],"pos": [10, -2, 0],"type": "stud"},
-        {"orient": [0, 1, 0],"pos": [10, 6, 0],"type": "tube"},
-        {"orient": [0, 1, 0],"pos": [-10, -2, 0],"type": "stud"},
-        {"orient": [0, 1, 0],"pos": [-10, 6, 0],"type": "tube"},
-        {"orient": [0, 1, 0],"pos": [30, -2, 0],"type": "stud"},
-        {"orient": [0, 1, 0],"pos": [30, 6, 0],"type": "tube"},
-        {"orient": [0, 1, 0],"pos": [-30, -2, 0],"type": "stud"},
-        {"orient": [0, 1, 0],"pos": [-30, 6, 0],"type": "tube"}
+    "weight": 1.4,
+    "connPoint": [{"orient": [0, 1, 0], "pos": [10, -2, 0], "type": "stud"},{"orient": [0, 1, 0], "pos": [10, 6, 0], "type": "tube"},{"orient": [0, 1, 0], "pos": [-10, -2, 0], "type": "stud"},{"orient": [0, 1, 0], "pos": [-10, 6, 0], "type": "tube"},{"orient": [0, 1, 0], "pos": [30, -2, 0], "type": "stud"},{"orient": [0, 1, 0], "pos": [30, 6, 0], "type": "tube"},{"orient": [0, 1, 0], "pos": [-30, -2, 0], "type": "stud"},{"orient": [0, 1, 0], "pos": [-30, 6, 0], "type": "tube"}
     ],
     "volume": 0.3651
   },
@@ -20,43 +51,37 @@
     "id": "49668",
     "volume": 0.1825,
     "area": 1.0752,
-    "connPoint": [
-        { "orient": [ 0, 1, 0 ], "pos": [ 0, -2, 0 ], "type": "stud"},
-        { "orient": [ 0, 1, 0 ], "pos": [ 0, 6, 0 ], "type": "tube"}
+    "connPoint": [{"orient": [ 0, 1, 0 ], "pos": [ 0, -2, 0 ], "type": "stud"},{"orient": [ 0, 1, 0 ], "pos": [ 0, 6, 0 ], "type": "tube"}
     ]},
   {
     "id": "27263",
     "volume": 0.37,
     "weight": 0.5,
     "area": 1.6,
-    "connPoint": [
-        { "orient": [ 0, 1, 0 ], "pos": [ 20, 6, 0 ], "type": "tube"},
-        { "orient": [ 0, 1, 0 ], "pos": [ 0, 6, 20 ], "type": "tube"}
+    "connPoint": [{"orient": [ 0, 1, 0 ], "pos": [ 20, 6, 0 ], "type": "tube"},{"orient": [ 0, 1, 0 ], "pos": [ 0, 6, 20 ], "type": "tube"}
     ]},
   {
     "id": "27925",
     "volume": 0.37,
     "area": 1.256,
     "weight": 0.5,
-    "connPoint": [
-        { "orient": [ 0, 1, 0 ], "pos": [ 20, 6, 0 ], "type": "tube"},
-        { "orient": [ 0, 1, 0 ], "pos": [ 0, 6, -20 ], "type": "tube"}]},
+    "connPoint": [{"orient": [ 0, 1, 0 ], "pos": [ 20, 6, 0 ], "type": "tube"},{"orient": [ 0, 1, 0 ], "pos": [ 0, 6, -20 ], "type": "tube"}]},
   {
     "id": "3021",
     "area": 3.84,
     "connPoint": [
-      {"pos": [0, -2, 10],"orient": [0, 1, 0],"type": "stud"},
-      {"pos": [0, 6, 10],"orient": [0, 1, 0],"type": "tube"},
-      {"pos": [-20, -2, 10],"orient": [0, 1, 0],"type": "stud"},
-      {"pos": [-20, 6, 10],"orient": [0, 1, 0],"type": "tube"},
-      {"pos": [20, -2, 10],"orient": [0, 1, 0],"type": "stud"},
-      {"pos": [20, 6, 10],"orient": [0, 1, 0],"type": "tube"},
-      {"pos": [0, -2, -10],"orient": [0, 1, 0],"type": "stud"},
-      {"pos": [0, 6, -10],"orient": [0, 1, 0],"type": "tube"},
-      {"pos": [-20, -2, -10],"orient": [0, 1, 0],"type": "stud"},
-      {"pos": [-20, 6, -10],"orient": [0, 1, 0],"type": "tube"},
-      {"pos": [20, -2, -10],"orient": [0, 1, 0],"type": "stud"},
-      {"pos": [20, 6, -10],"orient": [0, 1, 0],"type": "tube"}
+      {"pos": [0, -2, 10], "orient": [0, 1, 0], "type": "stud"},
+      {"pos": [0, 6, 10], "orient": [0, 1, 0], "type": "tube"},
+      {"pos": [-20, -2, 10], "orient": [0, 1, 0], "type": "stud"},
+      {"pos": [-20, 6, 10], "orient": [0, 1, 0], "type": "tube"},
+      {"pos": [20, -2, 10], "orient": [0, 1, 0], "type": "stud"},
+      {"pos": [20, 6, 10], "orient": [0, 1, 0], "type": "tube"},
+      {"pos": [0, -2, -10], "orient": [0, 1, 0], "type": "stud"},
+      {"pos": [0, 6, -10], "orient": [0, 1, 0], "type": "tube"},
+      {"pos": [-20, -2, -10], "orient": [0, 1, 0], "type": "stud"},
+      {"pos": [-20, 6, -10], "orient": [0, 1, 0], "type": "tube"},
+      {"pos": [20, -2, -10], "orient": [0, 1, 0], "type": "stud"},
+      {"pos": [20, 6, -10], "orient": [0, 1, 0], "type": "tube"}
       ]},
   {
     "id": "43722",
@@ -547,29 +572,29 @@
   {
     "id": "98138",
     "connPoint": [
-      {"pos": [0, 6, 0],"orient": [0,1,0],"type": "tube"}]},
+      {"pos": [0, 6, 0], "orient": [0,1,0], "type": "tube"}]},
   {
     "id": "87079",
     "connPoint": [
-      {"pos": [10, 6, 10],"orient": [0, 1, 0],"type": "tube"},
-      {"pos": [10, 6, -10],"orient": [0, 1, 0],"type": "tube"},
-      {"pos": [-10, 6, 10],"orient": [0, 1, 0],"type": "tube"},
-      {"pos": [-10, 6, -10],"orient": [0, 1, 0],"type": "tube"},
-      {"pos": [30, 6, 10],"orient": [0, 1, 0],"type": "tube"},
-      {"pos": [30, 6, -10],"orient": [0, 1, 0],"type": "tube"},
-      {"pos": [-30, 6, 10],"orient": [0, 1, 0],"type": "tube"},
-      {"pos": [-30, 6, -10],"orient": [0, 1, 0],"type": "tube"
+      {"pos": [10, 6, 10], "orient": [0, 1, 0], "type": "tube"},
+      {"pos": [10, 6, -10], "orient": [0, 1, 0], "type": "tube"},
+      {"pos": [-10, 6, 10], "orient": [0, 1, 0], "type": "tube"},
+      {"pos": [-10, 6, -10], "orient": [0, 1, 0], "type": "tube"},
+      {"pos": [30, 6, 10], "orient": [0, 1, 0], "type": "tube"},
+      {"pos": [30, 6, -10], "orient": [0, 1, 0], "type": "tube"},
+      {"pos": [-30, 6, 10], "orient": [0, 1, 0], "type": "tube"},
+      {"pos": [-30, 6, -10], "orient": [0, 1, 0], "type": "tube"
       }
     ]},
   {
     "id": "26603",
     "connPoint": [
-      {"pos": [0, 6, 10],"orient": [0, 1, 0],"type": "tube"},
-      {"pos": [0, 6, -10],"orient": [0, 1, 0],"type": "tube"},
-      {"pos": [20, 6, 10],"orient": [0, 1, 0],"type": "tube"},
-      {"pos": [20, 6, -10],"orient": [0, 1, 0],"type": "tube"},
-      {"pos": [-20, 6, 10],"orient": [0, 1, 0],"type": "tube"},
-      {"pos": [-20, 6, -10],"orient": [0, 1, 0],"type": "tube"
+      {"pos": [0, 6, 10], "orient": [0, 1, 0], "type": "tube"},
+      {"pos": [0, 6, -10], "orient": [0, 1, 0], "type": "tube"},
+      {"pos": [20, 6, 10], "orient": [0, 1, 0], "type": "tube"},
+      {"pos": [20, 6, -10], "orient": [0, 1, 0], "type": "tube"},
+      {"pos": [-20, 6, 10], "orient": [0, 1, 0], "type": "tube"},
+      {"pos": [-20, 6, -10], "orient": [0, 1, 0], "type": "tube"
       }
     ]},
   {
@@ -577,182 +602,182 @@
     "area": 0.636,
     "weight": 0.2,
     "connPoint": [
-      {"pos": [0, 6, 0],"orient": [0, 1, 0],"type": "tube"
+      {"pos": [0, 6, 0], "orient": [0, 1, 0], "type": "tube"
       }
     ]},
   {
     "id": "6636",
     "connPoint": [
-      {"pos": [10, 6, 0],"orient": [0, 1, 0],"type": "tube"},
-      {"pos": [-10, 6, 0],"orient": [0, 1, 0],"type": "tube"},
-      {"pos": [30, 6, 0],"orient": [0, 1, 0],"type": "tube"},
-      {"pos": [-30, 6, 0],"orient": [0, 1, 0],"type": "tube"},
-      {"pos": [50, 6, 0],"orient": [0, 1, 0],"type": "tube"},
-      {"pos": [-50, 6, 0],"orient": [0, 1, 0],"type": "tube"
+      {"pos": [10, 6, 0], "orient": [0, 1, 0], "type": "tube"},
+      {"pos": [-10, 6, 0], "orient": [0, 1, 0], "type": "tube"},
+      {"pos": [30, 6, 0], "orient": [0, 1, 0], "type": "tube"},
+      {"pos": [-30, 6, 0], "orient": [0, 1, 0], "type": "tube"},
+      {"pos": [50, 6, 0], "orient": [0, 1, 0], "type": "tube"},
+      {"pos": [-50, 6, 0], "orient": [0, 1, 0], "type": "tube"
       }
     ]},
   {
     "id": "4162",
     "connPoint": [
-      {"pos": [10, 6, 0],"orient": [0, 1, 0],"type": "tube"},
-      {"pos": [-10, 6, 0],"orient": [0, 1, 0],"type": "tube"},
-      {"pos": [30, 6, 0],"orient": [0, 1, 0],"type": "tube"},
-      {"pos": [-30, 6, 0],"orient": [0, 1, 0],"type": "tube"},
-      {"pos": [50, 6, 0],"orient": [0, 1, 0],"type": "tube"},
-      {"pos": [-50, 6, 0],"orient": [0, 1, 0],"type": "tube"},
-      {"pos": [70, 6, 0],"orient": [0, 1, 0],"type": "tube"},
-      {"pos": [-70, 6, 0],"orient": [0, 1, 0],"type": "tube"
+      {"pos": [10, 6, 0], "orient": [0, 1, 0], "type": "tube"},
+      {"pos": [-10, 6, 0], "orient": [0, 1, 0], "type": "tube"},
+      {"pos": [30, 6, 0], "orient": [0, 1, 0], "type": "tube"},
+      {"pos": [-30, 6, 0], "orient": [0, 1, 0], "type": "tube"},
+      {"pos": [50, 6, 0], "orient": [0, 1, 0], "type": "tube"},
+      {"pos": [-50, 6, 0], "orient": [0, 1, 0], "type": "tube"},
+      {"pos": [70, 6, 0], "orient": [0, 1, 0], "type": "tube"},
+      {"pos": [-70, 6, 0], "orient": [0, 1, 0], "type": "tube"
       }
     ]},
   {
     "id": "6141",
     "volume":0.1,
     "connPoint": [
-      {"pos": [0, -2, 0],"orient": [0, 1, 0],"type": "stud"},
-      {"pos": [0, 5.5, 0],"orient": [0, 1, 0],"type": "tube"
+      {"pos": [0, -2, 0], "orient": [0, 1, 0], "type": "stud"},
+      {"pos": [0, 5.5, 0], "orient": [0, 1, 0], "type": "tube"
       }
     ]},
   {
     "id": "3958",
     "connPoint": [
-      {"pos": [10, -2, -10],"orient": [0, 1, 0],"type": "stud"},
-      {"pos": [10, -2, 10],"orient": [0, 1, 0],"type": "stud"},
-      {"pos": [-10, -2, -10],"orient": [0, 1, 0],"type": "stud"},
-      {"pos": [-10, -2, 10],"orient": [0, 1, 0],"type": "stud"},
-      {"pos": [10, -2, -30],"orient": [0, 1, 0],"type": "stud"},
-      {"pos": [10, -2, 30],"orient": [0, 1, 0],"type": "stud"},
-      {"pos": [-10, -2, -30],"orient": [0, 1, 0],"type": "stud"},
-      {"pos": [-10, -2, 30],"orient": [0, 1, 0],"type": "stud"},
-      {"pos": [10, -2, -50],"orient": [0, 1, 0],"type": "stud"},
-      {"pos": [10, -2, 50],"orient": [0, 1, 0],"type": "stud"},
-      {"pos": [-10, -2, -50],"orient": [0, 1, 0],"type": "stud"},
-      {"pos": [-10, -2, 50],"orient": [0, 1, 0],"type": "stud"},
-      {"pos": [30, -2, -10],"orient": [0, 1, 0],"type": "stud"},
-      {"pos": [30, -2, 10],"orient": [0, 1, 0],"type": "stud"},
-      {"pos": [-30, -2, -10],"orient": [0, 1, 0],"type": "stud"},
-      {"pos": [-30, -2, 10],"orient": [0, 1, 0],"type": "stud"},
-      {"pos": [30, -2, -30],"orient": [0, 1, 0],"type": "stud"},
-      {"pos": [30, -2, 30],"orient": [0, 1, 0],"type": "stud"},
-      {"pos": [-30, -2, -30],"orient": [0, 1, 0],"type": "stud"},
-      {"pos": [-30, -2, 30],"orient": [0, 1, 0],"type": "stud"},
-      {"pos": [30, -2, -50],"orient": [0, 1, 0],"type": "stud"},
-      {"pos": [30, -2, 50],"orient": [0, 1, 0],"type": "stud"},
-      {"pos": [-30, -2, -50],"orient": [0, 1, 0],"type": "stud"},
-      {"pos": [-30, -2, 50],"orient": [0, 1, 0],"type": "stud"},
-      {"pos": [50, -2, -10],"orient": [0, 1, 0],"type": "stud"},
-      {"pos": [50, -2, 10],"orient": [0, 1, 0],"type": "stud"},
-      {"pos": [-50, -2, -10],"orient": [0, 1, 0],"type": "stud"},
-      {"pos": [-50, -2, 10],"orient": [0, 1, 0],"type": "stud"},
-      {"pos": [50, -2, -30],"orient": [0, 1, 0],"type": "stud"},
-      {"pos": [50, -2, 30],"orient": [0, 1, 0],"type": "stud"},
-      {"pos": [-50, -2, -30],"orient": [0, 1, 0],"type": "stud"},
-      {"pos": [-50, -2, 30],"orient": [0, 1, 0],"type": "stud"},
-      {"pos": [50, -2, -50],"orient": [0, 1, 0],"type": "stud"},
-      {"pos": [50, -2, 50],"orient": [0, 1, 0],"type": "stud"},
-      {"pos": [-50, -2, -50],"orient": [0, 1, 0],"type": "stud"},
-      {"pos": [-50, -2, 50],"orient": [0, 1, 0],"type": "stud"},
-      {"pos": [10, 6, -10],"orient": [0, 1, 0],"type": "tube"},
-      {"pos": [10, 6, 10],"orient": [0, 1, 0],"type": "tube"},
-      {"pos": [-10, 6, -10],"orient": [0, 1, 0],"type": "tube"},
-      {"pos": [-10, 6, 10],"orient": [0, 1, 0],"type": "tube"},
-      {"pos": [10, 6, -30],"orient": [0, 1, 0],"type": "tube"},
-      {"pos": [10, 6, 30],"orient": [0, 1, 0],"type": "tube"},
-      {"pos": [-10, 6, -30],"orient": [0, 1, 0],"type": "tube"},
-      {"pos": [-10, 6, 30],"orient": [0, 1, 0],"type": "tube"},
-      {"pos": [10, 6, -50],"orient": [0, 1, 0],"type": "tube"},
-      {"pos": [10, 6, 50],"orient": [0, 1, 0],"type": "tube"},
-      {"pos": [-10, 6, -50],"orient": [0, 1, 0],"type": "tube"},
-      {"pos": [-10, 6, 50],"orient": [0, 1, 0],"type": "tube"},
-      {"pos": [30, 6, -10],"orient": [0, 1, 0],"type": "tube"},
-      {"pos": [30, 6, 10],"orient": [0, 1, 0],"type": "tube"},
-      {"pos": [-30, 6, -10],"orient": [0, 1, 0],"type": "tube"},
-      {"pos": [-30, 6, 10],"orient": [0, 1, 0],"type": "tube"},
-      {"pos": [30, 6, -30],"orient": [0, 1, 0],"type": "tube"},
-      {"pos": [30, 6, 30],"orient": [0, 1, 0],"type": "tube"},
-      {"pos": [-30, 6, -30],"orient": [0, 1, 0],"type": "tube"},
-      {"pos": [-30, 6, 30],"orient": [0, 1, 0],"type": "tube"},
-      {"pos": [30, 6, -50],"orient": [0, 1, 0],"type": "tube"},
-      {"pos": [30, 6, 50],"orient": [0, 1, 0],"type": "tube"},
-      {"pos": [-30, 6, -50],"orient": [0, 1, 0],"type": "tube"},
-      {"pos": [-30, 6, 50],"orient": [0, 1, 0],"type": "tube"},
-      {"pos": [50, 6, -10],"orient": [0, 1, 0],"type": "tube"},
-      {"pos": [50, 6, 10],"orient": [0, 1, 0],"type": "tube"},
-      {"pos": [-50, 6, -10],"orient": [0, 1, 0],"type": "tube"},
-      {"pos": [-50, 6, 10],"orient": [0, 1, 0],"type": "tube"},
-      {"pos": [50, 6, -30],"orient": [0, 1, 0],"type": "tube"},
-      {"pos": [50, 6, 30],"orient": [0, 1, 0],"type": "tube"},
-      {"pos": [-50, 6, -30],"orient": [0, 1, 0],"type": "tube"},
-      {"pos": [-50, 6, 30],"orient": [0, 1, 0],"type": "tube"},
-      {"pos": [50, 6, -50],"orient": [0, 1, 0],"type": "tube"},
-      {"pos": [50, 6, 50],"orient": [0, 1, 0],"type": "tube"},
-      {"pos": [-50, 6, -50],"orient": [0, 1, 0],"type": "tube"},
-      {"pos": [-50, 6, 50],"orient": [0, 1, 0],"type": "tube"
+      {"pos": [10, -2, -10], "orient": [0, 1, 0], "type": "stud"},
+      {"pos": [10, -2, 10], "orient": [0, 1, 0], "type": "stud"},
+      {"pos": [-10, -2, -10], "orient": [0, 1, 0], "type": "stud"},
+      {"pos": [-10, -2, 10], "orient": [0, 1, 0], "type": "stud"},
+      {"pos": [10, -2, -30], "orient": [0, 1, 0], "type": "stud"},
+      {"pos": [10, -2, 30], "orient": [0, 1, 0], "type": "stud"},
+      {"pos": [-10, -2, -30], "orient": [0, 1, 0], "type": "stud"},
+      {"pos": [-10, -2, 30], "orient": [0, 1, 0], "type": "stud"},
+      {"pos": [10, -2, -50], "orient": [0, 1, 0], "type": "stud"},
+      {"pos": [10, -2, 50], "orient": [0, 1, 0], "type": "stud"},
+      {"pos": [-10, -2, -50], "orient": [0, 1, 0], "type": "stud"},
+      {"pos": [-10, -2, 50], "orient": [0, 1, 0], "type": "stud"},
+      {"pos": [30, -2, -10], "orient": [0, 1, 0], "type": "stud"},
+      {"pos": [30, -2, 10], "orient": [0, 1, 0], "type": "stud"},
+      {"pos": [-30, -2, -10], "orient": [0, 1, 0], "type": "stud"},
+      {"pos": [-30, -2, 10], "orient": [0, 1, 0], "type": "stud"},
+      {"pos": [30, -2, -30], "orient": [0, 1, 0], "type": "stud"},
+      {"pos": [30, -2, 30], "orient": [0, 1, 0], "type": "stud"},
+      {"pos": [-30, -2, -30], "orient": [0, 1, 0], "type": "stud"},
+      {"pos": [-30, -2, 30], "orient": [0, 1, 0], "type": "stud"},
+      {"pos": [30, -2, -50], "orient": [0, 1, 0], "type": "stud"},
+      {"pos": [30, -2, 50], "orient": [0, 1, 0], "type": "stud"},
+      {"pos": [-30, -2, -50], "orient": [0, 1, 0], "type": "stud"},
+      {"pos": [-30, -2, 50], "orient": [0, 1, 0], "type": "stud"},
+      {"pos": [50, -2, -10], "orient": [0, 1, 0], "type": "stud"},
+      {"pos": [50, -2, 10], "orient": [0, 1, 0], "type": "stud"},
+      {"pos": [-50, -2, -10], "orient": [0, 1, 0], "type": "stud"},
+      {"pos": [-50, -2, 10], "orient": [0, 1, 0], "type": "stud"},
+      {"pos": [50, -2, -30], "orient": [0, 1, 0], "type": "stud"},
+      {"pos": [50, -2, 30], "orient": [0, 1, 0], "type": "stud"},
+      {"pos": [-50, -2, -30], "orient": [0, 1, 0], "type": "stud"},
+      {"pos": [-50, -2, 30], "orient": [0, 1, 0], "type": "stud"},
+      {"pos": [50, -2, -50], "orient": [0, 1, 0], "type": "stud"},
+      {"pos": [50, -2, 50], "orient": [0, 1, 0], "type": "stud"},
+      {"pos": [-50, -2, -50], "orient": [0, 1, 0], "type": "stud"},
+      {"pos": [-50, -2, 50], "orient": [0, 1, 0], "type": "stud"},
+      {"pos": [10, 6, -10], "orient": [0, 1, 0], "type": "tube"},
+      {"pos": [10, 6, 10], "orient": [0, 1, 0], "type": "tube"},
+      {"pos": [-10, 6, -10], "orient": [0, 1, 0], "type": "tube"},
+      {"pos": [-10, 6, 10], "orient": [0, 1, 0], "type": "tube"},
+      {"pos": [10, 6, -30], "orient": [0, 1, 0], "type": "tube"},
+      {"pos": [10, 6, 30], "orient": [0, 1, 0], "type": "tube"},
+      {"pos": [-10, 6, -30], "orient": [0, 1, 0], "type": "tube"},
+      {"pos": [-10, 6, 30], "orient": [0, 1, 0], "type": "tube"},
+      {"pos": [10, 6, -50], "orient": [0, 1, 0], "type": "tube"},
+      {"pos": [10, 6, 50], "orient": [0, 1, 0], "type": "tube"},
+      {"pos": [-10, 6, -50], "orient": [0, 1, 0], "type": "tube"},
+      {"pos": [-10, 6, 50], "orient": [0, 1, 0], "type": "tube"},
+      {"pos": [30, 6, -10], "orient": [0, 1, 0], "type": "tube"},
+      {"pos": [30, 6, 10], "orient": [0, 1, 0], "type": "tube"},
+      {"pos": [-30, 6, -10], "orient": [0, 1, 0], "type": "tube"},
+      {"pos": [-30, 6, 10], "orient": [0, 1, 0], "type": "tube"},
+      {"pos": [30, 6, -30], "orient": [0, 1, 0], "type": "tube"},
+      {"pos": [30, 6, 30], "orient": [0, 1, 0], "type": "tube"},
+      {"pos": [-30, 6, -30], "orient": [0, 1, 0], "type": "tube"},
+      {"pos": [-30, 6, 30], "orient": [0, 1, 0], "type": "tube"},
+      {"pos": [30, 6, -50], "orient": [0, 1, 0], "type": "tube"},
+      {"pos": [30, 6, 50], "orient": [0, 1, 0], "type": "tube"},
+      {"pos": [-30, 6, -50], "orient": [0, 1, 0], "type": "tube"},
+      {"pos": [-30, 6, 50], "orient": [0, 1, 0], "type": "tube"},
+      {"pos": [50, 6, -10], "orient": [0, 1, 0], "type": "tube"},
+      {"pos": [50, 6, 10], "orient": [0, 1, 0], "type": "tube"},
+      {"pos": [-50, 6, -10], "orient": [0, 1, 0], "type": "tube"},
+      {"pos": [-50, 6, 10], "orient": [0, 1, 0], "type": "tube"},
+      {"pos": [50, 6, -30], "orient": [0, 1, 0], "type": "tube"},
+      {"pos": [50, 6, 30], "orient": [0, 1, 0], "type": "tube"},
+      {"pos": [-50, 6, -30], "orient": [0, 1, 0], "type": "tube"},
+      {"pos": [-50, 6, 30], "orient": [0, 1, 0], "type": "tube"},
+      {"pos": [50, 6, -50], "orient": [0, 1, 0], "type": "tube"},
+      {"pos": [50, 6, 50], "orient": [0, 1, 0], "type": "tube"},
+      {"pos": [-50, 6, -50], "orient": [0, 1, 0], "type": "tube"},
+      {"pos": [-50, 6, 50], "orient": [0, 1, 0], "type": "tube"
       }
     ]},
   {
     "id": "3069b",
     "volume":0.37,
     "connPoint": [
-      {"pos": [10, 6, 0],"orient": [0, 1, 0],"type": "tube"},
-      {"pos": [-10, 6, 0],"orient": [0, 1, 0],"type": "tube"
+      {"pos": [10, 6, 0], "orient": [0, 1, 0], "type": "tube"},
+      {"pos": [-10, 6, 0], "orient": [0, 1, 0], "type": "tube"
       }
     ]},
   {
     "id": "3068",
     "connPoint": [
-      {"pos": [10, 6, 10],"orient": [0, 1, 0],"type": "tube"},
-      {"pos": [10, 6, -10],"orient": [0, 1, 0],"type": "tube"},
-      {"pos": [-10, 6, 10],"orient": [0, 1, 0],"type": "tube"},
-      {"pos": [-10, 6, -10],"orient": [0, 1, 0],"type": "tube"
+      {"pos": [10, 6, 10], "orient": [0, 1, 0], "type": "tube"},
+      {"pos": [10, 6, -10], "orient": [0, 1, 0], "type": "tube"},
+      {"pos": [-10, 6, 10], "orient": [0, 1, 0], "type": "tube"},
+      {"pos": [-10, 6, -10], "orient": [0, 1, 0], "type": "tube"
       }
     ]},
   {
     "id": "3031",
     "connPoint": [
-      {"pos": [10, -2, -10],"orient": [0, 1, 0],"type": "stud"},
-      {"pos": [10, -2, 10],"orient": [0, 1, 0],"type": "stud"},
-      {"pos": [-10, -2, -10],"orient": [0, 1, 0],"type": "stud"},
-      {"pos": [-10, -2, 10],"orient": [0, 1, 0],"type": "stud"},
-      {"pos": [10, -2, -30],"orient": [0, 1, 0],"type": "stud"},
-      {"pos": [10, -2, 30],"orient": [0, 1, 0],"type": "stud"},
-      {"pos": [-10, -2, -30],"orient": [0, 1, 0],"type": "stud"},
-      {"pos": [-10, -2, 30],"orient": [0, 1, 0],"type": "stud"},
-      {"pos": [30, -2, -10],"orient": [0, 1, 0],"type": "stud"},
-      {"pos": [30, -2, 10],"orient": [0, 1, 0],"type": "stud"},
-      {"pos": [-30, -2, -10],"orient": [0, 1, 0],"type": "stud"},
-      {"pos": [-30, -2, 10],"orient": [0, 1, 0],"type": "stud"},
-      {"pos": [30, -2, -30],"orient": [0, 1, 0],"type": "stud"},
-      {"pos": [30, -2, 30],"orient": [0, 1, 0],"type": "stud"},
-      {"pos": [-30, -2, -30],"orient": [0, 1, 0],"type": "stud"},
-      {"pos": [-30, -2, 30],"orient": [0, 1, 0],"type": "stud"},
-      {"pos": [10, 6, -10],"orient": [0, 1, 0],"type": "tube"},
-      {"pos": [10, 6, 10],"orient": [0, 1, 0],"type": "tube"},
-      {"pos": [10, 6, -30],"orient": [0, 1, 0],"type": "tube"},
-      {"pos": [10, 6, 30],"orient": [0, 1, 0],"type": "tube"},
-      {"pos": [-10, 6, -10],"orient": [0, 1, 0],"type": "tube"},
-      {"pos": [-10, 6, 10],"orient": [0, 1, 0],"type": "tube"},
-      {"pos": [-10, 6, -30],"orient": [0, 1, 0],"type": "tube"},
-      {"pos": [-10, 6, 30],"orient": [0, 1, 0],"type": "tube"},
-      {"pos": [30, 6, -10],"orient": [0, 1, 0],"type": "tube"},
-      {"pos": [30, 6, 10],"orient": [0, 1, 0],"type": "tube"},
-      {"pos": [30, 6, -30],"orient": [0, 1, 0],"type": "tube"},
-      {"pos": [30, 6, 30],"orient": [0, 1, 0],"type": "tube"},
-      {"pos": [-30, 6, -10],"orient": [0, 1, 0],"type": "tube"},
-      {"pos": [-30, 6, 10],"orient": [0, 1, 0],"type": "tube"},
-      {"pos": [-30, 6, -30],"orient": [0, 1, 0],"type": "tube"},
-      {"pos": [-30, 6, 30],"orient": [0, 1, 0],"type": "tube"
+      {"pos": [10, -2, -10], "orient": [0, 1, 0], "type": "stud"},
+      {"pos": [10, -2, 10], "orient": [0, 1, 0], "type": "stud"},
+      {"pos": [-10, -2, -10], "orient": [0, 1, 0], "type": "stud"},
+      {"pos": [-10, -2, 10], "orient": [0, 1, 0], "type": "stud"},
+      {"pos": [10, -2, -30], "orient": [0, 1, 0], "type": "stud"},
+      {"pos": [10, -2, 30], "orient": [0, 1, 0], "type": "stud"},
+      {"pos": [-10, -2, -30], "orient": [0, 1, 0], "type": "stud"},
+      {"pos": [-10, -2, 30], "orient": [0, 1, 0], "type": "stud"},
+      {"pos": [30, -2, -10], "orient": [0, 1, 0], "type": "stud"},
+      {"pos": [30, -2, 10], "orient": [0, 1, 0], "type": "stud"},
+      {"pos": [-30, -2, -10], "orient": [0, 1, 0], "type": "stud"},
+      {"pos": [-30, -2, 10], "orient": [0, 1, 0], "type": "stud"},
+      {"pos": [30, -2, -30], "orient": [0, 1, 0], "type": "stud"},
+      {"pos": [30, -2, 30], "orient": [0, 1, 0], "type": "stud"},
+      {"pos": [-30, -2, -30], "orient": [0, 1, 0], "type": "stud"},
+      {"pos": [-30, -2, 30], "orient": [0, 1, 0], "type": "stud"},
+      {"pos": [10, 6, -10], "orient": [0, 1, 0], "type": "tube"},
+      {"pos": [10, 6, 10], "orient": [0, 1, 0], "type": "tube"},
+      {"pos": [10, 6, -30], "orient": [0, 1, 0], "type": "tube"},
+      {"pos": [10, 6, 30], "orient": [0, 1, 0], "type": "tube"},
+      {"pos": [-10, 6, -10], "orient": [0, 1, 0], "type": "tube"},
+      {"pos": [-10, 6, 10], "orient": [0, 1, 0], "type": "tube"},
+      {"pos": [-10, 6, -30], "orient": [0, 1, 0], "type": "tube"},
+      {"pos": [-10, 6, 30], "orient": [0, 1, 0], "type": "tube"},
+      {"pos": [30, 6, -10], "orient": [0, 1, 0], "type": "tube"},
+      {"pos": [30, 6, 10], "orient": [0, 1, 0], "type": "tube"},
+      {"pos": [30, 6, -30], "orient": [0, 1, 0], "type": "tube"},
+      {"pos": [30, 6, 30], "orient": [0, 1, 0], "type": "tube"},
+      {"pos": [-30, 6, -10], "orient": [0, 1, 0], "type": "tube"},
+      {"pos": [-30, 6, 10], "orient": [0, 1, 0], "type": "tube"},
+      {"pos": [-30, 6, -30], "orient": [0, 1, 0], "type": "tube"},
+      {"pos": [-30, 6, 30], "orient": [0, 1, 0], "type": "tube"
       }
     ]},
   {
     "id": "3023",
     "volume": 0.366,
-    "weight": 0.9,
+    "weight": 0.8,
     "area": 1.275,
     "connPoint": [
-      {"pos": [10, -2, 0],"orient": [0, 1, 0],"type": "stud"},
-      {"pos": [10, 6, 0],"orient": [0, 1, 0],"type": "tube"},
-      {"pos": [-10, -2, 0],"orient": [0, 1, 0],"type": "stud"},
-      {"pos": [-10, 6, 0],"orient": [0, 1, 0],"type": "tube"
+      {"pos": [10, -2, 0], "orient": [0, 1, 0], "type": "stud"},
+      {"pos": [10, 6, 0], "orient": [0, 1, 0], "type": "tube"},
+      {"pos": [-10, -2, 0], "orient": [0, 1, 0], "type": "stud"},
+      {"pos": [-10, 6, 0], "orient": [0, 1, 0], "type": "tube"
       }
     ]},
   {
@@ -760,12 +785,12 @@
     "volume": 0.549,
     "area": 1.87,
     "connPoint": [
-      {"pos": [0, -2, 0],"orient": [0, 1, 0],"type": "stud"},
-      {"pos": [0, 6, 0],"orient": [0, 1, 0],"type": "tube"},
-      {"pos": [-20, -2, 0],"orient": [0, 1, 0],"type": "stud"},
-      {"pos": [-20, 6, 0],"orient": [0, 1, 0],"type": "tube"},
-      {"pos": [20, -2, 0],"orient": [0, 1, 0],"type": "stud"},
-      {"pos": [20, 6, 0],"orient": [0, 1, 0],"type": "tube"
+      {"pos": [0, -2, 0], "orient": [0, 1, 0], "type": "stud"},
+      {"pos": [0, 6, 0], "orient": [0, 1, 0], "type": "tube"},
+      {"pos": [-20, -2, 0], "orient": [0, 1, 0], "type": "stud"},
+      {"pos": [-20, 6, 0], "orient": [0, 1, 0], "type": "tube"},
+      {"pos": [20, -2, 0], "orient": [0, 1, 0], "type": "stud"},
+      {"pos": [20, 6, 0], "orient": [0, 1, 0], "type": "tube"
       }
     ]},
   {
@@ -774,24 +799,24 @@
     "weight": 0.4,
     "area": 0.637,
     "connPoint": [
-      {"pos": [0, -2, 0],"orient": [0, 1, 0],"type": "stud"},
-      {"pos": [0, 6, 0],"orient": [0, 1, 0],"type": "tube"
+      {"pos": [0, -2, 0], "orient": [0, 1, 0], "type": "stud"},
+      {"pos": [0, 6, 0], "orient": [0, 1, 0], "type": "tube"
       }
     ]},
   {
     "id": "3070a",
     "volume": 0.1825,
     "connPoint": [
-      {"pos": [0, 6, 0],"orient": [0, 1, 0],"type": "tube"
+      {"pos": [0, 6, 0], "orient": [0, 1, 0], "type": "tube"
       }
     ]},
   {
     "id": "2431",
     "connPoint": [
-      {"pos": [10, 6, 0],"orient": [0, 1, 0],"type": "tube"},
-      {"pos": [-10, 6, 0],"orient": [0, 1, 0],"type": "tube"},
-      {"pos": [30, 6, 0],"orient": [0, 1, 0],"type": "tube"},
-      {"pos": [-30, 6, 0],"orient": [0, 1, 0],"type": "tube"
+      {"pos": [10, 6, 0], "orient": [0, 1, 0], "type": "tube"},
+      {"pos": [-10, 6, 0], "orient": [0, 1, 0], "type": "tube"},
+      {"pos": [30, 6, 0], "orient": [0, 1, 0], "type": "tube"},
+      {"pos": [-30, 6, 0], "orient": [0, 1, 0], "type": "tube"
       }
     ]
   }
