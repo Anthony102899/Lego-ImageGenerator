@@ -91,12 +91,13 @@ def move_brickset(brickset, rgb_color, x, z):
     return new_set
 
 def move_layer(brickset, layer_num):
-    current_y = (brickset[0].get_translation())[1]
-    if current_y == 8 * layer_num:
-        return brickset
     new_set = brickset.copy()
-    dis = 8 * layer_num - current_y
-    [b.translate([0, dis, 0]) for b in new_set]
+    goal = 8 * layer_num
+    for brick in new_set:
+        current_y = (brick.get_translation())[1]
+        if current_y == goal:
+            continue
+        brick.translate([0, goal - current_y, 0])
     return new_set
 
 # return a polygon obj 
@@ -141,9 +142,4 @@ def translate_image(img, width_dis, height_dis):
     return img_translation
 
 if __name__ == "__main__":
-    img_path = os.path.join(os.path.dirname(__file__), "inputs/images/Twitter_blue.png")
-    img = cv2.imread(img_path, cv2.IMREAD_UNCHANGED)
-
-    image = translate_image(img, 192.5, 100)
-    
-    cv2.imwrite('./solvers/generation_solver/inputs/test.png', image)
+    print(RGB_to_Hex(np.array([18,137,210])))

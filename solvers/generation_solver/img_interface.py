@@ -24,7 +24,6 @@ def layer_interface(img_num):
             Button(master, text='Done', command=master.quit).grid(row=2, column=2, sticky=W, pady=4)
         else:
             Button(master, text='Next', command=master.quit).grid(row=2, column=2, sticky=W, pady=4)
-        Button(master, text='Reselect', command=master.quit).grid(row=0, column=2, sticky=W, pady=4)
 
         img_path = "inputs/images/"
         img_path = os.path.join(os.path.dirname(__file__), img_path)
@@ -57,42 +56,50 @@ def show_interface():
     root = Tk()
     root.geometry("+300+300")
     
+    Label(root, text="Graph", font=("", 14, "bold", "underline"), fg='#696969').grid(row=0, sticky='w')
+    entry_graph = Entry(root, width=15)
+    entry_graph.grid(row=0, column=1)
+    graph_path = "connectivity/"
+    graph_path = os.path.join(os.path.dirname(__file__), graph_path)
+    path = tkfd.askopenfilename(initialdir = graph_path, title = "Select file", filetypes = (("pkl files","*.pkl"),("all files","*.*")))
+    entry_graph.insert('0', os.path.basename(path))
+
     # input No. image and button
-    Label(root, text="No. image", font=("", 14, "bold", "underline"), fg='#696969').grid(row=0, sticky='w')
+    Label(root, text="No. image", font=("", 14, "bold", "underline"), fg='#696969').grid(row=1, sticky='w')
     entry_num = Entry(root, width=15)
-    entry_num.grid(row=0, column=1)
-    Button(root, text='Next', command=root.quit).grid(row=0, column=3, sticky='e', pady=4)
+    entry_num.grid(row=1, column=1)
+    Button(root, text='Next', command=root.quit).grid(row=1, column=2, sticky='e', pady=4)
 
     # input background color
-    Label(root, text="").grid(row=1, column=1)
-    Label(root, text="Background color", font=("", 14, "bold", "underline"), fg='#696969').grid(row=2, sticky='w')
-    Label(root, text="R", fg='#4f4f4f').grid(row=3, column=0)
-    Label(root, text="G", fg='#4f4f4f').grid(row=3, column=1)
-    Label(root, text="B", fg='#4f4f4f').grid(row=3, column=2)
+    Label(root, text="").grid(row=2, column=1)
+    Label(root, text="Background color", font=("", 14, "bold", "underline"), fg='#696969').grid(row=3, sticky='w')
+    Label(root, text="R", fg='#4f4f4f').grid(row=4, column=0)
+    Label(root, text="G", fg='#4f4f4f').grid(row=4, column=1)
+    Label(root, text="B", fg='#4f4f4f').grid(row=4, column=2)
     entry_r = Entry(root, width=15)
     entry_g = Entry(root, width=15)
     entry_b = Entry(root, width=15)
-    entry_r.grid(row=4, column=0)
-    entry_g.grid(row=4, column=1)
-    entry_b.grid(row=4, column=2)
+    entry_r.grid(row=5, column=0)
+    entry_g.grid(row=5, column=1)
+    entry_b.grid(row=5, column=2)
 
     # input rotation and scaling
-    Label(root, text="").grid(row=5, column=1)
-    Label(root, text="Rotation degree", font=("", 14, "bold", "underline"), fg='#696969').grid(row=6, sticky='w')
+    Label(root, text="").grid(row=6, column=1)
+    Label(root, text="Rotation degree", font=("", 14, "bold", "underline"), fg='#696969').grid(row=7, sticky='w')
     entry_degree = Entry(root, width=15, textvariable=StringVar(root, value='0'))
-    entry_degree.grid(row=6, column=1)
-    Label(root, text="Scale", font=("", 14, "bold", "underline"), fg='#696969').grid(row=6, column=2)
+    entry_degree.grid(row=7, column=1)
+    Label(root, text="Scale", font=("", 14, "bold", "underline"), fg='#696969').grid(row=7, column=2)
     entry_scale = Entry(root, width=15, textvariable=StringVar(root, value='1'))
-    entry_scale.grid(row=6, column=3)
+    entry_scale.grid(row=7, column=3)
 
     # input translation
-    Label(root, text="").grid(row=7, column=1)
-    Label(root, text="x translation", font=("", 14, "bold", "underline"), fg='#696969').grid(row=8, sticky='w')
+    Label(root, text="").grid(row=8, column=1)
+    Label(root, text="x translation", font=("", 14, "bold", "underline"), fg='#696969').grid(row=9, sticky='w')
     entry_x = Entry(root, width=15, textvariable=StringVar(root, value='0'))
-    entry_x.grid(row=8, column=1)
-    Label(root, text="y translation", font=("", 14, "bold", "underline"), fg='#696969').grid(row=8, column=2)
+    entry_x.grid(row=9, column=1)
+    Label(root, text="y translation", font=("", 14, "bold", "underline"), fg='#696969').grid(row=9, column=2)
     entry_y = Entry(root, width=15, textvariable=StringVar(root, value='0'))
-    entry_y.grid(row=8, column=3)
+    entry_y.grid(row=9, column=3)
     Label(root, text="").grid(row=9, column=1)
 
     mainloop()
@@ -103,7 +110,7 @@ def show_interface():
     else:
         rgb = np.array((int(r), int(g), int(b)))
     layer_names, layer_nums = layer_interface(img_num)
-    return img_num, layer_names, layer_nums, rgb, int(entry_degree.get()), int(entry_scale.get()), int(entry_x.get()), int(entry_y.get())
+    return entry_graph.get(), img_num, layer_names, layer_nums, rgb, int(entry_degree.get()), float(entry_scale.get()), int(entry_x.get()), int(entry_y.get())
     
 if __name__ == '__main__':
     print(show_interface())

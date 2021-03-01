@@ -2,31 +2,25 @@
   {
     "id": "3020",
     "concave": 0,
+    "area": 5.15,
+    "weight": 1.7,
     "connPoint": [
-        {"orient": [0, 1, 0], "pos": [10, -2, 10], "type": "stud"}, 
-        {"orient": [0, 1, 0], "pos": [10, 6, 10], "type": "tube"}, 
-        {"orient": [0, 1, 0], "pos": [-10, -2, 10], "type": "stud"}, 
-        {"orient": [0, 1, 0], "pos": [-10, 6, 10], "type": "tube"}, 
-        {"orient": [0, 1, 0], "pos": [30, -2, 10], "type": "stud"}, 
-        {"orient": [0, 1, 0], "pos": [30, 6, 10], "type": "tube"}, 
-        {"orient": [0, 1, 0], "pos": [-30, -2, 10], "type": "stud"}, 
-        {"orient": [0, 1, 0], "pos": [-30, 6, 10], "type": "tube"}, 
-        {"orient": [0, 1, 0], "pos": [10, -2, -10], "type": "stud"}, 
-        {"orient": [0, 1, 0], "pos": [10, 6, -10], "type": "tube"}, 
-        {"orient": [0, 1, 0], "pos": [-10, -2, -10], "type": "stud"}, 
-        {"orient": [0, 1, 0], "pos": [-10, 6, -10], "type": "tube"}, 
-        {"orient": [0, 1, 0], "pos": [30, -2, -10], "type": "stud"}, 
-        {"orient": [0, 1, 0], "pos": [30, 6, -10], "type": "tube"}, 
-        {"orient": [0, 1, 0], "pos": [-30, -2, -10], "type": "stud"}, 
-        {"orient": [0, 1, 0], "pos": [-30, 6, -10], "type": "tube"
-        }
+        {"orient": [0, 1, 0], "pos": [10, -2, 10], "type": "stud"}, {"orient": [0, 1, 0], "pos": [10, 6, 10], "type": "tube"}, 
+        {"orient": [0, 1, 0], "pos": [-10, -2, 10], "type": "stud"}, {"orient": [0, 1, 0], "pos": [-10, 6, 10], "type": "tube"}, 
+        {"orient": [0, 1, 0], "pos": [30, -2, 10], "type": "stud"}, {"orient": [0, 1, 0], "pos": [30, 6, 10], "type": "tube"}, 
+        {"orient": [0, 1, 0], "pos": [-30, -2, 10], "type": "stud"}, {"orient": [0, 1, 0], "pos": [-30, 6, 10], "type": "tube"}, 
+        {"orient": [0, 1, 0], "pos": [10, -2, -10], "type": "stud"}, {"orient": [0, 1, 0], "pos": [10, 6, -10], "type": "tube"}, 
+        {"orient": [0, 1, 0], "pos": [-10, -2, -10], "type": "stud"}, {"orient": [0, 1, 0], "pos": [-10, 6, -10], "type": "tube"}, 
+        {"orient": [0, 1, 0], "pos": [30, -2, -10], "type": "stud"}, {"orient": [0, 1, 0], "pos": [30, 6, -10], "type": "tube"}, 
+        {"orient": [0, 1, 0], "pos": [-30, -2, -10], "type": "stud"}, {"orient": [0, 1, 0], "pos": [-30, 6, -10], "type": "tube"}
     ],
     "volume": 0.3651
 },
   {
     "id": "3022",
     "concave": 0,
-    "area": 2.55,
+    "weight": 1.5,
+    "area": 2.6,
     "connPoint": [
       {"orient": [0, 1, 0], "pos": [10, -2, 10], "type": "stud"}, 
       {"orient": [0, 1, 0], "pos": [10, 6, 10], "type": "tube"}, 
@@ -42,7 +36,7 @@
     "id": "3710",
     "concave": 0,
     "area": 2.56,
-    "weight": 1.4,
+    "weight": 1.45,
     "connPoint": [{"orient": [0, 1, 0], "pos": [10, -2, 0], "type": "stud"},{"orient": [0, 1, 0], "pos": [10, 6, 0], "type": "tube"},{"orient": [0, 1, 0], "pos": [-10, -2, 0], "type": "stud"},{"orient": [0, 1, 0], "pos": [-10, 6, 0], "type": "tube"},{"orient": [0, 1, 0], "pos": [30, -2, 0], "type": "stud"},{"orient": [0, 1, 0], "pos": [30, 6, 0], "type": "tube"},{"orient": [0, 1, 0], "pos": [-30, -2, 0], "type": "stud"},{"orient": [0, 1, 0], "pos": [-30, 6, 0], "type": "tube"}
     ],
     "volume": 0.3651
@@ -171,7 +165,7 @@
     "id": "24299",
     "volume": 0.774,
     "area": 1.8942,
-    "weight": 0.9,
+    "weight": 0.87,
     "connPoint": [
       {"pos": [-10, -2, -10], "orient": [0, 1, 0], "type": "stud"},
       {"pos": [-10, 6, -10], "orient": [0, 1, 0], "type": "tube"},
@@ -182,7 +176,7 @@
     "id": "24307",
     "volume": 0.774,
     "area": 1.8942,
-    "weight": 0.9,
+    "weight": 0.87,
     "connPoint": [
       {"pos": [10, -2, -10], "orient": [0, 1, 0], "type": "stud"},
       {"pos": [10, 6, -10], "orient": [0, 1, 0], "type": "tube"},
@@ -771,7 +765,7 @@
   {
     "id": "3023",
     "volume": 0.366,
-    "weight": 0.8,
+    "weight": 0.87,
     "area": 1.275,
     "connPoint": [
       {"pos": [10, -2, 0], "orient": [0, 1, 0], "type": "stud"},
