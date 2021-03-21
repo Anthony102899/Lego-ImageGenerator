@@ -15,7 +15,10 @@ data/auto
 *.drt
 ./*.log
 debug/
+
+
 model_params
 runs
+tests
 
 *.pickle

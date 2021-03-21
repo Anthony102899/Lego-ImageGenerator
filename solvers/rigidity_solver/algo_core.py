@@ -61,7 +61,6 @@ def spring_energy_matrix(
         edges: np.ndarray,
         dim: int = 3,
         matrices=False,
-        fix_stiffness=False,
     ):
     """
     matrices: return K, P, A if true
@@ -88,10 +87,7 @@ def spring_energy_matrix(
 
         P[idx, idx * dim : idx * dim + dim] = normalized(edge_vec).T
 
-        if fix_stiffness:
-            K[idx, idx] = 1
-        else:
-            K[idx, idx] = 1 / LA.norm(edge_vec)
+
 
         for d in range(dim):
             A[dim * idx + d, dim * e[0] + d] = 1

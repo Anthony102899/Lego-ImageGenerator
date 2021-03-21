@@ -40,7 +40,7 @@ def get_mesh_for_arrows(points, vectors):
         vec_len = LA.norm(vec)
         if vec_len > 0:
             arrow = o3d.geometry.TriangleMesh.create_arrow(
-                cylinder_radius=0.2,
+                cylinder_radius=0.1,
                 cone_radius=0.35,
                 cylinder_height=400 * vec_len,
                 cone_height=8 * vec_len,

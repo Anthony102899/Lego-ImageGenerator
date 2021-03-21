@@ -7,9 +7,13 @@ import solvers.rigidity_solver.algo_core as core
 from solvers.rigidity_solver import constraints_3d
 
 
-def eigen_analysis(points, edges, constraints, fix_stiffness=False):
+def eigen_analysis(points, edges, constraints, stiffness=None, fix_stiffness=False):
     dim = 3
-    M = core.spring_energy_matrix(points, edges, dim=dim, fix_stiffness=fix_stiffness)
+    if stiffness is not None:
+        M = stiffness
+    else:
+        M = core.spring_energy_matrix(points, edges, dim=dim)
+
     A = constraints
 
     B = scipy.linalg.null_space(A)

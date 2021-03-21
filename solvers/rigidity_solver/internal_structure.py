@@ -55,7 +55,7 @@ def find_rotation_matrix(a, b):
     return rot
 
 
-def tetrahedralize(p, q, thickness=1, ori=None):
+def tetrahedral(p, q, thickness=1, ori=None):
     if ori is None:
         vertices = np.array([
             [0, 1, 0],
@@ -118,6 +118,8 @@ def tetrahedralize(p, q, thickness=1, ori=None):
         [(4 * s + 1, 4 * s + 6) for s in range(num - 1)] +
         [(4 * s + 2, 4 * s + 4) for s in range(num - 1)]
     )
+
+    edges = np.array(list(itertools.combinations(range(len(points)), 2)))
 
     return points, edges
 

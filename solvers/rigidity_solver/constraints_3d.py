@@ -7,7 +7,7 @@ from itertools import combinations
 
 def projection_matrix(source_points, target_point):
     """
-    compute project matrix that maps deltas of source and target points in world coordinates
+    compute project matrix that maps deltas of source and target points in world coordinates (variables in optim setup)
     to the delta of target point in source point coordinate
     :param source_points: (3, 3) array, 3 points not on the same line
     :param target_point: (3, ) array
@@ -135,40 +135,80 @@ def prohibitive_space_of_allowed_relative_rotation(
         return null_basis
 
 
+def prohibitive_space_of_allowed_relative_translation(
+        translation,
+):
+    assert np.linalg.matrix_rank(translation) == len(translation)
+    assert 1 <= len(translation) <= 3
+
+    return null_space(translation)
+
+
+def point_allowed_motions(
+        source_points: np.ndarray,
+        target_point: np.ndarray,
+        pivot: np.ndarray,
+        rotation_axes=None,
+        translation_vectors=None,
+):
+    relative_projection, source_transform = projection_matrix(source_points, target_point)
+
+    relative_pivot = source_transform @ pivot
+    relative_target = source_transform @ target_point
+
+    relative_allowed_motions = []
+    if rotation_axes is not None:
+        for axis in rotation_axes:
+            relative_axis = source_transform @ axis
+
+            allowed_motion = np.cross((relative_target - relative_pivot), relative_axis)
+            relative_allowed_motions.append(
+                allowed_motion
+            )
+
+    if translation_vectors is not None:
+        for vector in translation_vectors:
+            allowed_motion = source_transform @ vector
+            relative_allowed_motions.append(allowed_motion)
+
+    return null_space(np.array(relative_allowed_motions)).T @ relative_projection
+
 
 def constraints_for_allowed_motions(
         source_points,
         target_points,
-        rotation_axis=None,
+        rotation_axes=None,
         rotation_pivot=None,
+        translation_vectors=None,
 ):
-    constraints = []
-    for target_point in target_points:
-        relative_projection, source_transform = projection_matrix(
-            source_points,
-            target_point,
-        )
+    assert len(source_points) == 3 and len(target_points) == 3
+    dim = 3
 
-        if rotation_axis is not None and rotation_pivot is not None:
-            assert len(rotation_axis) == len(rotation_pivot)
+    if rotation_axes is not None:
+        assert rotation_axes.ndim == 2
+    if translation_vectors is not None:
+        assert translation_vectors.ndim == 2
 
-            relative_target_point = source_transform @ target_point
-            relative_rotation_pivot = source_transform @ rotation_pivot
-            relative_rotation_axis = source_transform @ rotation_axis
+    motion_num = (len(rotation_axes) if rotation_axes is not None else 0) +\
+                 (len(translation_vectors) if translation_vectors is not None else 0)
+    point_num = 6
 
-            allowed_motion = np.cross(relative_target_point - relative_rotation_pivot, relative_rotation_axis)
-            allowed_motion /= np.linalg.norm(allowed_motion)
+    motions = []
+    for i, target_point in enumerate(target_points):
+        # all motions for a single point
+        pm = point_allowed_motions(
+            source_points, target_point,
+            rotation_pivot, rotation_axes,
+            translation_vectors)
 
-            prohibitive_space = prohibitive_space_of_allowed_relative_rotation(
-                relative_target_point,
-                relative_rotation_pivot,
-                relative_rotation_axis,
-            )
+        pm_matrix = np.zeros((pm.shape[0], 18))
+        pm_matrix[:, 0: 3 * dim] = pm[:, 0: 9]
+        pm_matrix[:, (i + 3) * dim: (i + 4) * dim] = pm[:, 9: 12]
 
-            assert np.linalg.matrix_rank(source_transform.T @ prohibitive_space.T) >= 2
+        motions.append(pm_matrix)
 
-            prohibitive_space_on_deltas = prohibitive_space @ relative_projection
+    constraints = (np.vstack(motions))
 
-            constraints.append(prohibitive_space_on_deltas)
+    assert constraints.ndim == 2
 
     return constraints
