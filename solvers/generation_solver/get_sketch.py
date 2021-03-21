@@ -83,6 +83,7 @@ for k in range(img_num):
     
     node_color = [i for i in node_color if len(i) == 3]
     node_color = np.average(node_color, axis = 0)
+    ldr_color = util.nearest_color(node_color)
 
     results = solver.solve(structure_graph=structure_graph,
                             node_sd=sd_normal,
@@ -92,7 +93,7 @@ for k in range(img_num):
     selected_bricks_layer = []
     for i in range(base_count, len(plate_set)):
         if results[i] == 1:
-            colored_brick = util.color_brick(plate_set[i], np.array(node_color))
+            colored_brick = util.color_brick(plate_set[i], np.array(ldr_color), rgb=False)
             selected_bricks_layer.append(colored_brick)
 
     if background_bool:

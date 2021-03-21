@@ -2,6 +2,7 @@ import os
 import numpy as np
 import math
 import json
+import sys
 from shapely.geometry import Polygon, Point
 import cv2
 from bricks_modeling.bricks.brickinstance import BrickInstance, get_corner_pos
@@ -68,11 +69,12 @@ def get_weight():
             area.update({brick["id"]: 1})
     return area
 
-def hex_to_rgb(hexx):
-    value = hexx.lstrip('0x2')
+def hex_to_rgb(value):
+    if len(value) < 6:
+        return np.array([0, 0, 0])
+    if len(value) > 6:
+        value = value.lstrip('0x2')
     lv = len(value)
-    if lv == 0:
-        return np.array([0,0,0])
     rgb = [int(value[i:i + lv // 3], 16) for i in range(0, lv, lv // 3)]
     return np.array(rgb)
 
@@ -86,7 +88,8 @@ def load_data(brick_database=["regular_plate.json"]):
     return data
 
 def move_brickset(brickset, rgb_color, x, z):
-    new_set = [color_brick(brick, rgb_color) for brick in brickset]
+    ldr_color = nearest_color(rgb_color)
+    new_set = [color_brick(brick, ldr_color, rgb=False) for brick in brickset]
     [brick.translate([x, 0, z]) for brick in new_set]
     return new_set
 
@@ -100,6 +103,20 @@ def move_layer(brickset, layer_num):
         brick.translate([0, goal - current_y, 0])
     return new_set
 
+# return an integer
+def nearest_color(rgb):
+    ldr_color = read_ldr_color()
+    minn = sys.maxsize
+    result = -1
+    for key in ldr_color:
+        rgb_key = hex_to_rgb(key["hex"].lstrip('#'))
+        dif = rgb_key - rgb
+        dif = np.linalg.norm(dif)
+        if dif < minn:
+            minn = dif
+            result = key["LDR_code"]
+    return result
+        
 # return a polygon obj 
 def proj_bbox(brick:BrickInstance):
     bbox_corner = np.array(get_corner_pos(brick, four_point=True))
@@ -110,6 +127,19 @@ def proj_bbox(brick:BrickInstance):
         polygon_ls.append(polygon)
     polygon = unary_union(polygon_ls)
     return polygon
+
+def read_ldr_color():
+    k = -1
+    ldr_color = []
+    for line in open(os.path.join(os.path.dirname(__file__), "StudioColorDefinition.txt")):
+        k += 1
+        if k > 0 and k < 20:
+            line = (line[:-1].split("\t"))
+            ldr_code = (int)(line[2])
+            hex_value = line[8]
+            alpha = (float)(line[9])
+            ldr_color.append({"LDR_code": ldr_code, "hex": hex_value, "alpha": alpha})
+    return ldr_color
 
 def RGB_to_Hex(rgb):
     color = '0x2'
@@ -141,5 +171,6 @@ def translate_image(img, width_dis, height_dis):
     img_translation = cv2.warpAffine(img, T, (width, height)) 
     return img_translation
 
+
 if __name__ == "__main__":
-    print(RGB_to_Hex(np.array([18,137,210])))
+    print(nearest_color("FF0008"))
