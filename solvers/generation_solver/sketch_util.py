@@ -133,12 +133,12 @@ def read_ldr_color():
     ldr_color = []
     for line in open(os.path.join(os.path.dirname(__file__), "StudioColorDefinition.txt")):
         k += 1
-        if k > 0 and k < 20:
+        if k > 0:
             line = (line[:-1].split("\t"))
             ldr_code = (int)(line[2])
-            hex_value = line[8]
-            alpha = (float)(line[9])
-            ldr_color.append({"LDR_code": ldr_code, "hex": hex_value, "alpha": alpha})
+            if ldr_code < 20 and not ldr_code == 16:
+                hex_value = line[8]
+                ldr_color.append({"LDR_code": ldr_code, "hex": hex_value})
     return ldr_color
 
 def RGB_to_Hex(rgb):

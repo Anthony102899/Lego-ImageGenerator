@@ -105,7 +105,13 @@ def show_interface():
     mainloop()
     img_num = int(entry_num.get())
     r, g, b = entry_r.get(), entry_g.get(), entry_b.get()
-    if len(r) == 0 and len(g) == 0 and len(b) == 0:
+    if len(r) == 0:
+        r = 0
+    if len(g) == 0:
+        g = 0
+    if len(b) == 0:
+        b = 0
+    if r == 0 and g == 0 and b == 0:
         rgb = []
     else:
         rgb = np.array((int(r), int(g), int(b)))
