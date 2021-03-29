@@ -1,11 +1,13 @@
 import numpy as np
 import itertools
+import os
 from sfepy.discrete import fem
 
 import util.geometry_util as geo_util
 import util.meshgen as meshgen
 from visualization.model_visualizer import visualize_hinges, visualize_3D
 from solvers.rigidity_solver.internal_structure import get_crystal_vertices
+from .algo_core import spring_energy_matrix
 from .constraints_3d import select_non_colinear_points, constraints_for_allowed_motions
 from .internal_structure import tetrahedral
 from .stiffness_matrix import stiffness_matrix_from_mesh
@@ -128,13 +130,16 @@ class Beam:
     @classmethod
     def cube_as_mesh(cls, pivot, u, v, w):
         hashes = hash((tuple(pivot), tuple(u), tuple(v), tuple(w)))
-        soup_filename = f"{hashes}.stl"
-        mesh_filename = f"{hashes}.mesh"
+        soup_filename = f"data/{hashes}.stl"
+        mesh_filename = f"data/{hashes}.mesh"
 
-        meshgen.cube_surface_mesh(soup_filename, pivot, u, v, w)
-        meshgen.tetrahedralize(soup_filename, mesh_filename)
+        import os
+        if not os.path.exists(mesh_filename):
+            meshgen.cube_surface_mesh(soup_filename, pivot, u, v, w)
+            meshgen.tetrahedralize(soup_filename, mesh_filename)
 
         mesh = fem.Mesh.from_file(mesh_filename)
+
         points = mesh.coors
         nonzero_x, nonzero_y = mesh.create_conn_graph().nonzero()
         edges = np.hstack((nonzero_x.reshape(-1, 1), nonzero_y.reshape(-1, 1)))
@@ -142,6 +147,30 @@ class Beam:
         beam = Beam(points, edges)
         beam.stiffness = stiffness_matrix_from_mesh(mesh_filename)
         beam.mesh_filename = mesh_filename
+        return beam
+
+    @classmethod
+    def from_soup_file(cls, soup_filename: str):
+        mesh_filename = soup_filename.replace(".obj", ".mesh")
+        if not os.path.exists(mesh_filename):
+            meshgen.tetrahedralize(soup_filename, mesh_filename)
+
+        beam = cls.from_mesh_file(mesh_filename)
+        return beam
+
+
+    @classmethod
+    def from_mesh_file(cls, mesh_filename):
+        mesh = fem.Mesh.from_file(mesh_filename)
+
+        points = mesh.coors
+        nonzero_x, nonzero_y = mesh.create_conn_graph().nonzero()
+        edges = np.hstack((nonzero_x.reshape(-1, 1), nonzero_y.reshape(-1, 1)))
+
+        beam = Beam(points, edges)
+        beam.stiffness = stiffness_matrix_from_mesh(mesh_filename)
+        beam.mesh_filename = mesh_filename
+
         return beam
 
 
@@ -152,7 +181,6 @@ class Beam:
     @property
     def point_count(self):
         return len(self.points)
-
 
 
 class Joint:
@@ -197,8 +225,6 @@ class Joint:
                 rotation_axes=self.rotation_axes,
                 translation_vectors=self.translation_vectors,
             )
-
-            print(constraints.shape)
 
             i, j, k = source_point_indices
             t1, t2, t3 = target_point_indices

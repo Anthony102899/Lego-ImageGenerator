@@ -11,6 +11,7 @@ import numpy as np
 from numpy import linalg as LA
 from typing import List, Tuple
 
+
 def get_mesh_for_points(points: List[np.ndarray]):
     sphere = o3d.geometry.TriangleMesh.create_sphere(radius=3, resolution=8)
     sphere.compute_vertex_normals()
@@ -22,6 +23,7 @@ def get_mesh_for_points(points: List[np.ndarray]):
 
     return spheres
 
+
 def get_lineset_for_edges(points, edges):
     colors = [[1, 0, 0] for i in range(len(edges))]
     line_set = o3d.geometry.LineSet(
@@ -31,6 +33,7 @@ def get_lineset_for_edges(points, edges):
     line_set.colors = o3d.utility.Vector3dVector(colors)
 
     return line_set
+
 
 def get_mesh_for_arrows(points, vectors):
     arrows = o3d.geometry.TriangleMesh()
@@ -47,9 +50,10 @@ def get_mesh_for_arrows(points, vectors):
                 resolution=5,
             )
             norm_vec = vec / np.linalg.norm(vec)
-            arrows += copy.deepcopy(arrow).translate(p).rotate(rot_mat, center=p)\
-                .paint_uniform_color([(norm_vec[0]+1)/2,(norm_vec[1]+1)/2,(norm_vec[2]+1)/2])
+            arrows += copy.deepcopy(arrow).translate(p + 1 * vec).rotate(rot_mat, center=p) \
+                .paint_uniform_color([(norm_vec[0] + 1) / 2, (norm_vec[1] + 1) / 2, (norm_vec[2] + 1) / 2])
     return arrows
+
 
 def get_bricks_meshes(bricks):
     meshs = o3d.geometry.TriangleMesh()
@@ -57,10 +61,23 @@ def get_bricks_meshes(bricks):
         meshs += brick.get_mesh()
     return meshs
 
-def visualize_3D(points: np.array, lego_bricks = None, edges: List[Tuple] = None, arrows = None, show_axis = True):
+
+def visualize_3D(points: np.array, lego_bricks=None, edges: List[Tuple] = None, arrows=None, show_axis=True, show_point=True):
+    meshes = get_geometries_3D(points, lego_bricks, edges, arrows, show_axis, show_point)
+    o3d.visualization.draw_geometries(meshes)
+
+def get_geometries_3D(
+        points: np.array,
+        lego_bricks=None,
+        edges: List[Tuple] = None,
+        arrows=None,
+        show_axis=True,
+        show_point=True):
+
     hybrid_mesh = o3d.geometry.TriangleMesh()
-    point_meshes = get_mesh_for_points(points)
-    hybrid_mesh += point_meshes
+    if show_point:
+        point_meshes = get_mesh_for_points(points)
+        hybrid_mesh += point_meshes
 
     if show_axis:
         mesh_frame = o3d.geometry.TriangleMesh.create_coordinate_frame(size=10, origin=[0, 0, 0])
@@ -76,9 +93,9 @@ def visualize_3D(points: np.array, lego_bricks = None, edges: List[Tuple] = None
 
     if edges is not None:
         edge_line_set = get_lineset_for_edges(points, edges)
-        o3d.visualization.draw_geometries([hybrid_mesh, edge_line_set])
+        return [hybrid_mesh, edge_line_set]
     else:
-        o3d.visualization.draw_geometries([hybrid_mesh])
+        return [hybrid_mesh]
 
 
 def visualize_hinges(points, edges, pivots, axes):
@@ -94,7 +111,7 @@ def visualize_hinges(points, edges, pivots, axes):
     o3d.visualization.draw_geometries([hybrid_mesh, edge_line_set])
 
 
-def visualize_2D(points: np.array, edges: List[Tuple] = None, arrows = None):
+def visualize_2D(points: np.array, edges: List[Tuple] = None, arrows=None):
     # create Graph
     G_symmetric = nx.Graph()
 
@@ -107,7 +124,7 @@ def visualize_2D(points: np.array, edges: List[Tuple] = None, arrows = None):
 
     nx.draw_networkx(G_symmetric, pos=node_pos, node_size=10, node_color=node_color, width=0.7,
                      edgelist=edges, edge_color=edge_color,
-                     with_labels=False, style = "solid")
+                     with_labels=False, style="solid")
 
     if arrows is not None:
         ax = plt.axes()
@@ -115,12 +132,14 @@ def visualize_2D(points: np.array, edges: List[Tuple] = None, arrows = None):
         for i in range(len(points)):
             if LA.norm(arrows[i]) > 1e-4:
                 p_start = points[i]
-                ax.arrow(p_start[0], p_start[1], arrows[i][0], arrows[i][1], head_width=0.05, head_length=0.1, fc='k', ec='k')
+                ax.arrow(p_start[0], p_start[1], arrows[i][0], arrows[i][1], head_width=0.05, head_length=0.1, fc='k',
+                         ec='k')
 
     xmin, xmax, ymin, ymax = plt.axis()
     plt.axis([xmin - 1, xmax + 1, ymin - 1, ymax + 1])
     ax.set_aspect('equal', adjustable='box')
     plt.show()
+
 
 def show_3D_example():
     file_path = "../data/full_models/hinged_L.ldr"
@@ -129,7 +148,8 @@ def show_3D_example():
     points = np.array([[0, 0, 0], [1, 0, 0], [0, 2, 0]])
     edges = [(0, 1), (1, 2), (2, 0)]
     vectors = np.array([[0, 0, 0.01], [0, 0, 0.01], [0, 0, 0.05]])
-    visualize_3D(points, lego_bricks=bricks, edges = edges, arrows=vectors, show_axis=True)
+    visualize_3D(points, lego_bricks=bricks, edges=edges, arrows=vectors, show_axis=True)
+
 
 def show_2D_example():
     points = np.array([[0, 0], [0.5, 0], [0, 0.5]])
@@ -137,7 +157,7 @@ def show_2D_example():
     vectors = np.array([[0, 0.1], [0, 0.1], [0, 0.1]])
     visualize_2D(points, edges, vectors)
 
+
 if __name__ == "__main__":
     show_3D_example()
     # show_2D_example()
-
