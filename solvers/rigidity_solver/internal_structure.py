@@ -55,7 +55,7 @@ def find_rotation_matrix(a, b):
     return rot
 
 
-def tetrahedral(p, q, thickness=1, ori=None):
+def tetrahedral(p, q, density, thickness=1, ori=None):
     if ori is None:
         vertices = np.array([
             [0, 1, 0],
@@ -81,7 +81,8 @@ def tetrahedral(p, q, thickness=1, ori=None):
     start = base + start_center
     end = base + end_center
 
-    num = 5
+    num = int(np.linalg.norm(p - q) / thickness * density)
+    print(f"using num = {num}")
     triangles = np.linspace(start, end, num)
     centers = np.linspace(start_center, end_center, num) + (end_center - start_center) / (num - 1) / 2
 

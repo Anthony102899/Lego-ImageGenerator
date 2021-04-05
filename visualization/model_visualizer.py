@@ -35,7 +35,7 @@ def get_lineset_for_edges(points, edges):
     return line_set
 
 
-def get_mesh_for_arrows(points, vectors):
+def get_mesh_for_arrows(points, vectors, vec_len_coeff=200):
     arrows = o3d.geometry.TriangleMesh()
     for idx, p in enumerate(points):
         vec = vectors[idx]
@@ -45,8 +45,8 @@ def get_mesh_for_arrows(points, vectors):
             arrow = o3d.geometry.TriangleMesh.create_arrow(
                 cylinder_radius=0.1,
                 cone_radius=0.35,
-                cylinder_height=400 * vec_len,
-                cone_height=8 * vec_len,
+                cylinder_height=vec_len_coeff * vec_len,
+                cone_height=vec_len_coeff / 25 * vec_len,
                 resolution=5,
             )
             norm_vec = vec / np.linalg.norm(vec)

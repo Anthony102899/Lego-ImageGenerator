@@ -86,7 +86,7 @@ def spring_energy_matrix(
             edge_vec = normalized(edge_vec) / 1e-4 # making the spring strong by shorter the edge
 
         P[idx, idx * dim : idx * dim + dim] = normalized(edge_vec).T
-
+        K[idx, idx] = 1 / LA.norm(edge_vec)
 
 
         for d in range(dim):

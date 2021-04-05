@@ -189,17 +189,16 @@ def constraints_for_allowed_motions(
     if translation_vectors is not None:
         assert translation_vectors.ndim == 2
 
-    motion_num = (len(rotation_axes) if rotation_axes is not None else 0) +\
-                 (len(translation_vectors) if translation_vectors is not None else 0)
-    point_num = 6
-
     motions = []
     for i, target_point in enumerate(target_points):
         # all motions for a single point
-        pm = point_allowed_motions(
-            source_points, target_point,
-            rotation_pivot, rotation_axes,
-            translation_vectors)
+        if rotation_axes is None and translation_vectors is None: # two parts are melded together
+            pm = np.hstack((np.eye(9), -np.eye(9)))
+        else:
+            pm = point_allowed_motions(
+                source_points, target_point,
+                rotation_pivot, rotation_axes,
+                translation_vectors)
 
         pm_matrix = np.zeros((pm.shape[0], 18))
         pm_matrix[:, 0: 3 * dim] = pm[:, 0: 9]

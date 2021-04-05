@@ -84,6 +84,12 @@ class Model:
         return np.array(indices)
 
 
+    def save_json(self, filename: str):
+        import json
+        from util.json_encoder import ModelEncoder
+        with open(filename, "w") as f:
+            json.dump(self, f, cls=ModelEncoder)
+
     def visualize(self, arrows=None):
         if arrows is not None:
             visualize_3D(self.point_matrix(), edges=self.edge_matrix(), arrows=arrows.reshape(-1, 3))
@@ -96,13 +102,14 @@ class Model:
 
 
 class Beam:
-    def __init__(self, points, edges=None):
+    def __init__(self, points, edges=None, principle_points=None):
         if edges is None:
             index_range = range(len(points))
             edges = np.array(list(itertools.combinations(index_range, 2)))
 
         self._edges = edges
         self.points = points
+        self.principle_points = principle_points
 
     @classmethod
     def crystal(cls, p1, p2, crystal_counts):
@@ -112,14 +119,14 @@ class Beam:
         return Beam(points)
 
     @classmethod
-    def tetra(cls, p, q, thickness=1, ori=None):
-        points, edges = tetrahedral(p, q, thickness, ori)
-        return Beam(points, edges)
+    def tetra(cls, p, q, thickness=1, density=0.333333, ori=None):
+        points, edges = tetrahedral(p, q, thickness=thickness, density=density, ori=ori)
+        return Beam(points, edges, principle_points=(p, q))
 
     @classmethod
     def dense_tetra(cls, p, q, thickness=1, ori=None):
         points, _ = tetrahedral(p, q, thickness, ori)
-        return Beam(points)
+        return Beam(points, principle_points=(p, q))
 
     @classmethod
     def vertices(cls, points, orient):
@@ -172,7 +179,6 @@ class Beam:
         beam.mesh_filename = mesh_filename
 
         return beam
-
 
     @property
     def edges(self) -> np.ndarray:

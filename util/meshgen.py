@@ -8,7 +8,7 @@ import numpy as np
 
 def tetrahedralize(surface_filename, out_filename):
     wm_filename = out_filename + '.wm.mesh'
-    wm.tetrahedralize(surface_filename, wm_filename)
+    wm.tetrahedralize(surface_filename, wm_filename, edge_length_r=1/30)
     postprocess(wm_filename, out_filename)
 
 
