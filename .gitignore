@@ -13,12 +13,19 @@ data/auto
 *.o
 *.out
 *.drt
-./*.log
+*.log
 debug/
 
 
 model_params
 runs
-tests
+*.csv
+*.obj
+*.msh
+*.mesh
+*.npz
+tests/**/*.npz
+tests/**/*.json
+tests/**/*.png
 
 *.pickle
