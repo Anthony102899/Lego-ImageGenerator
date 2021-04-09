@@ -5,7 +5,6 @@ import numpy as np
 import open3d as o3d
 import copy
 from bricks_modeling.connections.conn_type import compute_conn_type
-from util.json_encoder import NumpyArrayEncoder
 
 """
 To use a graph to describe a LEGO structure
@@ -81,7 +80,8 @@ class ConnectivityGraph:
                 }
             )
 
-        return json.dumps({"nodes": nodes, "edges": self.connect_edges}, cls=NumpyArrayEncoder)
+        from util import json_encoder
+        return json.dumps({"nodes": nodes, "edges": self.connect_edges}, cls=json_encoder.NumpyArrayEncoder)
 
     def show(self):
         sphere = o3d.geometry.TriangleMesh.create_sphere(radius=1.0, resolution=2)

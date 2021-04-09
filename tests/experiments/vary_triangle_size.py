@@ -9,9 +9,9 @@ from tqdm import tqdm
 
 import util.geometry_util as geo_util
 from solvers.rigidity_solver.gradient import gradient_analysis
-from solvers.rigidity_solver.internal_structure import tetrahedralize
+from solvers.rigidity_solver.internal_structure import tetrahedron
 from solvers.rigidity_solver.algo_core import solve_rigidity, spring_energy_matrix
-from solvers.rigidity_solver.joints import Beam, Model, Hinge
+from solvers.rigidity_solver.models import Beam, Model, Joint
 from solvers.rigidity_solver import gradient as gd
 from solvers.rigidity_solver.eigen_analysis import eigen_analysis
 
@@ -33,7 +33,7 @@ vertices = np.array([
     [0, 1, 0],
 ])
 
-scale_range = np.linspace(200, 800, num=100)
+scale_range = np.linspace(200, 800, num=1000)
 objectives = []
 nonfixed_objectives = []
 for it, scale in enumerate(tqdm(scale_range)):
@@ -63,7 +63,7 @@ for it, scale in enumerate(tqdm(scale_range)):
 
 plt.xlabel("scale")
 plt.ylabel("7-th smallest eigenvalue")
-plt.plot(scale_range, objectives, label="Fix stiffness")
+# plt.plot(scale_range, objectives, label="Fix stiffness")
 plt.plot(scale_range, nonfixed_objectives, label="No fix stiffness")
 plt.legend()
 plt.show()

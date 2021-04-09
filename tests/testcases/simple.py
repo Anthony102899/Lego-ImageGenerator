@@ -1,5 +1,5 @@
 import numpy as np
-from solvers.rigidity_solver.joints import Model, Hinge, Beam
+from solvers.rigidity_solver.models import Model, Joint, Beam
 
 def case_hinge(ax):
     beams = [
@@ -16,7 +16,7 @@ def case_hinge(ax):
     ]
     pivot = np.array([0, 0, 0])
     hinges = [
-        Hinge(beams[0], beams[1], axis=ax, pivot_point=pivot)
+        Joint(beams[0], beams[1], axis=ax, pivot_point=pivot)
     ]
     model = Model()
     model.add_beams(beams)

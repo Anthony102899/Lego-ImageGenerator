@@ -7,9 +7,9 @@ from tqdm import tqdm
 
 import util.geometry_util as geo_util
 from solvers.rigidity_solver.gradient import gradient_analysis
-from solvers.rigidity_solver.internal_structure import tetrahedralize
+from solvers.rigidity_solver.internal_structure import tetrahedron
 from solvers.rigidity_solver.algo_core import solve_rigidity, spring_energy_matrix
-from solvers.rigidity_solver.joints import Beam, Model, Hinge
+from solvers.rigidity_solver.models import Beam, Model, Joint
 from solvers.rigidity_solver import gradient as gd
 from solvers.rigidity_solver.eigen_analysis import eigen_analysis
 
@@ -25,7 +25,7 @@ axes = np.array([
 ])
 
 objectives = []
-x_range = np.linspace(-1., 1., num=50)
+x_range = np.linspace(-2., 2., num=50)
 y_range = np.linspace(-0.5, 1.5, num=50)
 from itertools import product
 xy_range = product(x_range, y_range)

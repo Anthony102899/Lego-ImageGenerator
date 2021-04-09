@@ -6,10 +6,9 @@ from sfepy.discrete import fem
 import util.geometry_util as geo_util
 import util.meshgen as meshgen
 from visualization.model_visualizer import visualize_hinges, visualize_3D
-from solvers.rigidity_solver.internal_structure import get_crystal_vertices
 from .algo_core import spring_energy_matrix
 from .constraints_3d import select_non_colinear_points, constraints_for_allowed_motions
-from .internal_structure import tetrahedral
+from .internal_structure import tetrahedron
 from .stiffness_matrix import stiffness_matrix_from_mesh
 
 
@@ -37,6 +36,7 @@ class Model:
         #     index_offset += joint.virtual_point_count
         matrix = np.vstack([edges for edges in edge_indices if edges.size > 0])
         return matrix
+
 
     def constraint_matrix(self) -> np.ndarray:
         matrix = []
@@ -83,12 +83,11 @@ class Model:
 
         return np.array(indices)
 
-
-    def save_json(self, filename: str):
+    def save_json(self, filename: str, **kwargs):
         import json
         from util.json_encoder import ModelEncoder
         with open(filename, "w") as f:
-            json.dump(self, f, cls=ModelEncoder)
+            json.dump(self, f, cls=ModelEncoder, **kwargs)
 
     def visualize(self, arrows=None):
         if arrows is not None:
@@ -99,6 +98,20 @@ class Model:
                 visualize_hinges(self.point_matrix(), self.edge_matrix(), pivots=pivots, axes=axes)
             except ValueError:
                 visualize_3D(self.point_matrix(), edges=self.edge_matrix())
+
+    def __str__(self):
+        return str(self.report())
+
+    def report(self) -> dict:
+        return {
+            **{
+                "#parts": len(self.beams),
+                "#points": self.point_count,
+                "#joints": len(self.joints),
+                "#constraints": len(self.constraint_matrix())
+            },
+            **vars(self)
+        }
 
 
 class Beam:
@@ -113,6 +126,7 @@ class Beam:
 
     @classmethod
     def crystal(cls, p1, p2, crystal_counts):
+        from solvers.rigidity_solver.internal_structure import get_crystal_vertices
         orient = (p2 - p1) / np.linalg.norm(p2 - p1)
         crystals = [get_crystal_vertices(c, orient) for c in np.linspace(p1, p2, num=crystal_counts)]
         points = np.vstack(crystals)
@@ -120,12 +134,12 @@ class Beam:
 
     @classmethod
     def tetra(cls, p, q, thickness=1, density=0.333333, ori=None):
-        points, edges = tetrahedral(p, q, thickness=thickness, density=density, ori=ori)
+        points, edges = tetrahedron(p, q, thickness=thickness, density=density, ori=ori)
         return Beam(points, edges, principle_points=(p, q))
 
     @classmethod
     def dense_tetra(cls, p, q, thickness=1, ori=None):
-        points, _ = tetrahedral(p, q, thickness, ori)
+        points, _ = tetrahedron(p, q, thickness, ori)
         return Beam(points, principle_points=(p, q))
 
     @classmethod
@@ -164,7 +178,6 @@ class Beam:
 
         beam = cls.from_mesh_file(mesh_filename)
         return beam
-
 
     @classmethod
     def from_mesh_file(cls, mesh_filename):

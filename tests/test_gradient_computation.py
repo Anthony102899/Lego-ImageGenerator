@@ -13,9 +13,9 @@ from tqdm import tqdm
 import util.geometry_util as geo_util
 
 from solvers.rigidity_solver.gradient import gradient_analysis
-from solvers.rigidity_solver.internal_structure import tetrahedralize
+from solvers.rigidity_solver.internal_structure import tetrahedron
 from solvers.rigidity_solver.algo_core import solve_rigidity, spring_energy_matrix
-from solvers.rigidity_solver.joints import Beam, Model, Hinge
+from solvers.rigidity_solver.models import Beam, Model, Joint
 from solvers.rigidity_solver import gradient as gd
 from visualization.model_visualizer import visualize_3D, visualize_hinges
 
