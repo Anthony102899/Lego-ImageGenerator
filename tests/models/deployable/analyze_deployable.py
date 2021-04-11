@@ -94,24 +94,30 @@ if len(zero_eigenspace) > 0:
     log.debug("Non-rigid")
     for i, (e, v) in enumerate(zero_eigenspace):
         eigenvector = B @ v
-        arrows = eigenvector.reshape(-1, 3)
+        force = M @ eigenvector
+        # force /= np.linalg.norm(force)
+        arrows = force.reshape(-1, 3)
         log.debug(e)
         np.savez(f"data/rigid_deployable{stage}_non_rigid_{i}.npz",
                  eigenvalue=np.array(e),
                  points=points,
                  edges=edges,
                  eigenvector=eigenvector,
+                 force=force,
                  stiffness=M)
         visualize_3D(points, edges=edges, arrows=arrows, show_point=False)
 else:
     log.debug("rigid")
     e, v = non_zero_eigenspace[0]
     eigenvector = B @ v
-    arrows = eigenvector.reshape(-1, 3)
+    force = M @ eigenvector
+    # force /= np.linalg.norm(force)
+    arrows = force.reshape(-1, 3)
     np.savez(f"data/rigid_deployable_stage{stage}.npz",
              eigenvalue=np.array(e),
              points=points,
              edges=edges,
              eigenvector=eigenvector,
+             force=force,
              stiffness=M)
     visualize_3D(points, edges=edges, arrows=arrows, show_point=False)

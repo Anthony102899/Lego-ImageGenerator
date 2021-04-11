@@ -49,6 +49,10 @@ log.debug("constraint A matrix, shape {}, time - {}".format(A.shape, time.time()
 
 M = core.spring_energy_matrix(points, edges, dim)
 
+# e, V = np.linalg.eigh(M)
+# vec = V[0]
+# visualize_3D(points, edges=edges, arrows=vec.reshape(-1, 3), show_point=False)
+
 log.debug("stiffness matrix, time - {}".format(time.time() - start))
 log.debug(f"using matrix type {type(M)}")
 
@@ -92,6 +96,7 @@ if len(zero_eigenspace) > 0:
     log.debug("Non-rigid")
     for i, (e, v) in enumerate(zero_eigenspace):
         eigenvector = B @ v
+        force = M @ eigenvector
         arrows = eigenvector.reshape(-1, 3)
         log.debug(e)
         np.savez(f"data/rigid_chair_stage{stage}_non_rigid_{i}.npz",
@@ -99,18 +104,25 @@ if len(zero_eigenspace) > 0:
                  points=points,
                  edges=edges,
                  eigenvector=eigenvector,
-                 stiffness=M)
+                 stiffness=M,
+                 force=force,
+                 )
         visualize_3D(points, edges=edges, arrows=arrows)
 else:
     log.debug("rigid")
     e, v = non_zero_eigenspace[0]
     log.debug(f"smallest eigenvalue: {e}")
     eigenvector = B @ v
-    arrows = eigenvector.reshape(-1, 3)
+    force = M @ B @ v
+    # force /= np.linalg.norm(force)
+    arrows = force.reshape(-1, 3)
+    log.info("arrows: " + str(arrows))
     np.savez(f"data/rigid_chair_stage{stage}.npz",
              eigenvalue=np.array(e),
              points=points,
              edges=edges,
              eigenvector=eigenvector,
+             force=force,
              stiffness=M)
-    visualize_3D(points, edges=edges, arrows=arrows)
+    visualize_3D(points, edges=edges, arrows=force.reshape(-1, 3), show_point=False)
+    visualize_3D(points, edges=edges, arrows=eigenvector.reshape(-1, 3), show_point=False)

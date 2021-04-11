@@ -8,7 +8,7 @@ from model_deployable import define
 
 from util.logger import logger
 
-stage = 4
+stage = 1
 model = define(stage)["model"]
 log = logger()
 log.debug(model.report())
@@ -16,14 +16,14 @@ log.debug(model.report())
 joints = model.joints
 pv, axes = zip(*[(j.pivot, j.rotation_axes[0]) for j in joints if j.rotation_axes is not None])
 
-# trimesh, lines = get_geometries_3D(model.point_matrix(), edges=model.edge_matrix(), show_point=False)
-# trimesh += get_mesh_for_arrows(pv, axes, 20)
-# o3d.visualization.draw_geometries([trimesh, lines])
+trimesh, lines = get_geometries_3D(model.point_matrix(), edges=model.edge_matrix(), show_point=False)
+trimesh += get_mesh_for_arrows(pv, axes, 20)
+o3d.visualization.draw_geometries([trimesh, lines])
 
 data = np.load(f"data/rigid_deployable_stage{stage}.npz", allow_pickle=True)
 points, edges = data["points"], data["edges"]
 eigenvalue, eigenvector = data["eigenvalue"], data["eigenvector"]
-stiffness = data["stiffness"]
+stiffness, force = data["stiffness"], data["force"]
 
 print(eigenvalue)
 trimesh, lines = get_geometries_3D(points, edges=edges, show_point=False, show_axis=False)

@@ -52,67 +52,67 @@ def define(stage):
 
     model = Model()
     _bmap = {
-        "top-A": Beam.tetra(_p["B-u"], _p["C-u"], density=den),
-        "top-B": Beam.tetra(_p["C-u"], _p["A-u"], density=den),
-        "top-C": Beam.tetra(_p["A-u"], _p["B-u"], density=den),
-
-        "top-ab-bc": Beam.tetra(_p["ab-mid"], _p["bc-mid"], density=den),
-        "top-bc-ca": Beam.tetra(_p["bc-mid"], _p["ca-mid"], density=den),
-        "top-ca-ab": Beam.tetra(_p["ca-mid"], _p["ab-mid"], density=den),
+        # "top-A": Beam.tetra(_p["B-u"], _p["C-u"], density=den),
+        # "top-B": Beam.tetra(_p["C-u"], _p["A-u"], density=den),
+        # "top-C": Beam.tetra(_p["A-u"], _p["B-u"], density=den),
+        #
+        # "top-ab-bc": Beam.tetra(_p["ab-mid"], _p["bc-mid"], density=den),
+        # "top-bc-ca": Beam.tetra(_p["bc-mid"], _p["ca-mid"], density=den),
+        # "top-ca-ab": Beam.tetra(_p["ca-mid"], _p["ab-mid"], density=den),
 
         "core-ab": Beam.tetra(_p['a'], _p["b"], density=den),
-        "core-bc": Beam.tetra(_p["b"], _p["c"], density=den),
-        "core-ca": Beam.tetra(_p["c"], _p["a"], density=den),
-
-        "A-c": Beam.tetra(_p["A-u"], _p["C-d"], density=den),
-        "A-b": Beam.tetra(_p["A-u"], _p["B-d"], density=den),
-        "B-a": Beam.tetra(_p["B-u"], _p["A-d"], density=den),
-        "B-c": Beam.tetra(_p["B-u"], _p["C-d"], density=den),
-        "C-b": Beam.tetra(_p["C-u"], _p["B-d"], density=den),
-        "C-a": Beam.tetra(_p["C-u"], _p["A-d"], density=den),
+        # "core-bc": Beam.tetra(_p["b"], _p["c"], density=den),
+        # "core-ca": Beam.tetra(_p["c"], _p["a"], density=den),
+        #
+        # "A-c": Beam.tetra(_p["A-u"], _p["C-d"], density=den),
+        # "A-b": Beam.tetra(_p["A-u"], _p["B-d"], density=den),
+        # "B-a": Beam.tetra(_p["B-u"], _p["A-d"], density=den),
+        # "B-c": Beam.tetra(_p["B-u"], _p["C-d"], density=den),
+        # "C-b": Beam.tetra(_p["C-u"], _p["B-d"], density=den),
+        # "C-a": Beam.tetra(_p["C-u"], _p["A-d"], density=den),
     }
     joints = [
-        Joint(_bmap["core-ab"], _bmap["core-bc"], pivot=_p["b"], rotation_axes=v(0, 0, 1)),
-        Joint(_bmap["core-bc"], _bmap["core-ca"], pivot=_p["c"], rotation_axes=v(0, 0, 1)),
-        Joint(_bmap["core-ca"], _bmap["core-ab"], pivot=_p["a"], rotation_axes=v(0, 0, 1)),
-
-        Joint(_bmap["top-ab-bc"], _bmap["top-bc-ca"], pivot=_p["bc-mid"], rotation_axes=v(0, 0, 1)),
-        Joint(_bmap["top-bc-ca"], _bmap["top-ca-ab"], pivot=_p["ca-mid"], rotation_axes=v(0, 0, 1)),
-        Joint(_bmap["top-ca-ab"], _bmap["top-ab-bc"], pivot=_p["ab-mid"], rotation_axes=v(0, 0, 1)),
-        Joint(_bmap["top-ab-bc"], _bmap["top-B"], pivot=_p["bc-mid"], rotation_axes=v(0, 0, 1)),
-        Joint(_bmap["top-bc-ca"], _bmap["top-C"], pivot=_p["ca-mid"], rotation_axes=v(0, 0, 1)),
-        Joint(_bmap["top-ca-ab"], _bmap["top-A"], pivot=_p["ab-mid"], rotation_axes=v(0, 0, 1)),
-
-        Joint(_bmap["A-c"], _bmap["B-c"], pivot=_p["C-d"], rotation_axes=_dc),
-        Joint(_bmap["B-a"], _bmap["B-c"], pivot=_p["B-u"], rotation_axes=_db),
-        Joint(_bmap["B-a"], _bmap["C-a"], pivot=_p["A-d"], rotation_axes=_da),
-        Joint(_bmap["C-b"], _bmap["C-a"], pivot=_p["C-u"], rotation_axes=_dc),
-        Joint(_bmap["C-b"], _bmap["A-b"], pivot=_p["B-d"], rotation_axes=_db),
-        Joint(_bmap["A-c"], _bmap["A-b"], pivot=_p["A-u"], rotation_axes=_da),
+        # Joint(_bmap["core-ab"], _bmap["core-bc"], pivot=_p["b"], rotation_axes=v(0, 0, 1)),
+        # Joint(_bmap["core-bc"], _bmap["core-ca"], pivot=_p["c"], rotation_axes=v(0, 0, 1)),
+        # Joint(_bmap["core-ca"], _bmap["core-ab"], pivot=_p["a"], rotation_axes=v(0, 0, 1)),
         #
-        Joint(_bmap["A-c"], _bmap["core-bc"],
-              pivot=_p["c"], rotation_axes=_da),
-        Joint(_bmap["A-b"], _bmap["core-bc"],
-              pivot=_p["b"], rotation_axes=_da),
-        Joint(_bmap["B-a"], _bmap["core-ca"],
-              pivot=_p["a"], rotation_axes=_db),
-        Joint(_bmap["B-c"], _bmap["core-ca"],
-              pivot=_p["c"], rotation_axes=_db),
-        Joint(_bmap["C-a"], _bmap["core-ab"],
-              pivot=_p["a"], rotation_axes=_dc),
-        Joint(_bmap["C-b"], _bmap["core-ab"],
-              pivot=_p["b"], rotation_axes=_dc),
+        # Joint(_bmap["top-ab-bc"], _bmap["top-bc-ca"], pivot=_p["bc-mid"], rotation_axes=v(0, 0, 1)),
+        # Joint(_bmap["top-bc-ca"], _bmap["top-ca-ab"], pivot=_p["ca-mid"], rotation_axes=v(0, 0, 1)),
+        # Joint(_bmap["top-ca-ab"], _bmap["top-ab-bc"], pivot=_p["ab-mid"], rotation_axes=v(0, 0, 1)),
+        # Joint(_bmap["top-ab-bc"], _bmap["top-B"], pivot=_p["bc-mid"], rotation_axes=v(0, 0, 1)),
+        # Joint(_bmap["top-bc-ca"], _bmap["top-C"], pivot=_p["ca-mid"], rotation_axes=v(0, 0, 1)),
+        # Joint(_bmap["top-ca-ab"], _bmap["top-A"], pivot=_p["ab-mid"], rotation_axes=v(0, 0, 1)),
+        #
+        # Joint(_bmap["A-c"], _bmap["B-c"], pivot=_p["C-d"], rotation_axes=_dc),
+        # Joint(_bmap["B-a"], _bmap["B-c"], pivot=_p["B-u"], rotation_axes=_db),
+        # Joint(_bmap["B-a"], _bmap["C-a"], pivot=_p["A-d"], rotation_axes=_da),
+        # Joint(_bmap["C-b"], _bmap["C-a"], pivot=_p["C-u"], rotation_axes=_dc),
+        # Joint(_bmap["C-b"], _bmap["A-b"], pivot=_p["B-d"], rotation_axes=_db),
+        # Joint(_bmap["A-c"], _bmap["A-b"], pivot=_p["A-u"], rotation_axes=_da),
 
-        Joint(_bmap["top-C"], _bmap["top-A"], pivot=_p["B-u"], rotation_axes=v(0, 0, 1)),
-        Joint(_bmap["top-A"], _bmap["top-B"], pivot=_p["C-u"], rotation_axes=v(0, 0, 1)),
-        Joint(_bmap["top-B"], _bmap["top-C"], pivot=_p["A-u"], rotation_axes=v(0, 0, 1)),
-
-        Joint(_bmap["top-B"], _bmap["A-b"], pivot=_p["A-u"], rotation_axes=v(0, 0, 1)),
-        Joint(_bmap["top-C"], _bmap["A-c"], pivot=_p["A-u"], rotation_axes=v(0, 0, 1)),
-        Joint(_bmap["top-C"], _bmap["B-c"], pivot=_p["B-u"], rotation_axes=v(0, 0, 1)),
-        Joint(_bmap["top-A"], _bmap["B-a"], pivot=_p["B-u"], rotation_axes=v(0, 0, 1)),
-        Joint(_bmap["top-A"], _bmap["C-a"], pivot=_p["C-u"], rotation_axes=v(0, 0, 1)),
-        Joint(_bmap["top-B"], _bmap["C-b"], pivot=_p["C-u"], rotation_axes=v(0, 0, 1)),
+        # Joint(_bmap["A-c"], _bmap["core-bc"],
+        #       pivot=_p["c"], rotation_axes=_da),
+        # Joint(_bmap["A-b"], _bmap["core-bc"],
+        #       pivot=_p["b"], rotation_axes=_da),
+        # Joint(_bmap["B-a"], _bmap["core-ca"],
+        #       pivot=_p["a"], rotation_axes=_db),
+        # Joint(_bmap["B-c"], _bmap["core-ca"],
+        #       pivot=_p["c"], rotation_axes=_db),
+        # Joint(_bmap["C-a"], _bmap["core-ab"],
+        #       pivot=_p["a"], rotation_axes=_dc),
+        # Joint(_bmap["C-b"], _bmap["core-ab"],
+        #       pivot=_p["b"], rotation_axes=_dc),
+        #
+        # Joint(_bmap["top-C"], _bmap["top-A"], pivot=_p["B-u"], rotation_axes=v(0, 0, 1)),
+        # Joint(_bmap["top-A"], _bmap["top-B"], pivot=_p["C-u"], rotation_axes=v(0, 0, 1)),
+        # Joint(_bmap["top-B"], _bmap["top-C"], pivot=_p["A-u"], rotation_axes=v(0, 0, 1)),
+        #
+        # Joint(_bmap["top-B"], _bmap["A-b"], pivot=_p["A-u"], rotation_axes=v(0, 0, 1)),
+        # Joint(_bmap["top-C"], _bmap["A-c"], pivot=_p["A-u"], rotation_axes=v(0, 0, 1)),
+        # Joint(_bmap["top-C"], _bmap["B-c"], pivot=_p["B-u"], rotation_axes=v(0, 0, 1)),
+        # Joint(_bmap["top-A"], _bmap["B-a"], pivot=_p["B-u"], rotation_axes=v(0, 0, 1)),
+        # Joint(_bmap["top-A"], _bmap["C-a"], pivot=_p["C-u"], rotation_axes=v(0, 0, 1)),
+        # Joint(_bmap["top-B"], _bmap["C-b"], pivot=_p["C-u"], rotation_axes=v(0, 0, 1)),
     ]
 
     ax_z = v(0, 0, 1)
@@ -167,3 +167,9 @@ def define(stage):
     model.add_joints(joints)
 
     return locals()
+
+
+if __name__ == "__main__":
+    for stage in range(1, 4 + 1):
+        model = define(stage)["model"]
+        model.save_json(f"table-stage{stage}.json")
