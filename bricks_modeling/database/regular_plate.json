@@ -104,6 +104,7 @@
   {
     "id": "26601",
     "area": 2.25,
+    "weight": 0.7,
     "connPoint": [
       {"pos": [10, -2, 10], "orient": [0, 1, 0], "type": "stud"},
       {"pos": [10, 6, 10], "orient": [0, 1, 0], "type": "tube"},

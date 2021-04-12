@@ -57,6 +57,7 @@ area_max = np.amax(np.array(area))
 area_normal = [round(i / area_max, 3) for i in area]
 weight = util.get_weight()
 weight = [weight[b.template.id] for b in plate_set]
+ldr_color = util.read_ldr_color()
 
 selected_bricks = base_bricks
 for k in range(img_num):
@@ -83,7 +84,7 @@ for k in range(img_num):
     
     node_color = [i for i in node_color if len(i) == 3]
     node_color = np.average(node_color, axis = 0)
-    ldr_color = util.nearest_color(node_color)
+    ldr_code = util.nearest_color(node_color, ldr_color)
 
     results = solver.solve(structure_graph=structure_graph,
                             node_sd=sd_normal,
@@ -93,7 +94,7 @@ for k in range(img_num):
     selected_bricks_layer = []
     for i in range(base_count, len(plate_set)):
         if results[i] == 1:
-            colored_brick = util.color_brick(plate_set[i], np.array(ldr_color), rgb=False)
+            colored_brick = util.color_brick(plate_set[i], ldr_code, rgb=False)
             selected_bricks_layer.append(colored_brick)
 
     if background_bool:
@@ -105,7 +106,7 @@ for k in range(img_num):
 if background_bool:
     background = "solvers/generation_solver/inputs/" + "back " + graph_name.split(".pkl")[0] + ".ldr"
     background = read_bricks_from_file(background)
-    selected_bricks += util.move_brickset(background, background_rgb, 0, 0)
+    selected_bricks += util.move_brickset(background, background_rgb, 0, 0, ldr_color)
 
 img_ls = img_name.split("_")
 if len(img_ls) > 1:

@@ -87,8 +87,8 @@ def load_data(brick_database=["regular_plate.json"]):
             data.extend(temp)
     return data
 
-def move_brickset(brickset, rgb_color, x, z):
-    ldr_color = nearest_color(rgb_color)
+def move_brickset(brickset, rgb_color, x, z, ldr_color):
+    ldr_color = nearest_color(rgb_color, ldr_color)
     new_set = [color_brick(brick, ldr_color, rgb=False) for brick in brickset]
     [brick.translate([x, 0, z]) for brick in new_set]
     return new_set
@@ -104,8 +104,7 @@ def move_layer(brickset, layer_num):
     return new_set
 
 # return an integer
-def nearest_color(rgb):
-    ldr_color = read_ldr_color()
+def nearest_color(rgb, ldr_color):
     minn = sys.maxsize
     result = -1
     for key in ldr_color:
@@ -128,6 +127,7 @@ def proj_bbox(brick:BrickInstance):
     polygon = unary_union(polygon_ls)
     return polygon
 
+# return a dictionary
 def read_ldr_color():
     k = -1
     ldr_color = []
@@ -136,7 +136,7 @@ def read_ldr_color():
         if k > 0:
             line = (line[:-1].split("\t"))
             ldr_code = (int)(line[2])
-            if ldr_code < 20 and not ldr_code == 16:
+            if ldr_code < 30 and not (ldr_code == 16 or ldr_code == 24):
                 hex_value = line[8]
                 ldr_color.append({"LDR_code": ldr_code, "hex": hex_value})
     return ldr_color
