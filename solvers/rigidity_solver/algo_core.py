@@ -105,12 +105,12 @@ def spring_energy_matrix(
 def spring_energy_matrix_accelerate_3D(
     points: np.ndarray,
     edges: np.ndarray,
-    abstract_edges:np.ndarray,
+    abstract_edges = np.array([]),
     dim: int = 3,
     matrices=False,
     virtual_edges = False,
     ) -> np.ndarray:
-
+    print("abstract_edges:",abstract_edges)
     n, m = len(points), len(edges) + len(abstract_edges)
 
     K = np.zeros((m, m))
@@ -124,8 +124,8 @@ def spring_energy_matrix_accelerate_3D(
         for idx, e in enumerate(edges):
             if len(e) == 2:
                 edge_vec = points[e[0]] - points[e[1]]
-                if LA.norm(edge_vec) < 1e-4:
-                    continue
+                # if LA.norm(edge_vec) < 1e-4:
+                #     continue
             else: # virtual edge
                 print(e)
                 assert len(e) == 2 + dim
@@ -144,6 +144,7 @@ def spring_energy_matrix_accelerate_3D(
                 A[dim * idx + d, dim * e[1] + d] = -1
 
     else:
+        print("\n\n\n the abstract edges:",abstract_edges)
         abstract_edges = np.array(abstract_edges)
         if abstract_edges.shape[0] != 0:
             assert LA.norm(points[abstract_edges[:,0].astype("int32")] - points[abstract_edges[:,1].astype("int32")],axis=1).max() < 1e-6
@@ -176,7 +177,7 @@ def spring_energy_matrix_accelerate_3D(
         A[np.arange(m) * 3 + 2, edges[:, 1] * 3 + 2] = -1
 
         # sK = scipy.sparse.csr_matrix(K)
-        sK = scipy.sparse.csr_matrix((np.ones(m),(np.arange(m),np.arange(m))),shape=(m,m))
+        sK = scipy.sparse.csr_matrix((1/edge_norms,(np.arange(m),np.arange(m))),shape=(m,m))
 
         # sA = scipy.sparse.csr_matrix(A)
         sP = scipy.sparse.csr_matrix((np.concatenate((edge_vecs[:, 0],edge_vecs[:, 1],edge_vecs[:, 2])),(np.concatenate((np.arange(m),np.arange(m),np.arange(m))),np.concatenate((np.arange(m) * dim,np.arange(m) * dim+1,np.arange(m) * dim+2)))),shape=(m,dim*m))
