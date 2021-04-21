@@ -1,3 +1,5 @@
+import scipy
+
 from bricks_modeling.file_IO.model_reader import read_bricks_from_file
 from bricks_modeling.file_IO.model_writer import write_bricks_to_file
 from bricks_modeling.connectivity_graph import ConnectivityGraph

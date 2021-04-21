@@ -1,6 +1,6 @@
 #%%
 import sys
-sys.path.append("..")
+sys.path.append("../..")
 
 from collections import defaultdict
 
@@ -15,7 +15,7 @@ import numpy as np
 
 from tqdm import tqdm
 
-filename = "../data/full_models/hole_axle_test.ldr"
+filename = "../../data/full_models/hole_axle_test.ldr"
 bricks = read_bricks_from_file(filename)
 graph = ConnectivityGraph(bricks)
 

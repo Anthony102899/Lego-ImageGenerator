@@ -10,7 +10,7 @@ from numpy.linalg import cholesky, inv, matrix_rank
 import util.geometry_util as geo_util
 from visualization.model_visualizer import visualize_3D
 
-from testcases import simple
+from tests.testsamples import simple
 
 model = simple.hinge_with_yaw_axis()
 

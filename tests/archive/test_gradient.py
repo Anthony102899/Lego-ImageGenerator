@@ -1,6 +1,6 @@
 #%%
 import sys
-sys.path.append("..")
+sys.path.append("../..")
 
 import scipy
 import numpy as np
@@ -16,7 +16,7 @@ from solvers.rigidity_solver.gradient import gradient_analysis
 
 from visualization.model_visualizer import visualize_3D
 
-import testcases
+import tests.testsamples
 #%%
 
 def sample_spherical(npoints, ndim=3):
@@ -32,7 +32,7 @@ axes_list = [
 
 objectives = []
 
-from testcases import tetra
+from testsamples import tetra
 from tqdm import tqdm
 # for axes in tqdm(axes_list):
 if True:
