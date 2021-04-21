@@ -12,7 +12,7 @@ def define(stage):
     _p = {
         "a": p(0, 0, 0),
         "b": p(1, 0, 0),
-        "c": p(1 / 2, np.sqrt(3) / 2, 0),
+        "c": p(0, 1, 0),
 
         "A-u": p(3 / 2, np.sqrt(3) / 2, 1),
         "A-d": p(3 / 2, np.sqrt(3) / 2, -1),
@@ -61,8 +61,8 @@ def define(stage):
         # "top-ca-ab": Beam.tetra(_p["ca-mid"], _p["ab-mid"], density=den),
 
         "core-ab": Beam.tetra(_p['a'], _p["b"], density=den),
-        # "core-bc": Beam.tetra(_p["b"], _p["c"], density=den),
-        # "core-ca": Beam.tetra(_p["c"], _p["a"], density=den),
+        "core-bc": Beam.tetra(_p["b"], _p["c"], density=den),
+        "core-ca": Beam.tetra(_p["c"], _p["a"], density=den),
         #
         # "A-c": Beam.tetra(_p["A-u"], _p["C-d"], density=den),
         # "A-b": Beam.tetra(_p["A-u"], _p["B-d"], density=den),
@@ -72,9 +72,9 @@ def define(stage):
         # "C-a": Beam.tetra(_p["C-u"], _p["A-d"], density=den),
     }
     joints = [
-        # Joint(_bmap["core-ab"], _bmap["core-bc"], pivot=_p["b"], rotation_axes=v(0, 0, 1)),
-        # Joint(_bmap["core-bc"], _bmap["core-ca"], pivot=_p["c"], rotation_axes=v(0, 0, 1)),
-        # Joint(_bmap["core-ca"], _bmap["core-ab"], pivot=_p["a"], rotation_axes=v(0, 0, 1)),
+        Joint(_bmap["core-ab"], _bmap["core-bc"], pivot=_p["b"], rotation_axes=v(0, 0, 1)),
+        Joint(_bmap["core-bc"], _bmap["core-ca"], pivot=_p["c"], rotation_axes=v(0, 0, 1)),
+        Joint(_bmap["core-ca"], _bmap["core-ab"], pivot=_p["a"], rotation_axes=v(0, 0, 1)),
         #
         # Joint(_bmap["top-ab-bc"], _bmap["top-bc-ca"], pivot=_p["bc-mid"], rotation_axes=v(0, 0, 1)),
         # Joint(_bmap["top-bc-ca"], _bmap["top-ca-ab"], pivot=_p["ca-mid"], rotation_axes=v(0, 0, 1)),

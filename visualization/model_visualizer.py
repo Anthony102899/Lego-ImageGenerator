@@ -35,18 +35,22 @@ def get_lineset_for_edges(points, edges):
     return line_set
 
 
-def get_mesh_for_arrows(points, vectors, vec_len_coeff=200):
+def get_mesh_for_arrows(points, vectors, vec_len_coeff=200, rad_scale=1):
     arrows = o3d.geometry.TriangleMesh()
     for idx, p in enumerate(points):
         vec = vectors[idx]
         rot_mat = geo_util.rot_matrix_from_vec_a_to_b([0, 0, 1], vec)
         vec_len = LA.norm(vec)
-        if vec_len > 0:
+        if vec_len > 1e-3:
+            arrow_body_len = vec_len_coeff * vec_len
+            arrow_body_radius = 0.3 * rad_scale
+            arrow_head_radius = arrow_body_radius * 3
+            arrow_head_height = 3 * arrow_head_radius
             arrow = o3d.geometry.TriangleMesh.create_arrow(
-                cylinder_radius=0.1,
-                cone_radius=0.35,
-                cylinder_height=vec_len_coeff * vec_len,
-                cone_height=vec_len_coeff / 25 * vec_len,
+                cylinder_radius=arrow_body_radius,
+                cylinder_height=arrow_body_len,
+                cone_radius=arrow_head_radius,
+                cone_height=arrow_head_height,
                 resolution=5,
             )
             norm_vec = vec / np.linalg.norm(vec)
@@ -62,8 +66,15 @@ def get_bricks_meshes(bricks):
     return meshs
 
 
-def visualize_3D(points: np.array, lego_bricks=None, edges: List[Tuple] = None, arrows=None, show_axis=True, show_point=True):
-    meshes = get_geometries_3D(points, lego_bricks, edges, arrows, show_axis, show_point)
+def visualize_3D(points: np.array,
+                 lego_bricks=None,
+                 edges: List[Tuple] = None,
+                 arrows=None,
+                 show_axis=True,
+                 show_point=True,
+                 show_edge=True,
+                 ):
+    meshes = get_geometries_3D(points, lego_bricks, edges, arrows, show_axis, show_point, show_edge)
     o3d.visualization.draw_geometries(meshes)
 
 def get_geometries_3D(
@@ -72,7 +83,9 @@ def get_geometries_3D(
         edges: List[Tuple] = None,
         arrows=None,
         show_axis=True,
-        show_point=True):
+        show_point=True,
+        show_edge=True,
+):
 
     hybrid_mesh = o3d.geometry.TriangleMesh()
     if show_point:
@@ -91,7 +104,7 @@ def get_geometries_3D(
         arrow_meshes = get_mesh_for_arrows(points, arrows)
         hybrid_mesh += arrow_meshes
 
-    if edges is not None:
+    if edges is not None and show_edge:
         edge_line_set = get_lineset_for_edges(points, edges)
         return [hybrid_mesh, edge_line_set]
     else:

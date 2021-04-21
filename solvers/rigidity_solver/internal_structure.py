@@ -67,6 +67,7 @@ def tetrahedron(p, q, density, thickness=1, ori=None):
         n = geo_util.normalize(p - q)
         rot = find_rotation_matrix(z, n)
         base = (rot @ vertices.T).T * thickness
+
     else:
         ori = geo_util.normalize(ori)
         offset = geo_util.normalize(np.cross(p - q, ori)) * np.sqrt(3) / 2

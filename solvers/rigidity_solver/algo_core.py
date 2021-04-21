@@ -5,6 +5,7 @@ from solvers.rigidity_solver import constraints_3d
 from util.debugger import MyDebugger
 from bricks_modeling.connections.conn_type import ConnType
 import numpy as np
+import scipy
 import util.geometry_util as geo_util
 import open3d as o3d
 import copy
@@ -132,6 +133,16 @@ def constraint_matrix(points, edges, joints, fixed_points_idx, dim):
     return A
 
 
+def generalized_courant_fischer(original_stiffness, constraints):
+    K = original_stiffness
+    B = scipy.linalg.null_space(constraints)
+    T = np.transpose(B) @ B
+    S = B.T @ K @ B
+    L = np.linalg.cholesky(T)
+    L_inv = np.linalg.inv(L)
+    Q = L_inv.T @ S @ L_inv
+
+    return Q, B
 
 def quadratic_matrix(points, edges, joints, fixed_points_idx, dim, verbose=False):
     """

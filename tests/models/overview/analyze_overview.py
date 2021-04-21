@@ -6,18 +6,16 @@ from scipy.linalg import null_space
 from numpy.linalg import cholesky, inv, matrix_rank
 from solvers.rigidity_solver.eigen_analysis import eigen_analysis
 import solvers.rigidity_solver.algo_core as core
-from visualization.model_visualizer import visualize_3D
+from visualization.model_visualizer import visualize_3D, get_geometries_3D, get_mesh_for_arrows, get_lineset_for_edges
 import util.geometry_util as geo_util
 import time
 
-from model_deployable import define
-
+from model_overview import define, define_from_file
 from util.logger import logger
 
 log = logger()
 
-stage = 1
-definition = define(stage)
+definition = define_from_file()
 model = definition["model"]
 
 log.debug(f"model definition: {definition}")
@@ -39,11 +37,28 @@ A = A if A.size != 0 else np.zeros((1, len(points) * dim))
 
 trivial_motions = geo_util.trivial_basis(points, dim=3)
 count = len(model.beams[0].points)
+# count = len(model.beams[0].points) + len(model.beams[1].points)
 # count = 3
 fixed_coordinates = np.zeros((count * 3, points.shape[0] * 3))
 for r, c in enumerate(range(count * 3)):
     fixed_coordinates[r, c] = 1
-extra_constraints = np.take(trivial_motions, [0, 1, 2, 3, 4, 5], axis=0)
+
+def one_hot(ind, length):
+    zr = np.zeros((length, ))
+    zr[ind] = 1
+    return zr
+
+fixed_z_axis = np.vstack(
+    [one_hot(i * 3 + 2, len(points) * 3) for i in range(len(points))]
+)
+extra_constraints = np.vstack(
+    (
+        # np.take(trivial_motions, [0, 1, 2, 3, 4, 5], axis=0),
+        fixed_coordinates,
+        fixed_z_axis,
+        # geo_util.trivial_basis(points, dim=3),
+    )
+)
 # extra_constraints = fixed_coordinates
 A = np.vstack((A, extra_constraints))
 
@@ -66,6 +81,8 @@ log.debug(f"nullity of A: {A.shape[1] - rank_A}")
 T = np.transpose(B) @ B
 log.debug("T = B.T @ B computed, time - {}".format(time.time() - start))
 
+print(np.isclose(T - np.eye(len(T)), np.zeros_like(T)).all())
+
 S = B.T @ M @ B
 log.debug("S computed. time - {}".format(time.time() - start))
 
@@ -76,6 +93,8 @@ L_inv = np.linalg.inv(L)
 log.debug("inverse of L, shape {} time - {}".format(L_inv.shape, time.time() - start))
 
 Q = L_inv.T @ S @ L_inv
+# Q = S
+print(B.T @ B)
 log.debug("merged stiffness and constraint matrix into Q {}, time - {}".format(Q.shape, time.time() - start))
 
 eigen_pairs = geo_util.eigen(Q, symmetric=True)
@@ -90,71 +109,47 @@ non_zero_eigenspace = [(e_val, e_vec) for e_val, e_vec in eigen_pairs if abs(e_v
 log.debug("non zero eigenspace, time - {}".format(time.time() - start))
 
 log.debug(f"smallest 6 eigenvalue: {[e for e, _ in eigen_pairs[:6]]}")
+
 if len(zero_eigenspace) > 0:
     log.debug("Non-rigid")
-    for i, (e, v) in enumerate(zero_eigenspace):
-        eigenvector = B @ v
-        force = M @ eigenvector
-        # force /= np.linalg.norm(force)
-        arrows = force.reshape(-1, 3)
-        log.debug(e)
-        np.savez(f"data/rigid_deployable{stage}_non_rigid_{i}.npz",
-                 eigenvalue=np.array(e),
-                 points=points,
-                 edges=edges,
-                 eigenvector=eigenvector,
-                 force=force,
-                 stiffness=M)
-        visualize_3D(points, edges=edges, arrows=arrows, show_point=False)
 else:
     log.debug("rigid")
-    e, v = non_zero_eigenspace[0]
+
+
+lineset = get_lineset_for_edges(points, edges)
+lineset.paint_uniform_color([0, 0, 0])
+o3d.visualization.draw_geometries([lineset])
+
+for i, (e, v) in enumerate(eigen_pairs):
+    if i > 2:
+        break
     eigenvector = B @ v
     force = M @ eigenvector
-    force /= np.linalg.norm(force)
-    arrows = force.reshape(-1, 3)
+    # force /= np.linalg.norm(force)
+    arrows = eigenvector.reshape(-1, 3)
+    if e < 1e-6:
+        log.debug(f"{i}-th eigen: {e}, non-rigid")
+    else:
+        log.debug(f"{i}-th eigen: {e}, rigid")
 
-    input_vec = np.concatenate(
-        (
-            np.linspace(
-                np.array([0, 1, 0]),
-                np.array([0, -1, 0]),
-                count - 13
-            ).reshape(-1),
-            np.linspace(
-                np.array([0, -1, 0]),
-                np.array([0, 1, 0]),
-                13
-            ).reshape(-1),
-        )
-    )
-
-    eigenvector = geo_util.normalize(eigenvector)
-    part1_point = points[:count]
-    part1_stiffness = M[:count * 3, :count * 3]
-    part1_v = input_vec
-
-    part1_trivial = geo_util.trivial_basis(part1_point, 3, orthonormal=True)
-    coefficients = geo_util.decompose_on_orthobasis(part1_v, part1_trivial)
-
-    for coeff, base in zip(coefficients, part1_trivial):
-        part1_v -= coeff * base
-        _coefficients = geo_util.decompose_on_orthobasis(part1_v, part1_trivial)
-
-    part1_f = part1_stiffness @ part1_v
-
-    print("stiffness matrix M:", part1_stiffness.shape, np.linalg.matrix_rank(part1_stiffness))
-    print(np.linalg.norm(part1_f))
-    # part1_f /= np.linalg.norm(part1_f)
-
-    np.savez(f"data/rigid_deployable_stage{stage}.npz",
+    np.savez(f"data/overview_{i}.npz",
              eigenvalue=np.array(e),
              points=points,
              edges=edges,
              eigenvector=eigenvector,
              force=force,
              stiffness=M)
-    visualize_3D(part1_point, edges=edges[:count], arrows=part1_v.reshape(-1, 3), show_point=False)
-    visualize_3D(part1_point, edges=edges[:count], arrows=part1_f.reshape(-1, 3), show_point=False)
-    # visualize_3D(points, edges=edges, arrows=force.reshape(-1, 3), show_point=False)
-    # visualize_3D(points, edges=edges, arrows=eigenvector.reshape(-1, 3), show_point=False)
+
+
+    if i in (0, 1, 2):
+        if i == 1:
+            arrows = -arrows
+        mask = points[:, 2] < 1e-6
+        trimesh = get_mesh_for_arrows(points[mask, :], arrows[mask, :], 80, rad_scale=2)
+        trimesh.paint_uniform_color([1., 0., 0.])
+
+        # visualize the vectors only
+        # o3d.visualization.draw_geometries([trimesh])
+
+        # visualize beam structure + vectors
+        visualize_3D(points, edges=edges, arrows=arrows, show_point=False)

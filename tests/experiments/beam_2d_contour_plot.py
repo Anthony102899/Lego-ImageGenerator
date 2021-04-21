@@ -12,45 +12,33 @@ import util.geometry_util as geo_util
 
 #%%
 
-x_range = np.linspace(-0.8, 0.8, num=200 // 4)
-y_range = np.linspace(-0.8, 0.8, num=200 // 4)
+x_range = np.linspace(-0.8, 0.8, num=300 // 4)
+y_range = np.linspace(-0.8, 0.8, num=300 // 4)
 
 xy_range = product(x_range, y_range)
 
 dim = 3
 
-case = "triangle"
-assert case in ("triangle", "beam")
-if case == "triangle":
-    points = np.array([
-        [-0.5, -np.sqrt(3) / 2, 0],
-        [0.5, -np.sqrt(3) / 2, 0],
-        [0, 0, 0],
-    ])
-    edges = np.array([
-        [0, 1],
-        [1, 2],
-        [2, 0],
-    ])
-else:
-    points = np.array([
-        [-1, 0, 0],
-        [0, 0, 0],
-    ])
-    edges = np.array([
-        [0, 1],
-    ])
+case = "beam"
+points = np.array([
+    [0, -1, 0],
+    [0, 0, 0],
+])
+edges = np.array([
+    [0, 1],
+])
 
 init_points = np.copy(points)
 
-if case == "triangle":
-    constr = np.vstack((np.hstack((np.eye(6), np.zeros((6, 3)))), np.array([0, 0, 0, 0, 0, 0, 0, 0, 1])))
-else:
-    constr = np.vstack((np.hstack((np.eye(3), np.zeros((3, 3)))), np.array([0, 0, 0, 0, 0, 1])))
+constr = np.vstack((
+    np.hstack((np.eye(3), np.zeros((3, 3)))),
+    np.array([0, 0, 0, 0, 0, 1])
+))
 
 init_K = spring_energy_matrix(init_points, edges, dim=dim)
 init_Q, init_B = generalized_courant_fischer(init_K, constr)
 init_eigenpairs = geo_util.eigen(init_Q)
+print(init_eigenpairs)
 
 objectives = []
 energies = []
@@ -60,14 +48,11 @@ fix_2_points = True
 print("Fix 2 points?", fix_2_points)
 
 for x, y in tqdm(xy_range):
-    points[2, 0] = x
-    points[2, 1] = y
+    points[1, 0] = x
+    points[1, 1] = y
 
     K = spring_energy_matrix(points, edges, dim=dim)
-    delta_x2 = np.concatenate((
-        np.zeros((6, )),
-        points[2] - init_points[2]
-    ))
+    delta_x2 = np.array([0, 0, 0, x, y, 0])
     energy = delta_x2.T @ init_K @ delta_x2
 
     ## fix points
@@ -84,7 +69,7 @@ for x, y in tqdm(xy_range):
     pairs = geo_util.eigen(Q, symmetric=True)
 
     if fix_2_points:
-        obj = pairs[1][0] # the first eigenvalue is always 0, vector pointing z axis
+        obj = pairs[0][0]  # the first eigenvalue is always 0, vector pointing z axis
     else:
         obj = pairs[6][0]
 
@@ -109,24 +94,25 @@ plot_mode = "3d"
 print(f"plot_mode: {plot_mode}")
 
 if plot_mode == "3d":
+    # fig = plt.figure(figsize=(50, 50))
     fig = plt.figure()
     ax = Axes3D(fig)
+    X, Y = np.meshgrid(x_range, y_range)
     ax.set_zlim(0, 1.3)
     ax.view_init(azim=15)
-    X, Y = np.meshgrid(x_range, y_range)
-    ax = plt.gca()
+
     arrow_x = np.zeros((8,))
     arrow_y = np.zeros((8,))
     arrow_z = np.zeros((8,))
     # vectors = [-(init_B @ v)[6:] for e, v in init_eigenpairs]
     vectors = [geo_util.normalize(np.array((i, j, 0))) for i in (-1, 0, 1) for j in (-1, 0, 1) if i != 0 or j != 0]
+    print(vectors)
     arrow_u, arrow_v, arrow_w = zip(*vectors)
-    print(arrow_u)
     ax.quiver(arrow_x, arrow_y, arrow_z, arrow_u, arrow_v, arrow_w, length=0.2, colors=(1, 0, 0))
 
     scale_x, scale_y, scale_z = 1, 1, 1
     ax.get_proj = lambda: np.dot(Axes3D.get_proj(ax), np.diag([scale_x, scale_y, scale_z, 1]))
-    ax.plot_surface(X, Y, Z, cmap=cm.coolwarm, antialiased=True)
+    ax.plot_surface(X, Y, Z, cmap=cm.coolwarm, antialiased=True, zsort='min')
     ax.set_aspect('auto')
 elif plot_mode == "contour":
     Z = np.array(objectives).reshape(len(x_range), len(y_range)).transpose()
@@ -135,8 +121,8 @@ elif plot_mode == "contour":
     ax.set_aspect('auto')
     plt.contour(x_range, y_range, Z, levels=50)
 
-plt.savefig(f"triangle-eigenvalues-{plot_mode}-{np.max(x_range)}-{np.max(y_range)}.png", bbox_inches="tight",
+plt.savefig(f"beam-eigenvalue-{plot_mode}-{np.max(x_range)}-{np.max(y_range)}.png", bbox_inches="tight",
             dpi=800)
 y_ind, x_ind = np.unravel_index(np.argmax(Z), Z.shape)
 # plt.scatter([x_range[x_ind]], [y_range[y_ind]])
-# plt.show()
+plt.show()

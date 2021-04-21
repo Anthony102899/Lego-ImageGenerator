@@ -138,8 +138,8 @@ class Beam:
         return Beam(points, edges, principle_points=(p, q))
 
     @classmethod
-    def dense_tetra(cls, p, q, thickness=1, ori=None):
-        points, _ = tetrahedron(p, q, thickness, ori)
+    def dense_tetra(cls, p, q, density=0.333333, thickness=1, ori=None):
+        points, _ = tetrahedron(p, q, density=density, thickness=thickness, ori=ori)
         return Beam(points, principle_points=(p, q))
 
     @classmethod
