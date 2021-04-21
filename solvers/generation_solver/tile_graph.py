@@ -44,10 +44,9 @@ def get_orient_matrices(cpoint_base, cpoint_align, sketch, base_dim):
             dis = cpoint_base.pos - new_align_pos
             if sketch and (dis[0] > base_dim or dis[2] > base_dim or dis[0] < 0 or dis[2] < 0):
                 continue
-            transformation[:3, 3] = cpoint_base.pos - new_align_pos
+            transformation[:3, 3] = dis
             transformation[:3, :3] = transform_mat
             transformations.append(transformation)
-
     return transformations
 
 def get_four_self_rotation(orient):

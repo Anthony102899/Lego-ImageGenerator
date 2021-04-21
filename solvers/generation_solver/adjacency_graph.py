@@ -97,7 +97,7 @@ class AdjacencyGraph:
         o3d.visualization.draw_geometries([mesh_frame, line_set, spheres])
 
 if __name__ == "__main__":
-    path = "solvers/generation_solver/super_graph/['3004'] 2.ldr"
+    path = ""
     bricks = read_bricks_from_file(path)
     _, filename = os.path.split(path)
     filename = (filename.split("."))[0]

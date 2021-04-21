@@ -17,7 +17,7 @@ def print_error_msg(relation, eq, collide, connect):
 if __name__ == "__main__":
     folder = "./bricks_modeling/bricks/spatial_relation_test_cases"
     entries = os.listdir(folder)
-    entries = [entry for entry in entries if not entry.startswith('.')]
+    entries = [entry for entry in entries if not (entry.startswith('.') or entry.endswith('.py'))]
     for entry in entries:
         print("--------------------------")
         brick_path = os.path.join(folder, entry)
