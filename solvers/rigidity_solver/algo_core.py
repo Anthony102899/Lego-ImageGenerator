@@ -100,6 +100,102 @@ def spring_energy_matrix(
         return np.linalg.multi_dot([A.T, P.T, K, P, A])
 
 
+def spring_energy_matrix_accelerate_3D(
+    points: np.ndarray,
+    edges: np.ndarray,
+    abstract_edges:np.ndarray,
+    dim: int = 3,
+    matrices=False,
+    virtual_edges = False,
+    ) -> np.ndarray:
+
+    n, m = len(points), len(edges) + len(abstract_edges)
+
+    K = np.zeros((m, m))
+    P = np.zeros((m, m * dim))
+    A = np.zeros((m * dim, n * dim))
+
+    normalized = lambda v: v / LA.norm(v)
+
+    # forming P and K
+    if virtual_edges:
+        for idx, e in enumerate(edges):
+            if len(e) == 2:
+                edge_vec = points[e[0]] - points[e[1]]
+                if LA.norm(edge_vec) < 1e-4:
+                    continue
+            else: # virtual edge
+                print(e)
+                assert len(e) == 2 + dim
+                assert LA.norm(points[e[0]] - points[e[1]]) < 1e-6
+                edge_vec = np.array(e[2:])
+                #print(LA.norm(edge_vec))
+                edge_vec = normalized(edge_vec)/1e-4 # making the spring strong by shorter the edge
+            # if LA.norm(edge_vec) < 1e-4:
+            #     print(LA.norm(edge_vec))
+            P[idx, idx * dim : idx * dim + dim] = normalized(edge_vec).T
+            # K[idx, idx] = 1 / LA.norm(edge_vec)
+            K[idx, idx] = 1 # set as the same material for debugging
+
+            for d in range(dim):
+                A[dim * idx + d, dim * e[0] + d] = 1
+                A[dim * idx + d, dim * e[1] + d] = -1
+
+    else:
+        abstract_edges = np.array(abstract_edges)
+        if abstract_edges.shape[0] != 0:
+            assert LA.norm(points[abstract_edges[:,0].astype("int32")] - points[abstract_edges[:,1].astype("int32")],axis=1).max() < 1e-6
+
+        edges = np.array(edges)
+        points = np.array(points)
+        edge_vecs = points[edges[:, 1]] - points[edges[:, 0]]
+
+        if abstract_edges.shape[0] !=0 :
+            edges = np.concatenate((edges,abstract_edges[:,:2]),axis=0).astype("int32")
+            edge_vecs = np.concatenate((edge_vecs,abstract_edges[:,2:]),axis=0)
+
+        edge_norms = np.linalg.norm(edge_vecs, axis=1)
+        non_zero_edge_index = np.where(edge_norms > 1e-4)
+        zero_edge_index = np.where(edge_norms < 1e-4)
+        edge_vecs[non_zero_edge_index] = edge_vecs[non_zero_edge_index] / edge_norms[non_zero_edge_index][:, np.newaxis]
+        edge_vecs[zero_edge_index] = 0
+        row_K, col_K = np.diag_indices_from(K)
+        K[row_K, col_K] = 1
+
+        P[np.arange(m), np.arange(m) * dim] = edge_vecs[:, 0]
+        P[np.arange(m), np.arange(m) * dim + 1] = edge_vecs[:, 1]
+        P[np.arange(m), np.arange(m) * dim + 2] = edge_vecs[:, 2]
+
+        A[np.arange(m) * 3, edges[:, 0] * 3] = 1
+        A[np.arange(m) * 3, edges[:, 1] * 3] = -1
+        A[np.arange(m) * 3 + 1, edges[:, 0] * 3 + 1] = 1
+        A[np.arange(m) * 3 + 1, edges[:, 1] * 3 + 1] = -1
+        A[np.arange(m) * 3 + 2, edges[:, 0] * 3 + 2] = 1
+        A[np.arange(m) * 3 + 2, edges[:, 1] * 3 + 2] = -1
+
+        # sK = scipy.sparse.csr_matrix(K)
+        sK = scipy.sparse.csr_matrix((np.ones(m),(np.arange(m),np.arange(m))),shape=(m,m))
+
+        # sA = scipy.sparse.csr_matrix(A)
+        sP = scipy.sparse.csr_matrix((np.concatenate((edge_vecs[:, 0],edge_vecs[:, 1],edge_vecs[:, 2])),(np.concatenate((np.arange(m),np.arange(m),np.arange(m))),np.concatenate((np.arange(m) * dim,np.arange(m) * dim+1,np.arange(m) * dim+2)))),shape=(m,dim*m))
+        # sA = sA_0
+        # sP = scipy.sparse.csr_matrix(P)
+        data_sa = np.concatenate((np.ones(m),-np.ones(m),np.ones(m),-np.ones(m),np.ones(m),-np.ones(m)))
+        row_sa = np.concatenate((np.arange(m) * 3,np.arange(m) * 3,np.arange(m) * 3+1,np.arange(m) * 3+1,np.arange(m) * 3+2,np.arange(m) * 3+2))
+        col_sa = np.concatenate((edges[:, 0] * 3,edges[:, 1] * 3,edges[:, 0] * 3 + 1,1 + edges[:, 1] * 3,2 + edges[:, 0] * 3, 2 + edges[:, 1] * 3))
+        sA = scipy.sparse.csr_matrix((data_sa,(row_sa,col_sa)),shape=(m*dim,n*dim))
+
+        result = sP.dot(sA)
+        result = sK.dot(result)
+        result = sP.T.dot(result)
+        result = sA.T.dot(result)
+        result = result.toarray()
+
+    if matrices:
+        return K, P, A
+    else:
+        return result
+
 def transform_matrix_fitting(points_start, points_end, dim=3):
     assert len(points_start) == len(points_end)
     A = np.zeros((len(points_start) * dim, dim * dim + dim))
