@@ -1,21 +1,21 @@
 from solvers.rigidity_solver.models import *
 import numpy as np
-from itertools import product
 
-p = lambda x, y, z: np.array([x, y, z], dtype=np.double)
+scale = 10
+p = lambda x, y, z: np.array([x, y, z], dtype=np.double) * scale
 v = lambda x, y, z: np.array([x, y, z], dtype=np.double)
 lerp = lambda p, q, w: p * (1 - w) + q * w
 
 def polar_to_cart(r, phi, theta):
     return np.asarray([
-        r * np.sin(phi) * np.cos(theta),
-        r * np.sin(phi) * np.sin(theta),
-        r * np.cos(theta),
-    ], dtype=np.double)
+        r * np.cos(theta) * np.sin(phi),
+        r * np.sin(theta) * np.sin(phi),
+        r * np.cos(phi),
+    ], dtype=np.double) * scale
 
 def define(stage):
     v_portions = 2
-    h_portions = 2
+    h_portions = 4
     radius = 10
     v_max = np.pi / 2
     h_max = np.pi
@@ -27,42 +27,54 @@ def define(stage):
     theta = 0
     i = 0
 
+    model = Model()
+
     _p = {
         # axial points
         **{
-            f"ax-far-l{i}-p{j}": polar_to_cart(radius, phi, theta)
+            f"ax-far-{i}-{j}": polar_to_cart(radius, phi, theta)
             for j, phi in enumerate(np.linspace(0, h_max, h_portions + 1))
             # for i, theta in enumerate(np.linspace(0, v_max, v_portions, endpoint=False))
         },
         **{
-            f"ax-near-l{i}-p{j}": polar_to_cart(radius * 0.9, phi, theta)
+            f"ax-near-{i}-{j}": polar_to_cart(radius * 0.85, phi, theta)
             for j, phi in enumerate(np.linspace(0, h_max, h_portions + 1))
             # for i, theta in enumerate(np.linspace(0, v_max, v_portions, endpoint=False))
         },
-        **{
-            f"internal-l{i}-p{j}": np.sum([f"ax-{n}-l{i}-p{k}" for n in ("near", "far") for k in (j, j + 1)]) / 4
-            for j, phi in enumerate(np.linspace(h_max / h_portions / 2, h_max - h_max / h_portions / 2, h_portions))
-            # for i, theta in enumerate(np.linspace(0, v_max, v_portions, endpoint=False))
-        }
     # "top": polar_to_cart(radius, 0, 0.5 * np.pi),
     }
+    _p.update({
+        **{
+            f"cross-{i}-{j}": np.sum([_p[f"ax-{n}-{i}-{k}"] for n in ("near", "far") for k in (j, j + 1)], axis=0) / 4
+            for j in range(h_portions)
+            # for i, theta in enumerate(np.linspace(0, v_max, v_portions, endpoint=False))
+        }
+    })
     _bmap = {
         **{
-            f"ax-l{i}-p{j}": beam_init(_p[f"ax-far-l{i}-p{j}"], _p[f"ax-near-l{i}-p{j}"])
+            f"ax-{i}-{j}": beam_init(_p[f"ax-far-{i}-{j}"], _p[f"ax-near-{i}-{j}"])
             for j in range(h_portions + 1)
             # for i in range(v_portions)
         },
         **{
-            f"left-l{i}-j{j}": beam_init(_p[f"ax-far-l{i}-p{j}"], _p[f"ax-near-l{i}-p{j + 1}"])
+            f"left-{i}-{j}": beam_init(_p[f"ax-far-{i}-{j}"], _p[f"ax-near-{i}-{j + 1}"])
             for j in range(h_portions)
             # for i in range(v_portions)
         },
         **{
-            f"right-l{i}-p{j}": beam_init(_p[f"ax-far-l{i}-p{j}"], _p[f"ax-near-l{i}-p{j + 1}"])
+            f"right-{i}-{j}": beam_init(_p[f"ax-near-{i}-{j}"], _p[f"ax-far-{i}-{j + 1}"])
             for j in range(h_portions)
             # for i in range(v_portions)
         },
     }
     joints = [
-        *[],
+        Joint(_bmap[f"left-{i}-{j}"], _bmap[f"right-{i}-{j}"], pivot=_p[f"cross-{i}-{j}"], rotation_axes=v(0, 0, 1))
+        for j in range(h_portions)
+        # for i in range(v_portions)
     ]
+
+    beams = list(_bmap.values())
+    model.add_beams(beams)
+    model.add_joints(joints)
+
+    return locals()
