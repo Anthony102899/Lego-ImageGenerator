@@ -84,7 +84,6 @@ def tetrahedron(p, q, density, thickness=1, ori=None):
 
     num = int(np.linalg.norm(p - q) / thickness * density)
     num = 2 if num < 2 else num
-    print(f"using num = {num}")
     triangles = np.linspace(start, end, num)
     centers = np.linspace(start_center, end_center, num) + (end_center - start_center) / (num - 1) / 2
 

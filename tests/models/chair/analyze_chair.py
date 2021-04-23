@@ -47,7 +47,7 @@ A = np.vstack((A, extra_constraints))
 
 log.debug("constraint A matrix, shape {}, time - {}".format(A.shape, time.time() - start))
 
-M = core.spring_energy_matrix(points, edges, dim)
+M = core.spring_energy_matrix_accelerate_3D(points, edges, abstract_edges=[], virtual_edges=None)
 
 # e, V = np.linalg.eigh(M)
 # vec = V[0]

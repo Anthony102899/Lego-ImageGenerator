@@ -1,4 +1,5 @@
 from model_dome import define
+import open3d as o3d
 
 definition = define(1)
 

@@ -20,8 +20,8 @@ def define(stage):
     v_max = np.pi / 2
     h_max = np.pi
 
-    def beam_init(p, q):
-        return Beam.tetra(p, q, thickness=2, density=0.3)
+    def beam_init(p, q, density=0.3):
+        return Beam.tetra(p, q, thickness=2, density=density)
 
     ###### temp:
     theta = 0
@@ -52,6 +52,11 @@ def define(stage):
     })
     _bmap = {
         **{
+            # f"node-{i}-{j}": beam_init(_p[f"ax-far-{i}-{j}"] * 1.05, _p[f"ax-far-{i}-{j}"] * 0.95, density=1)
+            # for j in range(h_portions + 1)
+            # for i in range(v_portions)
+        },
+        **{
             f"ax-{i}-{j}": beam_init(_p[f"ax-far-{i}-{j}"], _p[f"ax-near-{i}-{j}"])
             for j in range(h_portions + 1)
             # for i in range(v_portions)
@@ -68,9 +73,42 @@ def define(stage):
         },
     }
     joints = [
-        Joint(_bmap[f"left-{i}-{j}"], _bmap[f"right-{i}-{j}"], pivot=_p[f"cross-{i}-{j}"], rotation_axes=v(0, 0, 1))
-        for j in range(h_portions)
-        # for i in range(v_portions)
+        *[
+            Joint(_bmap[f"left-{i}-{j}"], _bmap[f"right-{i}-{j}"],
+                  pivot=_p[f"cross-{i}-{j}"],
+                  rotation_axes=geo_util.normalize(np.cross(_p[f"cross-{i}-{j}"], _p[f"ax-far-{i}-{j}"])),
+            )
+            for j in range(h_portions)
+            # for i in range(v_portions)
+        ],
+        *[
+            Joint(_bmap[f"ax-{i}-{j}"], _bmap[f"left-{i}-{j}"],
+                  pivot=_p[f"ax-far-{i}-{j}"],
+                  rotation_axes=geo_util.normalize(np.cross(_p[f"cross-{i}-{j}"], _p[f"ax-far-{i}-{j}"])))
+            for j in range(h_portions)
+            # for i in range(v_portions)
+        ],
+        *[
+            Joint(_bmap[f"ax-{i}-{j}"], _bmap[f"right-{i}-{j}"],
+                  pivot=_p[f"ax-near-{i}-{j}"],
+                  rotation_axes=geo_util.normalize(np.cross(_p[f"cross-{i}-{j}"], _p[f"ax-far-{i}-{j}"])))
+            for j in range(h_portions)
+            # for i in range(v_portions)
+        ],
+        *[
+            Joint(_bmap[f"ax-{i}-{j + 1}"], _bmap[f"left-{i}-{j}"],
+                  pivot=_p[f"ax-near-{i}-{j + 1}"],
+                  rotation_axes=geo_util.normalize(np.cross(_p[f"cross-{i}-{j}"], _p[f"ax-far-{i}-{j}"])))
+            for j in range(h_portions)
+            # for i in range(v_portions)
+        ],
+        *[
+            Joint(_bmap[f"ax-{i}-{j + 1}"], _bmap[f"right-{i}-{j}"],
+                  pivot=_p[f"ax-far-{i}-{j + 1}"],
+                  rotation_axes=geo_util.normalize(np.cross(_p[f"cross-{i}-{j}"], _p[f"ax-far-{i}-{j}"])))
+            for j in range(h_portions)
+            # for i in range(v_portions)
+        ],
     ]
 
     beams = list(_bmap.values())

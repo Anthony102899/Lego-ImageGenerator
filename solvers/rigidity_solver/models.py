@@ -95,7 +95,7 @@ class Model:
         else:
             try:
                 pivots, axes = zip(*[(j.pivot, j.rotation_axes[0]) for j in self.joints])
-                visualize_hinges(self.point_matrix(), self.edge_matrix(), pivots=pivots, axes=axes)
+                visualize_hinges(self.point_matrix(), self.edge_matrix(), pivots=pivots, axes=geo_util.normalize(axes))
             except ValueError:
                 visualize_3D(self.point_matrix(), edges=self.edge_matrix())
 
