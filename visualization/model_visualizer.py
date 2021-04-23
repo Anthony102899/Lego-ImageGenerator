@@ -58,7 +58,7 @@ def get_mesh_for_arrows(points, vectors, vec_len_coeff=200, rad_scale=1):
                 .paint_uniform_color([(norm_vec[0] + 1) / 2, (norm_vec[1] + 1) / 2, (norm_vec[2] + 1) / 2])
     return arrows
 
-def get_mesh_for_arrows(points, vectors, Rigid):
+def get_mesh_for_arrows_lego(points, vectors, Rigid):
     arrows = o3d.geometry.TriangleMesh()
     for idx, p in enumerate(points):
         vec = vectors[idx]
