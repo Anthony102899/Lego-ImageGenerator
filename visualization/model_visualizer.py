@@ -66,9 +66,9 @@ def get_mesh_for_arrows_lego(points, vectors, Rigid):
         vec_len = LA.norm(vec)
         if vec_len > 0:
             arrow = o3d.geometry.TriangleMesh.create_arrow(
-                cylinder_radius=4,
-                cone_radius=8,
-                cylinder_height=400 * vec_len,
+                cylinder_radius=2,
+                cone_radius=4,
+                cylinder_height=300 * vec_len,
                 cone_height=100 * vec_len,
                 resolution=5,
             )
@@ -76,11 +76,11 @@ def get_mesh_for_arrows_lego(points, vectors, Rigid):
             norm_vec = vec / np.linalg.norm(vec)
             # arrows.paint_uniform_color([(norm_vec[0]+1)/2,(norm_vec[1]+1)/2,(norm_vec[2]+1)/2])
             if Rigid:
-                arrows.paint_uniform_color([0, 1, 0])
+                arrows.paint_uniform_color([110/255, 179/255, 89/255])
             # arrows += copy.deepcopy(arrow).translate(p).rotate(rot_mat, center=p)\
             #   .paint_uniform_color([(norm_vec[0]+1)/2,(norm_vec[1]+1)/2,(norm_vec[2]+1)/2])
                 arrows += copy.deepcopy(arrow).translate(p).rotate(rot_mat, center=p) \
-                    .paint_uniform_color([0, 1, 0])
+                    .paint_uniform_color([110/255, 179/255, 89/255])
             # arrows += copy.deepcopy(arrow).translate(p).rotate(rot_mat, center=p).paint_uniform_color([(norm_vec[0]+1)/2,(norm_vec[1]+1)/2,(norm_vec[2]+1)/2])
             else:
                 arrows.paint_uniform_color([1, 0, 0])
