@@ -30,3 +30,4 @@ tests/**/*.json
 tests/**/*.png
 
 *.pickle
+.DS_Store

@@ -114,37 +114,6 @@ else:
     force /= np.linalg.norm(force)
     arrows = force.reshape(-1, 3)
 
-    input_vec = np.concatenate(
-        (
-            np.linspace(
-                np.array([0, 1, 0]),
-                np.array([0, -1, 0]),
-                count - 13
-            ).reshape(-1),
-            np.linspace(
-                np.array([0, -1, 0]),
-                np.array([0, 1, 0]),
-                13
-            ).reshape(-1),
-        )
-    )
-
-    eigenvector = geo_util.normalize(eigenvector)
-    part1_point = points[:count]
-    part1_stiffness = M[:count * 3, :count * 3]
-    part1_v = input_vec
-
-    part1_trivial = geo_util.trivial_basis(part1_point, 3, orthonormal=True)
-    coefficients = geo_util.decompose_on_orthobasis(part1_v, part1_trivial)
-
-    for coeff, base in zip(coefficients, part1_trivial):
-        part1_v -= coeff * base
-        _coefficients = geo_util.decompose_on_orthobasis(part1_v, part1_trivial)
-
-    part1_f = part1_stiffness @ part1_v
-
-    print("stiffness matrix M:", part1_stiffness.shape, np.linalg.matrix_rank(part1_stiffness))
-    print(np.linalg.norm(part1_f))
     # part1_f /= np.linalg.norm(part1_f)
 
     np.savez(f"data/rigid_deployable_stage{stage}.npz",
@@ -154,7 +123,5 @@ else:
              eigenvector=eigenvector,
              force=force,
              stiffness=M)
-    visualize_3D(part1_point, edges=edges[:count], arrows=part1_v.reshape(-1, 3), show_point=False)
-    visualize_3D(part1_point, edges=edges[:count], arrows=part1_f.reshape(-1, 3), show_point=False)
-    # visualize_3D(points, edges=edges, arrows=force.reshape(-1, 3), show_point=False)
-    # visualize_3D(points, edges=edges, arrows=eigenvector.reshape(-1, 3), show_point=False)
+    visualize_3D(points, edges=edges, arrows=force.reshape(-1, 3), show_point=False)
+    visualize_3D(points, edges=edges, arrows=eigenvector.reshape(-1, 3), show_point=False)

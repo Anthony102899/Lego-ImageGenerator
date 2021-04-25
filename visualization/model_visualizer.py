@@ -35,15 +35,23 @@ def get_lineset_for_edges(points, edges):
     return line_set
 
 
-def get_mesh_for_arrows(points, vectors, vec_len_coeff=200, rad_scale=1):
+def get_mesh_for_arrows(points, vectors, length_coeff=200, radius_coeff=1, cutoff=1e-3):
+    """
+    :param points: start points for each arrow
+    :param vectors: pointing direction for each arrow
+    :param length_coeff: coefficient for stretching the arrow
+    :param radius_coeff: coefficient for thickening the arrow
+    :param cutoff: arrow whose length < cutoff will not be displayed
+    :return: triangle mesh
+    """
     arrows = o3d.geometry.TriangleMesh()
     for idx, p in enumerate(points):
         vec = vectors[idx]
         rot_mat = geo_util.rot_matrix_from_vec_a_to_b([0, 0, 1], vec)
         vec_len = LA.norm(vec)
-        if vec_len > 1e-3:
-            arrow_body_len = vec_len_coeff * vec_len
-            arrow_body_radius = 0.3 * rad_scale
+        if vec_len > cutoff:
+            arrow_body_len = length_coeff * vec_len
+            arrow_body_radius = 0.3 * radius_coeff
             arrow_head_radius = arrow_body_radius * 3
             arrow_head_height = 3 * arrow_head_radius
             arrow = o3d.geometry.TriangleMesh.create_arrow(
@@ -56,6 +64,36 @@ def get_mesh_for_arrows(points, vectors, vec_len_coeff=200, rad_scale=1):
             norm_vec = vec / np.linalg.norm(vec)
             arrows += copy.deepcopy(arrow).translate(p + 1 * vec).rotate(rot_mat, center=p) \
                 .paint_uniform_color([(norm_vec[0] + 1) / 2, (norm_vec[1] + 1) / 2, (norm_vec[2] + 1) / 2])
+    return arrows
+
+def get_mesh_for_arrows_lego(points, vectors, Rigid, length_coeff=1, radius_coeff=1):
+    arrows = o3d.geometry.TriangleMesh()
+    for idx, p in enumerate(points):
+        vec = vectors[idx]
+        rot_mat = geo_util.rot_matrix_from_vec_a_to_b([0, 0, 1], vec)
+        vec_len = LA.norm(vec)
+        if vec_len > 0:
+            arrow = o3d.geometry.TriangleMesh.create_arrow(
+                cylinder_radius=4 * radius_coeff,
+                cone_radius=8 * radius_coeff,
+                cylinder_height=400 * vec_len * length_coeff,
+                cone_height=100 * vec_len * length_coeff,
+                resolution=5,
+            )
+            arrow.compute_vertex_normals()
+            norm_vec = vec / np.linalg.norm(vec)
+            # arrows.paint_uniform_color([(norm_vec[0]+1)/2,(norm_vec[1]+1)/2,(norm_vec[2]+1)/2])
+            if Rigid:
+                arrows.paint_uniform_color([0, 1, 0])
+            # arrows += copy.deepcopy(arrow).translate(p).rotate(rot_mat, center=p)\
+            #   .paint_uniform_color([(norm_vec[0]+1)/2,(norm_vec[1]+1)/2,(norm_vec[2]+1)/2])
+                arrows += copy.deepcopy(arrow).translate(p).rotate(rot_mat, center=p) \
+                    .paint_uniform_color([0, 1, 0])
+            # arrows += copy.deepcopy(arrow).translate(p).rotate(rot_mat, center=p).paint_uniform_color([(norm_vec[0]+1)/2,(norm_vec[1]+1)/2,(norm_vec[2]+1)/2])
+            else:
+                arrows.paint_uniform_color([1, 0, 0])
+                arrows += copy.deepcopy(arrow).translate(p).rotate(rot_mat, center=p) \
+                    .paint_uniform_color([1, 0, 0])
     return arrows
 
 

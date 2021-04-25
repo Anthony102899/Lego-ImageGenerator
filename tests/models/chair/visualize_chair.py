@@ -23,7 +23,7 @@ force = data["force"]
 
 print(eigenvalue)
 trimesh, lines = get_geometries_3D(points, edges=edges, show_point=False, show_axis=False)
-arrows = get_mesh_for_arrows(points, force.reshape(-1, 3), vec_len_coeff=100)
+arrows = get_mesh_for_arrows(points, force.reshape(-1, 3), **param_map[stage])
 print(f"sum: {np.sum(force.reshape(-1, 3), axis=0)}")
 
 arrows.paint_uniform_color(np.array([0, 1, 0]))

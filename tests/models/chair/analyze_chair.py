@@ -7,13 +7,14 @@ from numpy.linalg import cholesky, inv, matrix_rank
 from solvers.rigidity_solver.eigen_analysis import eigen_analysis
 import solvers.rigidity_solver.algo_core as core
 from visualization.model_visualizer import visualize_3D
+import visualization.model_visualizer as vis
 import util.geometry_util as geo_util
 import time
 from model_chair import define
 
 from util.logger import logger
 
-stage = 1
+stage = 4
 definition = define(stage)
 model = definition["model"]
 
@@ -71,17 +72,9 @@ log.debug("T = B.T @ B computed, time - {}".format(time.time() - start))
 S = B.T @ M @ B
 log.debug("S computed, time - {}".format(time.time() - start))
 
-L = cholesky(T)
-log.debug("cholesky on T shape {} time - {}".format(L.shape, time.time() - start))
-
-L_inv = np.linalg.inv(L)
-log.debug("inverse of L, shape {} time - {}".format(L_inv.shape, time.time() - start))
-
-Q = L_inv.T @ S @ L_inv
-log.debug("merged stiffness and constraint matrix into Q {}, time - {}".format(Q.shape, time.time() - start))
-
-eigen_pairs = geo_util.eigen(Q, symmetric=True)
-log.debug("eigen decomposition on Q, time - {}".format(time.time() - start))
+eigen_pairs = geo_util.eigen(S, symmetric=True)
+log.debug("eigen decomposition on S, time - {}".format(time.time() - start))
+log.debug("Computation done, time - {}".format(time.time() - start))
 log.debug(f"smallest 6 eigenvalue: {[e for e, _ in eigen_pairs[:6]]}")
 
 zero_eigenspace = [(e_val, e_vec) for e_val, e_vec in eigen_pairs if abs(e_val) < 1e-6]
@@ -91,6 +84,8 @@ trivial_motions = geo_util.trivial_basis(points, dim=3)
 
 non_zero_eigenspace = [(e_val, e_vec) for e_val, e_vec in eigen_pairs if abs(e_val) >= 1e-8]
 log.debug("non zero eigenspace, time - {}".format(time.time() - start))
+
+model.save_json(f'output/chair-stage{stage}.json')
 
 if len(zero_eigenspace) > 0:
     log.debug("Non-rigid")
@@ -110,12 +105,34 @@ if len(zero_eigenspace) > 0:
         visualize_3D(points, edges=edges, arrows=arrows)
 else:
     log.debug("rigid")
-    e, v = non_zero_eigenspace[0]
+    e, v = non_zero_eigenspace[0 if stage in (0, 1, 2, 4) else 1]
     log.debug(f"smallest eigenvalue: {e}")
     eigenvector = B @ v
     force = M @ B @ v
     # force /= np.linalg.norm(force)
     arrows = force.reshape(-1, 3)
+    param_map = {
+        1: {
+            "length_coeff": 100,
+            "radius_coeff": 1,
+            "cutoff": 1e-2,
+        },
+        2: {
+            "length_coeff": 100,
+            "radius_coeff": 1,
+            "cutoff": 1e-2,
+        },
+        3: {
+            "length_coeff": 100,
+            "radius_coeff": 1,
+            "cutoff": 1e-2,
+        },
+        4: {
+            "length_coeff": 100,
+            "radius_coeff": 1,
+            "cutoff": 3e-2,
+        },
+    }
     log.info("arrows: " + str(arrows))
     np.savez(f"data/rigid_chair_stage{stage}.npz",
              eigenvalue=np.array(e),
@@ -124,5 +141,17 @@ else:
              eigenvector=eigenvector,
              force=force,
              stiffness=M)
-    visualize_3D(points, edges=edges, arrows=force.reshape(-1, 3), show_point=False)
+
+    # arrow_mesh = vis.get_mesh_for_arrows_lego(points, vectors, True,
+    #                                           radius_coeff=0.09, length_coeff=0.3, length_threshold=3)
+    arrow_mesh = vis.get_mesh_for_arrows(
+        points,
+        (1 if stage in (0, 1, 2, 4) else -1) * eigenvector.reshape(-1, 3),
+        **param_map[stage])
+    arrow_mesh.paint_uniform_color([0, 1, 0])
+
+    o3d.visualization.draw_geometries([arrow_mesh])
+    o3d.io.write_triangle_mesh(f"output/chair-arrow-stage{stage}.obj", arrow_mesh)
+
+    # visualize_3D(points, edges=edges, arrows=force.reshape(-1, 3), show_point=False)
     visualize_3D(points, edges=edges, arrows=eigenvector.reshape(-1, 3), show_point=False)
