@@ -66,7 +66,7 @@ def get_mesh_for_arrows(points, vectors, length_coeff=200, radius_coeff=1, cutof
                 .paint_uniform_color([(norm_vec[0] + 1) / 2, (norm_vec[1] + 1) / 2, (norm_vec[2] + 1) / 2])
     return arrows
 
-def get_mesh_for_arrows_lego(points, vectors, Rigid, length_coeff=1, radius_coeff=1):
+def get_mesh_for_arrows_lego(points, vectors, Rigid):
     arrows = o3d.geometry.TriangleMesh()
     for idx, p in enumerate(points):
         vec = vectors[idx]
@@ -74,21 +74,21 @@ def get_mesh_for_arrows_lego(points, vectors, Rigid, length_coeff=1, radius_coef
         vec_len = LA.norm(vec)
         if vec_len > 0:
             arrow = o3d.geometry.TriangleMesh.create_arrow(
-                cylinder_radius=4 * radius_coeff,
-                cone_radius=8 * radius_coeff,
-                cylinder_height=400 * vec_len * length_coeff,
-                cone_height=100 * vec_len * length_coeff,
+                cylinder_radius=2,
+                cone_radius=4,
+                cylinder_height=300 * vec_len,
+                cone_height=100 * vec_len,
                 resolution=5,
             )
             arrow.compute_vertex_normals()
             norm_vec = vec / np.linalg.norm(vec)
             # arrows.paint_uniform_color([(norm_vec[0]+1)/2,(norm_vec[1]+1)/2,(norm_vec[2]+1)/2])
             if Rigid:
-                arrows.paint_uniform_color([0, 1, 0])
+                arrows.paint_uniform_color([110/255, 179/255, 89/255])
             # arrows += copy.deepcopy(arrow).translate(p).rotate(rot_mat, center=p)\
             #   .paint_uniform_color([(norm_vec[0]+1)/2,(norm_vec[1]+1)/2,(norm_vec[2]+1)/2])
                 arrows += copy.deepcopy(arrow).translate(p).rotate(rot_mat, center=p) \
-                    .paint_uniform_color([0, 1, 0])
+                    .paint_uniform_color([110/255, 179/255, 89/255])
             # arrows += copy.deepcopy(arrow).translate(p).rotate(rot_mat, center=p).paint_uniform_color([(norm_vec[0]+1)/2,(norm_vec[1]+1)/2,(norm_vec[2]+1)/2])
             else:
                 arrows.paint_uniform_color([1, 0, 0])
