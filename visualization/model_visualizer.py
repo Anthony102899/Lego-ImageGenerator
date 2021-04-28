@@ -36,7 +36,13 @@ def get_lineset_for_edges(points, edges):
     return line_set
 
 
-def get_mesh_for_arrows(points, vectors, length_coeff=200, radius_coeff=1, cutoff=1e-3, return_single_mesh=True):
+colormap = {
+    "rigid": [110 / 255, 179 / 255, 89 / 255],
+    "motion": [1, 0, 0],
+}
+
+
+def get_mesh_for_arrows(points, vectors, length_coeff=200, radius_coeff=1, cutoff=0, return_single_mesh=True):
     """
     :param points: starting point (tail position) for each arrow
     :param vectors: pointing direction for each arrow
@@ -94,16 +100,16 @@ def get_mesh_for_arrows_lego(points, vectors, Rigid):
             norm_vec = vec / np.linalg.norm(vec)
             # arrows.paint_uniform_color([(norm_vec[0]+1)/2,(norm_vec[1]+1)/2,(norm_vec[2]+1)/2])
             if Rigid:
-                arrows.paint_uniform_color([110 / 255, 179 / 255, 89 / 255])
+                arrows.paint_uniform_color(colormap["rigid"])
                 # arrows += copy.deepcopy(arrow).translate(p).rotate(rot_mat, center=p)\
                 #   .paint_uniform_color([(norm_vec[0]+1)/2,(norm_vec[1]+1)/2,(norm_vec[2]+1)/2])
                 arrows += copy.deepcopy(arrow).translate(p).rotate(rot_mat, center=p) \
-                    .paint_uniform_color([110 / 255, 179 / 255, 89 / 255])
+                    .paint_uniform_color(colormap["rigid"])
             # arrows += copy.deepcopy(arrow).translate(p).rotate(rot_mat, center=p).paint_uniform_color([(norm_vec[0]+1)/2,(norm_vec[1]+1)/2,(norm_vec[2]+1)/2])
             else:
-                arrows.paint_uniform_color([1, 0, 0])
+                arrows.paint_uniform_color(colormap["motion"])
                 arrows += copy.deepcopy(arrow).translate(p).rotate(rot_mat, center=p) \
-                    .paint_uniform_color([1, 0, 0])
+                    .paint_uniform_color(colormap["motion"])
     return arrows
 
 
