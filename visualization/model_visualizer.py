@@ -42,7 +42,7 @@ colormap = {
 }
 
 
-def get_mesh_for_arrows(points, vectors, length_coeff=200, radius_coeff=1, cutoff=0, return_single_mesh=True):
+def get_mesh_for_arrows(points, vectors, length_coeff=1, radius_coeff=1, cutoff=0, return_single_mesh=True):
     """
     :param points: starting point (tail position) for each arrow
     :param vectors: pointing direction for each arrow
@@ -70,6 +70,7 @@ def get_mesh_for_arrows(points, vectors, length_coeff=200, radius_coeff=1, cutof
                 cone_height=cone_height,
                 resolution=5,
             )
+            arrow.compute_vertex_normals()
             norm_vec = vec / np.linalg.norm(vec)
             color = (norm_vec[0] + 1) / 2, (norm_vec[1] + 1) / 2, (norm_vec[2] + 1) / 2
             transformed_mesh = copy.deepcopy(arrow).translate(p + 1 * vec).rotate(rot_mat, center=p).paint_uniform_color(color)

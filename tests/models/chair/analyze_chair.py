@@ -142,16 +142,19 @@ else:
              force=force,
              stiffness=M)
 
-    # arrow_mesh = vis.get_mesh_for_arrows_lego(points, vectors, True,
-    #                                           radius_coeff=0.09, length_coeff=0.3, length_threshold=3)
+    vectors = eigenvector.reshape(-1, 3)
+    arrow_mesh = vis.get_mesh_for_arrows_lego(points, vectors, True)
+    arrow_mesh.paint_uniform_color([0, 1, 0])
+    o3d.visualization.draw_geometries([arrow_mesh])
     arrow_mesh = vis.get_mesh_for_arrows(
         points,
-        (1 if stage in (0, 1, 2, 4) else -1) * eigenvector.reshape(-1, 3),
-        **param_map[stage])
-    arrow_mesh.paint_uniform_color([0, 1, 0])
+        vectors,
+        # **param_map[stage],
+    )
+    arrow_mesh.paint_uniform_color(vis.colormap["rigid"])
 
     o3d.visualization.draw_geometries([arrow_mesh])
     o3d.io.write_triangle_mesh(f"output/chair-arrow-stage{stage}.obj", arrow_mesh)
 
     # visualize_3D(points, edges=edges, arrows=force.reshape(-1, 3), show_point=False)
-    visualize_3D(points, edges=edges, arrows=eigenvector.reshape(-1, 3), show_point=False)
+    # visualize_3D(points, edges=edges, arrows=eigenvector.reshape(-1, 3), show_point=False)
