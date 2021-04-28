@@ -12,7 +12,7 @@ def define(stage):
     _p = {
         "a": p(0, 0, 0),
         "b": p(1, 0, 0),
-        "c": p(0, 1, 0),
+        "c": p(1 / 2, np.sqrt(3) / 2, 0),
 
         "A-u": p(3 / 2, np.sqrt(3) / 2, 1),
         "A-d": p(3 / 2, np.sqrt(3) / 2, -1),
@@ -28,22 +28,26 @@ def define(stage):
         "ab-mid": lerp(_p["A-u"], _p["B-u"], 0.5),
         "bc-mid": lerp(_p["B-u"], _p["C-u"], 0.5),
         "ca-mid": lerp(_p["C-u"], _p["A-u"], 0.5),
+        "ab-0.1": lerp(_p["A-u"], _p["B-u"], 0.1),
+        "bc-0.1": lerp(_p["B-u"], _p["C-u"], 0.1),
+        "ca-0.1": lerp(_p["C-u"], _p["A-u"], 0.1),
+        "ba-0.1": lerp(_p["B-u"], _p["A-u"], 0.1),
+        "cb-0.1": lerp(_p["C-u"], _p["B-u"], 0.1),
+        "ac-0.1": lerp(_p["A-u"], _p["C-u"], 0.1),
+        "ab-0.9": lerp(_p["A-u"], _p["B-u"], 0.9),
+        "bc-0.9": lerp(_p["B-u"], _p["C-u"], 0.9),
+        "ca-0.9": lerp(_p["C-u"], _p["A-u"], 0.9),
+        "ba-0.9": lerp(_p["B-u"], _p["A-u"], 0.9),
+        "cb-0.9": lerp(_p["C-u"], _p["B-u"], 0.9),
+        "ac-0.9": lerp(_p["A-u"], _p["C-u"], 0.9),
     })
 
-    den = 0.5
-    stage_2_frac = 0.3
+    def beam_init(p, q, density=0.5):
+        return Beam.tetra(p, q, density=density, thickness=1)
+
+    stage_2_frac = 0.25
     stage_3_frac = 0.7
 
-    _stage_2_points = {
-        f"{a}-u-{b}-d-{stage_2_frac}": lerp(_p[f"{a}-u"], _p[f"{b}-d"], stage_2_frac)
-        for a in "ABC" for b in "ABC" if a != b
-    }
-    _p.update(_stage_2_points)
-    _stage_3_points = {
-        f"{a}-u-{b}-d-{stage_3_frac}": lerp(_p[f"{a}-u"], _p[f"{b}-d"], stage_3_frac)
-        for a in "ABC" for b in "ABC" if a != b
-    }
-    _p.update(_stage_3_points)
 
     normalize = lambda x: x / np.linalg.norm(x)
     _da = normalize(_p["c"] - _p["b"])
@@ -52,73 +56,51 @@ def define(stage):
 
     model = Model()
     _bmap = {
-        "top-A": Beam.tetra(_p["B-u"], _p["C-u"], density=den),
-        "top-B": Beam.tetra(_p["C-u"], _p["A-u"], density=den),
-        "top-C": Beam.tetra(_p["A-u"], _p["B-u"], density=den),
+        "top-A": beam_init(_p["B-u"], _p["C-u"]),
+        "top-B": beam_init(_p["C-u"], _p["A-u"]),
+        "top-C": beam_init(_p["A-u"], _p["B-u"]),
 
-        "top-ab-bc": Beam.tetra(_p["ab-mid"], _p["bc-mid"], density=den),
-        "top-bc-ca": Beam.tetra(_p["bc-mid"], _p["ca-mid"], density=den),
-        "top-ca-ab": Beam.tetra(_p["ca-mid"], _p["ab-mid"], density=den),
+        # "top-ab-bc": beam_init(_p["ab-mid"], _p["bc-mid"]),
+        # "top-bc-ca": beam_init(_p["bc-mid"], _p["ca-mid"]),
+        # "top-ca-ab": beam_init(_p["ca-mid"], _p["ab-mid"]),
         #
-        "core-ab": Beam.tetra(_p['a'], _p["b"], density=den),
-        "core-bc": Beam.tetra(_p["b"], _p["c"], density=den),
-        "core-ca": Beam.tetra(_p["c"], _p["a"], density=den),
+        # "core-ab": beam_init(_p['a'], _p["b"]),
+        # "core-bc": beam_init(_p["b"], _p["c"]),
+        # "core-ca": beam_init(_p["c"], _p["a"]),
         #
-        "A-c": Beam.tetra(_p["A-u"], _p["C-d"], density=den),
-        "A-b": Beam.tetra(_p["A-u"], _p["B-d"], density=den),
-        "B-a": Beam.tetra(_p["B-u"], _p["A-d"], density=den),
-        "B-c": Beam.tetra(_p["B-u"], _p["C-d"], density=den),
-        "C-b": Beam.tetra(_p["C-u"], _p["B-d"], density=den),
-        "C-a": Beam.tetra(_p["C-u"], _p["A-d"], density=den),
+        "A-c": beam_init(_p["ca-0.9"], _p["C-d"]),
+        "A-b": beam_init(_p["ab-0.1"], _p["B-d"]),
+        "B-a": beam_init(_p["ab-0.9"], _p["A-d"]),
+        "B-c": beam_init(_p["bc-0.1"], _p["C-d"]),
+        "C-b": beam_init(_p["bc-0.9"], _p["B-d"]),
+        "C-a": beam_init(_p["ca-0.1"], _p["A-d"]),
     }
     joints = [
-        Joint(_bmap["core-ab"], _bmap["core-bc"], pivot=_p["b"], rotation_axes=v(0, 0, 1)),
-        Joint(_bmap["core-bc"], _bmap["core-ca"], pivot=_p["c"], rotation_axes=v(0, 0, 1)),
-        Joint(_bmap["core-ca"], _bmap["core-ab"], pivot=_p["a"], rotation_axes=v(0, 0, 1)),
-        #
-        Joint(_bmap["top-ab-bc"], _bmap["top-bc-ca"], pivot=_p["bc-mid"], rotation_axes=v(0, 0, 1)),
-        Joint(_bmap["top-bc-ca"], _bmap["top-ca-ab"], pivot=_p["ca-mid"], rotation_axes=v(0, 0, 1)),
-        Joint(_bmap["top-ca-ab"], _bmap["top-ab-bc"], pivot=_p["ab-mid"], rotation_axes=v(0, 0, 1)),
-        Joint(_bmap["top-ab-bc"], _bmap["top-B"], pivot=_p["bc-mid"], rotation_axes=v(0, 0, 1)),
-        Joint(_bmap["top-bc-ca"], _bmap["top-C"], pivot=_p["ca-mid"], rotation_axes=v(0, 0, 1)),
-        Joint(_bmap["top-ca-ab"], _bmap["top-A"], pivot=_p["ab-mid"], rotation_axes=v(0, 0, 1)),
-        #
-        Joint(_bmap["A-c"], _bmap["B-c"], pivot=_p["C-d"], rotation_axes=_dc),
-        Joint(_bmap["B-a"], _bmap["B-c"], pivot=_p["B-u"], rotation_axes=_db),
         Joint(_bmap["B-a"], _bmap["C-a"], pivot=_p["A-d"], rotation_axes=_da),
-        Joint(_bmap["C-b"], _bmap["C-a"], pivot=_p["C-u"], rotation_axes=_dc),
         Joint(_bmap["C-b"], _bmap["A-b"], pivot=_p["B-d"], rotation_axes=_db),
-        Joint(_bmap["A-c"], _bmap["A-b"], pivot=_p["A-u"], rotation_axes=_da),
+        Joint(_bmap["A-c"], _bmap["B-c"], pivot=_p["C-d"], rotation_axes=_dc),
 
-        Joint(_bmap["A-c"], _bmap["core-bc"],
-              pivot=_p["c"], rotation_axes=_da),
-        Joint(_bmap["A-b"], _bmap["core-bc"],
-              pivot=_p["b"], rotation_axes=_da),
-        Joint(_bmap["B-a"], _bmap["core-ca"],
-              pivot=_p["a"], rotation_axes=_db),
-        Joint(_bmap["B-c"], _bmap["core-ca"],
-              pivot=_p["c"], rotation_axes=_db),
-        Joint(_bmap["C-a"], _bmap["core-ab"],
-              pivot=_p["a"], rotation_axes=_dc),
-        Joint(_bmap["C-b"], _bmap["core-ab"],
-              pivot=_p["b"], rotation_axes=_dc),
+        Joint(_bmap["top-C"], _bmap["top-A"], pivot=_p["B-u"], rotation_axes=-v(0, 0, 1)),
+        Joint(_bmap["top-A"], _bmap["top-B"], pivot=_p["C-u"], rotation_axes=-v(0, 0, 1)),
+        Joint(_bmap["top-B"], _bmap["top-C"], pivot=_p["A-u"], rotation_axes=-v(0, 0, 1)),
 
-        Joint(_bmap["top-C"], _bmap["top-A"], pivot=_p["B-u"], rotation_axes=v(0, 0, 1)),
-        Joint(_bmap["top-A"], _bmap["top-B"], pivot=_p["C-u"], rotation_axes=v(0, 0, 1)),
-        Joint(_bmap["top-B"], _bmap["top-C"], pivot=_p["A-u"], rotation_axes=v(0, 0, 1)),
-
-        Joint(_bmap["top-B"], _bmap["A-b"], pivot=_p["A-u"], rotation_axes=v(0, 0, 1)),
-        Joint(_bmap["top-C"], _bmap["A-c"], pivot=_p["A-u"], rotation_axes=v(0, 0, 1)),
-        Joint(_bmap["top-C"], _bmap["B-c"], pivot=_p["B-u"], rotation_axes=v(0, 0, 1)),
-        Joint(_bmap["top-A"], _bmap["B-a"], pivot=_p["B-u"], rotation_axes=v(0, 0, 1)),
-        Joint(_bmap["top-A"], _bmap["C-a"], pivot=_p["C-u"], rotation_axes=v(0, 0, 1)),
-        Joint(_bmap["top-B"], _bmap["C-b"], pivot=_p["C-u"], rotation_axes=v(0, 0, 1)),
+        Joint(_bmap["top-B"], _bmap["A-b"], pivot=_p["ab-0.1"], rotation_axes=_da),
+        Joint(_bmap["top-C"], _bmap["A-c"], pivot=_p["ca-0.9"], rotation_axes=_da),
+        Joint(_bmap["top-C"], _bmap["B-c"], pivot=_p["bc-0.1"], rotation_axes=_db),
+        Joint(_bmap["top-A"], _bmap["B-a"], pivot=_p["ab-0.9"], rotation_axes=_db),
+        Joint(_bmap["top-A"], _bmap["C-a"], pivot=_p["ca-0.1"], rotation_axes=_dc),
+        Joint(_bmap["top-B"], _bmap["C-b"], pivot=_p["bc-0.9"], rotation_axes=_dc),
     ]
 
     ax_z = v(0, 0, 1)
     if stage >= 2:
+        _stage_2_points = {
+            f"{a}-u-{b}-d-{stage_2_frac}": lerp(_p[f"{a.lower()}{b.lower()}-0.1"], _p[f"{b}-d"], stage_2_frac)
+            for a in "ABC" for b in "ABC" if a != b
+        }
+        _p.update(_stage_2_points)
         _stage_2_beam = {
-            f"s2-{a}{b}": Beam.tetra(_p[f"{a}-u-{b}-d-{stage_2_frac}"], _p[f"{b}-u-{a}-d-{stage_2_frac}"], density=den)
+            f"s2-{a}{b}": beam_init(_p[f"{a}-u-{b}-d-{stage_2_frac}"], _p[f"{b}-u-{a}-d-{stage_2_frac}"])
             for a, b in ("AB", "BC", "CA")
         }
         _bmap.update(_stage_2_beam)
@@ -132,8 +114,13 @@ def define(stage):
         joints.extend(_stage_2_joint)
 
     if stage >= 3:
+        _stage_3_points = {
+            f"{a}-u-{b}-d-{stage_3_frac}": lerp(_p[f"{a}-u"], _p[f"{b}-d"], stage_3_frac)
+            for a in "ABC" for b in "ABC" if a != b
+        }
+        _p.update(_stage_3_points)
         _stage_3_beam = {
-            f"s3-{a}{b}": Beam.tetra(_p[f"{a}-u-{b}-d-{stage_3_frac}"], _p[f"{b}-u-{a}-d-{stage_3_frac}"], density=den * 2)
+            f"s3-{a}{b}": beam_init(_p[f"{a}-u-{b}-d-{stage_3_frac}"], _p[f"{b}-u-{a}-d-{stage_3_frac}"])
             for a, b in ("AB", "BC", "CA")
         }
         _bmap.update(_stage_3_beam)
@@ -147,18 +134,29 @@ def define(stage):
         joints.extend(_stage_3_joint)
 
     if stage >= 4:
-        _indices = ["AB", "BC", "CA", "BA", "CB", "AC"]
+        _indices = ["AB", "BC", "CA"]
+        _stage_4_points = {
+            f"s4-{_indices[i % 3]}": lerp(_p[f"{a}-u-{b}-d-{stage_2_frac}"], _p[f"{b}-u-{a}-d-{stage_2_frac}"], 0.5)
+            for i, (a, b) in enumerate(_indices)
+        }
+        _p.update(_stage_4_points)
         _stage_4_beam = {
-            f"s4-{_indices[i % 3]}": Beam.tetra(_p[f"{a}-u-{b}-d-{stage_2_frac}"], _p[f"{a}-u-{b}-d-{stage_3_frac}"], density=den * 2)
+            f"s4-{_indices[i % 3]}": beam_init(_p[f"s4-{_indices[i]}"], _p[f"{a.lower()}{b.lower()}-mid"])
             for i, (a, b) in enumerate(_indices)
         }
         _bmap.update(_stage_4_beam)
         _stage_4_joint = [
-            Joint(_bmap[f"s4-{_indices[i % 3]}"], _bmap[f"s2-{_indices[i % 3]}"], pivot=_p[f"{a}-u-{b}-d-{stage_2_frac}"],)
+            Joint(_bmap[f"s4-{_indices[i % 3]}"], _bmap[f"s2-{_indices[i % 3]}"],
+                  pivot=_p[f"s4-{_indices[i]}"],
+                  rotation_axes=np.cross((_dc, _da, _db)[i], v(0, 0, 1))
+                  )
             for i, (a, b) in enumerate(_indices)
         ] + [
-            Joint(_bmap[f"s4-{_indices[i % 3]}"], _bmap[f"s3-{_indices[i % 3]}"], pivot=_p[f"{a}-u-{b}-d-{stage_3_frac}"], )
-            for i, (a, b) in enumerate(_indices)
+            Joint(_bmap[f"s4-{_indices[i % 3]}"], _bmap[f"top-{'CAB'[i]}"],
+                  pivot=_p[f"{a.lower()}{b.lower()}-mid"],
+                  rotation_axes=np.cross((_dc, _da, _db)[i], v(0, 0, 1))
+                  )
+        for i, (a, b) in enumerate(_indices)
         ]
         joints.extend(_stage_4_joint)
 
@@ -170,6 +168,21 @@ def define(stage):
 
 
 if __name__ == "__main__":
+    model = define(1)["model"]
+    model.visualize(show_hinge=True,)
+
+    points = model.point_matrix()
+    edges = model.edge_matrix()
+    stiffness = spring_energy_matrix_accelerate_3D(points, edges, abstract_edges=[]),
+    constraints = model.constraint_matrix()
+
+    new_stiffness, B = generalized_courant_fischer(
+        stiffness,
+        constraints
+    )
+
+    pairs = model.eigen_solve(num_pairs=20)
+    print([e for e, v in pairs])
     for stage in range(1, 4 + 1):
         model = define(stage)["model"]
         model.save_json(f"output/table-stage{stage}.json")
