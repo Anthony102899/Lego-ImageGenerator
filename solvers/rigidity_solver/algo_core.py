@@ -234,13 +234,9 @@ def constraint_matrix(points, edges, joints, fixed_points_idx, dim):
 def generalized_courant_fischer(original_stiffness, constraints):
     K = original_stiffness
     B = scipy.linalg.null_space(constraints)
-    T = np.transpose(B) @ B
     S = B.T @ K @ B
-    L = np.linalg.cholesky(T)
-    L_inv = np.linalg.inv(L)
-    Q = L_inv.T @ S @ L_inv
 
-    return Q, B
+    return S, B
 
 def quadratic_matrix(points, edges, joints, fixed_points_idx, dim, verbose=False):
     """

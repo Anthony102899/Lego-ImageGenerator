@@ -3,10 +3,10 @@ import itertools
 import os
 from sfepy.discrete import fem
 
+from .algo_core import generalized_courant_fischer, spring_energy_matrix_accelerate_3D
 import util.geometry_util as geo_util
 import util.meshgen as meshgen
 from visualization.model_visualizer import visualize_hinges, visualize_3D
-from .algo_core import spring_energy_matrix
 from .constraints_3d import select_non_colinear_points, constraints_for_allowed_motions
 from .internal_structure import tetrahedron
 from .stiffness_matrix import stiffness_matrix_from_mesh
@@ -89,15 +89,26 @@ class Model:
         with open(filename, "w") as f:
             json.dump(self, f, cls=ModelEncoder, **kwargs)
 
-    def visualize(self, arrows=None):
+    def visualize(self, arrows=None, show_hinge=True):
         if arrows is not None:
-            visualize_3D(self.point_matrix(), edges=self.edge_matrix(), arrows=arrows.reshape(-1, 3))
+            visualize_3D(self.point_matrix(), edges=self.edge_matrix(), arrows=arrows.reshape(-1, 3), show_point=False)
+        elif not show_hinge:
+            visualize_3D(self.point_matrix(), edges=self.edge_matrix(), show_point=False)
         else:
             try:
-                pivots, axes = zip(*[(j.pivot, j.rotation_axes[0]) for j in self.joints])
+                pivots, axes = zip(*[(j.pivot, j.rotation_axes[0]) for j in self.joints if j.rotation_axes is not None])
                 visualize_hinges(self.point_matrix(), self.edge_matrix(), pivots=pivots, axes=geo_util.normalize(axes))
             except ValueError:
                 visualize_3D(self.point_matrix(), edges=self.edge_matrix())
+
+    def eigen_solve(self, num_pairs=10):
+        points = self.point_matrix()
+        edges = self.edge_matrix()
+        constraints = self.constraint_matrix()
+        stiffness = spring_energy_matrix_accelerate_3D(points, edges, abstract_edges=[])
+        K, B = generalized_courant_fischer(stiffness, constraints)
+        eigenpairs = geo_util.eigen(K, symmetric=True)
+        return eigenpairs[:num_pairs]
 
     def __str__(self):
         return str(self.report())
