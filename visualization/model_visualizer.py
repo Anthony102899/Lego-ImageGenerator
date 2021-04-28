@@ -10,6 +10,7 @@ import util.geometry_util as geo_util
 import numpy as np
 from numpy import linalg as LA
 from typing import List, Tuple
+from functools import reduce
 
 
 def get_mesh_for_points(points: List[np.ndarray]):
@@ -35,36 +36,45 @@ def get_lineset_for_edges(points, edges):
     return line_set
 
 
-def get_mesh_for_arrows(points, vectors, length_coeff=200, radius_coeff=1, cutoff=1e-3):
+def get_mesh_for_arrows(points, vectors, length_coeff=200, radius_coeff=1, cutoff=1e-3, return_single_mesh=True):
     """
-    :param points: start points for each arrow
+    :param points: starting point (tail position) for each arrow
     :param vectors: pointing direction for each arrow
     :param length_coeff: coefficient for stretching the arrow
     :param radius_coeff: coefficient for thickening the arrow
-    :param cutoff: arrow whose length < cutoff will not be displayed
-    :return: triangle mesh
+    :param cutoff: arrow whose length < cutoff will not be generated
+    :param return_single_mesh: if True, all arrow meshes will be merge into one mesh and return.
+                               Otherwise, they return in a list
+    :return: triangle mesh or list of meshes
     """
-    arrows = o3d.geometry.TriangleMesh()
+    arrows = []
     for idx, p in enumerate(points):
         vec = vectors[idx]
         rot_mat = geo_util.rot_matrix_from_vec_a_to_b([0, 0, 1], vec)
         vec_len = LA.norm(vec)
         if vec_len > cutoff:
-            arrow_body_len = length_coeff * vec_len
-            arrow_body_radius = 0.3 * radius_coeff
-            arrow_head_radius = arrow_body_radius * 3
-            arrow_head_height = 3 * arrow_head_radius
+            cylinder_height = 300 * vec_len * length_coeff
+            cylinder_radius = 2 * radius_coeff
+            cone_radius = 4 * radius_coeff
+            cone_height = 100 * vec_len * length_coeff
             arrow = o3d.geometry.TriangleMesh.create_arrow(
-                cylinder_radius=arrow_body_radius,
-                cylinder_height=arrow_body_len,
-                cone_radius=arrow_head_radius,
-                cone_height=arrow_head_height,
+                cylinder_radius=cylinder_radius,
+                cylinder_height=cylinder_height,
+                cone_radius=cone_radius,
+                cone_height=cone_height,
                 resolution=5,
             )
             norm_vec = vec / np.linalg.norm(vec)
-            arrows += copy.deepcopy(arrow).translate(p + 1 * vec).rotate(rot_mat, center=p) \
-                .paint_uniform_color([(norm_vec[0] + 1) / 2, (norm_vec[1] + 1) / 2, (norm_vec[2] + 1) / 2])
-    return arrows
+            color = (norm_vec[0] + 1) / 2, (norm_vec[1] + 1) / 2, (norm_vec[2] + 1) / 2
+            transformed_mesh = copy.deepcopy(arrow).translate(p + 1 * vec).rotate(rot_mat, center=p).paint_uniform_color(color)
+            arrows.append(transformed_mesh)
+
+    if return_single_mesh:
+        # merge all the meshes
+        return reduce(lambda x, y: x + y, arrows, o3d.geometry.TriangleMesh())
+    else:
+        return arrows
+
 
 def get_mesh_for_arrows_lego(points, vectors, Rigid):
     arrows = o3d.geometry.TriangleMesh()
@@ -84,11 +94,11 @@ def get_mesh_for_arrows_lego(points, vectors, Rigid):
             norm_vec = vec / np.linalg.norm(vec)
             # arrows.paint_uniform_color([(norm_vec[0]+1)/2,(norm_vec[1]+1)/2,(norm_vec[2]+1)/2])
             if Rigid:
-                arrows.paint_uniform_color([110/255, 179/255, 89/255])
-            # arrows += copy.deepcopy(arrow).translate(p).rotate(rot_mat, center=p)\
-            #   .paint_uniform_color([(norm_vec[0]+1)/2,(norm_vec[1]+1)/2,(norm_vec[2]+1)/2])
+                arrows.paint_uniform_color([110 / 255, 179 / 255, 89 / 255])
+                # arrows += copy.deepcopy(arrow).translate(p).rotate(rot_mat, center=p)\
+                #   .paint_uniform_color([(norm_vec[0]+1)/2,(norm_vec[1]+1)/2,(norm_vec[2]+1)/2])
                 arrows += copy.deepcopy(arrow).translate(p).rotate(rot_mat, center=p) \
-                    .paint_uniform_color([110/255, 179/255, 89/255])
+                    .paint_uniform_color([110 / 255, 179 / 255, 89 / 255])
             # arrows += copy.deepcopy(arrow).translate(p).rotate(rot_mat, center=p).paint_uniform_color([(norm_vec[0]+1)/2,(norm_vec[1]+1)/2,(norm_vec[2]+1)/2])
             else:
                 arrows.paint_uniform_color([1, 0, 0])
@@ -115,6 +125,7 @@ def visualize_3D(points: np.array,
     meshes = get_geometries_3D(points, lego_bricks, edges, arrows, show_axis, show_point, show_edge)
     o3d.visualization.draw_geometries(meshes)
 
+
 def get_geometries_3D(
         points: np.array,
         lego_bricks=None,
@@ -124,7 +135,6 @@ def get_geometries_3D(
         show_point=True,
         show_edge=True,
 ):
-
     hybrid_mesh = o3d.geometry.TriangleMesh()
     if show_point:
         point_meshes = get_mesh_for_points(points)
@@ -155,7 +165,10 @@ def visualize_hinges(points, edges, pivots, axes):
     pivot_meshes = get_mesh_for_points(pivots)
     hybrid_mesh += pivot_meshes
 
-    arrows = get_mesh_for_arrows(pivots, axes)
+    max_p = np.max(points, axis=0)
+    min_p = np.min(points, axis=0)
+    dis = np.linalg.norm(max_p - min_p)
+    arrows = get_mesh_for_arrows(pivots, axes, length_coeff=dis / 100, radius_coeff=dis / 200)
     hybrid_mesh += arrows
 
     edge_line_set = get_lineset_for_edges(points, edges)
