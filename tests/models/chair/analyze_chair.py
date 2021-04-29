@@ -10,11 +10,12 @@ from visualization.model_visualizer import visualize_3D
 import visualization.model_visualizer as vis
 import util.geometry_util as geo_util
 import time
+from functools import reduce
 from model_chair import define
 
 from util.logger import logger
 
-stage = 4
+stage = 1
 definition = define(stage)
 model = definition["model"]
 
@@ -75,7 +76,7 @@ log.debug("S computed, time - {}".format(time.time() - start))
 eigen_pairs = geo_util.eigen(S, symmetric=True)
 log.debug("eigen decomposition on S, time - {}".format(time.time() - start))
 log.debug("Computation done, time - {}".format(time.time() - start))
-log.debug(f"smallest 6 eigenvalue: {[e for e, _ in eigen_pairs[:6]]}")
+log.debug(f"smallest 16 eigenvalue: {[e for e, _ in eigen_pairs[:16]]}")
 
 zero_eigenspace = [(e_val, e_vec) for e_val, e_vec in eigen_pairs if abs(e_val) < 1e-6]
 log.debug(f"DoF: {len(zero_eigenspace)}")
@@ -111,29 +112,19 @@ else:
     force = M @ B @ v
     # force /= np.linalg.norm(force)
     arrows = force.reshape(-1, 3)
+    default_param = {
+        "length_coeff": 0.2,
+        "radius_coeff": 0.1,
+        "cutoff": 1e-2,
+    }
     param_map = {
-        1: {
-            "length_coeff": 100,
-            "radius_coeff": 1,
-            "cutoff": 1e-2,
-        },
-        2: {
-            "length_coeff": 100,
-            "radius_coeff": 1,
-            "cutoff": 1e-2,
-        },
-        3: {
-            "length_coeff": 100,
-            "radius_coeff": 1,
-            "cutoff": 1e-2,
-        },
+        1: {},
+        2: {},
+        3: {},
         4: {
-            "length_coeff": 100,
-            "radius_coeff": 1,
             "cutoff": 3e-2,
         },
     }
-    log.info("arrows: " + str(arrows))
     np.savez(f"data/rigid_chair_stage{stage}.npz",
              eigenvalue=np.array(e),
              points=points,
@@ -143,18 +134,27 @@ else:
              stiffness=M)
 
     vectors = eigenvector.reshape(-1, 3)
-    arrow_mesh = vis.get_mesh_for_arrows_lego(points, vectors, True)
-    arrow_mesh.paint_uniform_color([0, 1, 0])
-    o3d.visualization.draw_geometries([arrow_mesh])
-    arrow_mesh = vis.get_mesh_for_arrows(
+    model_meshes = vis.get_geometries_3D(points=points, edges=edges, show_axis=False, show_point=False)
+
+    arrow_meshes = vis.get_mesh_for_arrows(
         points,
         vectors,
-        # **param_map[stage],
+        **{**default_param, **param_map[stage]},
+        return_single_mesh=False,
     )
-    arrow_mesh.paint_uniform_color(vis.colormap["rigid"])
 
-    o3d.visualization.draw_geometries([arrow_mesh])
-    o3d.io.write_triangle_mesh(f"output/chair-arrow-stage{stage}.obj", arrow_mesh)
+    single_mesh = reduce(
+        lambda x, y: x + y,
+        map(lambda m: m.paint_uniform_color(vis.colormap["rigid"]), arrow_meshes),
+    )
+
+    o3d.visualization.draw_geometries([single_mesh, *model_meshes])
+
+    for idk in arrow_meshes:
+        print(idk)
+
+    for ind, mesh in enumerate(arrow_meshes):
+        o3d.io.write_triangle_mesh(f"output/chair-arrow-stage{stage}-ind{ind}.obj", mesh)
 
     # visualize_3D(points, edges=edges, arrows=force.reshape(-1, 3), show_point=False)
     # visualize_3D(points, edges=edges, arrows=eigenvector.reshape(-1, 3), show_point=False)

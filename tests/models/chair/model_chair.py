@@ -33,7 +33,7 @@ def define(stage: int):
     })
 
     def beam_init(p, q):
-        return Beam.tetra(p, q, density=0.8, thickness=2)
+        return Beam.tetra(p, q, density=0.5, thickness=2, ori=v(0, 0, 1))
 
     _bmap = {
         "top": beam_init(p(0, 0, 0), p(30, 0, 0)),
