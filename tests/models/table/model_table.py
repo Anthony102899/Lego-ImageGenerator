@@ -19,6 +19,7 @@ def define(stage):
     p_leg = p(0, 0, -1)
     cross_on_leg_ratio = 0.3
     cross_on_arm_ratio = 0.5
+
     def coord(a, b, c):
         return a * width * p_width + b * length * p_len + c * height * p_leg
     def init_beam(p, q, density=0.3):
@@ -60,7 +61,7 @@ def define(stage):
         ],
         *[
             Joint(bmap[f"{letter}-leg"], bmap[f"{letter}-cross"],
-                  pivot=pmap[f"{letter}-leg-crosspoint"], rotation_axes=p_len)
+                  pivot=pmap[f"{letter}-leg-crosspoint"])
             for letter in "abcd"
         ],
         *[
@@ -80,7 +81,13 @@ def define(stage):
     beams = list(bmap.values())
     model.add_beams(beams)
     model.add_joints(joints)
+
     return locals()
 
+
 if __name__ == "__main__":
-    define(1)["model"].visualize()
+    model = define(1)["model"]
+    pairs = model.eigen_solve(num_pairs=30)
+    print(*[(i, e) for i, (e, _) in enumerate(pairs)], sep="\n")
+    e, v = pairs[14]
+    # model.visualize(arrows=v.reshape(-1, 3))

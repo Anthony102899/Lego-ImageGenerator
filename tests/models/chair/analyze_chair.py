@@ -19,6 +19,8 @@ stage = 1
 definition = define(stage)
 model = definition["model"]
 
+nickname = "chair"
+
 log = logger()
 log.debug(f"model def: {definition}")
 log.debug(f"model: {model.report()}")
@@ -86,7 +88,7 @@ trivial_motions = geo_util.trivial_basis(points, dim=3)
 non_zero_eigenspace = [(e_val, e_vec) for e_val, e_vec in eigen_pairs if abs(e_val) >= 1e-8]
 log.debug("non zero eigenspace, time - {}".format(time.time() - start))
 
-model.save_json(f'output/chair-stage{stage}.json')
+model.save_json(f'output/{nickname}-stage{stage}.json')
 
 if len(zero_eigenspace) > 0:
     log.debug("Non-rigid")
@@ -95,7 +97,7 @@ if len(zero_eigenspace) > 0:
         force = M @ eigenvector
         arrows = eigenvector.reshape(-1, 3)
         log.debug(e)
-        np.savez(f"data/rigid_chair_stage{stage}_non_rigid_{i}.npz",
+        np.savez(f"data/rigid_{nickname}_stage{stage}_non_rigid_{i}.npz",
                  eigenvalue=np.array(e),
                  points=points,
                  edges=edges,
@@ -112,6 +114,14 @@ else:
     force = M @ B @ v
     # force /= np.linalg.norm(force)
     arrows = force.reshape(-1, 3)
+    np.savez(f"data/rigid_{nickname}_stage{stage}.npz",
+             eigenvalue=np.array(e),
+             points=points,
+             edges=edges,
+             eigenvector=eigenvector,
+             force=force,
+             stiffness=M)
+
     default_param = {
         "length_coeff": 0.2,
         "radius_coeff": 0.1,
@@ -125,14 +135,6 @@ else:
             "cutoff": 3e-2,
         },
     }
-    np.savez(f"data/rigid_chair_stage{stage}.npz",
-             eigenvalue=np.array(e),
-             points=points,
-             edges=edges,
-             eigenvector=eigenvector,
-             force=force,
-             stiffness=M)
-
     vectors = eigenvector.reshape(-1, 3)
     model_meshes = vis.get_geometries_3D(points=points, edges=edges, show_axis=False, show_point=False)
 
@@ -154,7 +156,7 @@ else:
         print(idk)
 
     for ind, mesh in enumerate(arrow_meshes):
-        o3d.io.write_triangle_mesh(f"output/chair-arrow-stage{stage}-ind{ind}.obj", mesh)
+        o3d.io.write_triangle_mesh(f"output/{nickname}-arrow-stage{stage}/{nickname}-arrow-stage{stage}-ind{ind}.obj", mesh)
 
     # visualize_3D(points, edges=edges, arrows=force.reshape(-1, 3), show_point=False)
     # visualize_3D(points, edges=edges, arrows=eigenvector.reshape(-1, 3), show_point=False)

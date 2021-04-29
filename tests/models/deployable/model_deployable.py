@@ -53,6 +53,7 @@ def define(stage):
     _da = normalize(_p["c"] - _p["b"])
     _db = normalize(_p["a"] - _p["c"])
     _dc = normalize(_p["b"] - _p["a"])
+    _dz = v(0, 0, 1)
 
     model = Model()
     _bmap = {
@@ -90,6 +91,16 @@ def define(stage):
         Joint(_bmap["top-A"], _bmap["B-a"], pivot=_p["ab-0.9"], rotation_axes=_db),
         Joint(_bmap["top-A"], _bmap["C-a"], pivot=_p["ca-0.1"], rotation_axes=_dc),
         Joint(_bmap["top-B"], _bmap["C-b"], pivot=_p["bc-0.9"], rotation_axes=_dc),
+
+        Joint(_bmap["A-b"], _bmap["B-a"],
+              pivot=(_p["ab-0.1"] + _p["ab-0.9"] + _p["A-d"] + _p["B-d"]) / 4,
+              rotation_axes=np.cross(_dc, _dz)),
+        Joint(_bmap["B-c"], _bmap["C-b"],
+              pivot=(_p["bc-0.1"] + _p["bc-0.9"] + _p["B-d"] + _p["C-d"]) / 4,
+              rotation_axes=np.cross(_da, _dz)),
+        Joint(_bmap["C-a"], _bmap["A-c"],
+              pivot=(_p["ca-0.1"] + _p["ca-0.9"] + _p["C-d"] + _p["A-d"]) / 4,
+              rotation_axes=np.cross(_db, _dz)),
     ]
 
     ax_z = v(0, 0, 1)
@@ -169,7 +180,7 @@ def define(stage):
 
 if __name__ == "__main__":
     model = define(1)["model"]
-    model.visualize(show_hinge=True,)
+    model.visualize(show_hinge=True)
 
     points = model.point_matrix()
     edges = model.edge_matrix()
