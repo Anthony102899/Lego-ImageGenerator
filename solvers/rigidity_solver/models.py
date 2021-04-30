@@ -7,6 +7,7 @@ from .algo_core import generalized_courant_fischer, spring_energy_matrix_acceler
 import util.geometry_util as geo_util
 import util.meshgen as meshgen
 from visualization.model_visualizer import visualize_hinges, visualize_3D
+import visualization.model_visualizer as vis
 from .constraints_3d import select_non_colinear_points, constraints_for_allowed_motions
 from .internal_structure import tetrahedron
 from .stiffness_matrix import stiffness_matrix_from_mesh
@@ -47,6 +48,15 @@ class Model:
 
         numpy_matrix = np.vstack(matrix) if len(matrix) > 0 else np.empty(0)
         return numpy_matrix
+
+
+    def constraints_fixing_first_part(self):
+        count = len(self.beams[0].points)
+        fixed_coordinates = np.zeros((count * 3, self.point_count * 3))
+        for r, c in enumerate(range(count * 3)):
+            fixed_coordinates[r, c] = 1
+
+        return fixed_coordinates
 
     @property
     def point_count(self):
@@ -89,26 +99,59 @@ class Model:
         with open(filename, "w") as f:
             json.dump(self, f, cls=ModelEncoder, **kwargs)
 
-    def visualize(self, arrows=None, show_hinge=True):
-        if arrows is not None:
-            visualize_3D(self.point_matrix(), edges=self.edge_matrix(), arrows=arrows.reshape(-1, 3), show_point=False)
-        elif not show_hinge:
-            visualize_3D(self.point_matrix(), edges=self.edge_matrix(), show_point=False)
-        else:
-            try:
-                pivots, axes = zip(*[(j.pivot, j.rotation_axes[0]) for j in self.joints if j.rotation_axes is not None])
-                visualize_hinges(self.point_matrix(), self.edge_matrix(), pivots=pivots, axes=geo_util.normalize(axes))
-            except ValueError:
-                visualize_3D(self.point_matrix(), edges=self.edge_matrix())
+    def visualize(self, arrows=None, show_hinge=True, arrow_style=None):
+        arrow_style = {
+            "length_coeff": 0.2,
+            "radius_coeff": 0.2,
+        } if arrow_style is None else arrow_style
 
-    def eigen_solve(self, num_pairs=10):
+        geometries = []
+
+        model_mesh = vis.get_lineset_for_edges(self.point_matrix(), self.edge_matrix())
+        geometries.append(model_mesh)
+
+        if show_hinge:
+            rotation_axes_pairs = [(j.pivot, j.rotation_axes[0]) for j in self.joints if j.rotation_axes is not None]
+            if len(rotation_axes_pairs) > 0:
+                rotation_pivots, rotation_axes = zip(*rotation_axes_pairs)
+                axes_arrows = vis.get_mesh_for_arrows(rotation_pivots, rotation_axes, length_coeff=0.01, radius_coeff=0.4)
+                axes_arrows.paint_uniform_color([0.5, 0.2, 0.8])
+                geometries.append(axes_arrows)
+
+            translation_vector_pairs = [(j.pivot, j.translation_vectors[0]) for j in self.joints if j.translation_vectors is not None]
+            if len(translation_vector_pairs) > 0:
+                translation_pivots, translation_vector = zip(*translation_vector_pairs)
+                print(*translation_pivots, sep="\n")
+                vector_arrows = vis.get_mesh_for_arrows(translation_pivots, translation_vector, length_coeff=0.01, radius_coeff=0.4)
+                vector_arrows.paint_uniform_color([0.2, 0.8, 0.5])
+                geometries.append(vector_arrows)
+
+            melded_points = [j.pivot for j in self.joints if j.translation_vectors is None and j.rotation_axes is None]
+            if len(melded_points) > 0:
+                point_meshes = vis.get_mesh_for_points(melded_points)
+                geometries.append(point_meshes)
+
+            mesh_frame = vis.o3d.geometry.TriangleMesh.create_coordinate_frame(size=10, origin=[0, 0, 0])
+            geometries.append(mesh_frame)
+
+        if arrows is not None:
+            points = self.point_matrix()
+            arrows = vis.get_mesh_for_arrows(points, arrows, **arrow_style)
+            model_meshes = vis.get_geometries_3D(self.point_matrix(), edges=self.edge_matrix(), show_axis=False, show_point=False)
+            geometries.extend([arrows, *model_meshes])
+
+        vis.o3d.visualization.draw_geometries(geometries)
+
+    def eigen_solve(self, num_pairs=10, extra_constr=None):
         points = self.point_matrix()
         edges = self.edge_matrix()
         constraints = self.constraint_matrix()
+        if extra_constr is not None:
+            constraints = np.vstack((constraints, extra_constr))
         stiffness = spring_energy_matrix_accelerate_3D(points, edges, abstract_edges=[])
         K, B = generalized_courant_fischer(stiffness, constraints)
         eigenpairs = geo_util.eigen(K, symmetric=True)
-        return eigenpairs[:num_pairs]
+        return [(e, B @ v) for e, v in eigenpairs[:num_pairs]]
 
     def __str__(self):
         return str(self.report())
@@ -219,7 +262,7 @@ class Joint:
         self.part2 = part2
 
         self.pivot = np.array(pivot)
-        assert self.pivot.shape == (3,)
+        assert self.pivot.shape == (3,), f"received pivot {self.pivot}, shape {self.pivot.shape}"
 
         if rotation_axes is not None:
             self.rotation_axes = np.array(rotation_axes).reshape(-1, 3)

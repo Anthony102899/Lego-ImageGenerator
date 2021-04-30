@@ -192,8 +192,9 @@ def constraints_for_allowed_motions(
     motions = []
     for i, target_point in enumerate(target_points):
         # all motions for a single point
-        if rotation_axes is None and translation_vectors is None: # two parts are melded together
-            pm = np.hstack((np.eye(9), -np.eye(9)))
+        if rotation_axes is None and translation_vectors is None:  # two parts are melded together
+            pm = point_allowed_motions(source_points, target_point, rotation_pivot, None,
+                                       translation_vectors=np.zeros((3, 3)))  # hack here: 'allow' translation in no way
         else:
             pm = point_allowed_motions(
                 source_points, target_point,

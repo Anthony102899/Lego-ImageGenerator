@@ -14,7 +14,7 @@ from functools import reduce
 
 
 def get_mesh_for_points(points: List[np.ndarray]):
-    sphere = o3d.geometry.TriangleMesh.create_sphere(radius=3, resolution=8)
+    sphere = o3d.geometry.TriangleMesh.create_sphere(radius=2, resolution=8)
     sphere.compute_vertex_normals()
     sphere.paint_uniform_color([0.9, 0.1, 0.1])
     spheres = o3d.geometry.TriangleMesh()
@@ -73,7 +73,7 @@ def get_mesh_for_arrows(points, vectors, length_coeff=1, radius_coeff=1, cutoff=
             arrow.compute_vertex_normals()
             norm_vec = vec / np.linalg.norm(vec)
             color = (norm_vec[0] + 1) / 2, (norm_vec[1] + 1) / 2, (norm_vec[2] + 1) / 2
-            transformed_mesh = copy.deepcopy(arrow).translate(p + 1 * vec).rotate(rot_mat, center=p).paint_uniform_color(color)
+            transformed_mesh = copy.deepcopy(arrow).translate(p ).rotate(rot_mat, center=p).paint_uniform_color(color)
             arrows.append(transformed_mesh)
 
     if return_single_mesh:
