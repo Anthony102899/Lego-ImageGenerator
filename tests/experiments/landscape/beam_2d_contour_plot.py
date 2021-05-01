@@ -1,6 +1,6 @@
 #%%
 import sys
-sys.path.append("../..")
+sys.path.append("../../..")
 
 from tqdm import tqdm
 import numpy as np

@@ -1,6 +1,6 @@
 #%%
 import sys
-sys.path.append("../..")
+sys.path.append("../../..")
 
 from tqdm import tqdm
 import numpy as np
@@ -20,11 +20,10 @@ xy_range = product(x_range, y_range)
 dim = 3
 
 case = "triangle"
-assert case in ("triangle", "beam")
 if case == "triangle":
     points = np.array([
-        [-0.5, -np.sqrt(3) / 2, 0],
-        [0.5, -np.sqrt(3) / 2, 0],
+        [-1, -np.sqrt(3), 0],
+        [0, -np.sqrt(3), 0],
         [0, 0, 0],
     ])
     edges = np.array([
@@ -32,21 +31,11 @@ if case == "triangle":
         [1, 2],
         [2, 0],
     ])
-else:
-    points = np.array([
-        [-1, 0, 0],
-        [0, 0, 0],
-    ])
-    edges = np.array([
-        [0, 1],
-    ])
 
 init_points = np.copy(points)
 
 if case == "triangle":
     constr = np.vstack((np.hstack((np.eye(6), np.zeros((6, 3)))), np.array([0, 0, 0, 0, 0, 0, 0, 0, 1])))
-else:
-    constr = np.vstack((np.hstack((np.eye(3), np.zeros((3, 3)))), np.array([0, 0, 0, 0, 0, 1])))
 
 init_K = spring_energy_matrix(init_points, edges, dim=dim)
 init_Q, init_B = generalized_courant_fischer(init_K, constr)

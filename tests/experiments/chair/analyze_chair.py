@@ -2,7 +2,6 @@ import open3d as o3d
 import scipy
 import numpy as np
 import os
-from numpy import linalg as LA
 from scipy.linalg import null_space
 from numpy.linalg import cholesky, inv, matrix_rank
 from solvers.rigidity_solver.eigen_analysis import eigen_analysis
@@ -16,7 +15,7 @@ from model_chair import define
 
 from util.logger import logger
 
-stage = 1
+stage = 4
 definition = define(stage)
 model = definition["model"]
 
@@ -123,7 +122,6 @@ else:
              force=force,
              stiffness=M)
 
-    os.makedirs(f"output/{nickname}-arrow-stage{stage}", exist_ok=True)
     default_param = {
         "length_coeff": 0.2,
         "radius_coeff": 0.1,
@@ -134,11 +132,17 @@ else:
         2: {},
         3: {},
         4: {
-            "cutoff": 3e-2,
+            "cutoff": 0e-2,
         },
     }
     vectors = eigenvector.reshape(-1, 3)
     model_meshes = vis.get_geometries_3D(points=points, edges=edges, show_axis=False, show_point=False)
+    total_arrows = vis.get_mesh_for_arrows(
+        points,
+        vectors,
+        **{**default_param, **param_map[stage]},
+    )
+    vis.o3d.visualization.draw_geometries([total_arrows, *model_meshes])
 
     for part_ind, beam_point_indices in enumerate(model.point_indices()):
 
@@ -146,22 +150,23 @@ else:
             points[beam_point_indices],
             vectors[beam_point_indices],
             **{**default_param, **param_map[stage]},
+            return_single_mesh=False
         )
 
-        single_mesh = arrow_meshes.paint_uniform_color(vis.colormap["rigid"])
-        # single_mesh = reduce(
-        #     lambda x, y: x + y,
-        #     map(lambda m: m.paint_uniform_color(vis.colormap["rigid"]), arrow_meshes),
-        # )
+        arrow_meshes = list(map(lambda m: m.paint_uniform_color(vis.colormap["rigid"]), arrow_meshes))
 
-        o3d.io.write_triangle_mesh(f"output/{nickname}-arrow-stage{stage}/{nickname}-arrow-stage{stage}-part{part_ind}.obj", single_mesh)
-        # o3d.visualization.draw_geometries([single_mesh, *model_meshes])
+        if len(arrow_meshes) == 0:
+            continue
 
-    # for idk in arrow_meshes:
-    #     print(idk)
-    #
-    # for ind, mesh in enumerate(arrow_meshes):
-    #     o3d.io.write_triangle_mesh(f"output/{nickname}-arrow-stage{stage}/{nickname}-arrow-stage{stage}-ind{ind}.obj", mesh)
+        single_mesh = reduce(
+            lambda x, y: x + y,
+            arrow_meshes,
+        )
+
+        os.makedirs(f"output/{nickname}-arrow-stage{stage}/part{part_ind}", exist_ok=True)
+
+        for ind, mesh in enumerate(arrow_meshes):
+            o3d.io.write_triangle_mesh(f"output/{nickname}-arrow-stage{stage}/part{part_ind}/{nickname}-arrow-stage{stage}-ind{ind}.obj", mesh)
 
     # visualize_3D(points, edges=edges, arrows=force.reshape(-1, 3), show_point=False)
     # visualize_3D(points, edges=edges, arrows=eigenvector.reshape(-1, 3), show_point=False)
