@@ -26,15 +26,20 @@ class Model:
             # joint_points
         ))
 
+    def point_indices(self):
+        beam_point_count = np.array([b.point_count for b in self.beams])
+        end_indices = np.cumsum(beam_point_count)
+        start_indices = end_indices - beam_point_count
+        return [np.arange(start, end) for start, end in zip(start_indices, end_indices)]
+
+
     def edge_matrix(self) -> np.ndarray:
         edge_indices = []
         index_offset = 0
         for beam in self.beams:
             edge_indices.append(beam.edges + index_offset)
             index_offset += beam.point_count
-        # for joint in self.joints:
-        #     edge_indices.append(joint.edges() + index_offset)
-        #     index_offset += joint.virtual_point_count
+
         matrix = np.vstack([edges for edges in edge_indices if edges.size > 0])
         return matrix
 
