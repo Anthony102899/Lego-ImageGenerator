@@ -1,12 +1,12 @@
 from solvers.rigidity_solver.models import *
 import numpy as np
-
 from functools import reduce
 
 scale = 10
 p = lambda x, y, z: np.array([x, y, z], dtype=np.double) * scale
 v = lambda x, y, z: np.array([x, y, z], dtype=np.double)
 lerp = lambda p, q, w: p * (1 - w) + q * w
+
 
 def define(stage):
     width = 6
@@ -161,10 +161,12 @@ def define(stage):
 
     return locals()
 
+
 def save_json_for_all_stages():
     for stage in range(1, 4 + 1):
         model = define(stage)["model"]
         model.save_json(f"output/foldable-stage{stage}.json")
+
 
 if __name__ == "__main__":
     save_json_for_all_stages()

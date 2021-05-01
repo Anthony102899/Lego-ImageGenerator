@@ -1,6 +1,7 @@
 import open3d as o3d
 import scipy
 import numpy as np
+import os
 from numpy import linalg as LA
 from scipy.linalg import null_space
 from numpy.linalg import cholesky, inv, matrix_rank
@@ -80,7 +81,7 @@ log.debug("eigen decomposition on S, time - {}".format(time.time() - start))
 log.debug("Computation done, time - {}".format(time.time() - start))
 log.debug(f"smallest 16 eigenvalue: {[e for e, _ in eigen_pairs[:16]]}")
 
-zero_eigenspace = [(e_val, e_vec) for e_val, e_vec in eigen_pairs if abs(e_val) < 1e-6]
+zero_eigenspace = [(e_val, e_vec) for e_val, e_vec in eigen_pairs if abs(e_val) < 1e-8]
 log.debug(f"DoF: {len(zero_eigenspace)}")
 
 trivial_motions = geo_util.trivial_basis(points, dim=3)
@@ -122,6 +123,7 @@ else:
              force=force,
              stiffness=M)
 
+    os.makedirs(f"output/{nickname}-arrow-stage{stage}", exist_ok=True)
     default_param = {
         "length_coeff": 0.2,
         "radius_coeff": 0.1,
@@ -138,25 +140,28 @@ else:
     vectors = eigenvector.reshape(-1, 3)
     model_meshes = vis.get_geometries_3D(points=points, edges=edges, show_axis=False, show_point=False)
 
-    arrow_meshes = vis.get_mesh_for_arrows(
-        points,
-        vectors,
-        **{**default_param, **param_map[stage]},
-        return_single_mesh=False,
-    )
+    for part_ind, beam_point_indices in enumerate(model.point_indices()):
 
-    single_mesh = reduce(
-        lambda x, y: x + y,
-        map(lambda m: m.paint_uniform_color(vis.colormap["rigid"]), arrow_meshes),
-    )
+        arrow_meshes = vis.get_mesh_for_arrows(
+            points[beam_point_indices],
+            vectors[beam_point_indices],
+            **{**default_param, **param_map[stage]},
+        )
 
-    o3d.visualization.draw_geometries([single_mesh, *model_meshes])
+        single_mesh = arrow_meshes.paint_uniform_color(vis.colormap["rigid"])
+        # single_mesh = reduce(
+        #     lambda x, y: x + y,
+        #     map(lambda m: m.paint_uniform_color(vis.colormap["rigid"]), arrow_meshes),
+        # )
 
-    for idk in arrow_meshes:
-        print(idk)
+        o3d.io.write_triangle_mesh(f"output/{nickname}-arrow-stage{stage}/{nickname}-arrow-stage{stage}-part{part_ind}.obj", single_mesh)
+        # o3d.visualization.draw_geometries([single_mesh, *model_meshes])
 
-    for ind, mesh in enumerate(arrow_meshes):
-        o3d.io.write_triangle_mesh(f"output/{nickname}-arrow-stage{stage}/{nickname}-arrow-stage{stage}-ind{ind}.obj", mesh)
+    # for idk in arrow_meshes:
+    #     print(idk)
+    #
+    # for ind, mesh in enumerate(arrow_meshes):
+    #     o3d.io.write_triangle_mesh(f"output/{nickname}-arrow-stage{stage}/{nickname}-arrow-stage{stage}-ind{ind}.obj", mesh)
 
     # visualize_3D(points, edges=edges, arrows=force.reshape(-1, 3), show_point=False)
     # visualize_3D(points, edges=edges, arrows=eigenvector.reshape(-1, 3), show_point=False)

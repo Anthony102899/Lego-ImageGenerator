@@ -18,7 +18,7 @@ from util.logger import logger
 
 log = logger()
 
-stage = 4
+stage = 1
 definition = define(stage)
 model = definition["model"]
 
@@ -129,29 +129,33 @@ else:
         2: {},
         3: {},
         4: {
-            "cutoff": 3e-2,
+            "cutoff": 1e-2,
         },
     }
 
     vectors = eigenvector.reshape(-1, 3)
     model_meshes = vis.get_geometries_3D(points=points, edges=edges, show_axis=False, show_point=False)
 
-    arrow_meshes = vis.get_mesh_for_arrows(
-        points,
-        vectors,
-        **{**default_param, **param_map[stage]},
-        return_single_mesh=False,
-    )
+    for part_ind, beam_point_indices in enumerate(model.point_indices()):
+        arrow_meshes = vis.get_mesh_for_arrows(
+            points[beam_point_indices],
+            vectors[beam_point_indices],
+            **{**default_param, **param_map[stage]},
+            return_single_mesh=True,
+        )
 
-    single_mesh = reduce(
-        lambda x, y: x + y,
-        map(lambda m: m.paint_uniform_color(vis.colormap["rigid"]), arrow_meshes),
-    )
+        single_mesh = arrow_meshes.paint_uniform_color(vis.colormap["rigid"])
+        # single_mesh = reduce(
+        #     lambda x, y: x + y,
+        #     map(lambda m: m.paint_uniform_color(vis.colormap["rigid"]), arrow_meshes),
+        # )
+        os.makedirs(f"output/{nickname}-arrow-stage{stage}", exist_ok=True)
 
-    # o3d.visualization.draw_geometries([single_mesh, *model_meshes])
-    os.makedirs(f"output/{nickname}-arrow-stage{stage}/{nickname}-arrow-stage{stage}")
-    for ind, mesh in enumerate(arrow_meshes):
-        o3d.io.write_triangle_mesh(f"output/{nickname}-arrow-stage{stage}/{nickname}-arrow-stage{stage}-ind{ind}.obj", mesh)
+        # o3d.visualization.draw_geometries([single_mesh, *model_meshes])
+        o3d.io.write_triangle_mesh(f"output/{nickname}-arrow-stage{stage}/{nickname}-arrow-stage{stage}-part{part_ind}.obj",
+                                   single_mesh)
+    # for ind, mesh in enumerate(arrow_meshes):
+    #     o3d.io.write_triangle_mesh(f"output/{nickname}-arrow-stage{stage}-ind{ind}.obj", mesh)
 
     # visualize_3D(points, edges=edges, arrows=force.reshape(-1, 3), show_point=False)
     # visualize_3D(points, edges=edges, arrows=eigenvector.reshape(-1, 3), show_point=False)
