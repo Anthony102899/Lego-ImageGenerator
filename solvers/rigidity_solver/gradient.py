@@ -11,39 +11,6 @@ Gradient analysis:
 """
 
 
-def differentiable_eigen(
-        points: torch.Tensor,
-        edges: torch.Tensor,
-        hinge_axes: torch.Tensor,
-        hinge_pivots: torch.Tensor,
-        hinge_point_indices: torch.Tensor,
-        extra_constraints=None,
-):
-    energy = spring_energy_matrix(points, edges, 3)
-    constraint = constraint_matrix(points, hinge_axes, hinge_pivots, hinge_point_indices)
-
-    if extra_constraints is not None:
-        constraint = torch.vstack([constraint, extra_constraints])
-
-    B = torch_null_space(constraint, disturb_s=True)
-    T = torch.mm(B.t(), B)
-    S = torch.chain_matmul(B.t(), energy, B)
-    L = torch.cholesky(T)
-    L_inv = torch.inverse(L)
-
-    Q = torch.chain_matmul(L_inv.t(), S, L_inv)
-
-    eigenvalues, eigenvectors = torch.symeig(Q, eigenvectors=True)
-
-    # sort eigenvalue and vectors
-    indices = torch.argsort(eigenvalues)
-    sorted_eigenvalues = eigenvalues[indices]
-    sorted_eigenvectors = eigenvectors[indices]
-
-    assert sorted_eigenvalues[0] <= sorted_eigenvalues[-1]
-
-    return sorted_eigenvalues, sorted_eigenvectors
-
 
 def smallest_eigenpair(
         points: torch.Tensor,

@@ -4,6 +4,7 @@ from bricks_modeling.connectivity_graph import ConnectivityGraph
 from util.debugger import MyDebugger
 from bricks_modeling.connections.conn_type import ConnType
 import numpy as np
+import torch
 import util.geometry_util as geo_util
 import open3d as o3d
 import copy
@@ -55,8 +56,9 @@ def find_rotation_matrix(a, b):
     return rot
 
 
-def tetrahedron(p, q, density, thickness=1, ori=None):
+def tetrahedron(p, q, density, thickness=1, ori=None, num=None, mode="numpy"):
     if ori is None:
+        assert mode == "numpy"
         vertices = np.array([
             [0, 1, 0],
             [np.sqrt(3) / 2, -1 / 2, 0],
@@ -82,8 +84,10 @@ def tetrahedron(p, q, density, thickness=1, ori=None):
     start = base + start_center
     end = base + end_center
 
-    num = int(np.linalg.norm(p - q) / thickness * density)
-    num = 2 if num < 2 else num
+    if num is None:
+        num = int(np.linalg.norm(p - q) / thickness * density)
+        num = 2 if num < 2 else num
+
     triangles = np.linspace(start, end, num)
     centers = np.linspace(start_center, end_center, num) + (end_center - start_center) / (num - 1) / 2
 
@@ -123,6 +127,28 @@ def tetrahedron(p, q, density, thickness=1, ori=None):
 
     # edges = np.array(list(itertools.combinations(range(len(points)), 2)))
 
+    return points, edges
+
+
+_rotation_90 = torch.tensor([
+    [0, -1],
+    [1, 0]
+], dtype=torch.double)
+
+
+def triangulation_with_torch(p, q, num, thickness=1.0):
+    ori = torch.mv(_rotation_90, p - q)
+    points = torch.vstack([
+        torch.vstack([torch.lerp(p, q, w) for w in torch.linspace(0, 1, num, dtype=torch.double)]) + ori / ori.norm() / 2 * thickness,
+        torch.vstack([torch.lerp(p, q, w) for w in torch.linspace(0, 1, num, dtype=torch.double)]) - ori / ori.norm() / 2 * thickness,
+    ])
+    edges = torch.vstack([
+        torch.tensor([(s, s + num) for s in range(num)]),
+        torch.tensor([(s, s + 1) for s in range(num - 1)]),
+        torch.tensor([(s + 1, s + num) for s in range(num - 1)]),
+        torch.tensor([(s, s + num + 1) for s in range(num - 1)]),
+        torch.tensor([(s + num, s + num + 1) for s in range(num - 1)]),
+    ])
     return points, edges
 
 
