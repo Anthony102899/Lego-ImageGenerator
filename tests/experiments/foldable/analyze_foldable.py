@@ -6,12 +6,11 @@ from scipy.linalg import null_space
 from numpy.linalg import cholesky, inv, matrix_rank
 from solvers.rigidity_solver.eigen_analysis import eigen_analysis
 import solvers.rigidity_solver.algo_core as core
-from visualization.model_visualizer import visualize_3D
 import visualization.model_visualizer as vis
 import util.geometry_util as geo_util
 import time
 from functools import reduce
-from model_table import define
+from model_foldable import define
 
 from util.logger import logger
 
@@ -19,7 +18,7 @@ stage = 4
 definition = define(stage)
 model = definition["model"]
 
-nickname = "table"
+nickname = "foldable"
 
 log = logger()
 log.debug(f"model def: {definition}")
@@ -105,7 +104,7 @@ if len(zero_eigenspace) > 0:
                  stiffness=M,
                  force=force,
                  )
-        visualize_3D(points, edges=edges, arrows=arrows)
+        vis.visualize_3D(points, edges=edges, arrows=arrows)
 else:
     log.debug("rigid")
     e, v = non_zero_eigenspace[0 if stage in (0, 1, 2, 4) else 1]
@@ -141,7 +140,7 @@ else:
         vectors,
         **{**default_param, **param_map[stage]},
     )
-    vis.o3d.visualization.draw_geometries([total_arrows, *model_meshes])
+    # vis.o3d.visualization.draw_geometries([total_arrows, *model_meshes])
 
     for part_ind, beam_point_indices in enumerate(model.point_indices()):
 
@@ -161,10 +160,12 @@ else:
             lambda x, y: x + y,
             arrow_meshes,
         )
-        vis.o3d.visualization.draw_geometries([single_mesh, *model_meshes])
+        # vis.o3d.visualization.draw_geometries([single_mesh, *model_meshes])
 
         os.makedirs(f"output/{nickname}-arrow-stage{stage}/part{part_ind}", exist_ok=True)
 
+        o3d.io.write_triangle_mesh(
+            f"output/{nickname}-arrow-stage{stage}/{nickname}-arrow-stage{stage}-part{part_ind}.obj", single_mesh)
         for ind, mesh in enumerate(arrow_meshes):
             o3d.io.write_triangle_mesh(f"output/{nickname}-arrow-stage{stage}/part{part_ind}/{nickname}-arrow-stage{stage}-ind{ind}.obj", mesh)
 

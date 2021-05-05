@@ -104,13 +104,16 @@ if plot_mode == "3d":
     ax.view_init(azim=15)
     X, Y = np.meshgrid(x_range, y_range)
     ax = plt.gca()
-    arrow_x = np.zeros((8,))
-    arrow_y = np.zeros((8,))
-    arrow_z = np.zeros((8,))
-    # vectors = [-(init_B @ v)[6:] for e, v in init_eigenpairs]
-    vectors = [geo_util.normalize(np.array((i, j, 0))) for i in (-1, 0, 1) for j in (-1, 0, 1) if i != 0 or j != 0]
+    arrow_x = np.zeros((2,))
+    arrow_y = np.zeros((2,))
+    arrow_z = np.zeros((2,))
+    vectors = np.array([-(init_B @ v)[6:] for e, v in init_eigenpairs])
+    print(*[(i, e) for i, (e, _) in enumerate(init_eigenpairs)])
+    print(vectors)
+    print(np.arccos(vectors[:, 0]) / (2 * np.pi) * 360)
+    print(np.arcsin(vectors[:, 0]) / (2 * np.pi) * 360)
+    # vectors = [geo_util.normalize(np.array((i, j, 0))) for i in (-1, 0, 1) for j in (-1, 0, 1) if i != 0 or j != 0]
     arrow_u, arrow_v, arrow_w = zip(*vectors)
-    print(arrow_u)
     ax.quiver(arrow_x, arrow_y, arrow_z, arrow_u, arrow_v, arrow_w, length=0.2, colors=(1, 0, 0))
 
     scale_x, scale_y, scale_z = 1, 1, 1
@@ -126,6 +129,12 @@ elif plot_mode == "contour":
 
 plt.savefig(f"triangle-eigenvalues-{plot_mode}-{np.max(x_range)}-{np.max(y_range)}.png", bbox_inches="tight",
             dpi=800)
-y_ind, x_ind = np.unravel_index(np.argmax(Z), Z.shape)
+plt.cla()
+vectors = [-(init_B @ v)[6:] for e, v in init_eigenpairs]
+print(*[(i, e) for i, (e, _) in enumerate(init_eigenpairs)])
+# vectors = [geo_util.normalize(np.array((i, j, 0))) for i in (-1, 0, 1) for j in (-1, 0, 1) if i != 0 or j != 0]
+arrow_u, arrow_v, arrow_w = zip(*vectors)
+ax.quiver(arrow_x, arrow_y, arrow_z, arrow_u, arrow_v, arrow_w, length=0.2, colors=(1, 0, 0))
+
+# y_ind, x_ind = np.unravel_index(np.argmax(Z), Z.shape)
 # plt.scatter([x_range[x_ind]], [y_range[y_ind]])
-# plt.show()

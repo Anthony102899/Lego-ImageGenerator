@@ -101,12 +101,13 @@ if plot_mode == "3d":
     ax.set_zlim(0, 1.3)
     ax.view_init(azim=15)
 
-    arrow_x = np.zeros((8,))
-    arrow_y = np.zeros((8,))
-    arrow_z = np.zeros((8,))
-    # vectors = [-(init_B @ v)[6:] for e, v in init_eigenpairs]
-    vectors = [geo_util.normalize(np.array((i, j, 0))) for i in (-1, 0, 1) for j in (-1, 0, 1) if i != 0 or j != 0]
+    arrow_x = np.zeros((2,))
+    arrow_y = np.zeros((2,))
+    arrow_z = np.zeros((2,))
+    vectors = [-(init_B @ v)[3:] for e, v in init_eigenpairs]
+    # vectors = [geo_util.normalize(np.array((i, j, 0))) for i in (-1, 0, 1) for j in (-1, 0, 1) if i != 0 or j != 0]
     print(vectors)
+    print(*[(i, e) for i, (e, _) in enumerate(init_eigenpairs)])
     arrow_u, arrow_v, arrow_w = zip(*vectors)
     ax.quiver(arrow_x, arrow_y, arrow_z, arrow_u, arrow_v, arrow_w, length=0.2, colors=(1, 0, 0))
 

@@ -12,7 +12,7 @@ import time
 import os
 from functools import reduce
 
-from model_deployable import define
+from model_table import define
 
 from util.logger import logger
 

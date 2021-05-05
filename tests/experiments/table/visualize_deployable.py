@@ -4,7 +4,7 @@ from functools import reduce
 from visualization.vismesh import arrow_meshes, visualize_3D
 from visualization.model_visualizer import get_geometries_3D, get_mesh_for_points, get_mesh_for_arrows
 
-from model_deployable import define
+from model_table import define
 
 from util.logger import logger
 

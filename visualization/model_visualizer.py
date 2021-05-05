@@ -197,8 +197,8 @@ def visualize_2D(points: np.array, edges: List[Tuple] = None, arrows=None):
                      edgelist=edges, edge_color=edge_color,
                      with_labels=False, style="solid")
 
+    ax = plt.axes()
     if arrows is not None:
-        ax = plt.axes()
         ax.autoscale(enable=True)
         for i in range(len(points)):
             if LA.norm(arrows[i]) > 1e-4:

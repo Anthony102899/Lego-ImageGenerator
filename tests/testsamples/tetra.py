@@ -82,14 +82,14 @@ def square_closed_axes():
     ])
     return square(axes)
 
-def triangle(vertices, axes, scale=240):
+def triangle(vertices, axes, scale=10):
     model = Model()
     vertices = vertices.copy() * scale
     beams = [
-        Beam.tetra(vertices[i], vertices[(i + 1) % 3], thickness=20, ori=np.array([0, 0, 1]))
+        Beam.tetra(vertices[i], vertices[(i + 1) % 3], thickness=1.5, ori=np.array([0, 0, 1]))
         for i in range(3)
     ]
-    hinges = [Joint(beams[i], beams[(i + 1) % 3], pivot_point=vertices[(i + 1) % 3], axis=axes[i]) for i in range(3)]
+    hinges = [Joint(beams[i], beams[(i + 1) % 3], pivot=vertices[(i + 1) % 3], rotation_axes=axes[i]) for i in range(3)]
 
     model.add_beams(beams)
     model.add_joints(hinges)
