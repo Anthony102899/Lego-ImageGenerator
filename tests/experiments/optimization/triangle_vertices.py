@@ -32,9 +32,12 @@ part_nodes = np.array([
 ]) * 5
 
 optimizable_ind = np.array([2, ])
-fixed_ind = np.arange(len(part_nodes))
-optimizable_nodes = torch.tensor(part_nodes[optimizable_ind], dtype=torch.double, requires_grad=True)
-fixed_nodes = torch.tensor(part_nodes[fixed_ind], dtype=torch.double)
+optimizable_nodes = torch.tensor(
+    part_nodes[optimizable_ind],
+    dtype=torch.double, requires_grad=True)
+fixed_nodes = torch.tensor(
+    np.delete(part_nodes, optimizable_ind, axis=0),
+    dtype=torch.double)
 
 part_node_connectivity = np.array([
     [0, 1],
@@ -46,7 +49,7 @@ def model_info(part_nodes, edges=None):
     model = Model()
     with torch.no_grad():
         for i, j in part_node_connectivity:
-            points, edges = triangulation_with_torch(part_nodes[i], part_nodes[j], 5)
+            points, edges = triangulation_with_torch(part_nodes[i], part_nodes[j], 10, thickness=0.3)
             model.add_beam(Beam(points.detach().numpy(), edges.detach().numpy()))
 
         model.add_joint(Joint(model.beams[0], model.beams[1], pivot=part_nodes[1]))
@@ -54,7 +57,7 @@ def model_info(part_nodes, edges=None):
         model.add_joint(Joint(model.beams[2], model.beams[0], pivot=part_nodes[0]))
 
     points = torch.vstack(
-        [triangulation_with_torch(part_nodes[i], part_nodes[j], 5)[0] for i, j in part_node_connectivity]
+        [triangulation_with_torch(part_nodes[i], part_nodes[j], 10, thickness=0.3)[0] for i, j in part_node_connectivity]
     )
 
     return points, model
@@ -64,7 +67,7 @@ def z_static(point_count):
     constr[np.arange(point_count), np.arange(point_count) * 3 + 2] = 1
     return constr
 
-n_iters = 3
+n_iters = 1000
 optimizer = Adam(params=[optimizable_nodes], lr=0.01)
 
 traces = []
@@ -85,13 +88,12 @@ for it in tqdm(range(n_iters)):
     ])
 
     constraints = np.vstack([
-        torch.tensor(model.constraint_matrix(), dtype=torch.double),
-        torch.tensor(extra_cosntraints, dtype=torch.double),
+        model.constraint_matrix(),
+        extra_cosntraints,
     ])
     np_B = null_space(constraints)
     B = torch.tensor(np_B, dtype=torch.double)
 
-    np_K = core.spring_energy_matrix_accelerate_3D(points.detach().numpy(), edges.numpy())
     K = gradient.spring_energy_matrix(points, edges, dim=3)
 
     Q = torch.chain_matmul(B.t(), K, B)
@@ -106,18 +108,17 @@ for it in tqdm(range(n_iters)):
     assert not torch.allclose(eigenvalues[eigind], torch.tensor(0.0, dtype=torch.double)), f"more than expected num dof: {eigenvalues}"
 
     # peripheral = (vertex_a - vertex_b).norm() + (vertex_b - vertex_c).norm() + (vertex_c - vertex_a).norm()
-    # peripheral_penalty = 5 * torch.pow(peripheral - init_peripheral, 2)
+    # peripheral_penalty = 5 * torch.pow(peripheral - init_peripheral, 2), thickness=0.3
     peripheral_penalty = 0
     # Negate eigenvalue in the objective as we're trying to increase it
     objective = -smallest_eigenvalue + peripheral_penalty
     objective.backward()
 
-    print(objective)
-
     optimizer.step()
 
     trace = {
         "eigenvalue": smallest_eigenvalue.detach().cpu().numpy(),
+        "eigenvector": corresponding_eigenvector.detach().cpu().numpy(),
         "vertices": nodes.detach().cpu().numpy(),
         "points": points.detach().cpu().numpy(),
     }
@@ -148,11 +149,13 @@ points_x = points[:, 0]
 points_y = points[:, 1]
 ax.scatter(points_x, points_y, s=1)
 
-for it in range(3):
-    trace = traces[it * 300]
+for it in np.round(np.linspace(0, n_iters - 1, 4)).astype(np.int):
+    trace = traces[it]
     vertices = trace["vertices"]
     plot_shape(ax, vertices, np.array([[0, 1], [1, 2], [2, 0]]))
 
 plt.show()
 
-
+for it in np.round(np.linspace(0, n_iters - 1, 4)).astype(np.int):
+    trace = traces[it]
+    visualize_2D(trace["points"], edges, trace["eigenvector"].reshape(-1, 3)[:, :2])
