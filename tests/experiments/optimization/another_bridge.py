@@ -6,64 +6,133 @@ from tqdm import tqdm
 import torch
 from torch.optim import Adam
 import numpy as np
+from scipy.linalg import null_space
 
-from solvers.rigidity_solver import gradient
-from solvers.rigidity_solver import algo_core as core
+from solvers.rigidity_solver import (
+    algo_core as core,
+    gradient,
+    extra_constraint
+)
+from solvers.rigidity_solver.models import Model, Joint, Beam
+from solvers.rigidity_solver.internal_structure import triangulation_with_torch
 from util import geometry_util
 
 root3 = np.sqrt(3)
-init_vertices = np.array([
+part_nodes = np.array([
     [0, 0], [1, 0], [2, 0], [3, 0],
     [0.5, root3 / 2], [1.5, root3 / 2], [2.5, root3 / 2],
-], dtype=np.double)
+], dtype=np.double) * 5
+part_nodes = np.hstack((
+    part_nodes, np.zeros((len(part_nodes), 1))
+))
 
-init_vertices -= np.mean(init_vertices, axis=0)
+part_nodes -= np.mean(part_nodes, axis=0)
 
-optimizable_vertices = torch.tensor(
-    init_vertices[np.array([4, 5, 6])], dtype=torch.double, requires_grad=True)
-fixed_vertices = torch.tensor(
-    init_vertices[np.array([0, 1, 2, 3])], dtype=torch.double
+optimzable_ind = np.array([4, 5, 6])
+
+optimizable_nodes = torch.tensor(
+    part_nodes[optimzable_ind], dtype=torch.double, requires_grad=True)
+fixed_nodes = torch.tensor(
+    np.delete(part_nodes, optimzable_ind, axis=0), dtype=torch.double
 )
 
-edges = torch.tensor(
-    [(0, 1), (1, 2), (2, 3), (4, 5), (5, 6), (0, 4), (1, 4), (1, 5), (2, 5), (2, 6), (3, 6)],
+part_node_connectivity = torch.tensor(
+    [(0, 1), (1, 2), (2, 3), (4, 5), (5, 6),
+     (0, 4), (1, 4), (1, 5), (2, 5), (2, 6), (3, 6)],
     dtype=torch.long)
 
-n_iters = 3000
-optimizer = Adam(params=[optimizable_vertices])
+def model_info(part_nodes):
+    model = Model()
+    seg_num = 3
+    with torch.no_grad():
+        for i, j in part_node_connectivity:
+            points, edges = triangulation_with_torch(part_nodes[i], part_nodes[j], seg_num, thickness=0.3)
+            model.add_beam(Beam(points.detach().numpy(), edges.detach().numpy()))
+
+        joints_info = [
+            (0, 5, 0),
+            (0, 6, 1),
+            (6, 7, 1),
+            (7, 1, 1),
+            (1, 8, 2),
+            (8, 9, 2),
+            (9, 2, 2),
+            (2, 10, 3),
+            (5, 6, 4),
+            (6, 3, 4),
+            (3, 7, 5),
+            (7, 8, 5),
+            (8, 4, 5),
+            (4, 9, 6),
+            (9, 10, 6),
+        ]
+        for i, j, n in joints_info:
+            model.add_joint(Joint(model.beams[i], model.beams[j], pivot=part_nodes[n]))
+
+    points = torch.vstack(
+        [triangulation_with_torch(part_nodes[i], part_nodes[j], seg_num, thickness=0.3)[0] for i, j in part_node_connectivity]
+    )
+
+    return points, model
+
+
+n_iters = 500
+optimizer = Adam(params=[optimizable_nodes], lr=0.001)
 
 traces = []
+
+_, model = model_info(torch.vstack([fixed_nodes, optimizable_nodes]))
+edges = torch.tensor(model.edge_matrix(), dtype=torch.long)
 
 for it in tqdm(range(n_iters)):
     optimizer.zero_grad()
 
-    vertices = torch.vstack([
-        fixed_vertices,
-        optimizable_vertices,
+    nodes = torch.vstack([
+        fixed_nodes,
+        optimizable_nodes,
     ])
 
-    K = gradient.spring_energy_matrix(vertices, edges, dim=2)
-    eigenvalues, eigenvectors = torch.symeig(K, eigenvectors=True)
-    indices = torch.argsort(eigenvalues)
-    sorted_eigenvalues = eigenvalues[indices]
-    sorted_eigenvectors = eigenvectors[indices]
+    points, model = model_info(nodes)
 
-    smallest_nonzero_index = 3
-    smallest_nonzero_eigenval = sorted_eigenvalues[smallest_nonzero_index]
-    assert torch.allclose(sorted_eigenvalues[:smallest_nonzero_index], torch.tensor(0.0, dtype=torch.double)), f"more than 3 dof {sorted_eigenvalues}"
-    assert not torch.allclose(sorted_eigenvalues[smallest_nonzero_index], torch.tensor(0.0, dtype=torch.double)), f"more than 3 dof {sorted_eigenvalues}"
+    extra_constraints = np.vstack([
+        extra_constraint.z_static(len(points)),
+        extra_constraint.trivial_basis(points.detach().numpy(), dim=3),
+    ])
+
+    constraints = np.vstack([
+        model.constraint_matrix(),
+        extra_constraints,
+    ])
+    np_B = null_space(constraints)
+    B = torch.tensor(np_B, dtype=torch.double)
+
+    K = gradient.spring_energy_matrix(points, edges, dim=3)
+
+    Q = torch.chain_matmul(B.t(), K, B)
+
+    # the eigenvalues are already in ascending order!
+    eigenvalues, eigenvectors = torch.symeig(Q, eigenvectors=True)
+
+    eigind = 0
+    smallest_eigenvalue = eigenvalues[eigind]
+    corresponding_eigenvector = torch.mv(B, eigenvectors[:, eigind])
+
+    assert torch.allclose(eigenvalues[:eigind], torch.tensor(0.0, dtype=torch.double)), f"more than expected dof {eigenvalues}"
+    assert not torch.allclose(eigenvalues[eigind], torch.tensor(0.0, dtype=torch.double)), f"more than expected num dof: {eigenvalues}"
 
     # Negate the objective as we're trying to increase it
-    (-smallest_nonzero_eigenval).backward()
+    objective = -smallest_eigenvalue
+    objective.backward()
 
-    grad = optimizable_vertices.grad.data
+    grad = optimizable_nodes.grad.data
 
     optimizer.step()
 
     trace = {
-        "eigenvalue": smallest_nonzero_eigenval.detach().cpu().numpy(),
-        "vertices": vertices.detach().cpu().numpy(),
-        "grad": np.copy(grad.detach().cpu().numpy()),
+        "eigenvalue": smallest_eigenvalue.detach().cpu().numpy(),
+        "eigenvector": corresponding_eigenvector.detach().cpu().numpy(),
+        "vertices": nodes.detach().cpu().numpy(),
+        "points": points.detach().cpu().numpy(),
     }
     traces.append(trace)
 
@@ -103,6 +172,6 @@ ax.scatter(points_x, points_y, s=1, c='red')
 for it in np.round(np.linspace(0, n_iters - 1, 2)).astype(np.int):
     trace = traces[it]
     vertices = trace["vertices"]
-    plot_shape(ax, vertices, edges, color=np.array([it / n_iters, 0, 0]))
+    plot_shape(ax, vertices, part_node_connectivity, color=np.array([it / n_iters, 0, 0]))
 
 plt.show()

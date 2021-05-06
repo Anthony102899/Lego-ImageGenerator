@@ -14,6 +14,9 @@ from .stiffness_matrix import stiffness_matrix_from_mesh
 
 
 class Model:
+    """
+    Represent an assembly
+    """
     def __init__(self):
         self.beams = []
         self.joints = []

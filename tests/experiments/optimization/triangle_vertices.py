@@ -45,7 +45,7 @@ part_node_connectivity = np.array([
     [2, 0],
 ])
 
-def model_info(part_nodes, edges=None):
+def model_info(part_nodes):
     model = Model()
     with torch.no_grad():
         for i, j in part_node_connectivity:
@@ -148,7 +148,7 @@ ax.scatter(points_x, points_y, s=1)
 for it in np.round(np.linspace(0, n_iters - 1, 4)).astype(np.int):
     trace = traces[it]
     vertices = trace["vertices"]
-    plot_shape(ax, vertices, np.array([[0, 1], [1, 2], [2, 0]]))
+    plot_shape(ax, vertices, part_node_connectivity)
 
 plt.show()
 
