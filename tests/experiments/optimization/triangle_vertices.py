@@ -15,7 +15,7 @@ from solvers.rigidity_solver.gradient import gradient_analysis
 from solvers.rigidity_solver.internal_structure import tetrahedron, triangulation_with_torch
 from solvers.rigidity_solver.algo_core import solve_rigidity, spring_energy_matrix
 from solvers.rigidity_solver.models import Beam, Model, Joint
-from solvers.rigidity_solver import gradient, algo_core as core
+from solvers.rigidity_solver import gradient, algo_core as core, extra_constraint
 from solvers.rigidity_solver.eigen_analysis import eigen_analysis
 
 from visualization.model_visualizer import visualize_3D, visualize_2D
@@ -62,10 +62,6 @@ def model_info(part_nodes, edges=None):
 
     return points, model
 
-def z_static(point_count):
-    constr = np.zeros((point_count, point_count * 3))
-    constr[np.arange(point_count), np.arange(point_count) * 3 + 2] = 1
-    return constr
 
 n_iters = 1000
 optimizer = Adam(params=[optimizable_nodes], lr=0.01)
@@ -82,14 +78,14 @@ for it in tqdm(range(n_iters)):
 
     points, model = model_info(nodes)
 
-    extra_cosntraints = np.vstack([
-        z_static(len(points)),
-        geo_util.trivial_basis(points.detach().numpy(), dim=3),
+    extra_constraints = np.vstack([
+        extra_constraint.z_static(len(points)),
+        extra_constraint.trivial_basis(points.detach().numpy(), dim=3),
     ])
 
     constraints = np.vstack([
         model.constraint_matrix(),
-        extra_cosntraints,
+        extra_constraints,
     ])
     np_B = null_space(constraints)
     B = torch.tensor(np_B, dtype=torch.double)
