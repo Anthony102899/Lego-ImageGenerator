@@ -156,7 +156,7 @@ def perpendicular_vectors(v: torch.Tensor):
     w = torch.cross(u, v)
     return u, w
 
-def torch_null_space(A: torch.Tensor, disturb_s=False):
+def torch_null_space(A: torch.Tensor, disturb_s=False) -> torch.Tensor:
     dist = 1e-9
     with torch.no_grad():
         g, d, h = torch.svd(A, some=False)
