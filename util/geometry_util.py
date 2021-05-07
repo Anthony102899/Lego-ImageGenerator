@@ -126,10 +126,12 @@ def decompose_on_orthobasis(vector, orthobasis):
     projection_norms = np.apply_along_axis(lambda base: LA.norm(project(vector, base)), axis=1, arr=orthobasis)
     return projection_norms
 
-def trivial_basis(points: np.ndarray, dim, orthonormal=True) -> np.ndarray:
+def trivial_basis(points: np.ndarray, dim=None, orthonormal=True) -> np.ndarray:
     """
     Given n points in 3d space in form of a (n x 3) matrix, construct 6 'trivial' orthonormal vectors
     """
+    if dim is None:
+        dim = points.shape[1]
     assert dim in [2, 3]
     P = points.reshape((-1, dim))
     n = len(P)

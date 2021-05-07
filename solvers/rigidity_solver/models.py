@@ -129,7 +129,6 @@ class Model:
             translation_vector_pairs = [(j.pivot, j.translation_vectors[0]) for j in self.joints if j.translation_vectors is not None]
             if len(translation_vector_pairs) > 0:
                 translation_pivots, translation_vector = zip(*translation_vector_pairs)
-                print(*translation_pivots, sep="\n")
                 vector_arrows = vis.get_mesh_for_arrows(translation_pivots, translation_vector, length_coeff=0.01, radius_coeff=0.4)
                 vector_arrows.paint_uniform_color([0.2, 0.8, 0.5])
                 geometries.append(vector_arrows)

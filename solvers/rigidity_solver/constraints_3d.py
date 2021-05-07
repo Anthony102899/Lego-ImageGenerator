@@ -1,6 +1,7 @@
 import numpy as np
 import scipy
 from util.geometry_util import normalize, get_perpendicular_vecs
+from util import geometry_util as geo_util
 from scipy.linalg import null_space
 from itertools import combinations
 
@@ -144,14 +145,9 @@ def prohibitive_space_of_allowed_relative_translation(
     return null_space(translation)
 
 
-def point_allowed_motions(
-        source_points: np.ndarray,
-        target_point: np.ndarray,
-        pivot: np.ndarray,
-        rotation_axes=None,
-        translation_vectors=None,
-):
-    relative_projection, source_transform = projection_matrix(source_points, target_point)
+def point_allowed_motions(source_points: np.ndarray, target_point: np.ndarray, pivot: np.ndarray, ref_target_point,
+                          rotation_axes=None, translation_vectors=None):
+    relative_projection, source_transform = projection_matrix(source_points, ref_target_point)
 
     relative_pivot = source_transform @ pivot
     relative_target = source_transform @ target_point
@@ -171,7 +167,27 @@ def point_allowed_motions(
             allowed_motion = source_transform @ vector
             relative_allowed_motions.append(allowed_motion)
 
-    return null_space(np.array(relative_allowed_motions)).T @ relative_projection
+    # cast to numpy array
+    relative_allowed_motions = np.asarray(relative_allowed_motions, dtype=np.double)
+
+    print("motions for points", np.linalg.matrix_rank(relative_allowed_motions), relative_allowed_motions.shape)
+    ret = null_space(np.array(relative_allowed_motions)).T @ relative_projection
+    print("constraints for points", np.linalg.matrix_rank(ret), ret.shape)
+    return ret
+
+
+def rigid_motion_for_coplanar_points(points):
+    assert points.shape == (3, 3)
+    u = points[1] - points[0]
+    v = points[2] - points[0]
+    normal = np.cross(u, v)
+    motion = np.block([
+        [u, u, u],  # translation along u
+        [v, v, v],  # translation along v
+        [np.cross(normal, u), np.cross(normal, v), np.zeros((3,))] # rotation about point[0]
+    ])
+    assert motion.shape == (3, 9)
+    return motion
 
 
 def constraints_for_allowed_motions(
@@ -190,24 +206,26 @@ def constraints_for_allowed_motions(
         assert translation_vectors.ndim == 2
 
     motions = []
-    for i, target_point in enumerate(target_points):
-        # all motions for a single point
-        if rotation_axes is None and translation_vectors is None:  # two parts are melded together
-            pm = point_allowed_motions(source_points, target_point, rotation_pivot, None,
-                                       translation_vectors=np.zeros((3, 3)))  # hack here: 'allow' translation in no way
-        else:
-            pm = point_allowed_motions(
-                source_points, target_point,
-                rotation_pivot, rotation_axes,
-                translation_vectors)
 
-        pm_matrix = np.zeros((pm.shape[0], 18))
-        pm_matrix[:, 0: 3 * dim] = pm[:, 0: 9]
-        pm_matrix[:, (i + 3) * dim: (i + 4) * dim] = pm[:, 9: 12]
+    # relative rigid translation + rotation (6 DoF)
+    relative_rigid_motions = geo_util.trivial_basis(
+        np.vstack((source_points, target_points)), dim=3
+    )
+    assert relative_rigid_motions.shape == (6, 9)
 
-        motions.append(pm_matrix)
+    # 3 points, in 2D plane, 3 rigid motion (2 translation + 1 rotation),
+    source_rigid_motion = np.hstack((
+        np.zeros((3, 9)), rigid_motion_for_coplanar_points(source_points),
+    ))
+    # 3 points, in 2D plane, 3 rigid motion (2 translation + 1 rotation),
+    target_rigid_motion = np.hstack((
+        rigid_motion_for_coplanar_points(target_points), np.zeros((3, 9)),
+    ))
+
+    relative_translation = np.hstack
 
     constraints = (np.vstack(motions))
+    print("total constraint", np.linalg.matrix_rank(constraints), constraints.shape)
 
     assert constraints.ndim == 2
 
