@@ -37,19 +37,19 @@ def define(stage: int):
 
     _bmap = {
         "top": beam_init(p(0, 0, 0), p(30, 0, 0)),
-        # "bottom": beam_init(p(0, 0, -30), p(30, 0, -30)),
+        "bottom": beam_init(p(0, 0, -30), p(30, 0, -30)),
         "oblique-1": beam_init(p(10, 0, 0), p(30, 0, -30)),
-        # "oblique-2": beam_init(p(20, 0, 0), p(0, 0, -30)),
-        #
-        # "top-f": beam_init(p(0, 30, 0), p(30, 30, 0)),
-        # "bottom-f": beam_init(p(0, 30, -30), p(30, 30, -30)),
-        # "oblique-1-f": beam_init(p(10, 30, 0), p(30, 30, -30)),
-        # "oblique-2-f": beam_init(p(20, 30, 0), p(0, 30, -30)),
+        "oblique-2": beam_init(p(20, 0, 0), p(0, 0, -30)),
+
+        "top-f": beam_init(p(0, 30, 0), p(30, 30, 0)),
+        "bottom-f": beam_init(p(0, 30, -30), p(30, 30, -30)),
+        "oblique-1-f": beam_init(p(10, 30, 0), p(30, 30, -30)),
+        "oblique-2-f": beam_init(p(20, 30, 0), p(0, 30, -30)),
 
         # "top-mid": beam_init(p(0, 15, 0), p(30, 15, 0)),
-        # "horizontal-top-1": beam_init(p(0, 0, 0), p(0, 30, 0)),
+        "horizontal-top-1": beam_init(p(0, 0, 0), p(0, 30, 0)),
         # "horizontal-top-mid": beam_init(p(15, 0, 0), p(15, 30, 0)),
-        # "horizontal-top-2": beam_init(p(30, 0, 0), p(30, 30, 0)),
+        "horizontal-top-2": beam_init(p(30, 0, 0), p(30, 30, 0)),
     }
 
     _ax = p(1, 0, 0)
@@ -59,21 +59,21 @@ def define(stage: int):
 
     joints = [
         Joint(_bmap["top"], _bmap["oblique-1"], pivot=p(10, 0, 0), rotation_axes=_ay, translation_vectors=_ax),
-        # Joint(_bmap["top"], _bmap["oblique-2"], pivot=p(20, 0, 0), rotation_axes=_ay),
-        # Joint(_bmap["bottom"], _bmap["oblique-1"], pivot=p(30, 0, -30), rotation_axes=_ay),
-        # Joint(_bmap["bottom"], _bmap["oblique-2"], pivot=p(0, 0, -30), rotation_axes=_ay),
-        # Joint(_bmap["oblique-1"], _bmap["oblique-2"], pivot=_p["cross-b"], rotation_axes=_ay),
-        #
-        # Joint(_bmap["top-f"], _bmap["oblique-1-f"], pivot=p(10, 30, 0), rotation_axes=_ay),
-        # Joint(_bmap["top-f"], _bmap["oblique-2-f"], pivot=p(20, 30, 0), rotation_axes=_ay, translation_vectors=_ax),
-        # Joint(_bmap["bottom-f"], _bmap["oblique-1-f"], pivot=p(30, 30, -30), rotation_axes=_ay),
-        # Joint(_bmap["bottom-f"], _bmap["oblique-2-f"], pivot=p(0, 30, -30), rotation_axes=_ay),
-        # Joint(_bmap["oblique-1-f"], _bmap["oblique-2-f"], pivot=_p["cross-f"], rotation_axes=_ay),
-        #
-        # Joint(_bmap["horizontal-top-1"], _bmap["top"], pivot=p(0, 0, 0), rotation_axes=None),
-        # Joint(_bmap["horizontal-top-1"], _bmap["top-f"], pivot=p(0, 30, 0), rotation_axes=None),
-        # Joint(_bmap["horizontal-top-2"], _bmap["top"], pivot=p(30, 0, 0), rotation_axes=None),
-        # Joint(_bmap["horizontal-top-2"], _bmap["top-f"], pivot=p(30, 30, 0), rotation_axes=None),
+        Joint(_bmap["top"], _bmap["oblique-2"], pivot=p(20, 0, 0), rotation_axes=_ay, translation_vectors=_ax),
+        Joint(_bmap["bottom"], _bmap["oblique-1"], pivot=p(30, 0, -30), rotation_axes=_ay),
+        Joint(_bmap["bottom"], _bmap["oblique-2"], pivot=p(0, 0, -30), rotation_axes=_ay),
+        Joint(_bmap["oblique-1"], _bmap["oblique-2"], pivot=_p["cross-b"], rotation_axes=_ay),
+
+        Joint(_bmap["top-f"], _bmap["oblique-1-f"], pivot=p(10, 30, 0), rotation_axes=_ay, translation_vectors=_ax),
+        Joint(_bmap["top-f"], _bmap["oblique-2-f"], pivot=p(20, 30, 0), rotation_axes=_ay, translation_vectors=_ax),
+        Joint(_bmap["bottom-f"], _bmap["oblique-1-f"], pivot=p(30, 30, -30), rotation_axes=_ay),
+        Joint(_bmap["bottom-f"], _bmap["oblique-2-f"], pivot=p(0, 30, -30), rotation_axes=_ay),
+        Joint(_bmap["oblique-1-f"], _bmap["oblique-2-f"], pivot=_p["cross-f"], rotation_axes=_ay),
+
+        Joint(_bmap["horizontal-top-1"], _bmap["top"], pivot=p(0, 0, 0), rotation_axes=None),
+        Joint(_bmap["horizontal-top-1"], _bmap["top-f"], pivot=p(0, 30, 0), rotation_axes=None),
+        Joint(_bmap["horizontal-top-2"], _bmap["top"], pivot=p(30, 0, 0), rotation_axes=None),
+        Joint(_bmap["horizontal-top-2"], _bmap["top-f"], pivot=p(30, 30, 0), rotation_axes=None),
 
         # Joint(_bmap["top-mid"], _bmap["horizontal-top-mid"], pivot=p(15, 15, 0)),
         # Joint(_bmap["horizontal-top-mid"], _bmap["top"], pivot=p(15, 0, 0)),
@@ -162,7 +162,7 @@ def define(stage: int):
 if __name__ == "__main__":
     for stage in range(1, 4 + 1):
         model = define(stage)["model"]
-        pairs = model.eigen_solve(extra_constr=model.constraints_fixing_first_part())
+        pairs = model.eigen_solve(extra_constr=geo_util.trivial_basis(model.point_matrix()))
         print(*[e for e, _ in pairs])
         for e, vec in pairs:
             model.visualize(vec.reshape(-1, 3))

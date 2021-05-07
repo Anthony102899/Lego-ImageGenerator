@@ -170,13 +170,13 @@ def save_json_for_all_stages():
 
 if __name__ == "__main__":
     save_json_for_all_stages()
-    stage = 3
+    stage = 1
     model = define(stage)["model"]
-    # model.visualize()
     pairs = model.eigen_solve(
         8,
         extra_constr=geo_util.trivial_basis(model.point_matrix(), dim=3)
     )
+    # model.visualize()
     print(*[(i, e) for i, (e, _) in enumerate(pairs)], sep="\n")
     for i in range(1):
         e, v = pairs[i]

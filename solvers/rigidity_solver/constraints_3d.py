@@ -109,73 +109,6 @@ def select_non_colinear_points(points, near=None):
     raise Exception("Everything is on the same line")
 
 
-def prohibitive_space_of_allowed_relative_rotation(
-        target_point: np.ndarray,
-        pivot_point: np.ndarray,
-        rotation_axis: np.ndarray,
-):
-    """
-    Compute the null space of a rotation wrt to axis
-    :param target_point: (3, )
-    :param pivot_point: (3, )
-    :param rotation_axis: (3, )
-    :return: (m, 3)
-    """
-    allowed_direction = np.cross(target_point - pivot_point, rotation_axis)
-    if np.abs(np.linalg.norm(allowed_direction)) > 1e-8:
-        allowed_direction = normalize(allowed_direction)
-        null_basis = np.vstack(get_perpendicular_vecs(allowed_direction))
-        return null_basis
-    else:
-        sqrt_half = np.sqrt(0.5)
-        null_basis = np.array([
-            [1, 0, 0],
-            [0, sqrt_half, sqrt_half],
-            [0, sqrt_half, -sqrt_half],
-        ])
-        return null_basis
-
-
-def prohibitive_space_of_allowed_relative_translation(
-        translation,
-):
-    assert np.linalg.matrix_rank(translation) == len(translation)
-    assert 1 <= len(translation) <= 3
-
-    return null_space(translation)
-
-
-def point_allowed_motions(source_points: np.ndarray, target_point: np.ndarray, pivot: np.ndarray, ref_target_point,
-                          rotation_axes=None, translation_vectors=None):
-    relative_projection, source_transform = projection_matrix(source_points, ref_target_point)
-
-    relative_pivot = source_transform @ pivot
-    relative_target = source_transform @ target_point
-
-    relative_allowed_motions = []
-    if rotation_axes is not None:
-        for axis in rotation_axes:
-            relative_axis = source_transform @ axis
-
-            allowed_motion = np.cross((relative_target - relative_pivot), relative_axis)
-            relative_allowed_motions.append(
-                allowed_motion
-            )
-
-    if translation_vectors is not None:
-        for vector in translation_vectors:
-            allowed_motion = source_transform @ vector
-            relative_allowed_motions.append(allowed_motion)
-
-    # cast to numpy array
-    relative_allowed_motions = np.asarray(relative_allowed_motions, dtype=np.double)
-
-    print("motions for points", np.linalg.matrix_rank(relative_allowed_motions), relative_allowed_motions.shape)
-    ret = null_space(np.array(relative_allowed_motions)).T @ relative_projection
-    print("constraints for points", np.linalg.matrix_rank(ret), ret.shape)
-    return ret
-
-
 def rigid_motion_for_coplanar_points(points):
     assert points.shape == (3, 3)
     u = points[1] - points[0]
@@ -184,7 +117,7 @@ def rigid_motion_for_coplanar_points(points):
     motion = np.block([
         [u, u, u],  # translation along u
         [v, v, v],  # translation along v
-        [np.cross(normal, u), np.cross(normal, v), np.zeros((3,))] # rotation about point[0]
+        [np.cross(normal, u), np.cross(normal, v), np.zeros((3,))]  # rotation about point[0]
     ])
     assert motion.shape == (3, 9)
     return motion
@@ -197,36 +130,47 @@ def constraints_for_allowed_motions(
         rotation_pivot=None,
         translation_vectors=None,
 ):
-    assert len(source_points) == 3 and len(target_points) == 3
-    dim = 3
+    assert source_points.shape == (3, 3)
+    assert target_points.shape == (3, 3)
+    assert rotation_pivot is None or rotation_pivot.shape == (3, )
+    if rotation_axes is None:
+        rotation_axes = np.zeros((1, 3))
+    if translation_vectors is None:
+        translation_vectors = np.zeros((1, 3))
 
-    if rotation_axes is not None:
-        assert rotation_axes.ndim == 2
-    if translation_vectors is not None:
-        assert translation_vectors.ndim == 2
+    assert rotation_axes.ndim == 2
+    assert translation_vectors.ndim == 2
 
-    motions = []
-
-    # relative rigid translation + rotation (6 DoF)
     relative_rigid_motions = geo_util.trivial_basis(
         np.vstack((source_points, target_points)), dim=3
     )
-    assert relative_rigid_motions.shape == (6, 9)
+    assert relative_rigid_motions.shape == (6, 18)
 
-    # 3 points, in 2D plane, 3 rigid motion (2 translation + 1 rotation),
-    source_rigid_motion = np.hstack((
-        np.zeros((3, 9)), rigid_motion_for_coplanar_points(source_points),
+    relative_translation = np.hstack((
+        (np.zeros((translation_vectors.shape[0], 9)),
+         translation_vectors, translation_vectors, translation_vectors)
     ))
-    # 3 points, in 2D plane, 3 rigid motion (2 translation + 1 rotation),
-    target_rigid_motion = np.hstack((
-        rigid_motion_for_coplanar_points(target_points), np.zeros((3, 9)),
+    assert relative_translation.shape == (translation_vectors.shape[0], 18)
+
+    relative_targets = target_points - rotation_pivot
+    relative_rotation = np.hstack((
+        np.zeros((rotation_axes.shape[0], 9)),
+        np.vstack([
+            np.hstack([np.cross(ax, rel_tg) for rel_tg in relative_targets])
+            for ax in rotation_axes
+        ])
     ))
+    assert relative_translation.shape == (rotation_axes.shape[0], 18)
 
-    relative_translation = np.hstack
+    allowed_motion = np.vstack((
+        relative_rigid_motions,                                                              # 6 rows
+        np.hstack((null_space(geo_util.trivial_basis(source_points)).T, np.zeros((3, 9)))),  # 3 rows
+        np.hstack((np.zeros((3, 9)), null_space(geo_util.trivial_basis(target_points)).T)),  # 3 rows
 
-    constraints = (np.vstack(motions))
-    print("total constraint", np.linalg.matrix_rank(constraints), constraints.shape)
+        relative_translation,  # len(t) rows
+        relative_rotation,  # len(rot) rows
+    ))  #
 
-    assert constraints.ndim == 2
+    constraints = null_space(allowed_motion).T
 
     return constraints
