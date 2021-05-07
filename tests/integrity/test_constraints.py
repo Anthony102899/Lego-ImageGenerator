@@ -7,7 +7,7 @@ from solvers.rigidity_solver.constraints_3d import constraints_for_allowed_motio
 
 class TestConstraints(unittest.TestCase):
     def test_basics(self):
-        source_points = np.eye(3)
+        source_points = np.array([[0, 0, 0], [0, 1, 0], [1, 0, 0]])
         target_points = np.eye(3) + np.array([1, 0, 1])
         pivot = np.array([0, 1, 0])
         translation_vectors = np.array([[1, 1, 1]])
@@ -15,7 +15,6 @@ class TestConstraints(unittest.TestCase):
 
         constraints = constraints_for_allowed_motions(source_points, target_points,
                                                       rotation_axes, pivot, translation_vectors)
-
 
         expected_accepted_deformation = np.block([
             [np.ones(9, ), np.zeros(9, )],
