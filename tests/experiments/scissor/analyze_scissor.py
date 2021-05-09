@@ -1,4 +1,4 @@
-from model_dome import define
+from model_scissor import define
 import open3d as o3d
 
 definition = define(1)

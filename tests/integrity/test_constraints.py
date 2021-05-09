@@ -4,6 +4,7 @@ import numpy as np
 from scipy.linalg import null_space
 import util.geometry_util as geo_util
 from solvers.rigidity_solver.constraints_3d import constraints_for_allowed_motions
+from scipy.linalg import null_space
 
 class TestConstraints(unittest.TestCase):
     def test_basics(self):

@@ -108,10 +108,17 @@ class Model:
             json.dump(self, f, cls=ModelEncoder, **kwargs)
 
     def visualize(self, arrows=None, show_hinge=True, arrow_style=None):
-        arrow_style = {
+        defaults = {
             "length_coeff": 0.2,
             "radius_coeff": 0.2,
-        } if arrow_style is None else arrow_style
+        }
+        if arrow_style is not None:
+            arrow_style = {
+                **defaults,
+                **arrow_style,
+            }
+        else:
+            arrow_style = defaults
 
         geometries = []
 
@@ -122,7 +129,10 @@ class Model:
             rotation_axes_pairs = [(j.pivot, j.rotation_axes[0]) for j in self.joints if j.rotation_axes is not None]
             if len(rotation_axes_pairs) > 0:
                 rotation_pivots, rotation_axes = zip(*rotation_axes_pairs)
-                axes_arrows = vis.get_mesh_for_arrows(rotation_pivots, rotation_axes, length_coeff=0.01, radius_coeff=0.4)
+                axes_arrows = vis.get_mesh_for_arrows(
+                    rotation_pivots,
+                    geo_util.normalize(rotation_axes),
+                    length_coeff=0.01, radius_coeff=0.4)
                 axes_arrows.paint_uniform_color([0.5, 0.2, 0.8])
                 geometries.append(axes_arrows)
 
@@ -143,9 +153,9 @@ class Model:
 
         if arrows is not None:
             points = self.point_matrix()
-            arrows = vis.get_mesh_for_arrows(points, arrows, **arrow_style)
+            arrow_mesh = vis.get_mesh_for_arrows(points, arrows.reshape(-1, points.shape[1]), **arrow_style)
             model_meshes = vis.get_geometries_3D(self.point_matrix(), edges=self.edge_matrix(), show_axis=False, show_point=False)
-            geometries.extend([arrows, *model_meshes])
+            geometries.extend([arrow_mesh, *model_meshes])
 
         vis.o3d.visualization.draw_geometries(geometries)
 
