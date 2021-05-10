@@ -62,7 +62,7 @@ def constraints_for_allowed_motions(
         (np.zeros((translation_vectors.shape[0], 9)),
          translation_vectors, translation_vectors, translation_vectors)
     ))
-    assert relative_translation.shape == (translation_vectors.shape[0], 18)
+    assert relative_translation.shape == (translation_vectors.shape[0], 18) or np.allclose(translation_vectors, 0)
 
     relative_targets = target_points - rotation_pivot
     relative_rotation = np.hstack((
@@ -72,7 +72,7 @@ def constraints_for_allowed_motions(
             for ax in rotation_axes
         ])
     ))
-    assert relative_translation.shape == (rotation_axes.shape[0], 18)
+    assert relative_rotation.shape == (rotation_axes.shape[0], 18) or np.allclose(rotation_axes, 0)
 
     allowed_motion = np.vstack((
         relative_rigid_motions,                                                              # 6 rows

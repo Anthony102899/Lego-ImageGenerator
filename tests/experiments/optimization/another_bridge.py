@@ -20,7 +20,7 @@ from util import geometry_util
 root3 = np.sqrt(3)
 part_nodes = np.array([
     [0, 0], [1, 0], [2, 0], [3, 0],
-    [0.5, root3 / 2], [1.5, root3 / 2], [2.5, root3 / 2],
+            [1, 12 / 5], [2, 12 / 5],
 ], dtype=np.double) * 5
 part_nodes = np.hstack((
     part_nodes, np.zeros((len(part_nodes), 1))
@@ -28,7 +28,7 @@ part_nodes = np.hstack((
 
 part_nodes -= np.mean(part_nodes, axis=0)
 
-optimzable_ind = np.array([4, 5, 6])
+optimzable_ind = np.array([4, 5])
 
 optimizable_nodes = torch.tensor(
     part_nodes[optimzable_ind], dtype=torch.double, requires_grad=True)
@@ -37,8 +37,8 @@ fixed_nodes = torch.tensor(
 )
 
 part_node_connectivity = torch.tensor(
-    [(0, 1), (1, 2), (2, 3), (4, 5), (5, 6),
-     (0, 4), (1, 4), (1, 5), (2, 5), (2, 6), (3, 6)],
+    [(0, 1), (1, 2), (2, 3), (4, 5),
+     (0, 4), (1, 4), (2, 4), (2, 5), (3, 5)],
     dtype=torch.long)
 
 def model_info(part_nodes):
@@ -49,6 +49,7 @@ def model_info(part_nodes):
             points, edges = triangulation_with_torch(part_nodes[i], part_nodes[j], seg_num, thickness=0.3)
             model.add_beam(Beam(points.detach().numpy(), edges.detach().numpy()))
 
+        # pivot index, part_1 index, part_2 index
         joints_info = [
             (0, 5, 0),
             (0, 6, 1),
