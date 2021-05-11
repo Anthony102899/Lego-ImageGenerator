@@ -26,7 +26,6 @@ class Model:
         # joint_points = np.array([j.virtual_points for j in self.joints]).reshape(-1, 3)
         return np.vstack((
             beam_points,
-            # joint_points
         ))
 
     def point_indices(self):

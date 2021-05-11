@@ -17,22 +17,32 @@ def is_colinear(points):
 
     return True
 
-def select_non_colinear_points(points, near=None):
-    num = 3
+def select_non_colinear_points(points, num, near=None):
+    assert num in (2, 3)
+
     index_point_pairs = [(i, p) for i, p in enumerate(points)]
     if near is not None:
         index_point_pairs.sort(key=lambda p: np.linalg.norm(p[1] - near))
 
-    for indices_points in combinations(index_point_pairs, num):
-        indices, pts = map(np.array, zip(*indices_points))
-        # if np.linalg.matrix_rank(pts) >= 3:
-        #     return pts, indices
-        u = pts[1] - pts[0]
-        v = pts[2] - pts[0]
-        if not np.isclose(np.linalg.norm(np.cross(u, v)), 0):
-            return pts, indices
+    if num == 3:
+        for indices_points in combinations(index_point_pairs, num):
+            indices, pts = map(np.array, zip(*indices_points))
+            # if np.linalg.matrix_rank(pts) >= 3:
+            #     return pts, indices
+            u = pts[1] - pts[0]
+            v = pts[2] - pts[0]
+            if not np.isclose(np.linalg.norm(np.cross(u, v)), 0):
+                return pts, indices
 
-    raise Exception("Everything is on the same line")
+        raise Exception("Everything is on the same line")
+    else:
+        for indices_points in combinations(index_point_pairs, num):
+            indices, pts = map(np.array, zip(*indices_points))
+            # if np.linalg.matrix_rank(pts) >= 3:
+            #     return pts, indices
+            if not np.allclose(pts[0], pts[1]):
+                return pts, indices
+
 
 
 def constraints_for_allowed_motions(

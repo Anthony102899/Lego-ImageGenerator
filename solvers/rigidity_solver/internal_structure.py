@@ -131,9 +131,8 @@ def tetrahedron(p, q, density, thickness=1, ori=None, num=None, mode="numpy"):
 
 
 _rotation_90 = torch.tensor([
-    [0, -1, 0],
-    [1, 0, 0],
-    [0, 0, 1]
+    [0, -1],
+    [1, 0],
 ], dtype=torch.double)
 
 
