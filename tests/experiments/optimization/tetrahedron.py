@@ -23,47 +23,41 @@ from visualization.model_visualizer import visualize_3D, visualize_2D
 from matplotlib import pyplot as plt
 
 data = np.array([
-   [503, 353],
-   [1067, 27],
-   [866, 128],
-   [1067, 167],
-   [1067, 367],
-   [261, 432],
-]) * 0.01
+    [0, 0, 0],
+    [1, 0, 0],
+    [0, 2.5, 0],
+    [2, 2, -2.5],
+], dtype=np.double) * 3
 
-# mutable
 parameter_nodes = {
-    "up-right-conn": torch.tensor(data[1], dtype=torch.double),
-    "right-down-node": torch.tensor(data[4], dtype=torch.double),
+    "bottom-ori": torch.from_numpy(data[0]),
+    "bottom-x": torch.from_numpy(data[1]),
+    "bottom-y": torch.from_numpy(data[2]),
+    "top": torch.from_numpy(data[3]),
 }
-parameter_scalars = {
-    "sliding-ratio": torch.tensor(0.75, dtype=torch.double),
-    "main-right-ratio": torch.tensor(0.583, dtype=torch.double),
-}
-immutable = {
-    "base-main-conn": torch.tensor(data[5], dtype=torch.double),
-    "main-up-conn": torch.tensor(data[0], dtype=torch.double),
+for value in parameter_nodes.values():
+    value.requires_grad_(True)
+
+parameter_scalars = {}
+
+immutable_nodes = {
 }
 
-for param in parameter_nodes.values():
-    param.requires_grad_(True)
+computed_nodes = {}
 
-part_node_connectivity = {
-    "main": ("base-main-conn", "main-right-conn"),
-    "up-left": ("main-up-conn", "up-sliding-conn"),
-    "up-right": ("up-sliding-conn", "up-right-conn"),
-    "right": ("up-right-conn", "right-down-node"),
+node_connectivity = {
+    "bottom-ori-x": ("bottom-ori", "bottom-x"),
+    "bottom-x-y": ("bottom-x", "bottom-y"),
+    "bottom-ori-y": ("bottom-ori", "bottom-y"),
+    "bt-ori": ("bottom-ori", "top"),
+    "bt-x": ("bottom-x", "top"),
+    "bt-y": ("bottom-y", "top"),
 }
 
 
 def describe_nodes():
-    nm = {**parameter_nodes, **immutable}
-    computed_nodes = {
-        "up-sliding-conn": torch.lerp(nm["main-up-conn"], nm["up-right-conn"], parameter_scalars["sliding-ratio"]),
-        "main-right-conn": torch.lerp(nm["up-right-conn"], nm["right-down-node"], parameter_scalars["main-right-ratio"]),
-    }
-    node_map = {**nm, **computed_nodes}
-    return node_map
+    nm = {**parameter_nodes, **immutable_nodes}
+    return nm
 
 
 part_map = {}
@@ -74,53 +68,63 @@ Part = namedtuple("Part", "points, edges, index_offset")
 Joint = namedtuple("Joint", "pivot, part1_ind, part2_ind, translation, rotation_center")
 
 
-def empty(_):
-    return None
-
+empty = lambda _: None
+ball = lambda _: torch.eye(3, dtype=torch.double)
 
 joints = [
-    Joint(lambda nm: nm["main-up-conn"], "main", "up-left", empty, lambda nm: nm["main-up-conn"]),
-    Joint(lambda nm: nm["up-sliding-conn"], "up-left", "up-right", lambda nm: nm["up-right-conn"] - nm["main-up-conn"],
-          empty),
-    Joint(lambda nm: nm["up-right-conn"], "up-right", "right", empty, lambda nm: nm["up-right-conn"]),
-    Joint(lambda nm: nm["main-right-conn"], "main", "right", empty, lambda nm: nm["main-right-conn"]),
+    Joint(lambda nm: nm["bottom-ori"], "bottom-ori-x", "bottom-ori-y", empty, ball),
+    Joint(lambda nm: nm["bottom-ori"], "bottom-ori-x", "bt-ori", empty, ball),
+    Joint(lambda nm: nm["bottom-ori"], "bottom-ori-y", "bt-ori", empty, ball),
+    Joint(lambda nm: nm["bottom-x"], "bottom-ori-x", "bottom-x-y", empty, ball),
+    Joint(lambda nm: nm["bottom-x"], "bottom-ori-x", "bt-x", empty, ball),
+    Joint(lambda nm: nm["bottom-x"], "bottom-x-y", "bt-x", empty, ball),
+    Joint(lambda nm: nm["bottom-y"], "bottom-ori-y", "bottom-x-y", empty, ball),
+    Joint(lambda nm: nm["bottom-y"], "bottom-ori-y", "bt-y", empty, ball),
+    Joint(lambda nm: nm["bottom-y"], "bottom-x-y", "bt-y", empty, ball),
+    Joint(lambda nm: nm["top"], "bt-ori", "bt-x", empty, ball),
+    Joint(lambda nm: nm["top"], "bt-x", "bt-y", empty, ball),
+    Joint(lambda nm: nm["top"], "bt-y", "bt-ori", empty, ball),
 ]
 
 
 def describe_model(part_nodes, only_points=False):
     offset = 0
-    for key, (i, j) in part_node_connectivity.items():
-        _points, _edges = triangulation_with_torch(part_nodes[i], part_nodes[j], 10, thickness=0.3)
+    for key, (i, j) in node_connectivity.items():
+        _points, _edges = tetrahedron(part_nodes[i], part_nodes[j], density=0.3, num=4, thickness=0.3, mode="torch")
         part_map[key] = Part(_points, _edges, offset)
         assert not torch.any(torch.isnan(_points)), f"exists nan, {part_nodes[i], part_nodes[j]}"
 
         offset += len(_points)
 
-    point_matrix = torch.vstack([part_map[key].points for key in part_node_connectivity.keys()])
+    point_matrix = torch.vstack([part_map[key].points for key in node_connectivity.keys()])
     assert not torch.any(torch.isnan(point_matrix))
 
     if only_points:
         return point_matrix
 
     edge_matrix = torch.vstack([
-        part_map[key].edges + part_map[key].index_offset for key in part_node_connectivity.keys()])
-    constraint_point_indices = torch.tensor(np.vstack([
-        np.concatenate(
-            [select_non_colinear_points(
-                part_map[j.part1_ind].points.detach().numpy(),
-                2,
-                near=j.pivot(part_nodes).detach().numpy()
-             )[1] + part_map[j.part1_ind].index_offset,
-             select_non_colinear_points(
-                 part_map[j.part2_ind].points.detach().numpy(),
-                 2,
-                 near=j.pivot(part_nodes).detach().numpy()
-             )[1] + part_map[j.part2_ind].index_offset]
-        ) for j in joints
-    ]), dtype=torch.long)
+        part_map[key].edges + part_map[key].index_offset for key in node_connectivity.keys()
+    ])
+
+    if len(joints) > 0:
+        constraint_point_indices = torch.tensor(np.vstack([
+            np.concatenate(
+                [select_non_colinear_points(
+                    part_map[j.part1_ind].points.detach().numpy(),
+                    3,
+                    near=j.pivot(part_nodes).detach().numpy()
+                )[1] + part_map[j.part1_ind].index_offset,
+                 select_non_colinear_points(
+                     part_map[j.part2_ind].points.detach().numpy(),
+                     3,
+                     near=j.pivot(part_nodes).detach().numpy()
+                 )[1] + part_map[j.part2_ind].index_offset]
+            ) for j in joints
+        ]), dtype=torch.long)
+    else:
+        constraint_point_indices = []
 
     return point_matrix, edge_matrix, constraint_point_indices
-
 
 def total_length(nodes, connectivity):
     len = torch.tensor(0, dtype=torch.double)
@@ -133,14 +137,14 @@ def total_length(nodes, connectivity):
 with torch.no_grad():
     nodes = describe_nodes()
     points, edges, constraint_point_indices = describe_model(nodes)
-    init_len = total_length(nodes, part_node_connectivity)
+    init_len = total_length(nodes, node_connectivity)
     # visualize_2D(points, edges)
 
 # %%
 n_iters = 500
-optimizer = Adam([
-    {"params": [*parameter_nodes.values()], "lr": 0.01},
-    {"params": [*parameter_scalars.values()], "lr": 0.002},
+optimizer = torch.optim.SGD([
+    {"params": [*parameter_nodes.values()], "lr": 10},
+    # {"params": [*parameter_scalars.values()], "lr": 0.002},
 ])
 
 traces = []
@@ -173,31 +177,32 @@ for it in tqdm(range(n_iters)):
 
         B = gradient.torch_null_space(constraints)
 
-    K = gradient.spring_energy_matrix(points, edges, dim=2)
+    K = gradient.spring_energy_matrix(points, edges, dim=3)
 
     Q = torch.chain_matmul(B.t(), K, B)
 
     # the eigenvalues are already in ascending order!
     eigenvalues, eigenvectors = torch.symeig(Q, eigenvectors=True)
 
-    eigind = 1
+    eigind = 3
     smallest_eigenvalue = eigenvalues[eigind]
     corresponding_eigenvector = torch.mv(B, eigenvectors[:, eigind])
 
-    assert not torch.allclose(eigenvalues[eigind],
+    assert torch.allclose(eigenvalues[:eigind],
                               torch.tensor(0.0, dtype=torch.double),
-                              atol=1e-12), f"more than expected num dof: {eigenvalues}"
+                              atol=1e-12)
 
-    length_penalty = 0.001 * torch.pow(total_length(nodes, part_node_connectivity) - init_len, 2)
+    # length_penalty = 0.2 * torch.pow(total_length(nodes, node_connectivity) - init_len, 2)
     # Negate eigenvalue in the objective as we're trying to increase it
-    objective = -smallest_eigenvalue + length_penalty
+    objective = -smallest_eigenvalue
     objective.backward()
 
     optimizer.step()
 
-    with torch.no_grad():
-        for value in parameter_scalars.values():
-            value.clamp_(0.0, 1.0)
+    # print(smallest_eigenvalue, eigenvalues[:eigind])
+    # for node in parameter_nodes.values():
+    #     print(node.grad.data)
+    # exit()
 
     trace = {
         "eigenvalue": smallest_eigenvalue.detach().cpu().numpy(),
@@ -214,7 +219,7 @@ from matplotlib import pyplot as plt
 # objective against time
 objectives = [t["eigenvalue"] for t in traces]
 plt.plot(np.arange(n_iters), objectives)
-# plt.show()
+plt.show()
 
 
 # shape of the triangle against time
@@ -242,15 +247,15 @@ for key in nodes:
 
 print(traces[0]["nodes"])
 print(traces[-1]["nodes"])
-for key, (i, j) in part_node_connectivity.items():
+for key, (i, j) in node_connectivity.items():
     print(key, traces[-1]["nodes"][i], traces[-1]["nodes"][j], np.linalg.norm(traces[-1]["nodes"][i] - traces[-1]["nodes"][j]))
-for key, (i, j) in part_node_connectivity.items():
+for key, (i, j) in node_connectivity.items():
     print(key, traces[0]["nodes"][i], traces[0]["nodes"][j], np.linalg.norm(traces[0]["nodes"][i] - traces[0]["nodes"][j]))
 
 for it in np.round(np.linspace(0, n_iters - 1, 8)).astype(np.int):
     trace = traces[it]
     vertices = trace["nodes"]
-    plot_shape(ax, vertices, part_node_connectivity.values())
+    plot_shape(ax, vertices, node_connectivity.values())
 
 plt.show()
 
