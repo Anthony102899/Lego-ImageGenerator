@@ -26,13 +26,12 @@ with open("boat2.json") as fp:
     data = json.load(fp)
 
 scale = 0.05
-density = 0.5
+density = 0.2
+thickness = 2
 
 nodes = {node["id"]: np.array((node["x"], node["y"], node["z"])) for node in data["nodes"]}
 all_coord = np.vstack([np.array(n) for n in nodes.values()])
-print(all_coord)
 all_coord -= np.mean(all_coord, axis=0)
-print(all_coord)
 all_coord *= scale
 nodes = {node: all_coord[i] for i, node in enumerate(nodes.keys())}
 
@@ -47,7 +46,7 @@ model = Model()
 beam_map = {
     edge_id: Beam.tetra(
         np.asarray(nodes[p], dtype=np.double), np.asarray(nodes[q], dtype=np.double),
-        thickness=5,
+        thickness=thickness,
         density=density
     )
     for edge_id, (p, q) in edges.items()}
@@ -63,7 +62,6 @@ for node_id, adj_edges in node_edge_map.items():
 points = model.point_matrix()
 edges = model.edge_matrix()
 
-print(model.point_indices())
 beam_self_rotation = np.zeros((len(model.beams), model.point_count * 3))
 for ind, beam in enumerate(model.beams):
     p, q = beam.principle_points
@@ -73,17 +71,15 @@ for ind, beam in enumerate(model.beams):
     disp = geo_util.normalize(np.cross(beam_points - p, self_axis)) / 5
     beam_self_rotation[ind, beam_point_indices[0] * 3: beam_point_indices[-1] * 3 + 3] = disp.reshape(-1)
 
-print(model.point_count)
+print("model.point_count", model.point_count)
 print(edges.shape)
 pairs = model.eigen_solve(
     extra_constr=np.vstack((geo_util.trivial_basis(points), beam_self_rotation)))
 eigenvalues = np.array([e for e, _ in pairs])
 
 
-
-
 eigind = 0
-print("zero-eigval", np.where(eigenvalues < 1e-12, 1, 0).sum())
+print("zero-eigval count", np.where(eigenvalues < 1e-12, 1, 0).sum())
 print(eigenvalues[eigind:])
 
 plt.show()
@@ -100,6 +96,17 @@ for e, v in pairs[eigind:]:
         projection = np.dot(geo_util.normalize(nodes[na] - nodes[nb]), diff_disp)
         projection_map[(na, nb)] = projection
 
-    print(sorted(projection_map.items(), key=lambda kv: kv[1], reverse=True))
+    best_pair = max(projection_map.items(), key=lambda kv: kv[1])
+    print(best_pair)
+    print(edges)
+    reinforcement = Beam.tetra(nodes[best_pair[0][0]], nodes[best_pair[0][1]],
+                              thickness=thickness,
+                              density=density,)
+    model.add_beam(reinforcement)
 
-    model.visualize(arrows=v.reshape(-1, 3) * model.point_count / 100)
+    with open("boat2-nodes.txt", "w") as fp:
+        for node_id, (x, y, z) in nodes.items():
+            print(f"{x},{y},{z}", file=fp)
+
+    model.save_json("boat2-reinforced.json")
+    model.visualize()
