@@ -55,15 +55,21 @@ node_connectivity = {
 part_map = {}
 
 az = torch.tensor([0, 0, 1], dtype=torch.double)
+axes = torch.tensor([
+    [1, 0, 1],
+    [-1, 0, 1],
+    [-1/2, -1, 1],
+    [1/2, -1, 1],
+], dtype=torch.double)
 joints = [
     Joint(lambda nm: nm["A"], "AB", "DA",
-          empty, lambda nm: torch.tensor([1, 1, 1], dtype=torch.double)),
+          empty, lambda nm: axes[0]),
     Joint(lambda nm: nm["B"], "BC", "AB",
-          empty, lambda nm: torch.tensor([-1, 1, 1], dtype=torch.double)),
+          empty, lambda nm: axes[1]),
     Joint(lambda nm: nm["C"], "CD", "BC",
-          empty, lambda nm: torch.tensor([-1, -1, 1], dtype=torch.double)),
+          empty, lambda nm: axes[2]),
     Joint(lambda nm: nm["D"], "DA", "CD",
-          empty, lambda nm: torch.tensor([1, -1, 1], dtype=torch.double)),
+          empty, lambda nm: axes[3]),
 ]
 
 
@@ -119,7 +125,28 @@ def total_length(nodes, connectivity):
 nodes = describe_nodes()
 points, edges, constraint_point_indices = describe_model(nodes)
 init_len = total_length(nodes, node_connectivity)
-    # visualize_2D(points, edges)
+
+#### BUILDING MODEL FOR OUTPUT JSON
+# from solvers.rigidity_solver.models import Model, Beam, Joint
+# model = Model()
+# beam_map = {
+#     k: Beam.tetra(nodes[na].numpy(), nodes[nb].numpy()) for k, (na, nb) in node_connectivity.items()
+# }
+# joints = [
+#     Joint(beam_map["AB"], beam_map["DA"], nodes["A"], rotation_axes=axes[0]),
+#     Joint(beam_map["BC"], beam_map["AB"], nodes["B"], rotation_axes=axes[1]),
+#     Joint(beam_map["CD"], beam_map["BC"], nodes["C"], rotation_axes=axes[2]),
+#     Joint(beam_map["DA"], beam_map["CD"], nodes["D"], rotation_axes=axes[3]),
+# ]
+# model.add_beams(beam_map.values())
+# model.add_joints(joints)
+# model.save_json("frame_axes.json")
+
+arrows = torch.zeros_like(points, dtype=torch.double)
+for i, value in enumerate(nodes.values()):
+    _, (ind, *_) = select_non_colinear_points(points.numpy(), 3, near=value.numpy())
+    arrows[ind] = axes[i]
+visualize_3D(points.numpy(), edges=edges, arrows=arrows.numpy())
 
 joint_constraints = gradient.constraint_matrix(
     points,
