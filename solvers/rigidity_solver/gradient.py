@@ -109,7 +109,8 @@ def constraint_matrix(
                 ))
             else:
                 rotation_list = []
-                for rotation_axis in rotation:
+                rotation_dim_expanded = rotation.reshape(-1, 3)
+                for rotation_axis in rotation_dim_expanded:
                     rotation_list.append(
                         torch.cat((torch.cross(rotation_axis, sp[0] - pivot),
                                    torch.cross(rotation_axis, sp[1] - pivot),

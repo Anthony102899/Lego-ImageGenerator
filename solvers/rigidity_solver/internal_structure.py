@@ -86,6 +86,7 @@ def tetrahedron(p, q, density, thickness=1, ori=None, num=None, mode="numpy"):
         arange = np.arange
         cross = np.cross
         linspace = np.linspace
+        array = lambda x: np.array(x, dtype=np.double)
         longarray = lambda x: np.asarray(x, dtype=np.long)
     else:
         norm = torch.norm
@@ -184,16 +185,21 @@ _rotation_90 = torch.tensor([
 def triangulation_with_torch(p, q, num, thickness=1.0):
     ori = torch.mv(_rotation_90, p - q)
     points = torch.vstack([
-        torch.vstack([torch.lerp(p, q, w) for w in torch.linspace(0, 1, num, dtype=torch.double)]) + ori / ori.norm() / 2 * thickness,
-        torch.vstack([torch.lerp(p, q, w) for w in torch.linspace(0, 1, num, dtype=torch.double)]) - ori / ori.norm() / 2 * thickness,
+        torch.vstack([torch.lerp(p, q, w) for w in torch.linspace(1 / (num + 1), 1 - 1 / (num + 1), num, dtype=torch.double)]) + ori / ori.norm() / 2 * thickness,
+        torch.vstack([torch.lerp(p, q, w) for w in torch.linspace(1 / (num + 1), 1 - 1 / (num + 1), num, dtype=torch.double)]) - ori / ori.norm() / 2 * thickness,
+        p,
+        q,
     ])
+    p_index, q_index = 2 * num, 2 * num + 1
     edges = torch.vstack([
         torch.tensor([(s, s + num) for s in range(num)]),
         torch.tensor([(s, s + 1) for s in range(num - 1)]),
         torch.tensor([(s + 1, s + num) for s in range(num - 1)]),
         torch.tensor([(s, s + num + 1) for s in range(num - 1)]),
         torch.tensor([(s + num, s + num + 1) for s in range(num - 1)]),
-    ])
+        torch.tensor([[0, p_index], [num, p_index]]),
+        torch.tensor([[num - 1, q_index], [2 * num - 1, q_index]]),
+    ]).long()
     return points, edges
 
 

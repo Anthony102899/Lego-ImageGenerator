@@ -106,7 +106,7 @@ class Model:
         with open(filename, "w") as f:
             json.dump(self, f, cls=ModelEncoder, **kwargs)
 
-    def visualize(self, arrows=None, show_hinge=True, arrow_style=None):
+    def visualize(self, arrows=None, show_axis=True, show_hinge=True, arrow_style=None):
         defaults = {
             "length_coeff": 0.2,
             "radius_coeff": 0.2,
@@ -158,7 +158,7 @@ class Model:
 
         vis.o3d.visualization.draw_geometries(geometries)
 
-    def eigen_solve(self, num_pairs=10, extra_constr=None):
+    def eigen_solve(self, num_pairs=-1, extra_constr=None):
         points = self.point_matrix()
         edges = self.edge_matrix()
         constraints = self.constraint_matrix()
@@ -167,7 +167,11 @@ class Model:
         stiffness = spring_energy_matrix_accelerate_3D(points, edges, abstract_edges=[])
         K, B = generalized_courant_fischer(stiffness, constraints)
         eigenpairs = geo_util.eigen(K, symmetric=True)
-        return [(e, B @ v) for e, v in eigenpairs[:num_pairs]]
+
+        if num_pairs == -1:
+            return [(e, B @ v) for e, v in eigenpairs[:]]
+        else:
+            return [(e, B @ v) for e, v in eigenpairs[:num_pairs]]
 
     def __str__(self):
         return str(self.report())
@@ -301,8 +305,8 @@ class Joint:
             (self.part1, self.part2),
             (self.part2, self.part1)
         ]:
-            source_points, source_point_indices = select_non_colinear_points(source.points, near=self.pivot)
-            target_points, target_point_indices = select_non_colinear_points(target.points, near=self.pivot)
+            source_points, source_point_indices = select_non_colinear_points(source.points, num=3, near=self.pivot)
+            target_points, target_point_indices = select_non_colinear_points(target.points, num=3, near=self.pivot)
 
             source_point_indices += model.beam_point_index(source)
             target_point_indices += model.beam_point_index(target)
