@@ -184,6 +184,8 @@ _rotation_90 = torch.tensor([
 
 def triangulation_with_torch(p, q, num, thickness=1.0):
     ori = torch.mv(_rotation_90, p - q)
+    if num < 2:
+        num = 2
     points = torch.vstack([
         torch.vstack([torch.lerp(p, q, w) for w in torch.linspace(1 / (num + 1), 1 - 1 / (num + 1), num, dtype=torch.double)]) + ori / ori.norm() / 2 * thickness,
         torch.vstack([torch.lerp(p, q, w) for w in torch.linspace(1 / (num + 1), 1 - 1 / (num + 1), num, dtype=torch.double)]) - ori / ori.norm() / 2 * thickness,

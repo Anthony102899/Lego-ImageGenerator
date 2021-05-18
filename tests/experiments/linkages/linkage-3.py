@@ -210,8 +210,8 @@ for i, pt in enumerate(fixed_points):
 
 
 extra_constraints = torch.vstack([
-    # gradient.rigid_motion(points),
-    fix_point_constraints,
+    gradient.rigid_motion(points),
+    # fix_point_constraints,
 ])
 
 constraints = torch.vstack([
