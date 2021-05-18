@@ -38,6 +38,7 @@ def get_lineset_for_edges(points, edges):
 
 colormap = {
     "rigid": [110 / 255, 179 / 255, 89 / 255],
+    "orange": (255 / 255, 165 / 255, 0),
     "motion": [1, 0, 0],
 }
 

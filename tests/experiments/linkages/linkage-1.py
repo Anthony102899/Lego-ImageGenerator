@@ -21,6 +21,7 @@ from solvers.rigidity_solver.eigen_analysis import eigen_analysis
 from collections import namedtuple
 
 from visualization.model_visualizer import visualize_3D, visualize_2D
+from visualization import model_visualizer as vis
 from matplotlib import pyplot as plt
 
 Part = namedtuple("Part", "points, edges, index_offset")
@@ -28,42 +29,24 @@ Joint = namedtuple("Joint", "pivot, part1_ind, part2_ind, translation, rotation_
 def empty(_):
     return None
 
-data = np.array([
-    [-1.5, 1.7],
-    [-0.5, 1.5],
-    [1, 2],
-    [2, 3],
-    [1.5, 1],
-    [0, 0],
-
-    [-1.6, 1.6],
-    [-1.4, 1.8],
-
-    [-0.1, 0.1],
-    [0.1, -0.1],
-
-    [2.1, 2.9],
-    [1.9, 3.1]
-])
-
 # mutable
 parameter_nodes = {
-    "A": torch.tensor([-1.5, 1.7], dtype=torch.double),
-    "A-slider-1": torch.tensor([-1.4, 1.8], dtype=torch.double),
-    "A-slider-2": torch.tensor([-1.6, 1.6], dtype=torch.double),
-    "B": torch.tensor([-0.5, 1.5], dtype=torch.double),
-    "C": torch.tensor([0, 0], dtype=torch.double),
-    "C-slider-1": torch.tensor([-0.2, 0.1], dtype=torch.double),
-    "C-slider-2": torch.tensor([0.2, -0.1], dtype=torch.double),
-    "D": torch.tensor([1.5, 1.0], dtype=torch.double),
-    "E": torch.tensor([2, 3], dtype=torch.double),
-    "E-slider-1": torch.tensor([2.1, 2.9], dtype=torch.double),
-    "E-slider-2": torch.tensor([1.9, 3.1], dtype=torch.double),
-    "F": torch.tensor([1, 2], dtype=torch.double),
+    "A": torch.tensor([-118, 25], dtype=torch.double),
+    # "A-slider-1": torch.tensor([-118 + 46, 25 + 135], dtype=torch.double),
+    # "A-slider-2": torch.tensor([-118 - 46, 25 - 135], dtype=torch.double),
+    "B": torch.tensor([0, 0], dtype=torch.double),
+    "C": torch.tensor([63, -202], dtype=torch.double),
+    "C-slider-1": torch.tensor([63 - 81 / 2, -202 + 39 / 2], dtype=torch.double),
+    "C-slider-2": torch.tensor([63 + 81 / 2, -202 - 39 / 2], dtype=torch.double),
+    "D": torch.tensor([266, -60], dtype=torch.double),
+    "E": torch.tensor([336, 198], dtype=torch.double),
+    "E-slider-1": torch.tensor([336 - 63 / 2, 198 + 63 / 2], dtype=torch.double),
+    "E-slider-2": torch.tensor([336 + 63 / 2, 198 - 63 / 2], dtype=torch.double),
+    "F": torch.tensor([210, 73], dtype=torch.double),
 }
 
 for value in parameter_nodes.values():
-    value *= 10
+    value *= 0.05
 
 parameter_scalars = {}
 immutable = {}
@@ -72,7 +55,7 @@ immutable = {}
 #     param.requires_grad_(True)
 
 node_connectivity = {
-    "A-slider": ("A-slider-1", "A-slider-2"),
+    # "A-slider": ("A-slider-1", "A-slider-2"),
     "C-slider": ("C-slider-1", "C-slider-2"),
     "E-slider": ("E-slider-1", "E-slider-2"),
     "AB": ("A", "B"),
@@ -86,10 +69,9 @@ node_connectivity = {
 part_map = {}
 
 joints = [
-    Joint(lambda nm: nm["A"], "A-slider", "AB",
-          lambda nm: nm["A-slider-1"] - nm["A-slider-2"],
-          # empty,
-          lambda nm: nm["A"]),
+    # Joint(lambda nm: nm["A"], "A-slider", "AB",
+    #       lambda nm: nm["A-slider-1"] - nm["A-slider-2"],
+          # lambda nm: nm["A"]),
 
     Joint(lambda nm: nm["B"], "AB", "BF",
           empty, lambda nm: nm["B"]),
@@ -189,7 +171,7 @@ joint_constraints = gradient.constraint_matrix(
 
 fix_point_constraints = torch.zeros((12, points.size()[0] * 2), dtype=torch.double)
 fixed_points = [
-    nodes["A-slider-1"], nodes["A-slider-2"],
+    nodes["A"],
     nodes["C-slider-1"], nodes["C-slider-2"],
     nodes["E-slider-1"], nodes["E-slider-2"],
 ]
@@ -231,19 +213,32 @@ print(eigenvalues[:10])
 corresponding_eigenvector = torch.mv(B, eigenvectors[:, eigind])
 
 arrows = geo_util.normalize(corresponding_eigenvector.reshape(-1, 2).detach().numpy()) * len(points)
-visualize_2D(points, edges, arrows)
+# visualize_2D(points, edges, arrows)
 
 plt.clf()
-plt.scatter(points[:, 0], points[:, 1])
+plt.axis("equal")
+plt.axis("off")
+# plt.scatter(points[:, 0], points[:, 1])
 num = 5
-ratios = np.linspace(1 / (num + 1), 1 - 1 / (num + 1), num)
+ratios = [0, *np.linspace(1 / (num + 1), 1 - 1 / (num + 1), num), 1]
 for i, j in node_connectivity.values():
     for r in ratios:
         x, y = torch.lerp(nodes[i], nodes[j], r)
         _, (ind_p, ind_q) = select_non_colinear_points(points.numpy(), num=2, near=(x, y))
-        dx, dy = (arrows[ind_p] + arrows[ind_q]) * 0.5
-        plt.arrow(*points[ind_p], *arrows[ind_p], color="blue")
-        plt.arrow(*points[ind_q], *arrows[ind_q], color="green")
-        plt.arrow(x, y, dx, dy, color="red")
+
+        width = 0.1
+        length = 0.1
+
+        if 0 < r < 1:
+            dx, dy = (arrows[ind_p] + arrows[ind_q]) * 0.5 * length
+        else:
+            dx, dy = arrows[ind_p] * length
+        # plt.arrow(*points[ind_p], *arrows[ind_p], color="blue")
+        # plt.arrow(*points[ind_q], *arrows[ind_q], color="green")
+        if np.linalg.norm((dx, dy)) > 0.1:
+            print(np.linalg.norm((dx, dy)))
+            plt.arrow(x, y, dx, dy, color=vis.colormap["orange"], width=width)
+
+plt.savefig("linkage-1-arrow.svg", transparent=True)
 plt.show()
 
