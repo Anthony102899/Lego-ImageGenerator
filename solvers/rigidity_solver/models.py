@@ -6,6 +6,7 @@ from sfepy.discrete import fem
 from .algo_core import generalized_courant_fischer, spring_energy_matrix_accelerate_3D
 import util.geometry_util as geo_util
 import util.meshgen as meshgen
+from util.timer import SimpleTimer
 from visualization.model_visualizer import visualize_hinges, visualize_3D
 import visualization.model_visualizer as vis
 from .constraints_3d import select_non_colinear_points, constraints_for_allowed_motions
@@ -158,15 +159,23 @@ class Model:
 
         vis.o3d.visualization.draw_geometries(geometries)
 
-    def eigen_solve(self, num_pairs=-1, extra_constr=None):
+    def eigen_solve(self, num_pairs=-1, extra_constr=None, verbose=False):
         points = self.point_matrix()
         edges = self.edge_matrix()
+
+        timer = SimpleTimer()
+        stiffness = spring_energy_matrix_accelerate_3D(points, edges, abstract_edges=[])
+        timer.checkpoint("K")
+
         constraints = self.constraint_matrix()
         if extra_constr is not None:
             constraints = np.vstack((constraints, extra_constr))
-        stiffness = spring_energy_matrix_accelerate_3D(points, edges, abstract_edges=[])
         K, B = generalized_courant_fischer(stiffness, constraints)
         eigenpairs = geo_util.eigen(K, symmetric=True)
+        timer.checkpoint("eig")
+        if verbose:
+            print(self.report())
+            timer.report()
 
         if num_pairs == -1:
             return [(e, B @ v) for e, v in eigenpairs[:]]

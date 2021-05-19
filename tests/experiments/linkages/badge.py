@@ -24,6 +24,7 @@ import itertools
 from visualization.model_visualizer import visualize_3D, visualize_2D
 from visualization import model_visualizer as vis
 from matplotlib import pyplot as plt
+from util.timer import SimpleTimer
 
 Part = namedtuple("Part", "points, edges, index_offset")
 Joint = namedtuple("Joint", "pivot, part1_ind, part2_ind, translation, rotation_center")
@@ -38,11 +39,11 @@ parameter_nodes = {
     "B": t(686, -741),
     "C": t(675, -809),
     "D": t(830, -809),
-    "E": t(704, -902),
+    # "E": t(704, -902),
     "F": t(751, -1051),
     "G": t(623, -959),
     "H": t(516, -1051),
-    "I": t(546, -902),
+    # "I": t(546, -902),
     "J": t(419, -809),
     "K": t(575, -809),
     "L": t(596, -741),
@@ -64,8 +65,6 @@ node_connectivity = {
     for key in ("AF", "FJ", "DJ", "DH", "AH", "LM", "MN", "BN", "AM", "AN")
 }
 
-part_map = {}
-
 def gen_joint(pvname, conn):
     return [Joint(lambda nm: nm[pvname], *conn_pair, empty, lambda nm: nm[pvname])
             for conn_pair in itertools.combinations(conn, 2)]
@@ -75,11 +74,11 @@ joints = [
     *gen_joint("B", ["BN", "AF"]),
     *gen_joint("C", ["AF", "DJ"]),
     *gen_joint("D", ["DJ", "DH"]),
-    *gen_joint("E", ["DH", "AF"]),
+    # *gen_joint("E", ["DH", "AF"]),
     *gen_joint("F", ["FJ", "AF"]),
     *gen_joint("G", ["DH", "FJ"]),
     *gen_joint("H", ["DH", "AH"]),
-    *gen_joint("I", ["AH", "FJ"]),
+    # *gen_joint("I", ["AH", "FJ"]),
     *gen_joint("J", ["DJ", "FJ"]),
     *gen_joint("K", ["AH", "DJ"]),
     *gen_joint("L", ["AH", "LM"]),
@@ -146,6 +145,11 @@ points, edges, constraint_point_indices = describe_model(nodes)
 init_len = total_length(nodes, node_connectivity)
     # visualize_2D(points, edges)
 
+timer = SimpleTimer()
+K = gradient.spring_energy_matrix(points, edges, dim=2)
+
+timer.checkpoint("stiffness matrix")
+
 joint_constraints = gradient.constraint_matrix(
     points,
     pivots=[j.pivot(nodes) for j in joints],
@@ -154,7 +158,7 @@ joint_constraints = gradient.constraint_matrix(
     joint_point_indices=constraint_point_indices,
 )
 
-fix_point_constraints = torch.zeros((12, points.size()[0] * 2), dtype=torch.double)
+# fix_point_constraints = torch.zeros((12, points.size()[0] * 2), dtype=torch.double)
 # fixed_points = [
 #     nodes["A"],
 #     nodes["C-slider-1"], nodes["C-slider-2"],
@@ -176,18 +180,25 @@ constraints = torch.vstack([
     extra_constraints
 ])
 
+timer.checkpoint("constraint")
+
 
 B = gradient.torch_null_space(constraints)
 
-K = gradient.spring_energy_matrix(points, edges, dim=2)
-
-from solvers.rigidity_solver.algo_core import generalized_courant_fischer
-Q, _ = generalized_courant_fischer(K.numpy(), constraints.numpy())
+timer.checkpoint("null space")
 
 Q = torch.chain_matmul(B.t(), K, B)
 
+timer.checkpoint("B.T K B")
+
 # the eigenvalues are already in ascending order!
 eigenvalues, eigenvectors = torch.symeig(Q, eigenvectors=True)
+
+timer.checkpoint("torch.symeig")
+timer.report()
+print("#points", len(points))
+print("#parts", len(node_connectivity))
+print("#joints", len(joints))
 
 eigind = 0
 
@@ -221,7 +232,6 @@ for i, j in node_connectivity.values():
         # plt.arrow(*points[ind_p], *arrows[ind_p], color="blue")
         # plt.arrow(*points[ind_q], *arrows[ind_q], color="green")
         if np.linalg.norm((dx, dy)) > 0.1:
-            print(np.linalg.norm((dx, dy)))
             plt.arrow(x, y, dx, dy, color=vis.colormap["orange"], width=width)
 
 plt.savefig(f"{__file__.replace('.py', '')}-arrow.svg", transparent=True)

@@ -9,6 +9,7 @@ import solvers.rigidity_solver.algo_core as core
 from visualization.model_visualizer import visualize_3D
 import visualization.model_visualizer as vis
 import util.geometry_util as geo_util
+from util.timer import SimpleTimer
 import time
 from functools import reduce
 from model_chair import define
@@ -28,6 +29,11 @@ log.debug(f"model: {model.report()}")
 points = model.point_matrix()
 edges = model.edge_matrix()
 dim = 3
+
+timer = SimpleTimer()
+M = core.spring_energy_matrix_accelerate_3D(points, edges, abstract_edges=[], virtual_edges=None)
+timer.checkpoint("K")
+
 
 trivial_motions = geo_util.trivial_basis(points, dim=3)
 
@@ -50,8 +56,6 @@ extra_constraints = np.take(trivial_motions, [0, 1, 2, 3, 4, 5], axis=0)
 A = np.vstack((A, extra_constraints))
 
 log.debug("constraint A matrix, shape {}, time - {}".format(A.shape, time.time() - start))
-
-M = core.spring_energy_matrix_accelerate_3D(points, edges, abstract_edges=[], virtual_edges=None)
 
 # e, V = np.linalg.eigh(M)
 # vec = V[0]
@@ -76,6 +80,8 @@ S = B.T @ M @ B
 log.debug("S computed, time - {}".format(time.time() - start))
 
 eigen_pairs = geo_util.eigen(S, symmetric=True)
+timer.checkpoint("eig")
+timer.report()
 log.debug("eigen decomposition on S, time - {}".format(time.time() - start))
 log.debug("Computation done, time - {}".format(time.time() - start))
 log.debug(f"smallest 16 eigenvalue: {[e for e, _ in eigen_pairs[:16]]}")

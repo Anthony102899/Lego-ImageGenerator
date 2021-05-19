@@ -13,6 +13,7 @@ from torch.utils.tensorboard import SummaryWriter
 from tqdm import tqdm
 
 import util.geometry_util as geo_util
+from util.timer import SimpleTimer
 import solvers.rigidity_solver.gradient as gradient
 from solvers.rigidity_solver.internal_structure import tetrahedron, triangulation_with_torch
 from solvers.rigidity_solver.constraints_3d import select_non_colinear_points
@@ -160,6 +161,11 @@ nodes = describe_nodes()
 points, edges, constraint_point_indices = describe_model(nodes)
 init_len = total_length(nodes, node_connectivity)
     # visualize_2D(points, edges)
+timer = SimpleTimer()
+
+K = gradient.spring_energy_matrix(points, edges, dim=2)
+timer.checkpoint("K")
+
 
 joint_constraints = gradient.constraint_matrix(
     points,
@@ -194,13 +200,12 @@ constraints = torch.vstack([
 
 B = gradient.torch_null_space(constraints)
 
-K = gradient.spring_energy_matrix(points, edges, dim=2)
-
-from solvers.rigidity_solver.algo_core import generalized_courant_fischer
-Q, _ = generalized_courant_fischer(K.numpy(), constraints.numpy())
-print(geo_util.eigen(Q, True)[:5])
-
 Q = torch.chain_matmul(B.t(), K, B)
+timer.checkpoint("Q")
+print("#parts", len(node_connectivity))
+print("#joints", len(joints))
+print("#points", len(points))
+timer.report()
 
 # the eigenvalues are already in ascending order!
 eigenvalues, eigenvectors = torch.symeig(Q, eigenvectors=True)
@@ -236,7 +241,6 @@ for i, j in node_connectivity.values():
         # plt.arrow(*points[ind_p], *arrows[ind_p], color="blue")
         # plt.arrow(*points[ind_q], *arrows[ind_q], color="green")
         if np.linalg.norm((dx, dy)) > 0.1:
-            print(np.linalg.norm((dx, dy)))
             plt.arrow(x, y, dx, dy, color=vis.colormap["orange"], width=width)
 
 plt.savefig("linkage-1-arrow.svg", transparent=True)

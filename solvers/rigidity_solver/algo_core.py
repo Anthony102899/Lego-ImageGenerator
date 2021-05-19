@@ -1,8 +1,3 @@
-import scipy
-
-from bricks_modeling.file_IO.model_reader import read_bricks_from_file
-from bricks_modeling.file_IO.model_writer import write_bricks_to_file
-from bricks_modeling.connectivity_graph import ConnectivityGraph
 from solvers.rigidity_solver import constraints_3d
 from util.debugger import MyDebugger
 from bricks_modeling.connections.conn_type import ConnType
@@ -232,6 +227,7 @@ def constraint_matrix(points, edges, joints, fixed_points_idx, dim):
 
 
 def generalized_courant_fischer(original_stiffness, constraints):
+    import time
     K = original_stiffness
     B = scipy.linalg.null_space(constraints)
     S = B.T @ K @ B

@@ -12,6 +12,7 @@ from numpy import linalg as LA
 from typing import List, Tuple
 from functools import reduce
 
+draw_geometries = o3d.visualization.draw_geometries
 
 def get_mesh_for_points(points: List[np.ndarray]):
     sphere = o3d.geometry.TriangleMesh.create_sphere(radius=2, resolution=8)

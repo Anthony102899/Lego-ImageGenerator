@@ -18,12 +18,13 @@ from solvers.rigidity_solver.internal_structure import tetrahedron, triangulatio
 from solvers.rigidity_solver.constraints_3d import select_non_colinear_points
 from solvers.rigidity_solver import gradient, algo_core as core, extra_constraint
 from solvers.rigidity_solver.eigen_analysis import eigen_analysis
-from collections import namedtuple
-import itertools
+from util.timer import SimpleTimer
 
 from visualization.model_visualizer import visualize_3D, visualize_2D
 from visualization import model_visualizer as vis
 from matplotlib import pyplot as plt
+from collections import namedtuple
+import itertools
 
 Part = namedtuple("Part", "points, edges, index_offset")
 Joint = namedtuple("Joint", "pivot, part1_ind, part2_ind, translation, rotation_center")
@@ -133,6 +134,8 @@ def describe_model(part_nodes, only_points=False):
 
     edge_matrix = torch.vstack([
         part_map[key].edges + part_map[key].index_offset for key in node_connectivity.keys()])
+    import time
+    now = time.time()
     constraint_point_indices = torch.tensor(np.vstack([
         np.concatenate(
             [select_non_colinear_points(
@@ -157,6 +160,12 @@ points, edges, constraint_point_indices = describe_model(nodes)
 init_len = total_length(nodes, node_connectivity)
     # visualize_2D(points, edges)
 
+timer = SimpleTimer()
+
+K = gradient.spring_energy_matrix(points, edges, dim=2)
+timer.checkpoint("K")
+
+
 joint_constraints = gradient.constraint_matrix(
     points,
     pivots=[j.pivot(nodes) for j in joints],
@@ -165,7 +174,7 @@ joint_constraints = gradient.constraint_matrix(
     joint_point_indices=constraint_point_indices,
 )
 
-fix_point_constraints = torch.zeros((12, points.size()[0] * 2), dtype=torch.double)
+# fix_point_constraints = torch.zeros((12, points.size()[0] * 2), dtype=torch.double)
 # fixed_points = [
 #     nodes["A"],
 #     nodes["C-slider-1"], nodes["C-slider-2"],
@@ -190,15 +199,19 @@ constraints = torch.vstack([
 
 B = gradient.torch_null_space(constraints)
 
-K = gradient.spring_energy_matrix(points, edges, dim=2)
-
 from solvers.rigidity_solver.algo_core import generalized_courant_fischer
 Q, _ = generalized_courant_fischer(K.numpy(), constraints.numpy())
 
 Q = torch.chain_matmul(B.t(), K, B)
+timer.checkpoint("Q")
 
 # the eigenvalues are already in ascending order!
 eigenvalues, eigenvectors = torch.symeig(Q, eigenvectors=True)
+timer.checkpoint("symeig")
+timer.report()
+print("#parts", len(node_connectivity))
+print("#joints", len(joints))
+print("#points", len(points))
 
 eigind = 0
 
@@ -232,7 +245,6 @@ for i, j in node_connectivity.values():
         # plt.arrow(*points[ind_p], *arrows[ind_p], color="blue")
         # plt.arrow(*points[ind_q], *arrows[ind_q], color="green")
         if np.linalg.norm((dx, dy)) > 0.1:
-            print(np.linalg.norm((dx, dy)))
             plt.arrow(x, y, dx, dy, color=vis.colormap["orange"], width=width)
 
 plt.savefig(f"{__file__.replace('.py', '')}-arrow.svg", transparent=True)

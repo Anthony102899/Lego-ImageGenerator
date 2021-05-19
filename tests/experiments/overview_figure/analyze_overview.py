@@ -8,6 +8,7 @@ from solvers.rigidity_solver.eigen_analysis import eigen_analysis
 import solvers.rigidity_solver.algo_core as core
 from visualization.model_visualizer import visualize_3D, get_geometries_3D, get_mesh_for_arrows, get_lineset_for_edges
 import util.geometry_util as geo_util
+from util.timer import SimpleTimer
 import time
 
 from model_overview import define, define_from_file
@@ -48,6 +49,11 @@ def one_hot(ind, length):
     zr[ind] = 1
     return zr
 
+
+timer = SimpleTimer()
+M = core.spring_energy_matrix(points, edges, dim)
+timer.checkpoint("stiffness")
+
 fixed_z_axis = np.vstack(
     [one_hot(i * 3 + 2, len(points) * 3) for i in range(len(points))]
 )
@@ -62,42 +68,18 @@ extra_constraints = np.vstack(
 # extra_constraints = fixed_coordinates
 A = np.vstack((A, extra_constraints))
 
-log.debug("constraint A matrix, shape {}, time - {}".format(A.shape, time.time() - start))
-
-M = core.spring_energy_matrix(points, edges, dim)
-
-log.debug("stiffness matrix, time - {}".format(time.time() - start))
-log.debug("using sparse matrix type {}".format(type(M)))
-
-log.debug("computing B")
 B = null_space(A)
 
-log.debug("null space of constraints, B shape {} , time - {}".format(B.shape, time.time() - start))
-
 rank_A = np.linalg.matrix_rank(A)
-log.debug(f"rank of A {rank_A}")
-log.debug(f"nullity of A: {A.shape[1] - rank_A}")
 
 T = np.transpose(B) @ B
-log.debug("T = B.T @ B computed, time - {}".format(time.time() - start))
 
-print(np.isclose(T - np.eye(len(T)), np.zeros_like(T)).all())
+Q = B.T @ M @ B
 
-S = B.T @ M @ B
-log.debug("S computed. time - {}".format(time.time() - start))
-
-L = cholesky(T)
-log.debug("cholesky on T shape {} time - {}".format(L.shape, time.time() - start))
-
-L_inv = np.linalg.inv(L)
-log.debug("inverse of L, shape {} time - {}".format(L_inv.shape, time.time() - start))
-
-Q = L_inv.T @ S @ L_inv
-# Q = S
-print(B.T @ B)
-log.debug("merged stiffness and constraint matrix into Q {}, time - {}".format(Q.shape, time.time() - start))
 
 eigen_pairs = geo_util.eigen(Q, symmetric=True)
+timer.checkpoint("eig")
+timer.report()
 log.debug("eigen decomposition on Q, time - {}".format(time.time() - start))
 
 zero_eigenspace = [(e_val, e_vec) for e_val, e_vec in eigen_pairs if abs(e_val) < 1e-6]

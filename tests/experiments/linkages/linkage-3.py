@@ -13,6 +13,7 @@ from torch.utils.tensorboard import SummaryWriter
 from tqdm import tqdm
 
 import util.geometry_util as geo_util
+from util.timer import SimpleTimer
 import solvers.rigidity_solver.gradient as gradient
 from solvers.rigidity_solver.internal_structure import tetrahedron, triangulation_with_torch
 from solvers.rigidity_solver.constraints_3d import select_non_colinear_points
@@ -27,6 +28,7 @@ from matplotlib import pyplot as plt
 
 Part = namedtuple("Part", "points, edges, index_offset")
 Joint = namedtuple("Joint", "pivot, part1_ind, part2_ind, translation, rotation_center")
+
 def empty(_):
     return None
 
@@ -187,6 +189,11 @@ points, edges, constraint_point_indices = describe_model(nodes, part_map)
 init_len = total_length(nodes, node_connectivity)
     # visualize_2D(points, edges)
 
+timer = SimpleTimer()
+
+K = gradient.spring_energy_matrix(points, edges, dim=2)
+timer.checkpoint("K")
+
 joint_constraints = gradient.constraint_matrix(
     points,
     pivots=[j.pivot(nodes) for j in joints],
@@ -195,18 +202,19 @@ joint_constraints = gradient.constraint_matrix(
     joint_point_indices=constraint_point_indices,
 )
 
-fixed_points = [
-    nodes["A"], nodes["G"],
-    nodes["E"], nodes["F"],
-    *[torch.lerp(nodes["A"], nodes["E"], w) for w in torch.linspace(0, 1, 5, dtype=torch.double)],
-    *[torch.lerp(nodes["G"], nodes["F"], w) for w in torch.linspace(0, 1, 5, dtype=torch.double)],
-    *[torch.lerp(nodes["E"], nodes["F"], w) for w in torch.linspace(0, 1, 5, dtype=torch.double)],
-]
-fix_point_constraints = torch.zeros((len(fixed_points) * 2, points.size()[0] * 2), dtype=torch.double)
-for i, pt in enumerate(fixed_points):
-    _, (ind_a, _) = select_non_colinear_points(points.detach().numpy(), num=2, near=pt.detach().numpy())
-    fix_point_constraints[i * 2, ind_a * 2] = 1.0
-    fix_point_constraints[i * 2 + 1, ind_a * 2 + 1] = 1.0
+
+# fixed_points = [
+#     nodes["A"], nodes["G"],
+#     nodes["E"], nodes["F"],
+#     *[torch.lerp(nodes["A"], nodes["E"], w) for w in torch.linspace(0, 1, 5, dtype=torch.double)],
+#     *[torch.lerp(nodes["G"], nodes["F"], w) for w in torch.linspace(0, 1, 5, dtype=torch.double)],
+#     *[torch.lerp(nodes["E"], nodes["F"], w) for w in torch.linspace(0, 1, 5, dtype=torch.double)],
+# ]
+# fix_point_constraints = torch.zeros((len(fixed_points) * 2, points.size()[0] * 2), dtype=torch.double)
+# for i, pt in enumerate(fixed_points):
+#     _, (ind_a, _) = select_non_colinear_points(points.detach().numpy(), num=2, near=pt.detach().numpy())
+#     fix_point_constraints[i * 2, ind_a * 2] = 1.0
+#     fix_point_constraints[i * 2 + 1, ind_a * 2 + 1] = 1.0
 
 
 extra_constraints = torch.vstack([
@@ -222,7 +230,6 @@ constraints = torch.vstack([
 
 B = gradient.torch_null_space(constraints)
 
-K = gradient.spring_energy_matrix(points, edges, dim=2)
 
 from solvers.rigidity_solver.algo_core import generalized_courant_fischer
 Q, _ = generalized_courant_fischer(K.numpy(), constraints.numpy())
@@ -231,6 +238,8 @@ Q = torch.chain_matmul(B.t(), K, B)
 
 # the eigenvalues are already in ascending order!
 eigenvalues, eigenvectors = torch.symeig(Q, eigenvectors=True)
+timer.checkpoint("eig")
+print("#points", len(points))
 
 eigind = 0
 
@@ -273,4 +282,3 @@ for i, j in node_connectivity.values():
 
 plt.savefig(f"{__file__.replace('.py', '')}-arrow.svg", transparent=True)
 plt.show()
-

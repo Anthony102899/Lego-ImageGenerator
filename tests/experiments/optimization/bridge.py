@@ -17,6 +17,7 @@ from solvers.rigidity_solver.models import Model, Joint, Beam
 from solvers.rigidity_solver.internal_structure import triangulation_with_torch
 from visualization.model_visualizer import visualize_2D
 from util import geometry_util
+from util.timer import SimpleTimer
 
 root3 = np.sqrt(3)
 part_nodes = np.array([
@@ -86,7 +87,7 @@ edges = torch.tensor(model.edge_matrix()).long()
 pairs = model.eigen_solve(num_pairs=1, extra_constr=np.vstack((
     extra_constraint.z_static(len(points)),
     extra_constraint.trivial_basis(points, dim=3),
-)))
+)), verbose=True)
 eigenvector = pairs[0][1]
 import matplotlib.pyplot as plt
 plt.axis("equal")

@@ -74,7 +74,11 @@ for ind, beam in enumerate(model.beams):
 print("model.point_count", model.point_count)
 print(edges.shape)
 pairs = model.eigen_solve(
-    extra_constr=np.vstack((geo_util.trivial_basis(points), beam_self_rotation)))
+    extra_constr=np.vstack((
+        geo_util.trivial_basis(points),
+        beam_self_rotation
+    )),
+    verbose=True)
 eigenvalues = np.array([e for e, _ in pairs])
 
 
