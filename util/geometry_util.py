@@ -290,3 +290,32 @@ def unitsphere2cart(thetaphi: np.ndarray) -> np.ndarray:
     spherical = np.hstack((np.ones((len(thetaphi), 1)), thetaphi))
     cart = sphere2cart(spherical)
     return cart
+
+
+def clear_redundance_vecs(vecs):
+
+    res = np.zeros_like(vecs)
+    for k,v in enumerate(vecs):
+        u = v.copy()
+        for i in range(k):
+            u -= u.dot(res[i])*res[i]
+        if LA.norm(u) < 1e-5:
+            continue
+        u = u/LA.norm(u)
+        res[k] = u[:]
+    a = res
+
+    return  res
+
+
+def clear_trivial_motion(zero_vecs:np.ndarray ,trivial_bases:np.ndarray,choose_largest_vec = True,dim = 3):
+    res = np.array(zero_vecs)
+    for i in range(len(zero_vecs)):
+        for trivial_basis in trivial_bases:
+            assert abs(np.linalg.norm(trivial_basis) - 1) < 1e-6
+            res[i] = res[i]  - res[i].dot(trivial_basis)*trivial_basis
+        if np.linalg.norm(res[i]) < 1e-6:
+            res[i] = 0
+        else:
+            res[i] = res[i]/np.linalg.norm(res[i])
+    return res
