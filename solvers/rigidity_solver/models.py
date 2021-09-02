@@ -9,7 +9,7 @@ import util.meshgen as meshgen
 from util.timer import SimpleTimer
 from visualization.model_visualizer import visualize_hinges, visualize_3D
 import visualization.model_visualizer as vis
-from .constraints_3d import select_non_colinear_points, constraints_for_allowed_motions
+from .constraints_3d import select_non_colinear_points, direction_for_relative_disallowed_motions
 from .internal_structure import tetrahedron
 from .stiffness_matrix import stiffness_matrix_from_mesh
 
@@ -320,7 +320,7 @@ class Joint:
             source_point_indices += model.beam_point_index(source)
             target_point_indices += model.beam_point_index(target)
 
-            constraints = constraints_for_allowed_motions(
+            constraints = direction_for_relative_disallowed_motions(
                 source_points,
                 target_points,
                 rotation_pivot=self.pivot,

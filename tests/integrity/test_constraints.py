@@ -3,8 +3,7 @@ import unittest
 import numpy as np
 from scipy.linalg import null_space
 import util.geometry_util as geo_util
-from solvers.rigidity_solver.constraints_3d import constraints_for_allowed_motions
-from scipy.linalg import null_space
+from solvers.rigidity_solver.constraints_3d import direction_for_relative_disallowed_motions
 
 class TestConstraints(unittest.TestCase):
     def test_basics(self):
@@ -14,8 +13,8 @@ class TestConstraints(unittest.TestCase):
         translation_vectors = np.array([[1, 1, 1]])
         rotation_axes = np.array([[0, 0, 1]])
 
-        constraints = constraints_for_allowed_motions(source_points, target_points,
-                                                      rotation_axes, pivot, translation_vectors)
+        constraints = direction_for_relative_disallowed_motions(source_points, target_points,
+                                                                rotation_axes, pivot, translation_vectors)
 
         expected_accepted_deformation = np.block([
             [np.ones(9, ), np.zeros(9, )],

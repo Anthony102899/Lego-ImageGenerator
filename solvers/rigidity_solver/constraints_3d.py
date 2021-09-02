@@ -43,14 +43,29 @@ def select_non_colinear_points(points, num, near=None):
             if not np.allclose(pts[0], pts[1]):
                 return pts, indices
 
+def rigid_motion_for_coplanar_points(points):
+    assert points.shape == (3, 3)
+    u = points[1] - points[0]
+    v = points[2] - points[0]
+    normal = np.cross(u, v)
+    motion = np.block([
+        [u, u, u],  # translation along u
+        [v, v, v],  # translation along v
+        [np.cross(normal, u), np.cross(normal, v), np.zeros((3,))]  # rotation about point[0]
+    ])
+    assert motion.shape == (3, 9)
+
+    # `motion`: no orthogonality guarantee
+    return motion
 
 
-def constraints_for_allowed_motions(
+def direction_for_relative_disallowed_motions(
         source_points,
         target_points,
         rotation_axes=None,
         rotation_pivot=None,
         translation_vectors=None,
+        returns_allowed_motion=False,
 ):
     assert source_points.shape == (3, 3)
     assert target_points.shape == (3, 3)
@@ -63,17 +78,20 @@ def constraints_for_allowed_motions(
     assert rotation_axes.ndim == 2
     assert translation_vectors.ndim == 2
 
+    # allowed motion 1: the source and target points move as a whole
     relative_rigid_motions = geo_util.trivial_basis(
         np.vstack((source_points, target_points)), dim=3
     )
     assert relative_rigid_motions.shape == (6, 18)
 
+    # allowed motion 2: based on the given translation vectors
     relative_translation = np.hstack((
         (np.zeros((translation_vectors.shape[0], 9)),
          translation_vectors, translation_vectors, translation_vectors)
     ))
     assert relative_translation.shape == (translation_vectors.shape[0], 18) or np.allclose(translation_vectors, 0)
 
+    # allowed motion 3: possible instantaneous displacements for rotation per the given rotation axes
     relative_targets = target_points - rotation_pivot
     relative_rotation = np.hstack((
         np.zeros((rotation_axes.shape[0], 9)),
@@ -84,15 +102,22 @@ def constraints_for_allowed_motions(
     ))
     assert relative_rotation.shape == (rotation_axes.shape[0], 18) or np.allclose(rotation_axes, 0)
 
+    # aggregate all allowed motions
     allowed_motion = np.vstack((
-        relative_rigid_motions,                                                              # 6 rows
-        np.hstack((null_space(geo_util.trivial_basis(source_points)).T, np.zeros((3, 9)))),  # 3 rows
-        np.hstack((np.zeros((3, 9)), null_space(geo_util.trivial_basis(target_points)).T)),  # 3 rows
+        relative_rigid_motions,                                                              # 6 rows, motion #1
 
-        relative_translation,  # len(t) rows
-        relative_rotation,  # len(rot) rows
+        relative_translation,                                                                # len(t) rows
+        relative_rotation,                                                                   # len(rot) rows
+
+        np.hstack((null_space(geo_util.trivial_basis(source_points)).T, np.zeros((3, 9)))),  # 3 rows, deform in sources
+        np.hstack((np.zeros((3, 9)), null_space(geo_util.trivial_basis(target_points)).T)),  # 3 rows, deform in targets
     ))  #
 
-    constraints = null_space(allowed_motion).T
+    if returns_allowed_motion:
+        # dimension: m x 18, m is the number of disallowed motion
+        return allowed_motion
 
-    return constraints
+    else:
+        constraints = null_space(allowed_motion).T  # take null space, get orthogonal `prohibitive direction'
+        # dimension: m x 18, m is the number of disallowed motion
+        return constraints
