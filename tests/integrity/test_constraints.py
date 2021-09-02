@@ -16,6 +16,7 @@ class TestConstraints(unittest.TestCase):
         constraints = direction_for_relative_disallowed_motions(source_points, target_points,
                                                                 rotation_axes, pivot, translation_vectors)
 
+
         expected_accepted_deformation = np.block([
             [np.ones(9, ), np.zeros(9, )],
             [np.ones(9, ), np.ones(9, )],
