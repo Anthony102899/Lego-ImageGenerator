@@ -36,9 +36,9 @@ class TestJointsAsStiffness(unittest.TestCase):
         part_stiffness_rank = np.linalg.matrix_rank(part_stiffness)
         global_stiffness_rank = np.linalg.matrix_rank(global_stiffness)
 
-        self.assertEqual(joint_stiffness_rank, 5)
-        self.assertEqual(part_stiffness_rank, 6 + 6)
-        self.assertEqual(global_stiffness_rank, 17)
+        self.assertEqual(joint_stiffness_rank, 5)  # get rid of 3 rotation and 2 translation, hence 5
+        self.assertEqual(part_stiffness_rank, 6 + 6)  # each part: 4 * 3 - 6 = 6; two parts: 6 + 6
+        self.assertEqual(global_stiffness_rank, 17)  # 5 + 12
 
 
 if __name__ == '__main__':

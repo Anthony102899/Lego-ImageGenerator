@@ -28,6 +28,17 @@ _pivot = np.array([0, 0, 0])
 
 def hinge():
     model = Model()
+    _beams = [
+        Beam.tetra(
+            np.array([0, 0, 1]),
+            np.array([0, 0, 5]),
+        ),
+        Beam.tetra(
+            np.array([0, 1, 0]),
+            np.array([0, 5, 0]),
+        ),
+    ]
+    _pivot = np.array([0, 0, 0])
     model.add_beams(_beams)
     model.add_joint(Joint(
         _beams[0], _beams[1],

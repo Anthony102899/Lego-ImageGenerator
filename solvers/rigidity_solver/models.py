@@ -159,6 +159,30 @@ class Model:
 
         vis.o3d.visualization.draw_geometries(geometries)
 
+
+    def joint_stiffness_matrix(self):
+        from functools import reduce
+        matrix = reduce(lambda x, y: x + y, [j.joint_stiffness(self) for j in self.joints])
+        return matrix
+
+
+    def soft_solve(self, num_pairs=-1, extra_constr=None, verbose=False):
+        points = self.point_matrix()
+        edges = self.edge_matrix()
+        part_stiffness = spring_energy_matrix_accelerate_3D(points, edges, abstract_edges=[])
+        joint_stiffness = self.joint_stiffness_matrix()
+        K = part_stiffness + joint_stiffness  # global stiffness
+
+        eigenpairs = geo_util.eigen(K, symmetric=True)
+        if verbose:
+            print(self.report())
+
+        if num_pairs == -1:
+            return [(e, v) for e, v in eigenpairs]
+        else:
+            return [(e, v) for e, v in eigenpairs[:num_pairs]]
+
+
     def eigen_solve(self, num_pairs=-1, extra_constr=None, verbose=False):
         points = self.point_matrix()
         edges = self.edge_matrix()
@@ -305,6 +329,46 @@ class Joint:
             assert np.linalg.matrix_rank(self.translation_vectors) == len(self.translation_vectors)
         else:
             self.translation_vectors = None
+
+
+    def joint_stiffness(self, model: Model) -> np.ndarray:
+        dim = 3
+        source, target = self.part1, self.part2
+
+        source_points, source_point_indices = select_non_colinear_points(source.points, num=3, near=self.pivot)
+        target_points, target_point_indices = select_non_colinear_points(target.points, num=3, near=self.pivot)
+
+        source_point_indices += model.beam_point_index(source)
+        target_point_indices += model.beam_point_index(target)
+
+        # (n x 18) matrix, stand for prohibitive motion space
+        prohibitive = direction_for_relative_disallowed_motions(
+            source_points,
+            target_points,
+            rotation_pivot=self.pivot,
+            rotation_axes=self.rotation_axes,
+            translation_vectors=self.translation_vectors,
+        )
+        prohibitive = geo_util.rowwise_normalize(prohibitive)
+
+        coefficients = np.eye(prohibitive.shape[0]) * 1.0
+
+        # (18 x 18) matrix
+        local_stiffness = prohibitive.T @ coefficients @ prohibitive
+
+        # clip the stiffness matrix to a zero matrix of the same size as the global stiffness matrix
+        global_indices = np.concatenate((source_point_indices, target_point_indices))
+        stiffness_at_global = np.zeros((model.point_count * dim, model.point_count * dim))
+        for local_row_index, global_row_index in enumerate(global_indices):
+            for local_col_index, global_col_index in enumerate(global_indices):
+                l_row_slice = slice(local_row_index * 3, local_row_index * 3 + 3)
+                l_col_slice = slice(local_col_index * 3, local_col_index * 3 + 3)
+                g_row_slice = slice(global_row_index * 3, global_row_index * 3 + 3)
+                g_col_slice = slice(global_col_index * 3, global_col_index * 3 + 3)
+                stiffness_at_global[g_row_slice, g_col_slice] = local_stiffness[l_row_slice, l_col_slice]
+
+        return stiffness_at_global
+
 
     def linear_constraints(self, model: Model) -> np.ndarray:
         dim = 3
