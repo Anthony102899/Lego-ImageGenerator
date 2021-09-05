@@ -240,7 +240,7 @@ def structure_sampling(structure_graph: ConnectivityGraph):
         representative_cpoints_on_brick[bi].discard(edge["cpoint_indices"][0])
         representative_cpoints_on_brick[bj].discard(edge["cpoint_indices"][1])
 
-    #### add additional sample points, by detecting if the connection points are already sampled
+    # add additional sample points, by detecting if the connection points are already sampled
     for brick_id, c_id_set in representative_cpoints_on_brick.items():
         brick = bricks[brick_id]
         for c_id in c_id_set:

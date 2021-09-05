@@ -310,7 +310,7 @@ class Beam:
 
 
 class Joint:
-    def __init__(self, part1, part2, pivot, rotation_axes=None, translation_vectors=None):
+    def __init__(self, part1, part2, pivot, rotation_axes=None, translation_vectors=None, soft_constraints=None):
         self.part1 = part1
         self.part2 = part2
 
@@ -330,10 +330,9 @@ class Joint:
         else:
             self.translation_vectors = None
 
-
     def joint_stiffness(self, model: Model) -> np.ndarray:
         dim = 3
-        source, target = self.part1, self.part2
+        source, target = self.part1, self.part2  # aliases
 
         source_points, source_point_indices = select_non_colinear_points(source.points, num=3, near=self.pivot)
         target_points, target_point_indices = select_non_colinear_points(target.points, num=3, near=self.pivot)
@@ -341,7 +340,7 @@ class Joint:
         source_point_indices += model.beam_point_index(source)
         target_point_indices += model.beam_point_index(target)
 
-        # (n x 18) matrix, stand for prohibitive motion space
+        # (n x 18) matrix, standing for prohibitive motion space
         prohibitive = direction_for_relative_disallowed_motions(
             source_points,
             target_points,
