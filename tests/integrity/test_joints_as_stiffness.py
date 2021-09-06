@@ -5,11 +5,13 @@ from scipy.linalg import null_space
 import util.geometry_util as geo_util
 from solvers.rigidity_solver import algo_core
 from solvers.rigidity_solver.constraints_3d import direction_for_relative_disallowed_motions
+from solvers.rigidity_solver.models import Model, Joint, Beam
 
 class TestJointsAsStiffness(unittest.TestCase):
-    def test_3d_sliding_joint(self):
+    def test_3d_sliding_joint_no_special_soft_constraints(self):
         '''
-        We have two tets connected through a sliding joint.
+        We have two tets connected through a sliding joint, all the DoFs apart from the allowed ones are of
+        uniform stiffness.
         '''
         source_points = np.eye(3)
         target_points = np.eye(3) + np.array([1, 0, 1])
@@ -40,6 +42,30 @@ class TestJointsAsStiffness(unittest.TestCase):
         self.assertEqual(part_stiffness_rank, 6 + 6)  # each part: 4 * 3 - 6 = 6; two parts: 6 + 6
         self.assertEqual(global_stiffness_rank, 17)  # 5 + 12
 
+
+    def test_3d_sliding_joint_no_special_soft_constraints(self):
+        '''
+        We have two tets connected through a sliding joint, all the DoFs apart from the allowed ones are of
+        uniform stiffness.
+        '''
+        points = np.array([
+            [0, 0, 0],
+            [1, 0, 0],
+            [0, 1, 0],
+        ]) * 10
+        beams = [
+            Beam.tetra(points[0], points[1]),
+            Beam.tetra(points[0], points[2]),
+        ]
+        pivot = points[0]
+        rotation_axes = np.array([0, 0, 1])
+        hinge = Joint(beams[0], beams[1], pivot, rotation_axes=rotation_axes,
+                      soft_translation=np.array([0, 0, 1]), soft_translation_coeff=np.array([0.5]))
+        model = Model()
+        model.add_beams(beams)
+        model.add_joints([hinge])
+        pairs = model.soft_solve()
+        print([e for e, v in pairs[6: 8]])
 
 if __name__ == '__main__':
     unittest.main()

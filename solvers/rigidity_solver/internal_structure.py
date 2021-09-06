@@ -87,7 +87,7 @@ def tetrahedron(p, q, density, thickness=1, ori=None, num=None, mode="numpy"):
         cross = np.cross
         linspace = np.linspace
         array = lambda x: np.array(x, dtype=np.double)
-        longarray = lambda x: np.asarray(x, dtype=np.long)
+        longarray = lambda x: np.asarray(x, dtype=int)
     else:
         norm = torch.norm
         normalize = lambda v: v / torch.norm(v)

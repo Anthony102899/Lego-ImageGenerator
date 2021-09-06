@@ -198,6 +198,7 @@ if __name__ == "__main__":
     save_json_for_all_stages()
     stage = 4
     model = define(stage)["model"]
+    pairs = model.soft_solve(8)
     pairs = model.eigen_solve(
         8,
         extra_constr=geo_util.trivial_basis(model.point_matrix())

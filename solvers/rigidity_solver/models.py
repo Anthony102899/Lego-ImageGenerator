@@ -1,6 +1,8 @@
 import numpy as np
 import itertools
 import os
+
+import scipy.linalg
 from sfepy.discrete import fem
 
 from .algo_core import generalized_courant_fischer, spring_energy_matrix_accelerate_3D
@@ -310,9 +312,18 @@ class Beam:
 
 
 class Joint:
-    def __init__(self, part1, part2, pivot, rotation_axes=None, translation_vectors=None, soft_constraints=None):
+    def __init__(self, part1, part2, pivot,
+                 rotation_axes=None, translation_vectors=None,
+                 soft_translation=None, soft_rotation=None,
+                 soft_translation_coeff=None, soft_rotation_coeff=None,
+                 ):
         self.part1 = part1
         self.part2 = part2
+
+        self.soft_translation = soft_translation
+        self.soft_rotation = soft_rotation
+        self.soft_translation_coeff = soft_translation_coeff
+        self.soft_rotation_coeff = soft_rotation_coeff
 
         self.pivot = np.array(pivot)
         assert self.pivot.shape == (3,), f"received pivot {self.pivot}, shape {self.pivot.shape}"
@@ -330,6 +341,19 @@ class Joint:
         else:
             self.translation_vectors = None
 
+        if soft_rotation is not None:
+            self.soft_rotation = np.array(soft_rotation).reshape(-1, 3)
+            assert np.linalg.matrix_rank(self.soft_rotation) == len(self.soft_rotation)
+        else:
+            self.soft_rotation = None
+
+        if soft_translation is not None:
+            self.soft_translation = np.array(soft_translation).reshape(-1, 3)
+            assert self.soft_translation.shape[1] == 3
+            assert np.linalg.matrix_rank(self.soft_translation) == len(self.soft_translation)
+        else:
+            self.soft_translation = None
+
     def joint_stiffness(self, model: Model) -> np.ndarray:
         dim = 3
         source, target = self.part1, self.part2  # aliases
@@ -341,19 +365,46 @@ class Joint:
         target_point_indices += model.beam_point_index(target)
 
         # (n x 18) matrix, standing for prohibitive motion space
+        soft_allowed_translation = np.vstack([vectors for vectors in (self.translation_vectors, self.soft_translation) if vectors is not None])
+        soft_allowed_rotation = np.vstack([vectors for vectors in (self.rotation_axes, self.soft_rotation) if vectors is not None])
+
         prohibitive = direction_for_relative_disallowed_motions(
             source_points,
             target_points,
             rotation_pivot=self.pivot,
-            rotation_axes=self.rotation_axes,
-            translation_vectors=self.translation_vectors,
+            rotation_axes=soft_allowed_rotation,
+            translation_vectors=soft_allowed_translation,
         )
         prohibitive = geo_util.rowwise_normalize(prohibitive)
 
-        coefficients = np.eye(prohibitive.shape[0]) * 1.0
+        motion_basis = [prohibitive]
+        coefficients = [np.ones(prohibitive.shape[0])]
+        if self.soft_translation is not None:
+            relative_translation = np.vstack([direction_for_relative_disallowed_motions(source_points, target_points, rotation_pivot=self.pivot,
+                                                          translation_vectors=scipy.linalg.null_space(translation.reshape(-1, 3)).T,
+                                                          rotation_axes=np.eye(3))
+                                             for translation in self.soft_translation])
+            assert relative_translation.shape == (len(self.soft_translation_coeff), 18), f"number of soft translation ({relative_translation.shape} and coefficient don't match ({len(self.soft_translation_coeff), 18})"
+            motion_basis.append(relative_translation)
+            coefficients.append(self.soft_translation_coeff)
 
-        # (18 x 18) matrix
-        local_stiffness = prohibitive.T @ coefficients @ prohibitive
+        if self.soft_rotation is not None:
+            relative_rotation = np.vstack([direction_for_relative_disallowed_motions(source_points, target_points, rotation_pivot=self.pivot,
+                                                          rotation_axes=scipy.linalg.null_space(rotation.reshape(-1, 3)).T,
+                                                          translation_vectors=np.eye(3))
+                                          for rotation in self.soft_rotation])
+
+            assert relative_rotation.shape == (len(self.soft_rotation_coeff), 18)
+            motion_basis.append(relative_rotation)
+            coefficients.append(self.soft_rotation_coeff)
+
+        # cast to numpy array
+        motion_basis = np.vstack(motion_basis)
+        coefficients = np.concatenate(coefficients)
+
+        # (18 x m) @ (m x m) @ (m x 18) matrix
+        local_stiffness = motion_basis.T @ np.diag(coefficients) @ motion_basis
+        assert local_stiffness.shape == (18, 18)
 
         # clip the stiffness matrix to a zero matrix of the same size as the global stiffness matrix
         global_indices = np.concatenate((source_point_indices, target_point_indices))
