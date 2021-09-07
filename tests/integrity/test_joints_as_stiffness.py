@@ -59,13 +59,21 @@ class TestJointsAsStiffness(unittest.TestCase):
         ]
         pivot = points[0]
         rotation_axes = np.array([0, 0, 1])
-        hinge = Joint(beams[0], beams[1], pivot, rotation_axes=rotation_axes,
-                      soft_translation=np.array([0, 0, 1]), soft_translation_coeff=np.array([0.5]))
-        model = Model()
-        model.add_beams(beams)
-        model.add_joints([hinge])
-        pairs = model.soft_solve()
-        print([e for e, v in pairs[6: 8]])
+        for index, coeff in enumerate((0, 0.0000002)):
+            hinge = Joint(beams[0], beams[1], pivot, rotation_axes=rotation_axes,
+                          soft_translation=np.array([0, 0, 1]), soft_translation_coeff=np.array([coeff])
+                          )
+            model = Model()
+            model.add_beams(beams)
+            model.add_joints([hinge])
+            pairs = model.soft_solve()
+            if index == 0:
+                self.assertTrue(np.isclose(pairs[6][0], 0))
+                self.assertTrue(np.isclose(pairs[7][0], 0))
+            elif index == 1:
+                self.assertTrue(np.isclose(pairs[6][0], 0))
+                self.assertFalse(np.isclose(pairs[7][0], 0))
+
 
 if __name__ == '__main__':
     unittest.main()
