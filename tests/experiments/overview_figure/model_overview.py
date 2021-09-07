@@ -7,7 +7,8 @@ v = lambda x, y, z: np.array([x, y, z], dtype=np.double)
 lerp = lambda p, q, w: p * (1 - w) + q * w
 
 def define_from_file():
-    scale = 1 / 10 * np.array([1, -1, 1])
+    scale = 0.1 * np.array([1, -1, 1])
+
     def beam_from_file(filename):
         with open(filename) as fp:
             obj = json.load(fp)

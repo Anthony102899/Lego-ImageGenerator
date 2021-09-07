@@ -166,4 +166,4 @@ if __name__ == "__main__":
         print(*[e for e, _ in pairs])
         for e, vec in pairs:
             model.visualize(vec.reshape(-1, 3))
-        model.save_json(f"chair-stage{stage}.json")
+        # model.save_json(f"chair-stage{stage}.json")

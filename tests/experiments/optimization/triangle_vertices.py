@@ -11,10 +11,9 @@ from torch.utils.tensorboard import SummaryWriter
 from tqdm import tqdm
 
 import util.geometry_util as geo_util
-from solvers.rigidity_solver.gradient import gradient_analysis
+import solvers.rigidity_solver.gradient as gradient
 from solvers.rigidity_solver.internal_structure import tetrahedron, triangulation_with_torch
-from solvers.rigidity_solver.algo_core import solve_rigidity, spring_energy_matrix
-from solvers.rigidity_solver.models import Beam, Model, Joint
+from solvers.rigidity_solver.constraints_3d import select_non_colinear_points
 from solvers.rigidity_solver import gradient, algo_core as core, extra_constraint
 from solvers.rigidity_solver.eigen_analysis import eigen_analysis
 
@@ -23,12 +22,10 @@ from visualization.model_visualizer import visualize_3D, visualize_2D
 from matplotlib import pyplot as plt
 
 #%%
-objectives = []
-
 part_nodes = np.array([
-    [0, 0, 0],
-    [1, 0, 0],
-    [1, 2, 0],
+    [0, 0],
+    [1, 0],
+    [1, 2],
 ]) * 5
 
 optimizable_ind = np.array([2, ])
@@ -40,57 +37,93 @@ fixed_nodes = torch.tensor(
     dtype=torch.double)
 
 part_node_connectivity = np.array([
-    [0, 1],
-    [1, 2],
-    [2, 0],
+    (0, 1),
+    (1, 2),
+    (2, 0),
 ])
 
-def model_info(part_nodes):
-    model = Model()
-    with torch.no_grad():
-        for i, j in part_node_connectivity:
-            points, edges = triangulation_with_torch(part_nodes[i], part_nodes[j], 10, thickness=0.3)
-            model.add_beam(Beam(points.detach().numpy(), edges.detach().numpy()))
+part_map = {}
 
-        model.add_joint(Joint(model.beams[0], model.beams[1], pivot=part_nodes[1]))
-        model.add_joint(Joint(model.beams[1], model.beams[2], pivot=part_nodes[2]))
-        model.add_joint(Joint(model.beams[2], model.beams[0], pivot=part_nodes[0]))
+from collections import namedtuple
+Part = namedtuple("Part", "points, edges, index_offset")
+Joint = namedtuple("Joint", "pivot, part1_ind, part2_ind, translation, rotation_center")
 
-    points = torch.vstack(
-        [triangulation_with_torch(part_nodes[i], part_nodes[j], 10, thickness=0.3)[0] for i, j in part_node_connectivity]
-    )
+def empty(_):
+    return None
 
-    return points, model
+joints = [
+    Joint(lambda nodes: part_nodes[0], (0, 1), (2, 0), empty, lambda nodes: nodes[0]),
+    Joint(lambda nodes: part_nodes[1], (0, 1), (1, 2), empty, lambda nodes: nodes[1]),
+    Joint(lambda nodes: part_nodes[2], (1, 2), (2, 0), empty, lambda nodes: nodes[2]),
+]
 
+def describe_model(part_nodes, only_points=False):
+    offset = 0
+    for i, j in part_node_connectivity:
+        _points, _edges = triangulation_with_torch(part_nodes[i], part_nodes[j], 10, thickness=0.3)
+        part_map[(i, j)] = Part(_points, _edges, offset)
+        assert not torch.any(torch.isnan(_points)), f"exists nan, {part_nodes[i], part_nodes[j]}"
 
+        offset += len(_points)
+
+    point_matrix = torch.vstack([part_map[(i, j)].points for i, j in part_node_connectivity])
+    assert not torch.any(torch.isnan(point_matrix))
+
+    if only_points:
+        return point_matrix
+
+    edge_matrix = torch.vstack([
+        part_map[(i, j)].edges + part_map[(i, j)].index_offset for i, j in part_node_connectivity])
+    constraint_point_indices = torch.tensor(np.vstack([
+        np.concatenate((
+            select_non_colinear_points(part_map[j.part1_ind].points.detach().numpy(), 2, near=j.pivot(part_nodes))[1] + part_map[j.part1_ind].index_offset,
+            select_non_colinear_points(part_map[j.part2_ind].points.detach().numpy(), 2, near=j.pivot(part_nodes))[1] + part_map[j.part2_ind].index_offset))
+        for j in joints
+    ]), dtype=torch.long)
+
+    return point_matrix, edge_matrix, constraint_point_indices
+
+# %%
+# initialization for edges and constraint_point_indices
+with torch.no_grad():
+    nodes = torch.vstack([fixed_nodes, optimizable_nodes])
+    _, edges, constraint_point_indices = describe_model(nodes)
+
+# %%
 n_iters = 1000
 optimizer = Adam(params=[optimizable_nodes], lr=0.01)
 
 traces = []
-
-_, model = model_info(torch.vstack([fixed_nodes, optimizable_nodes]))
-edges = torch.tensor(model.edge_matrix(), dtype=torch.long)
 
 for it in tqdm(range(n_iters)):
     optimizer.zero_grad()
 
     nodes = torch.vstack([fixed_nodes, optimizable_nodes])
 
-    points, model = model_info(nodes)
+    points = describe_model(nodes, only_points=True)
+    assert not torch.any(torch.isnan(nodes)), f"exists nan in nodes, {nodes}"
 
-    extra_constraints = np.vstack([
-        extra_constraint.z_static(len(points)),
-        extra_constraint.trivial_basis(points.detach().numpy(), dim=3),
-    ])
+    with torch.no_grad():
+        joint_constraints = gradient.constraint_matrix(
+            points,
+            pivots=[j.pivot(nodes) for j in joints],
+            translation_vectors=[j.translation(nodes) for j in joints],
+            rotation_centers=[j.rotation_center(nodes) for j in joints],
+            joint_point_indices=constraint_point_indices,
+        )
 
-    constraints = np.vstack([
-        model.constraint_matrix(),
-        extra_constraints,
-    ])
-    np_B = null_space(constraints)
-    B = torch.tensor(np_B, dtype=torch.double)
+        extra_constraints = torch.vstack([
+            gradient.rigid_motion(points)
+        ])
 
-    K = gradient.spring_energy_matrix(points, edges, dim=3)
+        constraints = torch.vstack([
+            joint_constraints,
+            extra_constraints
+        ])
+
+        B = gradient.torch_null_space(constraints)
+
+    K = gradient.spring_energy_matrix(points, edges, dim=2)
 
     Q = torch.chain_matmul(B.t(), K, B)
 
@@ -154,4 +187,5 @@ plt.show()
 
 for it in np.round(np.linspace(0, n_iters - 1, 4)).astype(np.int):
     trace = traces[it]
-    visualize_2D(trace["points"], edges, trace["eigenvector"].reshape(-1, 3)[:, :2])
+    visualize_2D(trace["points"], edges, trace["eigenvector"].reshape(-1, 2)[:, :2])
+

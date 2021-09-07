@@ -6,7 +6,7 @@ from visualization.model_visualizer import get_geometries_3D, get_mesh_for_point
 
 from model_chair import define
 
-stage = 1
+stage = 4
 model = define(stage)["model"]
 
 joints = model.joints

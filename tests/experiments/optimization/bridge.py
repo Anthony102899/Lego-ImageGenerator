@@ -15,12 +15,14 @@ from solvers.rigidity_solver import (
 )
 from solvers.rigidity_solver.models import Model, Joint, Beam
 from solvers.rigidity_solver.internal_structure import triangulation_with_torch
+from visualization.model_visualizer import visualize_2D
 from util import geometry_util
+from util.timer import SimpleTimer
 
 root3 = np.sqrt(3)
 part_nodes = np.array([
     [0, 0], [1, 0], [2, 0], [3, 0],
-            [1, 12 / 5], [2, 12 / 5],
+    [1 / 2, root3 / 2], [3 / 2, root3 / 2], [5 / 2, root3 / 2],
 ], dtype=np.double) * 5
 part_nodes = np.hstack((
     part_nodes, np.zeros((len(part_nodes), 1))
@@ -28,7 +30,7 @@ part_nodes = np.hstack((
 
 part_nodes -= np.mean(part_nodes, axis=0)
 
-optimzable_ind = np.array([4, 5])
+optimzable_ind = np.array([4, 5, 6])
 
 optimizable_nodes = torch.tensor(
     part_nodes[optimzable_ind], dtype=torch.double, requires_grad=True)
@@ -37,8 +39,8 @@ fixed_nodes = torch.tensor(
 )
 
 part_node_connectivity = torch.tensor(
-    [(0, 1), (1, 2), (2, 3), (4, 5),
-     (0, 4), (1, 4), (2, 4), (2, 5), (3, 5)],
+    [(0, 1), (1, 2), (2, 3), (4, 5), (5, 6),
+     (0, 4), (1, 4), (1, 5), (2, 5), (2, 6), (3, 6)],
     dtype=torch.long)
 
 def model_info(part_nodes):
@@ -46,7 +48,8 @@ def model_info(part_nodes):
     seg_num = 3
     with torch.no_grad():
         for i, j in part_node_connectivity:
-            points, edges = triangulation_with_torch(part_nodes[i], part_nodes[j], seg_num, thickness=0.3)
+            points2d, edges = triangulation_with_torch(part_nodes[i][:2], part_nodes[j][:2], seg_num, thickness=0.3)
+            points = torch.hstack((points2d, torch.zeros(points2d.size()[0], 1)))
             model.add_beam(Beam(points.detach().numpy(), edges.detach().numpy()))
 
         # pivot index, part_1 index, part_2 index
@@ -70,20 +73,34 @@ def model_info(part_nodes):
         for i, j, n in joints_info:
             model.add_joint(Joint(model.beams[i], model.beams[j], pivot=part_nodes[n]))
 
-    points = torch.vstack(
-        [triangulation_with_torch(part_nodes[i], part_nodes[j], seg_num, thickness=0.3)[0] for i, j in part_node_connectivity]
+    points2d = torch.vstack(
+        [triangulation_with_torch(part_nodes[i][:2], part_nodes[j][:2], seg_num, thickness=0.3)[0] for i, j in part_node_connectivity]
     )
+    points = torch.hstack((points2d, torch.zeros(points2d.size()[0], 1)))
 
     return points, model
 
+_, model = model_info(torch.vstack([fixed_nodes, optimizable_nodes]))
+points = model.point_matrix()
+edges = torch.tensor(model.edge_matrix()).long()
+
+pairs = model.eigen_solve(num_pairs=1, extra_constr=np.vstack((
+    extra_constraint.z_static(len(points)),
+    extra_constraint.trivial_basis(points, dim=3),
+)), verbose=True)
+eigenvector = pairs[0][1]
+import matplotlib.pyplot as plt
+plt.axis("equal")
+plt.axis("off")
+for pt, v in zip(points, eigenvector.reshape(-1, 3)):
+    v *= 1.8
+    plt.arrow(pt[0], pt[1], v[0], v[1], color=(255 / 255, 165 / 255, 0), width=0.05)
+plt.savefig("bridge-load.svg", transparent=True)
 
 n_iters = 500
-optimizer = Adam(params=[optimizable_nodes], lr=0.001)
+optimizer = Adam(params=[optimizable_nodes], lr=0.01)
 
 traces = []
-
-_, model = model_info(torch.vstack([fixed_nodes, optimizable_nodes]))
-edges = torch.tensor(model.edge_matrix(), dtype=torch.long)
 
 for it in tqdm(range(n_iters)):
     optimizer.zero_grad()

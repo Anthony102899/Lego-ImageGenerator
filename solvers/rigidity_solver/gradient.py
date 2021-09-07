@@ -1,4 +1,5 @@
 import numpy as np
+from scipy.linalg import null_space
 import torch
 
 import util.geometry_util as geo_util
@@ -10,81 +11,10 @@ Gradient analysis:
     - joint orientation
 """
 
-
-
-def smallest_eigenpair(
-        points: torch.Tensor,
-        edges: torch.Tensor,
-        hinge_axes,
-        hinge_pivots,
-        hinge_point_indices,
-        extra_constraints=None,
-):
-    eigenvalues, eigenvectors = differentiable_eigen(
-        points, edges,
-        hinge_axes, hinge_pivots, hinge_point_indices,
-        extra_constraints
-    )
-    return eigenvalues[0], eigenvectors[0]
-
-def gradient_analysis(
-        points: np.ndarray,
-        edges: np.ndarray,
-        hinge_axes,
-        hinge_pivots,
-        hinge_point_indices,
-        extra_constraints=None,
-        iters=1000
-) -> torch.Tensor:
-    assert iters > 0
-
-    hinge_rad = torch.tensor(geo_util.cart2sphere(hinge_axes)[:, 1:], requires_grad=True)
-    theta, phi = hinge_rad[:, 0], hinge_rad[:, 1]
-    points = torch.tensor(points, dtype=torch.double, requires_grad=True)
-    edges = torch.tensor(edges)
-    # hinge_axes = torch.tensor(hinge_axes, dtype=torch.double, requires_grad=True)
-    hinge_pivots = torch.tensor(hinge_pivots, dtype=torch.double, requires_grad=True)
-    hinge_point_indices = torch.tensor(hinge_point_indices, dtype=torch.long)
-
-    optimizer = torch.optim.Adam([hinge_rad, hinge_pivots, points], lr=1e-3)
-
-    for i in range(iters):
-        optimizer.zero_grad()
-
-        hinge_axes = torch.hstack([
-            torch.unsqueeze(torch.sin(theta) * torch.cos(phi), 1),
-            torch.unsqueeze(torch.sin(theta) * torch.sin(phi), 1),
-            torch.unsqueeze(torch.cos(theta), 1)
-        ])
-
-        eigenvalue, _ = smallest_eigenpair(
-            points, edges, hinge_axes, hinge_pivots, hinge_point_indices, extra_constraints
-        )
-
-        # Negate it as torch optimizer minimizes objective by default
-        obj = -eigenvalue
-
-        obj.backward()
-        optimizer.step()
-
-    return obj
-
-
-
-def rigidity_matrix(
-        points,
-        edges,
-        dim
-):
-    n, m = len(points), len(edges)
-
-    R = torch.zeros((m, dim * n), dtype=torch.double)
-    for i, (p_ind, q_ind) in enumerate(edges):
-        q_minus_p = points[q_ind, :] - points[p_ind, :]
-        R[i, q_ind * dim: (q_ind + 1) * dim] = q_minus_p
-        R[i, p_ind * dim: (p_ind + 1) * dim] = -q_minus_p
-
-    return R
+rotation_matrix = torch.tensor([
+    [0, 1],
+    [-1, 0],
+], dtype=torch.double)
 
 
 def spring_energy_matrix(
@@ -98,63 +28,148 @@ def spring_energy_matrix(
     P = torch.zeros((m, m * dim), dtype=torch.double)
     A = torch.zeros((m * dim, n * dim), dtype=torch.double)
 
-    for idx, e in enumerate(edges):
-        edge_vec: torch.Tensor = points[e[0]] - points[e[1]]
-        P[idx, idx * dim: idx * dim + dim] = edge_vec / edge_vec.norm()
-        K[idx, idx] = 1 / edge_vec.norm()
+    edge_endpoints = points[edges]
+    edge_vectors = edge_endpoints[:, 0, :] - edge_endpoints[:, 1, :]
+    edge_length = edge_vectors.norm(dim=1)
+    K = torch.diag_embed(1 / edge_length)
 
-        for d in range(dim):
-            A[dim * idx + d, dim * e[0] + d] = 1
-            A[dim * idx + d, dim * e[1] + d] = -1
+    indices = torch.arange(len(edges))
+    for offset in torch.arange(dim):
+        P[indices, indices * dim + offset] = edge_vectors[:, offset]
+
+        A[indices * dim + offset, edges[:, 0] * dim + offset] = 1
+        A[indices * dim + offset, edges[:, 1] * dim + offset] = -1
+
 
     return torch.chain_matmul(A.T, P.T, K, P, A)
 
 
 def constraint_matrix(
         points,
-        hinge_axes,
-        hinge_pivots,
-        hinge_point_indices,
+        pivots,
+        translation_vectors,
+        rotation_centers,
+        joint_point_indices,
 ):
-    dim = 3
+    """
+    PyTorch implemented constraint matrix construction; ONLY SUPPORT 2D!
+    :param points: (n, 2)
+    :param pivots: iterable of vectors
+    :param translation_vectors: iterable of [translation 2-vectors or None]
+    :param rotation_centers: iterable of [rotation center 1-vector or None]
+    :param joint_point_indices: iterable of [4-vector], indices into rows of points matrix
+    :return: constraint matrix
+    """
+    dim = points.size()[1]
     constraint_matrices = []
 
-    for axis, pivot, point_indices in zip(hinge_axes, hinge_pivots, hinge_point_indices):
-        for source_point_indices, target_point_indices in [
-            (point_indices[0], point_indices[1]),
-            (point_indices[1], point_indices[0]),
-        ]:
-            source_points = points[source_point_indices, :]
-            target_points = points[target_point_indices, :]
+    assert len(pivots) == len(translation_vectors) == len(rotation_centers) == len(joint_point_indices)
 
-            constraints = hinge_constraints(
-                source_points,
-                target_points,
-                axis,
-                pivot,
-            )
+    joint_info = zip(pivots, translation_vectors, rotation_centers, joint_point_indices)
 
-            i, j, k = source_point_indices
-            for constraint, target_index in zip(constraints, target_point_indices):
-                l = target_index
-                zero_constraint = torch.zeros((constraint.shape[0], len(points) * dim), dtype=torch.double)
-                zero_constraint[:, i * 3: (i + 1) * 3] = constraint[:, 0: 3]
-                zero_constraint[:, j * 3: (j + 1) * 3] = constraint[:, 3: 6]
-                zero_constraint[:, k * 3: (k + 1) * 3] = constraint[:, 6: 9]
-                zero_constraint[:, l * 3: (l + 1) * 3] = constraint[:, 9: 12]
+    for pivot, translation, rotation, point_indices in joint_info:
+        sp = points[point_indices]
 
-                constraint_matrices.append(zero_constraint)
+        basis = []
+        basis.append(rigid_motion(sp))
+
+        if dim == 2:
+            nonrigid_motion = torch.vstack((
+                torch.cat([sp[0] - sp[1], sp[1] - sp[0], torch.zeros(4)]),
+                torch.cat([torch.zeros(4), sp[2] - sp[3], sp[3] - sp[2]]),
+            ))
+        else:
+            nonrigid_motion = torch.vstack([
+                torch.cat([sp[0] - sp[1], sp[1] - sp[0], torch.zeros(3), torch.zeros(9)]),
+                torch.cat([torch.zeros(3), sp[1] - sp[2], sp[2] - sp[1], torch.zeros(9)]),
+                torch.cat([sp[2] - sp[0], torch.zeros(3), sp[0] - sp[2], torch.zeros(9)]),
+                torch.cat([torch.zeros(9), sp[3] - sp[4], sp[4] - sp[3], torch.zeros(3)]),
+                torch.cat([torch.zeros(9), torch.zeros(3), sp[4] - sp[5], sp[5] - sp[4]]),
+                torch.cat([torch.zeros(9), sp[5] - sp[3], torch.zeros(3), sp[3] - sp[5]]),
+            ])
+        basis.append(nonrigid_motion)
+
+        if translation is not None:
+            assert not torch.allclose(translation, torch.tensor(0, dtype=torch.double))
+            if dim == 2:
+                translation_motion = torch.cat((
+                    translation, translation, torch.zeros_like(translation), torch.zeros_like(translation)
+                ))
+            else:
+                translation_motion = torch.cat((
+                    translation, translation, translation,
+                    torch.zeros_like(translation), torch.zeros_like(translation), torch.zeros_like(translation),
+                ))
+            basis.append(translation_motion)
+
+        if rotation is not None:
+            if dim == 2:
+                rotation_motion = torch.cat((
+                    rotation_matrix @ (sp[0] - rotation), rotation_matrix @ (sp[1] - rotation), torch.zeros(4)
+                ))
+            else:
+                rotation_list = []
+                rotation_dim_expanded = rotation.reshape(-1, 3)
+                for rotation_axis in rotation_dim_expanded:
+                    rotation_list.append(
+                        torch.cat((torch.cross(rotation_axis, sp[0] - pivot),
+                                   torch.cross(rotation_axis, sp[1] - pivot),
+                                   torch.cross(rotation_axis, sp[2] - pivot),
+                                   torch.zeros(9)))
+                    )
+
+                rotation_motion = torch.vstack(rotation_list)
+
+            basis.append(rotation_motion)
+
+        allowed_motion_space = torch.vstack(basis)
+        prohibitive_motion_space = torch_null_space(allowed_motion_space, disturb_s=True).t()
+
+        zero_constraint = torch.zeros((prohibitive_motion_space.size()[0], points.size()[0] * dim), dtype=torch.double)
+        if dim == 2:
+            i, j, k, l = point_indices
+            zero_constraint[:, i * 2: (i + 1) * 2] = prohibitive_motion_space[:, 0: 2]
+            zero_constraint[:, j * 2: (j + 1) * 2] = prohibitive_motion_space[:, 2: 4]
+            zero_constraint[:, k * 2: (k + 1) * 2] = prohibitive_motion_space[:, 4: 6]
+            zero_constraint[:, l * 2: (l + 1) * 2] = prohibitive_motion_space[:, 6: 8]
+        if dim == 3:
+            for i, index in enumerate(point_indices):
+                zero_constraint[:, index * 3: (index + 1) * 3] = prohibitive_motion_space[:, i * 3: (i + 1) * 3]
+
+        constraint_matrices.append(zero_constraint)
 
     return torch.vstack(constraint_matrices)
 
 
-def perpendicular_vectors(v: torch.Tensor):
-    index = torch.nonzero(v)[0]
-    non_parallel = torch.ones_like(v)
-    non_parallel[index] = 0
-    u = torch.cross(non_parallel, v)
-    w = torch.cross(u, v)
-    return u, w
+def rigid_motion(points: torch.Tensor) -> torch.Tensor:
+    dim = points.size()[1]
+    n = points.size()[0] * dim
+    assert dim in (2, 3)
+    if dim == 2:
+        even_ind = torch.arange(0, n, 2)
+        odd_ind = even_ind + 1
+
+        motion = torch.zeros((3, n))
+        motion[0, even_ind] = 1.0
+        motion[1, odd_ind] = 1.0
+        motion[2] = (rotation_matrix @ points.t()).t().reshape(-1)
+    else:
+        motion = torch.zeros((6, n), dtype=torch.double)
+        motion[0, torch.arange(0, n, 3)] = 1.0
+        motion[1, torch.arange(0, n, 3) + 1] = 1.0
+        motion[2, torch.arange(0, n, 3) + 2] = 1.0
+
+        x = torch.tensor([1, 0, 0], dtype=torch.double)
+        y = torch.tensor([0, 1, 0], dtype=torch.double)
+        z = torch.tensor([0, 0, 1], dtype=torch.double)
+        for i, point in enumerate(points):
+            motion[3, i * 3: (i + 1) * 3] = torch.cross(point, x)
+            motion[4, i * 3: (i + 1) * 3] = torch.cross(point, y)
+            motion[5, i * 3: (i + 1) * 3] = torch.cross(point, z)
+        assert (i + 1) * 3 == n
+
+    return motion
+
 
 def torch_null_space(A: torch.Tensor, disturb_s=False) -> torch.Tensor:
     dist = 1e-9
@@ -182,123 +197,3 @@ def torch_null_space(A: torch.Tensor, disturb_s=False) -> torch.Tensor:
 
     return Q
 
-
-def hinge_constraints(
-        source_points,
-        target_points,
-        rotation_axis,
-        rotation_pivot,
-):
-    constraints = []
-    for target_point in target_points:
-        relative_projection, source_transform = projection_matrix(
-            source_points,
-            target_point,
-        )
-
-        assert len(rotation_axis) == len(rotation_pivot)
-
-        relative_target_point = torch.mv(source_transform, target_point)
-        relative_rotation_pivot = torch.mv(source_transform, rotation_pivot)
-        relative_rotation_axis = torch.mv(source_transform, rotation_axis)
-
-        prohibitive_space = prohibitive_space_of_allowed_relative_rotation(
-            relative_target_point,
-            relative_rotation_pivot,
-            relative_rotation_axis,
-        )
-
-        prohibitive_space_on_deltas = torch.mm(prohibitive_space, relative_projection)
-
-        constraints.append(prohibitive_space_on_deltas)
-
-    return constraints
-
-
-def prohibitive_space_of_allowed_relative_rotation(
-        target_point: torch.Tensor,
-        pivot: torch.Tensor,
-        axis: torch.Tensor,
-) -> torch.Tensor:
-    allowed_direction = torch.cross(target_point - pivot, axis)
-    if allowed_direction.norm() > 1e-8:
-        # unit_direction = allowed_direction / allowed_direction.norm()
-        null_basis = torch.vstack(perpendicular_vectors(allowed_direction))
-        return null_basis
-    else:
-        sqrt_half = np.sqrt(0.5)
-        null_basis = torch.tensor([
-            [1, 0, 0],
-            [0, sqrt_half, sqrt_half],
-            [0, sqrt_half, -sqrt_half],
-        ], dtype=torch.double)
-        return null_basis
-
-
-def projection_matrix(
-        source_points: torch.Tensor,
-        target_point: torch.Tensor
-):
-    dim = 3
-    projection_matrix = torch.zeros((dim, 4 * dim), dtype=torch.double)
-
-    x0, x1, x2 = source_points
-    x0_x, x0_y, x0_z = x0
-    x1_x, x1_y, x1_z = x1
-    x2_x, x2_y, x2_z = x2
-    t_x, t_y, t_z = target_point
-
-    norm_1 = (x1 - x0).norm()
-    basis_1 = (x1 - x0) / norm_1
-
-    norm_2 = torch.cross(x2 - x0, basis_1).norm()
-    basis_2 = torch.cross(x2 - x0, basis_1) / norm_2
-
-    basis_3 = torch.cross(basis_1, basis_2)
-
-    if torch.isclose(norm_1, torch.tensor(0.0, dtype=torch.double)):
-        raise Exception("Norm(x1 - x0) nears 0", "x0", x0, "x1", x1)
-    if torch.isclose(norm_2, torch.tensor(0.0, dtype=torch.double)):
-        raise Exception("Norm(x2 - x0) nears 0", "x0", x0, "x1", x1, "x2", x2)
-
-    # Sympy generated code
-    # >>>>>>>>>>>>>>>>>>>>
-    projection_matrix[0, 0] = (-t_x + 2*x0_x - x1_x)/norm_1
-    projection_matrix[0, 1] = (-t_y + 2*x0_y - x1_y)/norm_1
-    projection_matrix[0, 2] = (-t_z + 2*x0_z - x1_z)/norm_1
-    projection_matrix[0, 3] = (t_x - x0_x)/norm_1
-    projection_matrix[0, 4] = (t_y - x0_y)/norm_1
-    projection_matrix[0, 5] = (t_z - x0_z)/norm_1
-    projection_matrix[0, 6] = 0
-    projection_matrix[0, 7] = 0
-    projection_matrix[0, 8] = 0
-    projection_matrix[0, 9] = (-x0_x + x1_x)/norm_1
-    projection_matrix[0, 10] = (-x0_y + x1_y)/norm_1
-    projection_matrix[0, 11] = (-x0_z + x1_z)/norm_1
-    projection_matrix[1, 0] = (t_y*x1_z - t_y*x2_z - t_z*x1_y + t_z*x2_y + x1_y*x2_z - x1_z*x2_y)/(norm_1*norm_2)
-    projection_matrix[1, 1] = (-t_x*x1_z + t_x*x2_z + t_z*x1_x - t_z*x2_x - x1_x*x2_z + x1_z*x2_x)/(norm_1*norm_2)
-    projection_matrix[1, 2] = (t_x*x1_y - t_x*x2_y - t_y*x1_x + t_y*x2_x + x1_x*x2_y - x1_y*x2_x)/(norm_1*norm_2)
-    projection_matrix[1, 3] = (-t_y*x0_z + t_y*x2_z + t_z*x0_y - t_z*x2_y - x0_y*x2_z + x0_z*x2_y)/(norm_1*norm_2)
-    projection_matrix[1, 4] = (t_x*x0_z - t_x*x2_z - t_z*x0_x + t_z*x2_x + x0_x*x2_z - x0_z*x2_x)/(norm_1*norm_2)
-    projection_matrix[1, 5] = (-t_x*x0_y + t_x*x2_y + t_y*x0_x - t_y*x2_x - x0_x*x2_y + x0_y*x2_x)/(norm_1*norm_2)
-    projection_matrix[1, 6] = (t_y*x0_z - t_y*x1_z - t_z*x0_y + t_z*x1_y + x0_y*x1_z - x0_z*x1_y)/(norm_1*norm_2)
-    projection_matrix[1, 7] = (-t_x*x0_z + t_x*x1_z + t_z*x0_x - t_z*x1_x - x0_x*x1_z + x0_z*x1_x)/(norm_1*norm_2)
-    projection_matrix[1, 8] = (t_x*x0_y - t_x*x1_y - t_y*x0_x + t_y*x1_x + x0_x*x1_y - x0_y*x1_x)/(norm_1*norm_2)
-    projection_matrix[1, 9] = (-x0_y*x1_z + x0_y*x2_z + x0_z*x1_y - x0_z*x2_y - x1_y*x2_z + x1_z*x2_y)/(norm_1*norm_2)
-    projection_matrix[1, 10] = (x0_x*x1_z - x0_x*x2_z - x0_z*x1_x + x0_z*x2_x + x1_x*x2_z - x1_z*x2_x)/(norm_1*norm_2)
-    projection_matrix[1, 11] = (-x0_x*x1_y + x0_x*x2_y + x0_y*x1_x - x0_y*x2_x - x1_x*x2_y + x1_y*x2_x)/(norm_1*norm_2)
-    projection_matrix[2, 0] = (t_x*x0_y*x1_y - t_x*x0_y*x2_y + t_x*x0_z*x1_z - t_x*x0_z*x2_z - t_x*x1_y**2 + t_x*x1_y*x2_y - t_x*x1_z**2 + t_x*x1_z*x2_z - 2*t_y*x0_x*x1_y + 2*t_y*x0_x*x2_y + t_y*x0_y*x1_x - t_y*x0_y*x2_x + t_y*x1_x*x1_y - 2*t_y*x1_x*x2_y + t_y*x1_y*x2_x - 2*t_z*x0_x*x1_z + 2*t_z*x0_x*x2_z + t_z*x0_z*x1_x - t_z*x0_z*x2_x + t_z*x1_x*x1_z - 2*t_z*x1_x*x2_z + t_z*x1_z*x2_x + 2*x0_x*x1_y**2 - 2*x0_x*x1_y*x2_y + 2*x0_x*x1_z**2 - 2*x0_x*x1_z*x2_z - 2*x0_y*x1_x*x1_y + x0_y*x1_x*x2_y + x0_y*x1_y*x2_x - 2*x0_z*x1_x*x1_z + x0_z*x1_x*x2_z + x0_z*x1_z*x2_x + x1_x*x1_y*x2_y + x1_x*x1_z*x2_z - x1_y**2*x2_x - x1_z**2*x2_x)/(norm_1**2*norm_2)
-    projection_matrix[2, 1] = (t_x*x0_x*x1_y - t_x*x0_x*x2_y - 2*t_x*x0_y*x1_x + 2*t_x*x0_y*x2_x + t_x*x1_x*x1_y + t_x*x1_x*x2_y - 2*t_x*x1_y*x2_x + t_y*x0_x*x1_x - t_y*x0_x*x2_x + t_y*x0_z*x1_z - t_y*x0_z*x2_z - t_y*x1_x**2 + t_y*x1_x*x2_x - t_y*x1_z**2 + t_y*x1_z*x2_z - 2*t_z*x0_y*x1_z + 2*t_z*x0_y*x2_z + t_z*x0_z*x1_y - t_z*x0_z*x2_y + t_z*x1_y*x1_z - 2*t_z*x1_y*x2_z + t_z*x1_z*x2_y - 2*x0_x*x1_x*x1_y + x0_x*x1_x*x2_y + x0_x*x1_y*x2_x + 2*x0_y*x1_x**2 - 2*x0_y*x1_x*x2_x + 2*x0_y*x1_z**2 - 2*x0_y*x1_z*x2_z - 2*x0_z*x1_y*x1_z + x0_z*x1_y*x2_z + x0_z*x1_z*x2_y - x1_x**2*x2_y + x1_x*x1_y*x2_x + x1_y*x1_z*x2_z - x1_z**2*x2_y)/(norm_1**2*norm_2)
-    projection_matrix[2, 2] = (t_x*x0_x*x1_z - t_x*x0_x*x2_z - 2*t_x*x0_z*x1_x + 2*t_x*x0_z*x2_x + t_x*x1_x*x1_z + t_x*x1_x*x2_z - 2*t_x*x1_z*x2_x + t_y*x0_y*x1_z - t_y*x0_y*x2_z - 2*t_y*x0_z*x1_y + 2*t_y*x0_z*x2_y + t_y*x1_y*x1_z + t_y*x1_y*x2_z - 2*t_y*x1_z*x2_y + t_z*x0_x*x1_x - t_z*x0_x*x2_x + t_z*x0_y*x1_y - t_z*x0_y*x2_y - t_z*x1_x**2 + t_z*x1_x*x2_x - t_z*x1_y**2 + t_z*x1_y*x2_y - 2*x0_x*x1_x*x1_z + x0_x*x1_x*x2_z + x0_x*x1_z*x2_x - 2*x0_y*x1_y*x1_z + x0_y*x1_y*x2_z + x0_y*x1_z*x2_y + 2*x0_z*x1_x**2 - 2*x0_z*x1_x*x2_x + 2*x0_z*x1_y**2 - 2*x0_z*x1_y*x2_y - x1_x**2*x2_z + x1_x*x1_z*x2_x - x1_y**2*x2_z + x1_y*x1_z*x2_y)/(norm_1**2*norm_2)
-    projection_matrix[2, 3] = (-t_x*x0_y**2 + t_x*x0_y*x1_y + t_x*x0_y*x2_y - t_x*x0_z**2 + t_x*x0_z*x1_z + t_x*x0_z*x2_z - t_x*x1_y*x2_y - t_x*x1_z*x2_z + t_y*x0_x*x0_y + t_y*x0_x*x1_y - 2*t_y*x0_x*x2_y - 2*t_y*x0_y*x1_x + t_y*x0_y*x2_x + 2*t_y*x1_x*x2_y - t_y*x1_y*x2_x + t_z*x0_x*x0_z + t_z*x0_x*x1_z - 2*t_z*x0_x*x2_z - 2*t_z*x0_z*x1_x + t_z*x0_z*x2_x + 2*t_z*x1_x*x2_z - t_z*x1_z*x2_x - 2*x0_x*x0_y*x1_y + x0_x*x0_y*x2_y - 2*x0_x*x0_z*x1_z + x0_x*x0_z*x2_z + x0_x*x1_y*x2_y + x0_x*x1_z*x2_z + 2*x0_y**2*x1_x - x0_y**2*x2_x - 2*x0_y*x1_x*x2_y + x0_y*x1_y*x2_x + 2*x0_z**2*x1_x - x0_z**2*x2_x - 2*x0_z*x1_x*x2_z + x0_z*x1_z*x2_x)/(norm_1**2*norm_2)
-    projection_matrix[2, 4] = (t_x*x0_x*x0_y - 2*t_x*x0_x*x1_y + t_x*x0_x*x2_y + t_x*x0_y*x1_x - 2*t_x*x0_y*x2_x - t_x*x1_x*x2_y + 2*t_x*x1_y*x2_x - t_y*x0_x**2 + t_y*x0_x*x1_x + t_y*x0_x*x2_x - t_y*x0_z**2 + t_y*x0_z*x1_z + t_y*x0_z*x2_z - t_y*x1_x*x2_x - t_y*x1_z*x2_z + t_z*x0_y*x0_z + t_z*x0_y*x1_z - 2*t_z*x0_y*x2_z - 2*t_z*x0_z*x1_y + t_z*x0_z*x2_y + 2*t_z*x1_y*x2_z - t_z*x1_z*x2_y + 2*x0_x**2*x1_y - x0_x**2*x2_y - 2*x0_x*x0_y*x1_x + x0_x*x0_y*x2_x + x0_x*x1_x*x2_y - 2*x0_x*x1_y*x2_x - 2*x0_y*x0_z*x1_z + x0_y*x0_z*x2_z + x0_y*x1_x*x2_x + x0_y*x1_z*x2_z + 2*x0_z**2*x1_y - x0_z**2*x2_y - 2*x0_z*x1_y*x2_z + x0_z*x1_z*x2_y)/(norm_1**2*norm_2)
-    projection_matrix[2, 5] = (t_x*x0_x*x0_z - 2*t_x*x0_x*x1_z + t_x*x0_x*x2_z + t_x*x0_z*x1_x - 2*t_x*x0_z*x2_x - t_x*x1_x*x2_z + 2*t_x*x1_z*x2_x + t_y*x0_y*x0_z - 2*t_y*x0_y*x1_z + t_y*x0_y*x2_z + t_y*x0_z*x1_y - 2*t_y*x0_z*x2_y - t_y*x1_y*x2_z + 2*t_y*x1_z*x2_y - t_z*x0_x**2 + t_z*x0_x*x1_x + t_z*x0_x*x2_x - t_z*x0_y**2 + t_z*x0_y*x1_y + t_z*x0_y*x2_y - t_z*x1_x*x2_x - t_z*x1_y*x2_y + 2*x0_x**2*x1_z - x0_x**2*x2_z - 2*x0_x*x0_z*x1_x + x0_x*x0_z*x2_x + x0_x*x1_x*x2_z - 2*x0_x*x1_z*x2_x + 2*x0_y**2*x1_z - x0_y**2*x2_z - 2*x0_y*x0_z*x1_y + x0_y*x0_z*x2_y + x0_y*x1_y*x2_z - 2*x0_y*x1_z*x2_y + x0_z*x1_x*x2_x + x0_z*x1_y*x2_y)/(norm_1**2*norm_2)
-    projection_matrix[2, 6] = (t_x*x0_y**2 - 2*t_x*x0_y*x1_y + t_x*x0_z**2 - 2*t_x*x0_z*x1_z + t_x*x1_y**2 + t_x*x1_z**2 - t_y*x0_x*x0_y + t_y*x0_x*x1_y + t_y*x0_y*x1_x - t_y*x1_x*x1_y - t_z*x0_x*x0_z + t_z*x0_x*x1_z + t_z*x0_z*x1_x - t_z*x1_x*x1_z + x0_x*x0_y*x1_y + x0_x*x0_z*x1_z - x0_x*x1_y**2 - x0_x*x1_z**2 - x0_y**2*x1_x + x0_y*x1_x*x1_y - x0_z**2*x1_x + x0_z*x1_x*x1_z)/(norm_1**2*norm_2)
-    projection_matrix[2, 7] = (-t_x*x0_x*x0_y + t_x*x0_x*x1_y + t_x*x0_y*x1_x - t_x*x1_x*x1_y + t_y*x0_x**2 - 2*t_y*x0_x*x1_x + t_y*x0_z**2 - 2*t_y*x0_z*x1_z + t_y*x1_x**2 + t_y*x1_z**2 - t_z*x0_y*x0_z + t_z*x0_y*x1_z + t_z*x0_z*x1_y - t_z*x1_y*x1_z - x0_x**2*x1_y + x0_x*x0_y*x1_x + x0_x*x1_x*x1_y + x0_y*x0_z*x1_z - x0_y*x1_x**2 - x0_y*x1_z**2 - x0_z**2*x1_y + x0_z*x1_y*x1_z)/(norm_1**2*norm_2)
-    projection_matrix[2, 8] = (-t_x*x0_x*x0_z + t_x*x0_x*x1_z + t_x*x0_z*x1_x - t_x*x1_x*x1_z - t_y*x0_y*x0_z + t_y*x0_y*x1_z + t_y*x0_z*x1_y - t_y*x1_y*x1_z + t_z*x0_x**2 - 2*t_z*x0_x*x1_x + t_z*x0_y**2 - 2*t_z*x0_y*x1_y + t_z*x1_x**2 + t_z*x1_y**2 - x0_x**2*x1_z + x0_x*x0_z*x1_x + x0_x*x1_x*x1_z - x0_y**2*x1_z + x0_y*x0_z*x1_y + x0_y*x1_y*x1_z - x0_z*x1_x**2 - x0_z*x1_y**2)/(norm_1**2*norm_2)
-    projection_matrix[2, 9] = (x0_x*x0_y*x1_y - x0_x*x0_y*x2_y + x0_x*x0_z*x1_z - x0_x*x0_z*x2_z - x0_x*x1_y**2 + x0_x*x1_y*x2_y - x0_x*x1_z**2 + x0_x*x1_z*x2_z - x0_y**2*x1_x + x0_y**2*x2_x + x0_y*x1_x*x1_y + x0_y*x1_x*x2_y - 2*x0_y*x1_y*x2_x - x0_z**2*x1_x + x0_z**2*x2_x + x0_z*x1_x*x1_z + x0_z*x1_x*x2_z - 2*x0_z*x1_z*x2_x - x1_x*x1_y*x2_y - x1_x*x1_z*x2_z + x1_y**2*x2_x + x1_z**2*x2_x)/(norm_1**2*norm_2)
-    projection_matrix[2, 10] = (-x0_x**2*x1_y + x0_x**2*x2_y + x0_x*x0_y*x1_x - x0_x*x0_y*x2_x + x0_x*x1_x*x1_y - 2*x0_x*x1_x*x2_y + x0_x*x1_y*x2_x + x0_y*x0_z*x1_z - x0_y*x0_z*x2_z - x0_y*x1_x**2 + x0_y*x1_x*x2_x - x0_y*x1_z**2 + x0_y*x1_z*x2_z - x0_z**2*x1_y + x0_z**2*x2_y + x0_z*x1_y*x1_z + x0_z*x1_y*x2_z - 2*x0_z*x1_z*x2_y + x1_x**2*x2_y - x1_x*x1_y*x2_x - x1_y*x1_z*x2_z + x1_z**2*x2_y)/(norm_1**2*norm_2)
-    projection_matrix[2, 11] = (-x0_x**2*x1_z + x0_x**2*x2_z + x0_x*x0_z*x1_x - x0_x*x0_z*x2_x + x0_x*x1_x*x1_z - 2*x0_x*x1_x*x2_z + x0_x*x1_z*x2_x - x0_y**2*x1_z + x0_y**2*x2_z + x0_y*x0_z*x1_y - x0_y*x0_z*x2_y + x0_y*x1_y*x1_z - 2*x0_y*x1_y*x2_z + x0_y*x1_z*x2_y - x0_z*x1_x**2 + x0_z*x1_x*x2_x - x0_z*x1_y**2 + x0_z*x1_y*x2_y + x1_x**2*x2_z - x1_x*x1_z*x2_x + x1_y**2*x2_z - x1_y*x1_z*x2_y)/(norm_1**2*norm_2)
-    # <<<<<<<<<<<<<<<<<<<<
-
-    return projection_matrix, torch.vstack((basis_1, basis_2, basis_3))

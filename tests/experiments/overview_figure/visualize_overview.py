@@ -48,15 +48,16 @@ for index in (0, 1, 2):
     eigenvector *= 30
     dxs, dys = eigenvector[:, 0], eigenvector[:, 1]
 
+    color = (1, 0, 0) if index == 0 else (255 / 255, 165 / 255, 0)
     for x, y, dx, dy in zip(xs, ys, dxs, dys):
         if np.linalg.norm([dx, dy]) < 1e-2:
             continue
         plt.gca().arrow(
             x, y, dx, dy,
             # length_includes_head=True,
-            color=(1, 0, 0),
+            color=color,
             width=0.5,
         )
 
     # plt.show()
-    plt.savefig(f"eigenvector-{index}.png", dpi=500, transparent=True)
+    plt.savefig(f"eigenvector-{index}.svg", dpi=500, transparent=True)

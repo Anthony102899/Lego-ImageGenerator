@@ -26,6 +26,7 @@ runs
 *.mesh
 *.npz
 tests/**/*.npz
+tests/**/*.svg
 tests/**/*.json
 tests/**/*.png
 
