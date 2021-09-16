@@ -14,8 +14,8 @@ When Line type of the block is 1, which is most of the bricks in project, the fo
 - x y z is the x y z coordinate of the part.
 - a b c d e f g h iis a top left 3x3 matrix of a standard 4x4 homogeneous transformation matrix. This represents the rotation and scaling of the part. The entire 4x4 3D transformation matrix would then take either of the following forms:  
   / a d g 0 \ &nbsp;&nbsp; / a b c x \  
-  | b e h 0 | &nbsp;&nbsp; | d e f y |  
-  | c f i 0 | &nbsp;&nbsp; | g h i z |  
+  | b e h 0 | &nbsp;&nbsp; &nbsp;| d e f y |  
+  | c f i 0 | &nbsp;&nbsp; &nbsp;&nbsp;| g h i z |  
   \ x y z 1 / &nbsp;&nbsp; \ 0 0 0 1 /  
 The above two forms are essentially equivalent, but note the location of the transformation portion (x, y, z) relative to the other terms.  
 Formally, the transformed point (u', v', w') can be calculated from point (u, v, w) as follows:  
