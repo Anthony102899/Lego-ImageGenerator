@@ -7,3 +7,4 @@ The project is about automatically generate LEGO® Image by importing bit image.
 - Ding, Baizeng
 
 ## TODO
+-Generate a new branch for yourself
