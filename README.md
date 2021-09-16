@@ -17,7 +17,7 @@ When Line type of the block is 1, which is most of the bricks in project, the fo
   | b e h 0 | &nbsp;&nbsp; &nbsp;| d e f y |  
   | c f i 0 | &nbsp;&nbsp; &nbsp;&nbsp;| g h i z |  
   \ x y z 1 / &nbsp;&nbsp; \ 0 0 0 1 /  
-  \left[ \begin{matrix} a & d & g & 0\\ b & e & h & 0\\ c & f & i & 0\\ x & y & z & 1\end{matrix} \right]
+  \left[ \begin{matrix} a & d & g & 0\\ b & e & h & 0\\ c & f & i & 0\\ x & y & z & 1\end{matrix} \right]  
 The above two forms are essentially equivalent, but note the location of the transformation portion (x, y, z) relative to the other terms.  
 Formally, the transformed point (u', v', w') can be calculated from point (u, v, w) as follows:  
     - u' = a*u + b*v + c*w + x  
