@@ -17,7 +17,7 @@ When Line type of the block is 1, which is most of the bricks in project, the fo
   | b e h 0 | &nbsp;&nbsp; &nbsp;| d e f y |  
   | c f i 0 | &nbsp;&nbsp; &nbsp;&nbsp;| g h i z |  
   \ x y z 1 / &nbsp;&nbsp; \ 0 0 0 1 /  
-\begin{bmatrix}  
+\begin{bmatrix}
 a & d & g & 0\\
 b & e & h & 0\\
 c & f & i & 0\\
