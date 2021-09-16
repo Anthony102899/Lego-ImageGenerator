@@ -19,8 +19,8 @@ When Line type of the block is 1, which is most of the bricks in project, the fo
   \ x y z 1 / &nbsp;&nbsp; \ 0 0 0 1 /  
 
 \begin{bmatrix}
-a_{00}&a_{01}\\\\
-a_{10}&a_{11}\\\\
+a_{00}&a_{01}\\\
+a_{10}&a_{11}\\\
 \end{bmatrix}
 
 The above two forms are essentially equivalent, but note the location of the transformation portion (x, y, z) relative to the other terms.  
