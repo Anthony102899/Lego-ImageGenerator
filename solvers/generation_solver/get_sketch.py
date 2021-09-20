@@ -9,7 +9,7 @@ from solvers.generation_solver.img_interface import show_interface
 import numpy as np
 import cv2
 import math
-import pickle5 as pickle
+import pickle
 from multiprocessing import Pool
 from functools import partial
 

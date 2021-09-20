@@ -2,7 +2,7 @@ import numpy as np
 from util.debugger import MyDebugger
 import itertools
 import json
-import pickle5 as pickle
+import pickle
 import time
 from bricks_modeling.file_IO.model_reader import read_bricks_from_file
 import open3d as o3d

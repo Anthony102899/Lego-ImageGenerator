@@ -10,7 +10,7 @@ from util.debugger import MyDebugger
 from bricks_modeling.file_IO.model_writer import write_bricks_to_file
 import time
 import os
-import pickle5 as pickle
+import pickle
 
 connect_type = [
     {ConnPointType.HOLE, ConnPointType.PIN},

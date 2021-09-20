@@ -11,7 +11,8 @@ We assume the following information is provided:
 
 if __name__ == "__main__":
     debugger = MyDebugger("brick_heads")
-    file_path = r"data/full_models/steped_talor.ldr"
+    # file_path = r"data/full_models/steped_talor.ldr"
+    file_path = r"/Users/walter/Documents/FYP/lego-solver/data/full_models/steped_talor.ldr"
 
     model = read_model_from_file(file_path, read_fake_bricks=True)
     write_model_to_file(model, debugger.file_path(f"complete_full.ldr"))
