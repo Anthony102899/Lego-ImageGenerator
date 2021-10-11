@@ -127,3 +127,38 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+# development tools
+.vs
+.vscode
+.env
+.idea
+__pycache__
+
+# exectuables
+build/
+
+# auto-generated files
+output
+data/auto
+*.o
+*.out
+*.drt
+*.log
+debug/
+
+
+model_params
+runs
+*.csv
+*.obj
+*.msh
+*.mesh
+*.npz
+*.ldr
+tests/**/*.npz
+tests/**/*.svg
+tests/**/*.json
+tests/**/*.png
+
+*.pickle
+.DS_Store
