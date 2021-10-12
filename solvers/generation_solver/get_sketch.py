@@ -86,20 +86,25 @@ if __name__ == "__main__":
         if not sd_max == 0:
             sd_normal = [round(i / sd_max, 3) if i > 0 else i for i in node_sd]
 
-        node_color = [i for i in node_color if len(i) == 3]
-        node_color = np.average(node_color, axis=0)  # ?? only one color at last
-        ldr_code = util.nearest_color(node_color, ldr_color)
+        node_color = [i for i in node_color]
+        ldr_code = [util.nearest_color(color, ldr_color) if color != [] else 15 for color in node_color]
+        print(ldr_code)
+        # node_color = np.average(node_color, axis=0)  # ?? only one color at last
+        # ldr_code = util.nearest_color(node_color, ldr_color)
 
         results = solver.solve(structure_graph=structure_graph,
                                node_sd=sd_normal,
                                node_area=area_normal,
                                node_weight=weight,
                                base_count=base_count)
-        print("solved!")
+        print(len(results))
         selected_bricks_layer = []
         for i in range(base_count, len(plate_set)):
             if results[i] == 1:
-                colored_brick = util.color_brick(plate_set[i], ldr_code, rgb=False)
+                if i < 2:
+                    colored_brick = util.color_brick(plate_set[i], 15, rgb=False)
+                else:
+                    colored_brick = util.color_brick(plate_set[i], ldr_code[i-2], rgb=False)
                 selected_bricks_layer.append(colored_brick)
         print("colored!")
 
