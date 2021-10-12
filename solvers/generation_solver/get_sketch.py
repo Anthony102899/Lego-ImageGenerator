@@ -27,7 +27,7 @@ def crop_ls(rgbs, sd):
 
 # return *node_sd* and *node_color*
 def ls_from_layout(img, plate_set, base_int):
-    with Pool(1) as p:
+    with Pool(4) as p:
         rgbs_ls = p.map(partial(util.get_cover_rgb, img=img, base_int=base_int), plate_set)
         node_sd = p.map(partial(crop_ls, sd=True), rgbs_ls)
         node_color = p.map(partial(crop_ls, sd=False), rgbs_ls)
@@ -103,7 +103,7 @@ if __name__ == "__main__":
                 if i < base_count:
                     colored_brick = util.color_brick(plate_set[i], 15, rgb=False)
                 else:
-                    colored_brick = util.color_brick(plate_set[i], ldr_code[i-base_count], rgb=False)
+                    colored_brick = util.color_brick(plate_set[i], ldr_code[i - base_count], rgb=False)
                 selected_bricks_layer.append(colored_brick)
         print("colored!")
 

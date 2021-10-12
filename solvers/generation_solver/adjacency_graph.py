@@ -40,7 +40,7 @@ class AdjacencyGraph:
 
     def build_graph_from_bricks(self):
         it = np.array(list(itertools.combinations(list(range(0, len(self.bricks))), 2)))
-        with Pool(4) as p:
+        with Pool(8) as p:
             a = p.map(self.build, it[:,0], it[:,1])
 
         for x in a:
@@ -105,5 +105,5 @@ if __name__ == "__main__":
     structure_graph = AdjacencyGraph(bricks)
     #print(structure_graph.connect_edges)
     t = round(time.time() - start_time, 2)
-    pickle.dump(structure_graph, open(os.path.join(os.path.dirname(__file__), f'connectivity/{filename} t={t}.pkl'), "wb"))
-    print(f"Saved at {filename}.pkl")
+    pickle.dump(structure_graph, open(os.path.join(os.path.dirname(__file__), f'connectivity/{filename}.pkl'), "wb"))
+    print(f"Saved at {filename}.pkl in t={t}")
