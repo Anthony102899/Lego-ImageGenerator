@@ -21,13 +21,13 @@ class ConnectivityGraph:
         self.build_graph_from_bricks()
 
     def _remove_redudant_bricks(self):
-        print("#tiles before filtring repeat:", len(self.bricks))
+        print("#tiles before filtering repeat:", len(self.bricks))
         unique_list = []
         for x in self.bricks:
             if x not in unique_list:
                 unique_list.append(x)
         self.bricks = unique_list
-        print("#tiles after filtring repeat:", len(self.bricks))
+        print("#tiles after filtering repeat:", len(self.bricks))
 
 
     def build_graph_from_bricks(self):

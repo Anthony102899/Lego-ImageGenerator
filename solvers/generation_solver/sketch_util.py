@@ -1,3 +1,6 @@
+"""
+  for change color, get area as well as count base number etc.
+"""
 import os
 import numpy as np
 import math
@@ -13,12 +16,18 @@ from util.debugger import MyDebugger
 
 # get a new brick with the input color
 def color_brick(brick, color, rgb=True):
+    """
+    scenario: change the color of a given brick
+    """
     if rgb:
         color = RGB_to_Hex(color)
     new_brick = BrickInstance(brick.template, brick.trans_matrix, color)
     return new_brick
 
 def count_base_number(plate_set):
+    """
+    count the number of bricks with color == 15 within the given plate_set
+    """
     base_count = 0
     for i in range(100):
         if plate_set[i].color == 15:
@@ -28,6 +37,9 @@ def count_base_number(plate_set):
     return base_count
 
 def get_area():
+    """
+    Get the area dict from the loaded database
+    """
     data = load_data()
     area = {}
     for brick in data:
@@ -37,6 +49,10 @@ def get_area():
 
 # return a list of rgb colors covered by brick *rgbs*
 def get_cover_rgb(brick, img, base_int):
+    #Todo: what is the cover rgb
+    """
+
+    """
     polygon = proj_bbox(brick)
     mini, minj, maxi, maxj = polygon.bounds
     rgbs = []
@@ -173,4 +189,10 @@ def translate_image(img, width_dis, height_dis):
 
 
 if __name__ == "__main__":
-    print(nearest_color("FF0008"))
+    # print(nearest_color("FF0008"))
+    area = get_area()
+    print(area)
+    weight = get_weight()
+    print(weight)
+    ldr_color = read_ldr_color()
+    print(ldr_color)

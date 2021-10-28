@@ -1,3 +1,4 @@
+
 import numpy as np
 import open3d as o3d
 import os
@@ -14,6 +15,13 @@ from bricks_modeling.file_IO.util import to_ldr_format
 from bricks_modeling import config
 import util.cuboid_collision as cuboid_col
 
+
+"""
+    This file is about bricks collision & connectivity & translation & rotation
+"""
+# Todo: what's the meaning of corner position and what's the meaning of argument four_point
+# resolved: corner position is a pair of opposite vertices of a bounding box
+# four_point means we need to use four corners to represent the bounding box
 # return a list of bbox corners
 def get_corner_pos(brick, four_point=False):
     bbox_ls = brick.get_col_bbox()

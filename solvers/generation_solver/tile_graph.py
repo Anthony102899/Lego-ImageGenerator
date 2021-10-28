@@ -1,16 +1,17 @@
-from bricks_modeling.bricks.brickinstance import BrickInstance
-from bricks_modeling.connections.connpointtype import ConnPointType, typeToBrick, isDoubleOriented
-from util.geometry_util import rot_matrix_from_vec_a_to_b, rot_matrix_from_two_basis
-import numpy as np
 import itertools as iter
-from scipy.spatial.transform import Rotation as R
-from numpy import linalg as LA
-from typing import List
-from util.debugger import MyDebugger
-from bricks_modeling.file_IO.model_writer import write_bricks_to_file
-import time
 import os
 import pickle
+from typing import List
+
+import numpy as np
+from numpy import linalg as LA
+from scipy.spatial.transform import Rotation as R
+
+from bricks_modeling.bricks.brickinstance import BrickInstance
+from bricks_modeling.connections.connpointtype import ConnPointType, isDoubleOriented
+from bricks_modeling.file_IO.model_writer import write_bricks_to_file
+from util.debugger import MyDebugger
+from util.geometry_util import rot_matrix_from_two_basis
 
 connect_type = [
     {ConnPointType.HOLE, ConnPointType.PIN},
@@ -133,13 +134,7 @@ def find_brick_placements(num_rings: int, base_tile, tile_set: list, sketch=Fals
                         result_tiles.append(elem)
                         last_ring.append(elem)
                         this_ring.append(elem)
-            if last_ring_idx % 30 == 0:
-                tiling = Tiling(result_tiles, last_ring, last_ring_num,
-                                debugger, tile_set, 
-                                num_rings, i, last_ring_idx,
-                                sketch, base_num)
-                pickle.dump(tiling, 
-                            open(os.path.join(os.path.dirname(__file__), f'super_graph/r={i}#{num_rings} {sketch}.pkl'), "wb"))
+
         write_bricks_to_file(result_tiles, 
             file_path=debugger.file_path(f"n={len(result_tiles)} r={i+1}.ldr"))
         snd_last_ring = tmp

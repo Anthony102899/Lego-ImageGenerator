@@ -1,21 +1,22 @@
-import numpy as np
-from util.debugger import MyDebugger
+import copy
 import itertools
 import json
+import os
 import pickle
 import time
-from bricks_modeling.file_IO.model_reader import read_bricks_from_file
+
+import numpy as np
 import open3d as o3d
-import copy
-from solvers.generation_solver.tile_graph import unique_brick_list
-from bricks_modeling.connections.conn_type import compute_conn_type
-from util.json_encoder import NumpyArrayEncoder
 from pathos.multiprocessing import ProcessingPool as Pool
-import os
+
+from bricks_modeling.file_IO.model_reader import read_bricks_from_file
+from solvers.generation_solver.tile_graph import unique_brick_list
+from util.json_encoder import NumpyArrayEncoder
 
 """
 To use a graph to describe a LEGO structure
 """
+
 
 class AdjacencyGraph:
     def __init__(self, bricks):
@@ -41,7 +42,7 @@ class AdjacencyGraph:
     def build_graph_from_bricks(self):
         it = np.array(list(itertools.combinations(list(range(0, len(self.bricks))), 2)))
         with Pool(20) as p:
-            a = p.map(self.build, it[:,0], it[:,1])
+            a = p.map(self.build, it[:, 0], it[:, 1])
 
         for x in a:
             if x[1] == 1:
@@ -96,14 +97,16 @@ class AdjacencyGraph:
         )
         o3d.visualization.draw_geometries([mesh_frame, line_set, spheres])
 
+
 if __name__ == "__main__":
-    path = ""
+    path = os.path.dirname(__file__) + "/['3024'] base=24 n=584 r=1.ldr"
     bricks = read_bricks_from_file(path)
     _, filename = os.path.split(path)
     filename = (filename.split("."))[0]
     start_time = time.time()
     structure_graph = AdjacencyGraph(bricks)
-    #print(structure_graph.connect_edges)
+    # print(structure_graph.connect_edges)
     t = round(time.time() - start_time, 2)
-    pickle.dump(structure_graph, open(os.path.join(os.path.dirname(__file__), f'connectivity/{filename} t={t}.pkl'), "wb"))
+    pickle.dump(structure_graph,
+                open(os.path.join(os.path.dirname(__file__), f'connectivity/{filename} t={t}.pkl'), "wb"))
     print(f"Saved at {filename} t={t}.pkl")
