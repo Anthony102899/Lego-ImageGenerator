@@ -40,7 +40,7 @@ class AdjacencyGraph:
 
     def build_graph_from_bricks(self):
         it = np.array(list(itertools.combinations(list(range(0, len(self.bricks))), 2)))
-        with Pool(8) as p:
+        with Pool(10) as p:
             a = p.map(self.build, it[:,0], it[:,1])
 
         for x in a:
@@ -97,7 +97,7 @@ class AdjacencyGraph:
         o3d.visualization.draw_geometries([mesh_frame, line_set, spheres])
 
 if __name__ == "__main__":
-    path = "./inputs/for sketch/['3024', '3020', '3023', '3710'] base=24.ldr"
+    path = "./inputs/for sketch/['3024', '3020', '3023', '3710', '27263'] base=24.ldr"
     bricks = read_bricks_from_file(path)
     _, filename = os.path.split(path)
     filename = (filename.split("."))[0]

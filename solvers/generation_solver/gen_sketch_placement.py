@@ -15,7 +15,9 @@ brick_IDs = [# tile
              "3024",
              "3020",
              "3023",
-             "3710"
+             "3710",
+             "43722",
+             "43723"
              # other
             ]
 
@@ -50,5 +52,5 @@ if __name__ == "__main__":
     num_rings = int(input("Enter ring: "))
     bricks = generate_new_plate(brick_set, base=base, num_rings=num_rings, base_num=base_num)
     write_bricks_to_file(
-        bricks, file_path=debugger.file_path(f"{brick_IDs} base={base_name}s.ldr"))
+        bricks, file_path=debugger.file_path(f"{brick_IDs} base={base_name}.ldr"))
     print("done!")
