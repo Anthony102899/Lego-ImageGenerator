@@ -1,0 +1,17 @@
+[
+  {"id": "4274","connPoint": [{"pos": [-10,0,0],"orient": [1,0,0],"type": "pin"}]},
+  {"id": "3673","connPoint": [{"pos": [10,0,0],"orient": [-1,0,0],"type": "pin"},
+                              {"pos": [-10,0,0],"orient": [1,0,0],"type": "pin"}]},
+  {"id": "2780","connPoint": [{"pos": [-10,0,0],"orient": [1,0,0],"type": "pin"},
+                              {"pos": [10,0,0],"orient": [-1,0,0],"type": "pin"}]},
+  {"id": "3749","connPoint": [{"pos": [-10,0,0],"orient": [1,0,0],"type": "pin"},
+                              {"pos": [10,0,0],"orient": [1,0,0],"type": "axle"}]},
+  {"id": "43093","connPoint": [{"pos": [-10,0,0],"orient": [1,0,0],"type": "pin"},
+                              {"pos": [10,0,0],"orient": [1,0,0],"type": "axle"}]},
+  {"id": "32556","connPoint": [{"pos": [-20,0,0],"orient": [1,0,0],"type": "pin"},
+                              {"pos": [0,0,0],"orient": [-1,0,0],"type": "pin"},
+                              {"pos": [20,0,0],"orient": [-1,0,0],"type": "pin"}]},
+  {"id": "11214","connPoint": [{"pos": [20,0,0],"orient": [1,0,0],"type": "axle"},
+                              {"pos": [0,0,0],"orient": [1,0,0],"type": "pin"},
+                              {"pos": [-20,0,0],"orient": [1,0,0],"type": "pin"}]}
+]

@@ -1,0 +1,37 @@
+# development tools
+.vs
+.vscode
+.env
+.idea
+__pycache__
+
+# exectuables
+build/
+
+# auto-generated files
+output
+data/auto
+*.o
+*.out
+*.drt
+*.log
+debug/
+
+
+model_params
+runs
+*.csv
+*.obj
+*.msh
+*.mesh
+*.npz
+tests/**/*.npz
+tests/**/*.svg
+tests/**/*.json
+tests/**/*.png
+
+*.stl
+*.obj
+*.dat
+*.pickle
+.DS_Store

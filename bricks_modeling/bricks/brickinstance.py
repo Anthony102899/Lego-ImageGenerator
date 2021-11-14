@@ -184,7 +184,7 @@ class BrickInstance:
         else:
             print("warning, no such color in ldview, print red")
             mesh.paint_uniform_color([1, 0, 0])
-        mesh.scale(2.5, center=(0, 0, 0))
+        mesh.scale(25, center=(0, 0, 0))
         mesh.rotate(self.get_rotation().tolist(), [0, 0, 0])
         mesh.translate([i for i in self.get_translation().tolist()])
         return mesh

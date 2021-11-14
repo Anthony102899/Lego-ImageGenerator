@@ -6,6 +6,7 @@ import numpy as np
 import math
 import json
 import sys
+import copy
 from shapely.geometry import Polygon, Point
 import cv2
 from bricks_modeling.bricks.brickinstance import BrickInstance, get_corner_pos
@@ -110,7 +111,8 @@ def move_brickset(brickset, rgb_color, x, z, ldr_color):
     return new_set
 
 def move_layer(brickset, layer_num):
-    new_set = brickset.copy()
+    # new_set = brickset.copy()
+    new_set = copy.deepcopy(brickset)
     goal = 8 * layer_num
     for brick in new_set:
         current_y = (brick.get_translation())[1]

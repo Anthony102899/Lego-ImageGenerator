@@ -99,7 +99,7 @@ class AdjacencyGraph:
 
 
 if __name__ == "__main__":
-    path = os.path.dirname(__file__) + "/['3024'] base=24 n=584 r=1.ldr"
+    path = os.path.dirname(__file__) + "/['3024', '3020', '3023', '3710', '43722', '43723'] base=24.ldr"
     bricks = read_bricks_from_file(path)
     _, filename = os.path.split(path)
     filename = (filename.split("."))[0]
