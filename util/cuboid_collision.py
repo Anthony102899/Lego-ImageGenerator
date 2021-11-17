@@ -1,5 +1,4 @@
 import numpy as np
-import math
 from numpy.linalg import norm
 
 def check_ineq(T, L, cub_vec, ref_vec):
@@ -18,6 +17,7 @@ def get_edge_axis(projection_axis, cub_corners_pos):
 def cub_collision_detect(cuboid_ref, cuboid):
     center_distance = norm(np.array(cuboid_ref["Origin"]) - np.array(cuboid["Origin"]))
     if center_distance > norm(np.array(cuboid_ref["Dimension"])/2) + norm(np.array(cuboid["Dimension"])/2):
+        # Whatever you rotate two objects, they will never collide
         return False
 
     corner_transform = np.array([[1, 1, 1], [-1, 1, 1], [1, -1, 1], [1, 1, -1]])
@@ -38,9 +38,11 @@ def cub_collision_detect(cuboid_ref, cuboid):
     projection_axis, A_local_axis = get_edge_axis(projection_axis, cub_corners_pos)
     projection_axis, B_local_axis = get_edge_axis(projection_axis, ref_corners_pos)
 
+    # scalar multiplication
     cub_vec = A_local_axis * np.array([cuboid_dis]).transpose()
     ref_vec = B_local_axis * np.array([ref_dis]).transpose()
 
+    # Any one of dimensions being distinguishable is just OK
     for axis in projection_axis:
         if check_ineq(center_AB_vec, axis, cub_vec, ref_vec):
             return False
@@ -57,7 +59,7 @@ def cub_collision_detect(cuboid_ref, cuboid):
     return True
 
 def main():
-    cuboid_1 = {"Origin": [0.9999999, 0, 0], "Rotation": [[ 1, 0,0],[ 0, 1,0],[ 0, 0,1]], "Dimension": [1, 1, 1]}
+    cuboid_1 = {"Origin": [0.9999999, 0, 0], "Rotation": [[ float(2/5), float(3/5),0],[ float(-3/5), float(2/5),0],[ 0, 0,1]], "Dimension": [1, 1, 1]}
     cuboid_2 = {"Origin": [0, 0, 0], "Rotation": [[ 1, 0,0],[ 0, 1,0],[ 0, 0,1]], "Dimension": [1, 1, 1]}
     print(cub_collision_detect(cuboid_1,cuboid_2))
 

@@ -20,7 +20,8 @@ from scipy import stats
 def crop_ls(rgbs, sd):
     if len(rgbs) == 0:
         if sd:
-            return -0.01
+            # return -0.01
+            return -1;
         return []
     length_rgbs = float(len(rgbs))
     mode, frequency = stats.mode(rgbs)
@@ -32,7 +33,8 @@ def crop_ls(rgbs, sd):
         return float(round(np.prod(sd_rgbs), 4) + 0.0001)"""
         frequency_diff = np.subtract(frequency, length_rgbs)
         frequency_diff_rate = np.divide(frequency_diff, length_rgbs)
-        return float(np.sum(np.square(frequency_diff_rate)) + 0.0001)
+        # return float(np.sum(np.square(frequency_diff_rate)) + 0.0001)
+        return float(np.sum(np.square(frequency_diff_rate)))
     return mode
     # return np.average(rgbs, axis = 0)
 
@@ -119,8 +121,8 @@ if __name__ == "__main__":
         img = cv2.resize(img, (base_int * 20 + 1, base_int * 20 + 1))
 
         node_sd, node_color = ls_from_layout(img, sketch_bricks, base_int)
-        node_sd = [0.0001 for i in range(base_count)] + node_sd
-        node_sd = [1 / i for i in node_sd]
+        node_sd = [0.1 for i in range(base_count)] + node_sd
+        node_sd = [i for i in node_sd]
         sd_max = np.amax(np.array(node_sd))
         if not sd_max == 0:
             sd_normal = [round(i / sd_max, 3)  if i > 0 else i for i in node_sd]

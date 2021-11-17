@@ -12,11 +12,11 @@ from util.debugger import MyDebugger
 
 brick_IDs = [# tile
              # plate 
-             "3024",
-             "3020",
-             "3023",
-             "3710",
-             "43722",
+             # "3024",
+             # "3020",
+             # "3023",
+             # "3710",
+             # "43722",
              "43723"
              # other
             ]
@@ -43,7 +43,7 @@ def generate_new_plate(brick_set, base, num_rings, base_num):
 if __name__ == "__main__":
     debugger = MyDebugger("gen")
     brick_set = get_brick_templates(brick_IDs)
-    base_path = os.path.join(os.path.dirname(__file__), "base 24.ldr")
+    base_path = os.path.join(os.path.dirname(__file__), "base 12.ldr")
     base = read_bricks_from_file(base_path)
     _, base_name = os.path.split(base_path)
     base_name = ((base_name.split(" "))[1]).split(".")[0]

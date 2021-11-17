@@ -43,6 +43,7 @@ class MinizincSolver(BaseSolver):
         instance["node_sd"]             = node_sd
         instance["node_area"]           = node_area
         instance["node_weight"]         = node_weight
+        instance["square_root_weight"]  = np.square(node_weight).tolist()
 
         result = instance.solve()
         if result.status.has_solution():

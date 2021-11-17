@@ -41,7 +41,7 @@ class AdjacencyGraph:
 
     def build_graph_from_bricks(self):
         it = np.array(list(itertools.combinations(list(range(0, len(self.bricks))), 2)))
-        with Pool(20) as p:
+        with Pool() as p:
             a = p.map(self.build, it[:, 0], it[:, 1])
 
         for x in a:
@@ -99,7 +99,7 @@ class AdjacencyGraph:
 
 
 if __name__ == "__main__":
-    path = os.path.dirname(__file__) + "/['3024', '3020', '3023', '3710', '43722', '43723'] base=24.ldr"
+    path = os.path.dirname(__file__) + "/['43723'] base=12 n=290 r=1.ldr"
     bricks = read_bricks_from_file(path)
     _, filename = os.path.split(path)
     filename = (filename.split("."))[0]
