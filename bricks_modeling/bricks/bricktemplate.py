@@ -10,6 +10,10 @@ class BrickTemplate:
     def __init__(self, c_points: CPoint, ldraw_id: str):
         self.c_points = c_points
         self.id = ldraw_id
+        # self.vertices2D = self.get_vertices_2d()
+        # self.edges2D = self.get_edges_2d()
+
+    def use_vertices_edges2D(self):
         self.vertices2D = self.get_vertices_2d()
         self.edges2D = self.get_edges_2d()
 

@@ -1,6 +1,10 @@
-import numpy as np
 from bricks_modeling.bricks.bricktemplate import BrickTemplate
-from shapely.geometry import Polygon
+from bricks_modeling.bricks.brickinstance import get_corner_pos
+from bricks_modeling.file_IO.model_reader import read_bricks_from_file
+from bricks_modeling.connectivity_graph import ConnectivityGraph
+from visualization.model_visualizer import visualize_3D
+import numpy as np
+
 
 """EDGE_TEMPLATE = np.array([
     [[0, 1, -1.2], [0.8, 1, -1.2]],
@@ -9,14 +13,17 @@ from shapely.geometry import Polygon
     [[0, 1, 1.2], [-0.8, 1, 1.2]],
     [[-0.8, 1, 1.2], [0, 1, -1.2]]
 ])"""
-EDGE_TEMPLATE = np.array(BrickTemplate([], ldraw_id="43723").edges2D)
+template = BrickTemplate([], ldraw_id="43723")
+template.use_vertices_edges2D()
+EDGE_TEMPLATE = np.array(template.edges2D)
 
 TRANSFORM_MATRIX_1 = np.identity(4)
 
+# This matrix has been proven correct
 TRANSFORM_MATRIX_2 = np.array([
-    [-1, 0, 0, 0.8],
+    [0.9487, 0, 0.3162, 1.17952],
     [0, 1, 0, 0],
-    [0, 0, -1, 2.4],
+    [-0.3162, 0, 0.9487, -0.1914],
     [0, 0, 0, 1]
 ])
 
@@ -114,8 +121,29 @@ def compute_edge_touch_length(edges_1, edges_2):
             if abs(BC_B) > 1:
                 return 0
 
+
+def exam():
+    bricks = read_bricks_from_file("./['43723'] base=12 n=290 r=1.ldr")
+    structure_graph = ConnectivityGraph(bricks)
+    # graph = AdjacencyGraph(bricks)
+    for brick in bricks:
+        brick.template.use_vertices_edges2D()
+        print(brick.template.edges2D)
+
+    mesh_size = 25
+    polygon_1 = PolygonInstance(bricks[0].trans_matrix, np.multiply(bricks[0].template.edges2D, mesh_size))
+    polygon_2 = PolygonInstance(bricks[1].trans_matrix, np.multiply(bricks[1].template.edges2D, mesh_size))
+    print(compute_polygon_touch_length(polygon_1, polygon_2))
+
+    points = [b.get_translation() for b in structure_graph.bricks]
+
+    edges = [e["node_indices"] for e in structure_graph.connect_edges]
+    visualize_3D(points, lego_bricks=bricks, edges=edges, show_axis=True)
+
+
 if __name__ == "__main__":
-    polygon_1 = PolygonInstance(TRANSFORM_MATRIX_1, EDGE_TEMPLATE)
+    """polygon_1 = PolygonInstance(TRANSFORM_MATRIX_1, EDGE_TEMPLATE)
     polygon_2 = PolygonInstance(TRANSFORM_MATRIX_2, EDGE_TEMPLATE)
     print(compute_polygon_touch_length(polygon_1, polygon_2))
-    pass
+    pass"""
+    exam()
