@@ -1,13 +1,15 @@
 import numpy as np
+from bricks_modeling.bricks.bricktemplate import BrickTemplate
 from shapely.geometry import Polygon
 
-EDGE_TEMPLATE = np.array([
+"""EDGE_TEMPLATE = np.array([
     [[0, 1, -1.2], [0.8, 1, -1.2]],
     [[0.8, 1, -1.2], [0.8, 1, 1.2]],
     [[0.8, 1, 1.2], [0, 1, 1.2]],
     [[0, 1, 1.2], [-0.8, 1, 1.2]],
     [[-0.8, 1, 1.2], [0, 1, -1.2]]
-])
+])"""
+EDGE_TEMPLATE = np.array(BrickTemplate([], ldraw_id="43723").edges2D)
 
 TRANSFORM_MATRIX_1 = np.identity(4)
 
