@@ -1,0 +1,210 @@
+Studio Color Code	BL Color Code	LDraw Color Code	LDD color code	Studio Color Name	BL Color Name	LDraw Color Name	LDD Color Name	RGB value	Alpha	CategoryName	Color Group Index		Ins_RGB	Ins_CMYK
+11	11	0	26	Black	Black	Black	Black	#040000	1	Solid Colors	-1	o		86,36,0,89
+11		0	1012	Black		Black	CONDUCT.Black	#04121C	1	Solid Colors	-1	from_lego		
+7	7	1	23	Blue	Blue	Blue	Bright Blue	#0054BE	1	Solid Colors	17	o		100,56,0,25
+6	6	2	28	Green	Green	Green	Dark green	#24793D	1	Solid Colors	12	o		70,0,50,53
+6		2	186	Green		Green	Metallic Dark Green	#24793D	1	Solid Colors	12	from_lego		
+6		2	210	Green		Green	Faded Green	#24793D	1	Solid Colors	12	from_lego		
+39	39	3	107	Dark Turquoise	Dark Turquoise	Dark_Turquoise	Bright bluish green	#00828E	1	Solid Colors	15	o		100,8,0,44
+5	5	4	21	Red	Red	Red	Bright red	#C81908	1	Solid Colors	1	o		0,88,96,22
+47	47	5	221	Dark Pink	Dark Pink	Dark_Pink	Bright Purple	#C76F9F	1	Solid Colors	0	o		0,44,20,22
+8	8	6	25	Brown	Brown	Brown	Earth Orange	#573826	1	Solid Colors	4	o		0,36,56,66
+8		6	108	Brown		Brown	Earth Yellow	#573826	1	Solid Colors	4	from_lego		0,36,56,66
+9	9	7	2	Light Gray	Light Gray	Light_Gray	Grey	#9AA09C	1	Solid Colors	-1	o		4,0,2,37
+10	10	8	27	Dark Gray	Dark Gray	Dark_Gray	Dark grey	#6C6D5B	1	Solid Colors	-1	o		1,0,17,57
+62	62	9	45	Light Blue	Light Blue	Light_Blue	Light blue	#B3D1E2	1	Solid Colors	16	o		21,8,0,11
+36	36	10	37	Bright Green	Bright Green	Bright_Green	Bright Green	#4A9E49	1	Solid Colors	12	o		53,0,54,38
+40	40	11	116	Light Turquoise	Light Turquoise	Light_Turquoise	Med. bluish green	#54A4AE	1	Solid Colors	15	o		52,6,0,32
+40		11	211	Light Turquoise	Light Turquoise	Light_Turquoise	Dark_Turquoise	#54A4AE	1	Solid Colors	15	from_lego		52,6,0,32
+25	25	12	101	Salmon	Salmon	Salmon	Medium Red	#F16F5D	1	Solid Colors	2	o		0,54,61,5
+23	23	13	9	Pink	Pink	Pink	Light Reddish Violate	#FB96AB	1	Solid Colors	0	o		0,40,32,2
+23		13	17	Pink	Pink	Pink	Rose	#FB96AB	1	Solid Colors	0	from_lego		
+23		13	1007	Pink	Pink	Pink	L.REDVIOL	#FB96AB	1	Solid Colors	0	from_lego		
+3	3	14	24	Yellow	Yellow	Yellow	Bright yellow	#F1CC36	1	Solid Colors	8	o		0,15,78,5
+1	1	15	1	White	White	White	White	#FEFEFE	1	Solid Colors	-1	o	#F6F6F6	0,0,0,0
+-1	-1	16		CurrentColor	None	CurrentColor		#000000	1	Solid Colors	-1	to_bl		100,100,100,100
+38	38	17	6	Light Green	Light Green	Light_Green	Light green	#C1D9B7	1	Solid Colors	11	o		11,0,16,15
+33	33	18	3	Light Yellow	Light Yellow	Light_Yellow	Light yellow	#FAE595	1	Solid Colors	8	o		0,8,40,2
+2	2	19	5	Tan	Tan	Tan	Brick yellow	#E3CC9D	1	Solid Colors	6	o		0,10,31,11
+44	44	20	39	Light Violet	Light Violet	Light_Violet	Light bluish violet	#C8C9E1	1	Solid Colors	18	o		11,11,0,12
+46	46	21	294	Glow in Dark Opaque	Glow in Dark Opaque	Glow_In_Dark_Opaque	Phosphorescent Green	#DFFEAF	0.9803922	Milky Colors	10	o		12,0,31,0
+24	24	22	104	Purple	Purple	Purple	Bright violet	#80007A	1	Solid Colors	20	o		0,100,5,50
+109	109	23	196	Dark Blue-Violet	Dark Blue-Violet	Dark_Blue_Violet	Dark Royal blue	#1F31AF	1	Solid Colors	18	o		82,72,0,31
+-2	-1	24		EdgeColor	None	EdgeColor		#000000	1	Solid Colors	-1	to_bl		100,100,100,100
+4	4	25	106	Orange	Orange	Orange	Bright orange	#FD8917	1	Solid Colors	5	o		0,46,91,1
+71	71	26	124	Magenta	Magenta	Magenta	Bright reddish violet	#913877	1	Solid Colors	21	o		0,61,18,43
+34	34	27	119	Lime	Lime	Lime	Br. yellowish green	#BAE80A	1	Solid Colors	9	o		20,0,96,9
+69	69	28	138	Dark Tan	Dark Tan	Dark_Tan	Sand yellow	#948972	1	Solid Colors	6	o		0,7,23,42
+104	104	29	222	Bright Pink	Bright Pink	Bright_Pink	Light Purple	#E3ACC7	1	Solid Colors	0	o		0,24,12,11
+157	157	30	324	Medium Lavender	Medium Lavender	Medium_Lavender	Medium Lavender	#AB77B9	1	Solid Colors	20	o		8,36,0,27
+154	154	31	325	Lavender	Lavender	Lavender	Lavender	#E0D4EC	1	Solid Colors	20	o		5,10,0,7
+11	11	32	109	Black	Black	Trans_Black_IR_Lens	(PC) Black IR	#04121C	1	Solid Colors	-1	ignore,to_bl		
+14	14	33	43	Trans-Dark Blue	Trans-Dark Blue	Trans_Dark_Blue	Tr. Blue	#001F9F	0.5019608	Transparent Colors	17	o		100,81,0,38
+20	20	34	48	Trans-Green	Trans-Green	Trans_Green	Tr. Green	#227740	0.5019608	Transparent Colors	12	o		71,0,46,53
+108		35	227	Trans-Bright Green	Trans-Bright Green	Trans_Bright_Green	Transparent Bright Yellowish Green	#55E545	0.5019608	Transparent Colors	12	from_lego		
+108	108	35	311	Trans-Bright Green	Trans-Bright Green	Trans_Bright_Green	Transparent Bright Green	#55E545	0.5019608	Transparent Colors	12	o		63,0,70,10
+17	17	36	41	Trans-Red	Trans-Red	Trans_Red	Tr. Red	#C81908	0.5019608	Transparent Colors	1	o		0,88,96,22
+50	50	37	113	Trans-Dark Pink	Trans-Dark Pink	Trans_Dark_Pink	Tr. Medi. reddish violet	#DE6594	0.5019608	Transparent Colors	0	o		0,55,33,13
+18	18	38	47	Trans-Neon Orange	Trans-Neon Orange	Trans_Neon_Orange	TR. Flu. Reddish orange	#FE7F0C	0.5019608	Transparent Colors	5	o		0,50,95,0
+113	113	39	143	Trans-Very Lt Blue	Trans-Very Lt Blue	Trans_Very_Light_Blue	Transparent Fluorescent Blue	#C0DEEF	0.5019608	Transparent Colors	16	to_lego		20,7,0,6
+13	13	40	111	Trans-Black	Trans-Black	Trans_Black	Tr. Brown	#625E51	0.5019608	Transparent Colors	-1	o		0,4,17,62
+74	74	41	143	Trans-Medium Blue	Trans-Medium Blue	Trans_Medium_Blue	Tr. Flu. Blue	#5499B6	0.5019608	Transparent Colors	16	o		54,16,0,29
+74		41	228	Trans-Medium Blue	Trans-Medium Blue	Trans_Medium_Blue	Tr. Flu. Blue	#5499B6	0.5019608	Transparent Colors	16	from_lego		54,16,0,29
+16	16	42	49	Trans-Neon Green	Trans-Neon Green	Trans_Neon_Green	Trans_Medium_Blue	#BFFE00	0.5019608	Transparent Colors	9	o		25,0,100,0
+15	15	43	42	Trans-Light Blue	Trans-Light Blue	Trans_Light_Blue	Tr. Lg blue	#ADE8EE	0.5019608	Transparent Colors	16	o		27,3,0,7
+114		44	236	Trans-Light Purple	Trans-Light Purple	Trans_Light_Purple	Transparent Bright Reddish Lilac	#956F9E	0.5019608	Transparent Colors	21	from_lego		6,30,0,38
+114	114	44	284	Trans-Light Purple	Trans-Light Purple	Trans_Light_Purple	TR. RED-LILAC	#956F9E	0.5019608	Transparent Colors	21	o		6,30,0,38
+107		45	158	Trans-Pink	Trans-Pink	Trans_Pink	Transparent Fluorescent Red	#FB96AB	0.5019608	Transparent Colors	0	from_lego		
+107	107	45	230	Trans-Pink	Trans-Pink	Trans_Pink	Transparent Bright Purple	#FB96AB	0.5019608	Transparent Colors	0	o		0,40,32,2
+19	19	46	44	Trans-Yellow	Trans-Yellow	Trans_Yellow	Tr. Yellow	#F4CC2E	0.5019608	Transparent Colors	8	o		0,16,81,4
+12	12	47	40	Trans-Clear	Trans-Clear	Trans_Clear	Transparent	#FBFBFB	0.5019608	Transparent Colors	-1	o	#EBEBEB	0,0,0,2
+51	51	52	126	Trans-Purple	Trans-Purple	Trans_Purple	Tr. Bright bluish violet	#A4A4CA	0.5019608	Transparent Colors	20	o		19,19,0,21
+121	121	54	157	Trans-Neon Yellow	Trans-Neon Yellow	Trans_Neon_Yellow	Transparent Fluorescent Yellow	#D9AF00	0.5019608	Transparent Colors	7	o		0,19,100,15
+98	98	57	182	Trans-Orange	Trans-Orange	Trans_Orange	Tr. Bright Orange	#EF8E1B	0.5019608	Transparent Colors	5	o		
+57	57	60	187	Chrome Antique Brass	Chrome Antique Brass	Chrome_Antique_Brass	Sand Yellow Metallic	#63594B	1	Chrome Colors	6	o		0,10,24,61
+52	52	61	185	Chrome Blue	Chrome Blue	Chrome_Blue	Metallic Bright Blue	#6B95BE	1	Chrome Colors	15	o		44,22,0,25
+64	64	62	233	Chrome Green	Chrome Green	Chrome_Green	Light Faded Green	#3BB270	1	Chrome Colors	12	o		67,0,37,30
+82	82	63	218	Chrome Pink	Chrome Pink	Chrome_Pink	Reddish Lilac	#A94C8D	1	Chrome Colors	0	to_lego		0,55,17,34
+122	122	64	26	Chrome Black	Chrome Black	Chrome_Black	Black	#1A2933	1	Chrome Colors	-1	to_lego		49,20,0,80
+1001	3	65	24	Rubber Yellow	Yellow	Rubber_Yellow	Bright Yellow	#F4CC2E	1	Rubber Colors	8	to_lego,to_bl		0,16,81,4
+1001		65	190	Rubber Yellow	Yellow	Rubber_Yellow	Fire Yellow	#F4CC2E	1	Rubber Colors	8	from_lego		0,16,81,4
+1009	19	66	44	Rubber Trans-Yellow	Trans-Yellow	Rubber_Trans_Yellow	Transparent Yellow	#C9AF00	0.5019608	Rubber Colors	8	to_lego,to_bl		0,13,100,21
+1008	12	67	40	Rubber Trans-Clear	Trans-Clear	Rubber_Trans_Clear	Transparent	#FEFEFE	0.5019608	Rubber Colors	-1	to_lego,to_bl		0,0,0,0
+96	96	68	36	Very Light Orange	Very Light Orange	Very_Light_Orange	Light Yellowish Orange	#F2CE9A	1	Solid Colors	5	o		0,15,36,5
+96		68	224	Very Light Orange		Very_Light_Orange	Light Brick Yellow	#F2CE9A	1	Solid Colors	5	from_lego		0,15,36,5
+93	93	69	198	Light Purple	Light Purple	Light_Purple	Bright Reddish Lilac	#CC6197	1	Solid Colors	0	o		0,52,26,20
+88	88	70	192	Reddish Brown	Reddish Brown	Reddish_Brown	Reddish Brown	#572911	1	Solid Colors	3	o		0,53,80,66
+86	86	71	194	Light Bluish Gray	Light Bluish Gray	Light_Bluish_Gray	Medium stone grey	#9FA4A8	1	Solid Colors	-1	o		5,2,0,34
+85	85	72	199	Dark Bluish Gray	Dark Bluish Gray	Dark_Bluish_Gray	Dark stone grey	#6B6D67	1	Solid Colors	-1	o		2,0,6,57
+42	42	73	102	Medium Blue	Medium Blue	Medium_Blue	Medium blue	#5B9CD0	1	Solid Colors	16	o		56,25,0,18
+37		74	14	Medium Green	Medium Green	Medium_Green	Pastel Green	#72DBA0	1	Solid Colors	12	from_lego		48,0,27,14
+37	37	74	29	Medium Green	Medium Green	Medium_Green	Medium green	#72DBA0	1	Solid Colors	12	o		48,0,27,14
+116	116	75	316	Speckle Black-Copper	Speckle Black-Copper	Speckle_Black_Copper	Titanium Metallic	#000000	1	Speckle Colors	-1	to_lego		100,100,100,100
+117	117	76	304	Speckle DBGray-Silver	Speckle DBGray-Silver	Speckle_Dark_Bluish_Gray_Silver	Cool Silver, Diffuse	#625E60	1	Speckle Colors	-1	o		0,4,2,62
+56	56	77	223	Light Pink	Light Pink	Light_Pink	Light Pink	#FDCBCE	1	Solid Colors	2	o		0,20,19,1
+90	90	78	283	Light Nougat	Light Nougat	Light_Flesh	Light Nougat	#F5D6B2	1	Solid Colors	6	o		0,13,27,4
+60	60	79	20	Milky White	Milky White	Milky_White	Nature	#FEFEFE	0.8784314	Milky Colors	-1	o		0,0,0,0
+67	67	80	298	Metallic Silver	Metallic Silver	Metallic_Silver	Cool silver, Drum Lacquered	#A4A8B3	1	Metallic Colors	-1	o		
+67		80	336	Metallic Silver		Metallic_Silver	SILVER INK	#A4A8B3	1	Metallic Colors	-1	from_lego		8,6,0,30
+67		80	1002	Metallic Silver		Metallic_Silver	C.SILVER DR. L	#A4A8B3	1	Metallic Colors	-1	from_lego		
+67		80	1015	Metallic Silver		Metallic_Silver	C.SILVER	#A4A8B3	1	Metallic Colors	-1	from_lego		
+70	70	81	200	Metallic Green	Metallic Green	Metallic_Green	Lemon Metallic	#889A5E	1	Metallic Colors	11	o		12,0,39,40
+65	65	82	310	Metallic Gold	Metallic Gold	Metallic_Gold	Metalized Gold	#DAAB33	1	Metallic Colors	8	to_lego		0,22,77,15
+65		82	335	Metallic Gold	Metallic Gold	Metallic_Gold	GOLD INK	#DAAB33	1	Metallic Colors	8	from_lego		0,22,77,15
+65		82	1004	Metallic Gold	Metallic Gold	Metallic_Gold	W.GOLD DR.LA.	#DAAB33	1	Metallic Colors	8	from_lego		
+1006	11	83	149	Metallic Black	Black	Metallic_Black	Metallic Black	#192730	1	Metallic Colors	-1	to_bl		48,19,0,81
+1006		83	316	Metallic Black	Black	Metallic_Black	Titanium Metallic	#192730	1	Metallic Colors	-1	from_lego		48,19,0,81
+150		84	209	Medium Nougat	Medium Nougat	Medium_Dark_Flesh	DARK Curry	#CB6F29	1	Solid Colors	5	from_lego		0,45,80,20
+150	150	84	312	Medium Nougat	Medium Nougat	Medium_Dark_Flesh	Medium Nougat	#CB6F29	1	Solid Colors	5	o		0,45,80,20
+89	89	85	268	Dark Purple	Dark Purple	Dark_Purple	Medium Lilac	#3E3590	1	Solid Colors	19	o		57,63,0,44
+89		85	197	Dark Purple		Dark_Purple	Bright Lilac	#3E3590	1	Solid Colors	19	from_lego		57,63,0,44
+91	91	86	217	Medium Brown	Medium Brown	Dark_Flesh	Brown	#7B4F39	1	Solid Colors	4	o		0,36,54,52
+91		86	86	Medium Brown		Dark_Flesh	Brown	#7B4F39	1	Solid Colors	4	from_lego		
+91		86	176	Medium Brown		Dark_Flesh	Flip/Flop Red	#7B4F39	1	Solid Colors	4	from_lego		
+77	77	87	337	Metallic Dark Grey		Metallic_Dark_Gray	Titanium	#6C6D5B	1	Pearl Colors	-1	ignore,to_bl		
+97	97	89	195	Blue-Violet	Blue-Violet	Blue_Violet	R. BLUE	#4B60DA	1	Solid Colors	18	o		66,56,0,15
+28	28	92	18	Nougat	Nougat	Flesh	Nougat	#CF9067	1	Solid Colors	4	o		0,30,50,19
+28		92	225	Nougat	Nougat	Flesh	Warm Yellowish Orange	#CF9067	1	Solid Colors	4	from_lego		0,30,50,19
+26	26	100	100	Light Salmon	Light Salmon	Light_Salmon	Light red	#FDB9BC	1	Solid Colors	2	o		0,27,26,1
+43	43	110	110	Violet	Violet	Violet	Bright Bluish Violet	#4253A2	1	Solid Colors	18	o		59,49,0,36
+43		110	1009	Violet		Violet	LILAC	#4253A2	1	Solid Colors	18	from_lego		
+73	73	112	112	Medium Violet	Medium Violet	Medium_Violet	Medium Bluish Violet	#6773C9	1	Solid Colors	18	o		49,43,0,21
+73		112	213	Medium Violet		Medium_Violet	Medium Royal Blue	#6773C9	1	Solid Colors	18	from_lego		
+100	100	114	114	Glitter Trans-Dark Pink	Glitter Trans-Dark Pink	Glitter_Trans_Dark_Pink	Tr. Medium Reddish-Violet w. Glitter 2%	#DF6695	0.5019608	Glitter Colors	0	o		0,54,33,13
+76	76	115	115	Medium Lime	Medium Lime	Medium_Lime	Med. yellowish green	#C6D13B	1	Solid Colors	9	o		5,0,72,18
+76		115	134	Medium Lime	Medium Lime	Medium_Lime	Neon Green	#C6D13B	1	Solid Colors	9	from_lego		5,0,72,18
+101	101	117	117	Glitter Trans-Clear	Glitter Trans-Clear	Glitter_Trans_Clear	Transparent Glitter	#FEFEFE	0.5019608	Glitter Colors	-1	o		0,0,0,0
+41	41	118	118	Aqua	Aqua	Aqua	Light bluish green	#B2D6D0	1	Solid Colors	13	o		17,0,3,16
+35	35	120	120	Light Lime	Light Lime	Light_Lime	Lig. yellowish green	#e2db5f	1	Solid Colors	10	o		0,3,58,11
+32	32	125	125	Light Orange	Light Orange	Light_Orange	Light Orange	#F8B960	1	Solid Colors	5	o		0,25,61,3
+168	225	128	128	Dark Nougat	Dark Nougat	Dark_Nougat	Dark_Nougat	#A95500	1	Solid Colors	7	o		
+68		128	178	Dark Orange	Dark Orange	Dark_Nougat	Yellow Flip/Flop	#A95500	1	Solid Colors	7	from_lego		
+102	102	129	129	Glitter Trans-Purple	Glitter Trans-Purple	Glitter_Trans_Purple	Tr. Bright Bluish Violet w. Glitter 2%	#630060	0.5019608	Glitter Colors	20	o		0,100,3,61
+111	111	132	316	Speckle Black-Silver	Speckle Black-Silver	Speckle_Black_Silver	Titanium Metallic	#000000	1	Speckle Colors	-1	to_lego		100,100,100,100
+151	151	133	316	Speckle Black-Gold	Speckle Black-Gold	Speckle_Black_Gold	Titanium Metallic	#000000	1	Speckle Colors	-1	to_lego		100,100,100,100
+84		134	1016	COOPER INK		Copper	Copper	#954926	1	Pearl Colors	4	from_lego		
+84	84	134	139	Copper	Copper	Copper	Copper	#954926	1	Pearl Colors	4	o		0,51,74,42
+66	66	135	179	Pearl Light Gray	Pearl Light Gray	Pearl_Light_Gray	Silver flip/flop	#9BA2A7	1	Pearl Colors	-1	o		7,3,0,35
+78		137	137	Metal Blue	Metal Blue	Metal_Blue	Metal Blue	#5576B9	1	Pearl Colors	16	from_lego		
+78	78	137	145	Metal Blue	Metal Blue	Metal_Blue	Sand blue metallic	#5576B9	1	Pearl Colors	16	o		54,36,0,27
+61	61	142	127	Pearl Light Gold	Pearl Light Gold	Pearl_Light_Gold	Gold	#DBBD60	1	Pearl Colors	8	o		0,14,56,14
+77	77	148	148	Pearl Dark Gray	Pearl Dark Gray	Pearl_Dark_Gray	Metallic Dark Grey	#565756	1	Pearl Colors	-1	o		1,0,1,66
+77		148	168	Pearl Dark Gray		Pearl_Dark_Gray	Gun Metallic	#565756	1	Pearl Colors	-1	from_lego		1,0,1,66
+119	119	150	150	Pearl Very Light Gray	Pearl Very Light Gray	Pearl_Very_Light_Gray	Metallic Light Grey	#BABCBB	1	Pearl Colors	-1	o		1,0,1,26
+99	99	151	208	Very Light Bluish Gray	Very Light Bluish Gray	Very_Light_Bluish_Gray	Light stone grey	#E5E2DF	1	Solid Colors	-1	o		0,1,3,10
+81	81	178	147	Flat Dark Gold	Flat Dark Gold	Flat_Dark_Gold	Metallic Sand Yellow	#B3873D	1	Pearl Colors	7	o		0,25,66,30
+95	95	179	315	Flat Silver	Flat Silver	Flat_Silver	Silver Metallic	#888687	1	Pearl Colors	-1	o		
+95		179	131	Flat Silver		Flat_Silver	Silver	#888687	1	Pearl Colors	-1	from_lego		
+95		179	146	Flat Silver		Flat_Silver	Metallic Sand Violet	#888687	1	Pearl Colors	-1	from_lego		
+83	83	183	183	Pearl White	Pearl White	Pearl_White	Metallic White	#F1F2F1	1	Pearl Colors	-1	o		0,0,0,5
+110	110	191	191	Bright Light Orange	Bright Light Orange	Bright_Light_Orange	Flame yellowish orange	#F7BA3C	1	Solid Colors	7	o		0,25,76,3
+105	105	212	212	Bright Light Blue	Bright Light Blue	Bright_Light_Blue	Light Royal blue	#85C0E0	1	Solid Colors	16	o		41,14,0,12
+27	27	216	216	Rust	Rust	Rust	Rust	#B20F03	1	Solid Colors	1	o		0,92,98,30
+103	103	226	226	Bright Light Yellow	Bright Light Yellow	Bright_Light_Yellow	Cool Yellow	#FEEF39	1	Solid Colors	8	o		0,6,78,0
+103		226	15	Bright Light Yellow		Bright_Light_Yellow	Lemon	#FEEF39	1	Solid Colors	8	from_lego		0,6,78,0
+164	164	231	231	Trans-Light Orange	Trans-Light Orange	Trans_Bright_Light_Orange	TR. FL. YEL ORA	#F0A423	0.5019608	Transparent Colors	5	o		0,32,85,6
+87	87	232	232	Sky Blue	Sky Blue	Sky_Blue	Dove blue	#55BDD5	1	Solid Colors	14	o		60,11,0,16
+1007	11	256	26	Rubber Black	Black	Rubber_Black	Black	#202020	1	Rubber Colors	-1	to_lego,to_bl		0,0,0,87
+63	63	272	140	Dark Blue	Dark Blue	Dark_Blue	Earth blue	#0C315A	1	Solid Colors	17	o		87,46,0,65
+1004	7	273	23	Rubber Blue	Blue	Rubber_Blue	Bright Blue	#0032B1	1	Rubber Colors	17	to_lego,to_bl		100,72,0,31
+114	114	284	284	Trans-Light Purple	Trans-Light Purple	Trans_Light_Purple	TR. RED-LILAC	#956F9E	0.5019608	Transparent Colors	21	ignore,to_lego,to_bl		
+221	221	285	285	Trans-Light Green	Trans-Light Green	Trans_Light_Green	Transparent Light Green	#94E5AB	0.5019608	Transparent Colors	10	o		35,0,25,10
+80	80	288	141	Dark Green	Dark Green	Dark_Green	Earth Green	#174531	1	Solid Colors	12	o		67,0,29,73
+118	118	294	50	Glow In Dark Trans	Glow In Dark Trans	Glow_In_Dark_Trans	Phosphorescent White	#BCC5AC	0.9803922	Milky Colors	9	o		5,0,13,23
+115	115	297	297	Pearl Gold	Pearl Gold	Pearl_Gold	Warm Gold	#CB9B2A	1	Pearl Colors	7	o		0,24,79,20
+162	162	302	42	Glitter Trans-Light Blue 	Glitter Trans-Light Blue 	Glitter_Trans_Light_Blue	Transparent Light Blue	#AEE9EF	0.5019608	Glitter Colors	14	to_lego		27,3,0,6
+120	120	308	308	Dark Brown	Dark Brown	Dark_Brown	Dark Brown	#442800	1	Solid Colors	4	o		0,41,100,73
+163	163	339	311	Glitter Trans-Neon Green	Glitter Trans-Neon Green	Glitter_Trans_Neon_Green	Transparent Bright Green	#C0FF00	0.5019608	Glitter Colors	10	to_lego		25,0,100,0
+72	72	313	11	Maersk Blue	Maersk Blue	Maersk_Blue	Pastel Blue	#53A8C7	1	Solid Colors	14	o		58,16,0,22
+72		313	269	Maersk Blue	Maersk Blue	Maersk_Blue	Tiny-Medium Blue	#53A8C7	1	Solid Colors	14	from_lego		58,16,0,22
+59	59	320	154	Dark Red	Dark Red	Dark_Red	Dark red	#710D0E	1	Solid Colors	0	o		0,88,88,56
+153	153	321	321	Dark Azure	Dark Azure	Dark_Azure	Dark Azur	#1397D6	1	Solid Colors	14	o		91,29,0,16
+153		321	188	Dark Azure		Dark_Azure	Tiny-Blue	#1397D6	1	Solid Colors	14	from_lego		91,29,0,16
+156	156	322	322	Medium Azure	Medium Azure	Medium_Azure	Medium Azure	#3DC1DC	1	Solid Colors	14	o		72,12,0,14
+152	152	323	323	Light Aqua	Light Aqua	Light_Aqua	Aqua	#BCDBD7	1	Solid Colors	13	o		14,0,2,14
+1003	5	324	21	Rubber Red	Red	Rubber_Red		#C30025	1	Rubber Colors	1	to_lego,to_bl		0,100,81,24
+158		326	234	Yellowish Green	Yellowish Green	Yellowish_Green	Transparent Fire Yellow	#DEEDA4	1	Solid Colors	10	from_lego		6,0,31,7
+158	158	326	326	Yellowish Green	Yellowish Green	Yellowish_Green	Spring Yellow Green	#DEEDA4	1	Solid Colors	10	o		
+159	159	329	329	Glow In Dark White	Glow In Dark White	Glow_In_Dark_White	WHITE GLOW	#ECECEC	1	Milky Colors	-1	o		0,0,0,7
+155	155	330	330	Olive Green	Olive Green	Olive_Green	Olive Green	#9A9959	1	Solid Colors	9	o		0,1,42,40
+21	21	334	310	Chrome Gold	Chrome Gold	Chrome_Gold	Metalized Gold	#BAA43C	1	Chrome Colors	9	o		0,12,68,27
+58	58	335	153	Sand Red	Sand Red	Sand_Red	Sand red	#D57471	1	Solid Colors	2	o		0,46,47,16
+1002	4	350	106	Rubber Orange	Orange	Rubber_Orange		#CF650F	1	Rubber Colors	5	to_lego,to_bl		0,51,93,19
+94	94	351	22	Medium Dark Pink	Medium Dark Pink	Medium_Dark_Pink	Medium Reddish Violet	#F684B0	1	Solid Colors	0	o		0,46,28,4
+220	220	353	9	Coral	Coral	Coral	Light Reddish Violet	#ff7575	1	Solid Colors	2	to_lego		0,54,54,0
+220		353	16	Coral		Coral	Pink	#ff7575	1	Solid Colors	2	from_lego		0,54,54,0
+29	29	366	12	Earth Orange	Earth Orange	Earth_Orange	Light Orange Brown	#F99B1B	1	Solid Colors	7	o		0,38,89,2
+54	54	373	136	Sand Purple	Sand Purple	Sand_Purple	Sand violet	#835D83	1	Solid Colors	20	o		0,29,0,49
+1005	9	375	2	Rubber Light Gray	Light Gray	Rubber_Light_Gray	Grey	#C0C1C0	1	Rubber Colors	-1	to_lego,to_bl		1,0,1,24
+48	48	378	151	Sand Green	Sand Green	Sand_Green	Sand green	#9FBBAB	1	Solid Colors	13	o		15,0,9,27
+55	55	379	135	Sand Blue	Sand Blue	Sand_Blue	Sand blue	#587083	1	Solid Colors	16	o		33,15,0,49
+22	22	383	309	Chrome Silver	Chrome Silver	Chrome_Silver	Metalized Silver	#DFDFDF	1	Chrome Colors	-1	o		0,0,0,13
+1013	63	406	140	Rubber Dark Blue	Dark Blue	Rubber_Dark_Blue	Earth blue	#001C67	1	Rubber Colors	17	to_lego,to_bl		100,73,0,60
+1011	24	449	104	Rubber Purple	Purple	Rubber_Purple		#80007A	1	Rubber Colors	20	to_lego,to_bl		0,100,5,50
+106	106	450	4	Fabuland Brown	Fabuland Brown	Fabuland_Brown		#B67B50	1	Solid Colors	4	o		0,32,56,29
+31	31	462	105	Medium Orange	Medium Orange	Medium_Orange	Br. yellowish orange	#FEA60A	1	Solid Colors	7	o		0,35,96,0
+68	68	484	38	Dark Orange	Dark Orange	Dark_Orange	Dark Orange	#A85400	1	Solid Colors	5	o		0,50,100,34
+1012	34	490	119	Rubber Lime	Lime	Rubber_Lime		#D6EF00	1	Rubber Colors	10	to_lego,to_bl		10,0,100,6
+-10	-10	493	26	Magnet	Magnet	Magnet		#656761	1	Metallic Colors	-1	to_lego		
+-11	-11	494	309	Electric_Contact_Alloy	Electric_Contact_Alloy	Electric_Contact_Alloy		#D0D0D0	1	Metallic Colors	-1	to_lego		
+-12	-12	495	139	Electric_Contact_Copper	Electric_Contact_Copper	Electric_Contact_Copper	Copper	#AE7A59	1	Metallic Colors	-1	to_lego		
+1014	86	496	194	Rubber Light Bluish Gray	Light Bluish Gray	Rubber_Light_Bluish_Gray	Medium stone grey	#A2A1A3	1	Rubber Colors	-1	to_lego,to_bl		1,1,0,36
+49	49	503	103	Very Light Gray	Very Light Gray	Very_Light_Gray	Light grey	#E5E2D9	1	Solid Colors	-1	o		0,1,5,10
+1015	95	504	315	Rubber Flat Silver	Flat Silver	Rubber_Flat_Silver	Silver Metallic	#888687	1	Rubber Colors	-1	to_lego,to_bl		0,1,1,47
+160	160	509	19	Fabuland Orange 	Fabuland Orange 	Fabuland Orange 	Light Brown	#D6923D	1	Solid Colors	5	o		0,32,71,16
+1000	1	511	1	Rubber White	White	Rubber_White	White	#F9F9F9	1	Rubber Colors	-1	to_lego,to_bl		0,0,0,2
+1016	36	10002	28	Rubber Bright Green	Bright Green	Rubber_Bright_Green	Dark green	#58AB41	1	Rubber Colors	12	to_lego,to_bl		
+1017	71	10026	124	Rubber Magenta	Magenta	Rubber_Magenta	Bright reddish violet	#901F76	1	Rubber Colors	21	to_lego,to_bl		
+1018	157	10030	324	Rubber Medium Lavender	Medium Lavender	Rubber_Medium_Lavender	Medium Lavender	#A06EB9	1	Rubber Colors	20	to_lego,to_bl		
+1019	154	10031	325	Rubber Lavender	Lavender	Rubber_Lavender	Lavender	#CDA4DE	1	Rubber Colors	20	to_lego,to_bl		
+1020	88	10070	192	Rubber Reddish Brown	Reddish Brown	Rubber_Reddish_Brown	Reddish Brown	#5F3109	1	Rubber Colors	3	to_lego,to_bl		
+1021	103	10226	226	Rubber Bright Light Yellow	Bright Light Yellow	Rubber_Bright_Light_Yellow	Cool Yellow	#FFEC6C	1	Rubber Colors	8	to_lego,to_bl		
+1022	120	10308	308	Rubber Dark Brown	Dark Brown	Rubber_Dark_Brown	Dark Brown	#352100	1	Rubber Colors	4	to_lego,to_bl		
+1023	59	10320	154	Rubber Dark Red	Dark Red	Rubber_Dark_Red	Dark red	#720012	1	Rubber Colors	0	to_lego,to_bl		
+1024	153	10321	321	Rubber Dark Azure	Dark Azure	Rubber_Dark_Azure	Dark Azur	#469BC3	1	Rubber Colors	14	to_lego,to_bl		
+1025	156	10322	322	Rubber Medium Azure	Medium Azure	Rubber_Medium_Azure	Medium Azure	#68C3E2	1	Rubber Colors	14	to_lego,to_bl		
+1026	152	10323	323	Rubber Light Aqua	Light Aqua	Rubber_Light_Aqua	Aqua	#D3F2EA	1	Rubber Colors	13	to_lego,to_bl		
+1027	68	10484	38	Rubber Dark Orange	Dark Orange	Rubber_Dark_Orange	Dark Orange	#91501C	1	Rubber Colors	5	to_lego,to_bl		
+161	161	100003	180	Dark Yellow	Dark Yellow	unknown	Curry	#E5B635	1	Solid Colors	5	o		0,21,77,10
+165	165	100007	133	Neon Orange	Neon Orange	unknown	Neon Orange	#FF7052	1	Solid Colors	2	to_lego		0,56,68,0
+166	166	100009	134	Neon Green	Neon Green	unknown	Neon Green	#BCEF66	1	Solid Colors	10	to_lego		21,0,57,6
