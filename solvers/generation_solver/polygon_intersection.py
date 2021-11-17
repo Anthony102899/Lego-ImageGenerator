@@ -4,6 +4,9 @@ from bricks_modeling.file_IO.model_reader import read_bricks_from_file
 from bricks_modeling.connectivity_graph import ConnectivityGraph
 from visualization.model_visualizer import visualize_3D
 import numpy as np
+from matplotlib.patches import Polygon as MatPolygon
+from shapely.geometry import Polygon
+import matplotlib.pyplot as plt
 
 
 """EDGE_TEMPLATE = np.array([
@@ -36,6 +39,16 @@ class PolygonInstance:
             self.edges[i] = transform_matrix.dot(edges_list[i].T).T
         self.edges = self.edges[:, :, [0, 2]]
         self.perimeter = np.sum(np.linalg.norm(self.edges[:, 1] - self.edges[:, 0], axis=1))
+
+
+class Vertex:
+
+    def __init__(self, coordinates):
+        self.coordinates = coordinates
+        self.next = []
+
+    def add_neighbor(self, vertex):
+        self.next.append(vertex)
 
 
 def compute_polygon_touch_length(polygon_1, polygon_2):
@@ -133,12 +146,59 @@ def exam():
     mesh_size = 25
     polygon_1 = PolygonInstance(bricks[0].trans_matrix, np.multiply(bricks[0].template.edges2D, mesh_size))
     polygon_2 = PolygonInstance(bricks[1].trans_matrix, np.multiply(bricks[1].template.edges2D, mesh_size))
+    vertices_1 = bricks[0].trans_matrix.dot(
+        np.insert(np.multiply(bricks[0].template.vertices2D, mesh_size), 3, values=1, axis=1).T).T[:, [0, 2]]
+    vertices_2 = bricks[1].trans_matrix.dot(
+        np.insert(np.multiply(bricks[1].template.vertices2D, mesh_size), 3, values=1, axis=1).T).T[:, [0, 2]]
+    sorted_vertices_1 = get_sorted_vertices(polygon_1, vertices_1)
+    sorted_vertices_2 = get_sorted_vertices(polygon_2, vertices_2)
+
+    p1 = MatPolygon(sorted_vertices_1, facecolor='k')
+    p2 = MatPolygon(sorted_vertices_2, facecolor='k')
+    fig, ax = plt.subplots()
+    ax.add_patch(p1)
+    ax.add_patch(p2)
+    ax.set_xlim([70, 300])
+    ax.set_ylim([100, 300])
+    plt.show()
+
+    poly1 = Polygon(sorted_vertices_1)
+    poly2 = Polygon(sorted_vertices_2)
+
+    print(poly1.intersection(poly2))
+
     print(compute_polygon_touch_length(polygon_1, polygon_2))
 
     points = [b.get_translation() for b in structure_graph.bricks]
 
     edges = [e["node_indices"] for e in structure_graph.connect_edges]
     visualize_3D(points, lego_bricks=bricks, edges=edges, show_axis=True)
+
+
+def get_sorted_vertices(polygon, vertices):
+    vertices_dict = {}
+    for vertex in vertices:
+        vertices_dict[str(vertex)] = Vertex(vertex)
+    for edge in polygon.edges:
+        vertices_dict[str(edge[0])].add_neighbor(vertices_dict[str(edge[1])])
+        vertices_dict[str(edge[1])].add_neighbor(vertices_dict[str(edge[0])])
+    initial = vertices_dict[str(vertices[0])]
+    current = initial
+    sorted_vertices = []
+    previous = None
+    for i in range(len(vertices)):
+        sorted_vertices.append(current.coordinates)
+        neighbor_pass = False
+        for neighbor in current.next:
+            if not neighbor_pass and (previous == None or neighbor == previous):
+                neighbor_pass = True
+                continue
+            if neighbor == initial:
+                continue
+            previous = current
+            current = neighbor
+            break
+    return np.array(sorted_vertices)
 
 
 if __name__ == "__main__":
