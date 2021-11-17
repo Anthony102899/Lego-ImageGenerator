@@ -31,7 +31,7 @@ include "connected.mzn";
 
 %%%%%%%%%%%%%%%%%% objectives
 % calculate total brick sd
-var float : node_sd_obj = sum(n in NODE) (node[n] * node_weight[n] * (20 * node_sd[n] + node_area[n]));
+var float : node_sd_obj = sum(n in NODE) (node[n] * node_weight[n] * (1 * node_sd[n] + node_area[n]));
 
 var float : obj;
 obj = node_sd_obj;

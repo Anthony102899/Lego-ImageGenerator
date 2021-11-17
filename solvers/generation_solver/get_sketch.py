@@ -1,4 +1,6 @@
 import os
+import time
+
 from solvers.generation_solver.minizinc_sketch import MinizincSolver
 from util.debugger import MyDebugger
 from bricks_modeling.file_IO.model_writer import write_bricks_to_file
@@ -12,26 +14,65 @@ import math
 import pickle
 from multiprocessing import Pool
 from functools import partial
+from scipy import stats
 
 
 # return color or sd or -1
 def crop_ls(rgbs, sd):
     if len(rgbs) == 0:
         if sd:
-            return -1
+            return -0.01
         return []
+    length_rgbs = float(len(rgbs))
+    mode, frequency = stats.mode(rgbs)
     if sd:
-        return float(round(np.sum(np.std(rgbs, axis=0)), 4) + 0.0001)
-    return np.average(rgbs, axis=0)
+        """if (np.divide(frequency, length_rgbs) < 0.5).any():
+            return -0.01"""
+        """diff_rgbs = np.subtract(rgbs, mode)
+        sd_rgbs = np.sqrt(np.sum(np.power(diff_rgbs, 2), axis=0))
+        return float(round(np.prod(sd_rgbs), 4) + 0.0001)"""
+        frequency_diff = np.subtract(frequency, length_rgbs)
+        frequency_diff_rate = np.divide(frequency_diff, length_rgbs)
+        return float(np.sum(np.square(frequency_diff_rate)) + 0.0001)
+    return mode
 
 
 # return *node_sd* and *node_color*
 def ls_from_layout(img, plate_set, base_int):
+    """rgbs_ls = util.get_cover_rgb(img=img, base_int=base_int, brick=plate_set)
+    node_sd = crop_ls(rgbs_ls, sd=True)
+    node_color = crop_ls(rgbs_ls, sd=False)"""
+    set_size = len(plate_set)
     with Pool(4) as p:
-        rgbs_ls = p.map(partial(util.get_cover_rgb, img=img, base_int=base_int), plate_set)
-        node_sd = p.map(partial(crop_ls, sd=True), rgbs_ls)
-        node_color = p.map(partial(crop_ls, sd=False), rgbs_ls)
-    return node_sd, node_color
+        rgbs_ls = p.map_async(partial(util.get_cover_rgb, img=img, base_int=base_int), plate_set)
+        while not rgbs_ls.ready():
+            print(time.strftime("INFO: %Y-%m-%d %H:%M:%S ", time.localtime()),
+                  "rgbs process: ", "#"*(50-int(50*float(rgbs_ls._value.count(None))/set_size)),
+                  "-"*int(50*float(rgbs_ls._value.count(None))/set_size),
+                  " ", 100-int(100*float(rgbs_ls._value.count(None))/set_size), "%")
+            time.sleep(2)
+        print(time.strftime("INFO: %Y-%m-%d %H:%M:%S ", time.localtime()),
+              "rgbs process: ", "#"*50,
+              "   100%")
+        print("-"*100)
+        task_size = len(rgbs_ls.get()) # include only node_sd
+        node_sd = p.map_async(partial(crop_ls, sd=True), rgbs_ls.get())
+        node_color = p.map_async(partial(crop_ls, sd=False), rgbs_ls.get())
+        while not node_sd.ready():
+            sd_left = 0
+            if not node_sd.ready():
+                sd_left = node_sd._value.count(None)
+            not_ready_rate = float(sd_left) / task_size
+            print(time.strftime("INFO: %Y-%m-%d %H:%M:%S ", time.localtime()),
+                  "node sd and color process: ", "#"*(50-int(50*not_ready_rate)),
+                  "-"*int(50*not_ready_rate),
+                  " ", 100-int(100*not_ready_rate), "%")
+            time.sleep(2)
+        print(time.strftime("INFO: %Y-%m-%d %H:%M:%S ", time.localtime()),
+              "node sd and color process: ", "#" * 50,
+              "   100%")
+        node_color.wait()
+    return node_sd.get(), node_color.get()
 
 
 if __name__ == "__main__":
@@ -88,7 +129,6 @@ if __name__ == "__main__":
 
         node_color = [i for i in node_color]
         ldr_code = [util.nearest_color(color, ldr_color) if len(color) != 0 else 15 for color in node_color]
-        print(ldr_code)
         # node_color = np.average(node_color, axis=0)  # ?? only one color at last
         # ldr_code = util.nearest_color(node_color, ldr_color)
 
@@ -107,10 +147,19 @@ if __name__ == "__main__":
                 selected_bricks_layer.append(colored_brick)
         print("colored!")
 
+        goal = 0
         if background_bool:
             selected_bricks_layer = util.move_layer(selected_bricks_layer, layer + 1)
+            goal = 8 * (layer + 1)
         else:
             selected_bricks_layer = util.move_layer(selected_bricks_layer, layer)
+            goal = 8 * layer
+
+        temp_bricks = []
+        for brick in selected_bricks:
+            if (brick.get_translation())[1] != goal:
+                temp_bricks.append(brick)
+        selected_bricks = temp_bricks
         selected_bricks += selected_bricks_layer
 
     if background_bool:

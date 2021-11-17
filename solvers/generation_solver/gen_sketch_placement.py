@@ -11,11 +11,7 @@ import os
 import time
 
 brick_IDs = [# tile
-             # plate 
-             "3024",
-             "3020",
-             "3023",
-             "3710",
+             # plate
              "43722",
              "43723"
              # other

@@ -59,6 +59,7 @@ def get_cover_rgb(brick, img, base_int):
                     continue
     return rgbs
 
+
 def get_weight():
     data = load_data()
     area = {}
@@ -69,6 +70,7 @@ def get_weight():
             area.update({brick["id"]: 1})
     return area
 
+
 def hex_to_rgb(value):
     if len(value) < 6:
         return np.array([0, 0, 0])
@@ -77,6 +79,7 @@ def hex_to_rgb(value):
     lv = len(value)
     rgb = [int(value[i:i + lv // 3], 16) for i in range(0, lv, lv // 3)]
     return np.array(rgb)
+
 
 def load_data(brick_database=["regular_plate.json"]):
     data = []
@@ -87,11 +90,13 @@ def load_data(brick_database=["regular_plate.json"]):
             data.extend(temp)
     return data
 
+
 def move_brickset(brickset, rgb_color, x, z, ldr_color):
     ldr_color = nearest_color(rgb_color, ldr_color)
     new_set = [color_brick(brick, ldr_color, rgb=False) for brick in brickset]
     [brick.translate([x, 0, z]) for brick in new_set]
     return new_set
+
 
 def move_layer(brickset, layer_num):
     new_set = brickset.copy()
@@ -102,6 +107,7 @@ def move_layer(brickset, layer_num):
             continue
         brick.translate([0, goal - current_y, 0])
     return new_set
+
 
 # return an integer
 def nearest_color(rgb, ldr_color):
@@ -115,7 +121,8 @@ def nearest_color(rgb, ldr_color):
             minn = dif
             result = key["LDR_code"]
     return result
-        
+
+
 # return a polygon obj 
 def proj_bbox(brick:BrickInstance):
     bbox_corner = np.array(get_corner_pos(brick, four_point=True))
@@ -126,6 +133,7 @@ def proj_bbox(brick:BrickInstance):
         polygon_ls.append(polygon)
     polygon = unary_union(polygon_ls)
     return polygon
+
 
 # return a dictionary
 def read_ldr_color():
@@ -141,6 +149,7 @@ def read_ldr_color():
                 ldr_color.append({"LDR_code": ldr_code, "hex": hex_value})
     return ldr_color
 
+
 def RGB_to_Hex(rgb):
     color = '0x2'
     for i in rgb[:3]:
@@ -148,11 +157,13 @@ def RGB_to_Hex(rgb):
         color += str(hex(num))[-2:].replace('x', '0').upper()
     return color
 
+
 def rotate_image(img, angle):
   image_center = tuple(np.array(img.shape[1::-1]) / 2)
   rot_mat = cv2.getRotationMatrix2D(image_center, angle, 1.0)
   result = cv2.warpAffine(img, rot_mat, img.shape[1::-1], flags=cv2.INTER_LINEAR)
   return result
+
 
 def scale_image(img, scale):
     width, height = img.shape[1], img.shape[0]
@@ -164,6 +175,7 @@ def scale_image(img, scale):
     cw2, ch2 = int(crop_width / 2), int(crop_height / 2) 
     crop_img = img[mid_y - ch2:mid_y + ch2, mid_x - cw2:mid_x + cw2]
     return crop_img
+
 
 def translate_image(img, width_dis, height_dis):
     height, width = img.shape[:2] 
