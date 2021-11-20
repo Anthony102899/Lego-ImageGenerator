@@ -1,7 +1,7 @@
+import logging
 import os
-import time
-
 from solvers.generation_solver.minizinc_sketch import MinizincSolver
+from solvers.generation_solver.polygon_intersection import plot_polygons, collide_connect_2D
 from util.debugger import MyDebugger
 from bricks_modeling.file_IO.model_writer import write_bricks_to_file
 from bricks_modeling.file_IO.model_reader import read_bricks_from_file
@@ -12,16 +12,17 @@ import numpy as np
 import cv2
 import math
 import pickle
+import time
 from multiprocessing import Pool
 from functools import partial
 from scipy import stats
-
 
 # return color or sd or -1
 def crop_ls(rgbs, sd):
     if len(rgbs) == 0:
         if sd:
-            return -0.01
+            # return -0.01
+            return -1;
         return []
     length_rgbs = float(len(rgbs))
     mode, frequency = stats.mode(rgbs)
@@ -33,9 +34,10 @@ def crop_ls(rgbs, sd):
         return float(round(np.prod(sd_rgbs), 4) + 0.0001)"""
         frequency_diff = np.subtract(frequency, length_rgbs)
         frequency_diff_rate = np.divide(frequency_diff, length_rgbs)
-        return float(np.sum(np.square(frequency_diff_rate)) + 0.0001)
+        # return float(np.sum(np.square(frequency_diff_rate)) + 0.0001)
+        return float(np.sum(np.square(frequency_diff_rate)))
     return mode
-
+    # return np.average(rgbs, axis = 0)
 
 # return *node_sd* and *node_color*
 def ls_from_layout(img, plate_set, base_int):
@@ -43,7 +45,7 @@ def ls_from_layout(img, plate_set, base_int):
     node_sd = crop_ls(rgbs_ls, sd=True)
     node_color = crop_ls(rgbs_ls, sd=False)"""
     set_size = len(plate_set)
-    with Pool(4) as p:
+    with Pool(5) as p:
         rgbs_ls = p.map_async(partial(util.get_cover_rgb, img=img, base_int=base_int), plate_set)
         while not rgbs_ls.ready():
             print(time.strftime("INFO: %Y-%m-%d %H:%M:%S ", time.localtime()),
@@ -74,7 +76,6 @@ def ls_from_layout(img, plate_set, base_int):
         node_color.wait()
     return node_sd.get(), node_color.get()
 
-
 if __name__ == "__main__":
     graph_name, img_num, layer_names, layer_nums, background_rgb, degree, scale, width_dis, height_dis = show_interface()
     background_bool = 1
@@ -85,10 +86,21 @@ if __name__ == "__main__":
     path = folder_path + graph_name
     plate_name = graph_name.split("base=")[0]
 
-    model_file = "./solve_sketch.mzn"
+    model_file = os.path.dirname(__file__) + "/solve_sketch.mzn"
     solver = MinizincSolver(model_file, "gurobi")
 
     structure_graph = pickle.load(open(path, "rb"))
+    # commented part is to debug
+    for i in range(len(structure_graph.bricks)):
+        if i == 0 or i == 1:
+            continue
+        for j in range(i + 1, len(structure_graph.bricks)):
+            length = collide_connect_2D(structure_graph.bricks[i], structure_graph.bricks[j])
+            if length == -1:
+                print(str(i) + "---" + str(j) + " collide")
+            else:
+                print(str(i) + "---" + str(j) + " " + str(length))
+            plot_polygons(structure_graph.bricks[i], structure_graph.bricks[j])
     plate_set = structure_graph.bricks
     base_count = util.count_base_number(plate_set)
     base_bricks = plate_set[:base_count]
@@ -109,7 +121,7 @@ if __name__ == "__main__":
         layer = int(layer_nums[k])
         img_name = layer_names[k]
         print("Layer number ", layer, " Image name: ", img_name)
-        img_path = "inputs/images/" + img_name
+        img_path = os.path.dirname(__file__) + "/inputs/images/" + img_name
         img_path = os.path.join(os.path.dirname(__file__), img_path)
         img = cv2.imread(img_path, cv2.IMREAD_UNCHANGED)
         img_name = (img_name.split("."))[0]
@@ -121,52 +133,43 @@ if __name__ == "__main__":
         img = cv2.resize(img, (base_int * 20 + 1, base_int * 20 + 1))
 
         node_sd, node_color = ls_from_layout(img, sketch_bricks, base_int)
-        node_sd = [0.0001 for i in range(base_count)] + node_sd  # ?
-        node_sd = [1 / i for i in node_sd]
+        node_sd = [0.1 for i in range(base_count)] + node_sd
+        node_sd = [i for i in node_sd]
         sd_max = np.amax(np.array(node_sd))
         if not sd_max == 0:
-            sd_normal = [round(i / sd_max, 3) if i > 0 else i for i in node_sd]
+            sd_normal = [round(i / sd_max, 3)  if i > 0 else i for i in node_sd]
 
+        # node_color = [i for i in node_color if len(i) == 3]
         node_color = [i for i in node_color]
-        ldr_code = [util.nearest_color(color, ldr_color) if len(color) != 0 else 15 for color in node_color]
-        # node_color = np.average(node_color, axis=0)  # ?? only one color at last
+        # node_color = np.average(node_color, axis = 0)
         # ldr_code = util.nearest_color(node_color, ldr_color)
+        ldr_code = [util.nearest_color(color, ldr_color) if len(color) != 0 else 15 for color in node_color]
 
         results = solver.solve(structure_graph=structure_graph,
-                               node_sd=sd_normal,
-                               node_area=area_normal,
-                               node_weight=weight,
-                               base_count=base_count)
+                                node_sd=sd_normal,
+                                node_area=area_normal,
+                                node_weight=weight,
+                                base_count=base_count)
         selected_bricks_layer = []
         for i in range(base_count, len(plate_set)):
             if results[i] == 1:
+                # colored_brick = util.color_brick(plate_set[i], ldr_code, rgb=False)
                 if i < base_count:
                     colored_brick = util.color_brick(plate_set[i], 15, rgb=False)
                 else:
-                    colored_brick = util.color_brick(plate_set[i], ldr_code[i - base_count], rgb=False)
+                    colored_brick = util.color_brick(plate_set[i], ldr_code[i-base_count], rgb=False)
                 selected_bricks_layer.append(colored_brick)
-        print("colored!")
 
-        goal = 0
         if background_bool:
             selected_bricks_layer = util.move_layer(selected_bricks_layer, layer + 1)
-            goal = 8 * (layer + 1)
         else:
             selected_bricks_layer = util.move_layer(selected_bricks_layer, layer)
-            goal = 8 * layer
-
-        temp_bricks = []
-        for brick in selected_bricks:
-            if (brick.get_translation())[1] != goal:
-                temp_bricks.append(brick)
-        selected_bricks = temp_bricks
         selected_bricks += selected_bricks_layer
 
     if background_bool:
-        background = "./inputs/" + "back " + graph_name.split(".pkl")[0] + ".ldr"
+        background = os.path.dirname(__file__) + "/inputs/" + "back " + graph_name.split(".pkl")[0] + ".ldr"
         background = read_bricks_from_file(background)
         selected_bricks += util.move_brickset(background, background_rgb, 0, 0, ldr_color)
-        print("Background generated!")
 
     img_ls = img_name.split("_")
     if len(img_ls) > 1:
@@ -178,7 +181,6 @@ if __name__ == "__main__":
             selected_bricks, file_path=debugger.file_path(f"{img_name} b={base_int} {plate_name}.ldr"))
     else:
         write_bricks_to_file(
-            selected_bricks,
-            file_path=debugger.file_path(f"{img_name} b={base_int} d={degree} s={scale} {plate_name}.ldr"))
+            selected_bricks, file_path=debugger.file_path(f"{img_name} b={base_int} d={degree} s={scale} {plate_name}.ldr"))
 
     print("done!")

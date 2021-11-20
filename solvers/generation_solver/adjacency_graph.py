@@ -1,21 +1,23 @@
-import numpy as np
-from util.debugger import MyDebugger
+import copy
 import itertools
 import json
+import os
 import pickle
 import time
-from bricks_modeling.file_IO.model_reader import read_bricks_from_file
+
+import numpy as np
 import open3d as o3d
-import copy
-from solvers.generation_solver.tile_graph import unique_brick_list
-from bricks_modeling.connections.conn_type import compute_conn_type
-from util.json_encoder import NumpyArrayEncoder
 from pathos.multiprocessing import ProcessingPool as Pool
-import os
+
+from bricks_modeling.file_IO.model_reader import read_bricks_from_file
+from solvers.generation_solver.polygon_intersection import collide_connect_2D
+from solvers.generation_solver.tile_graph import unique_brick_list
+from util.json_encoder import NumpyArrayEncoder
 
 """
 To use a graph to describe a LEGO structure
 """
+
 
 class AdjacencyGraph:
     def __init__(self, bricks):
@@ -32,21 +34,30 @@ class AdjacencyGraph:
         print("#tiles after filtring repeat:", len(self.bricks))
 
     def build(self, b_i, b_j):
-        if self.bricks[b_i].collide(self.bricks[b_j]):
+        """if self.bricks[b_i].collide(self.bricks[b_j]):
             return (b_i, b_j), 1
         elif self.bricks[b_i].connect(self.bricks[b_j]):
             return (b_i, b_j), 0
-        return None, -1
+        return None, -1"""
+        self.bricks[b_i].template.use_vertices_edges2D()
+        self.bricks[b_j].template.use_vertices_edges2D()
+        relationship = collide_connect_2D(self.bricks[b_i], self.bricks[b_j])
+        if relationship == 0:
+            return None, 0
+        elif relationship < 0:
+            return (b_i, b_j), -1
+        elif relationship > 0:
+            return (b_i, b_j, relationship), relationship
 
     def build_graph_from_bricks(self):
         it = np.array(list(itertools.combinations(list(range(0, len(self.bricks))), 2)))
-        with Pool(10) as p:
-            a = p.map(self.build, it[:,0], it[:,1])
+        with Pool() as p:
+            a = p.map(self.build, it[:, 0], it[:, 1])
 
         for x in a:
-            if x[1] == 1:
+            if x[1] == -1:
                 self.overlap_edges.extend([x[0]])
-            elif x[1] == 0:
+            elif x[1] > 0:
                 self.connect_edges.extend([x[0]])
 
     def to_json(self):
@@ -96,14 +107,20 @@ class AdjacencyGraph:
         )
         o3d.visualization.draw_geometries([mesh_frame, line_set, spheres])
 
+
 if __name__ == "__main__":
     path = "./inputs/for sketch/['43722', '43723'] base=24.ldr"
     bricks = read_bricks_from_file(path)
+    for brick in bricks:
+        brick.template.use_vertices_edges2D()
     _, filename = os.path.split(path)
     filename = (filename.split("."))[0]
     start_time = time.time()
     structure_graph = AdjacencyGraph(bricks)
-    #print(structure_graph.connect_edges)
+    print(structure_graph.overlap_edges)
+    print(structure_graph.connect_edges)
+    # print(structure_graph.connect_edges)
     t = round(time.time() - start_time, 2)
-    pickle.dump(structure_graph, open(os.path.join(os.path.dirname(__file__), f'connectivity/{filename}.pkl'), "wb"))
-    print(f"Saved at {filename}.pkl in t={t}")
+    pickle.dump(structure_graph,
+                open(os.path.join(os.path.dirname(__file__), f'connectivity/{filename} t={t}.pkl'), "wb"))
+    print(f"Saved at {filename} t={t}.pkl")

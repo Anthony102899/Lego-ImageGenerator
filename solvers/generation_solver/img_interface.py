@@ -3,8 +3,6 @@ from tkinter import *
 import tkinter.filedialog as tkfd
 from PIL import Image
 import numpy as np
-import solvers.generation_solver.image_seperation as IS
-
 
 def layer_interface(img_num):
     layer_names = []
@@ -63,17 +61,13 @@ def show_interface():
     entry_graph.grid(row=0, column=1)
     graph_path = "connectivity/"
     graph_path = os.path.join(os.path.dirname(__file__), graph_path)
-    path = tkfd.askopenfilename(initialdir = graph_path, title = "Select file", filetypes = (("pkl files", "*.pkl"), ("all files","*.*")))
+    path = tkfd.askopenfilename(initialdir = graph_path, title = "Select file", filetypes = (("pkl files","*.pkl"),("all files","*.*")))
     entry_graph.insert('0', os.path.basename(path))
 
     # input No. image and button
-    Label(root, text="Input image", font=("", 14, "bold", "underline"), fg='#696969').grid(row=1, sticky='w')
-    entry_file = Entry(root, width=15)
-    entry_file.grid(row=1, column=1)
-    entry_path = "inputs/images/"
-    entry_path = os.path.join(os.path.dirname(__file__), entry_path)
-    input_path = tkfd.askopenfilename(initialdir=entry_path, title="Select input image", filetypes=(("png files", "*.png"), ("jpg files", "*.jpg")))
-    entry_file.insert('0', os.path.basename(input_path))
+    Label(root, text="No. image", font=("", 14, "bold", "underline"), fg='#696969').grid(row=1, sticky='w')
+    entry_num = Entry(root, width=15)
+    entry_num.grid(row=1, column=1)
     Button(root, text='Next', command=root.quit).grid(row=1, column=2, sticky='e', pady=4)
 
     # input background color
@@ -109,9 +103,7 @@ def show_interface():
     Label(root, text="").grid(row=9, column=1)
 
     mainloop()
-    img_path = input_path
-    print(img_path)
-    img_num = IS.seperate_color(img_path,  "./cache/")
+    img_num = int(entry_num.get())
     r, g, b = entry_r.get(), entry_g.get(), entry_b.get()
     if len(r) == 0:
         r = 0

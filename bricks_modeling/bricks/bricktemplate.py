@@ -10,8 +10,19 @@ class BrickTemplate:
     def __init__(self, c_points: CPoint, ldraw_id: str):
         self.c_points = c_points
         self.id = ldraw_id
-        self.vertices2D = self.get_vertices_2d()
-        self.edges2D = self.get_edges_2d()
+        self.enable_2D = False
+        self.perimeter = 0
+        # self.vertices2D = self.get_vertices_2d()
+        # self.edges2D = self.get_edges_2d()
+
+    def use_vertices_edges2D(self):
+        if not self.enable_2D:
+            self.vertices2D = self.get_vertices_2d()
+            self.edges2D = self.get_edges_2d()
+            edges2D_vec = np.array(self.edges2D)
+            self.perimeter = np.sum(np.linalg.norm(edges2D_vec[:, 1] - edges2D_vec[:, 0], axis=1))
+            self.enable_2D = True
+
     def get_vertices_2d(self):
         obj_file_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "database", "obj",
                                      f'{self.id + ".obj"}')
@@ -125,13 +136,13 @@ class BrickTemplate:
 
 
 if __name__ == "__main__":
-    '''cpoints = [
+    """cpoints = [
         CPoint(np.array([0, 0, -1]), np.array([0, 1, 0]), ConnPointType.AXLE),
         CPoint(np.array([0, 0, 0]), np.array([0, 1, 0]), ConnPointType.AXLE),
         CPoint(np.array([0, 0, 1]), np.array([0, 1, 0]), ConnPointType.AXLE),
     ]
     brick = BrickTemplate(cpoints, ldraw_id="32523.dat")
-    input("")'''
-    brick = BrickTemplate([], ldraw_id="27263")
+    input("")"""
+    brick = BrickTemplate([], ldraw_id="43723")
 
     print(brick.edges2D)
