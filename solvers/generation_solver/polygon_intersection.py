@@ -5,7 +5,7 @@ from bricks_modeling.connectivity_graph import ConnectivityGraph
 from visualization.model_visualizer import visualize_3D
 import numpy as np
 from matplotlib.patches import Polygon as MatPolygon
-from shapely.geometry import Polygon, LineString
+from shapely.geometry import Polygon, LineString, MultiLineString
 import matplotlib.pyplot as plt
 
 
@@ -192,11 +192,14 @@ def exam():
     poly2 = Polygon(sorted_vertices_2)
 
     intersection = poly1.intersection(poly2)
+    print(intersection)
     if isinstance(intersection, Polygon):
         if not intersection.is_empty:
             print("collide!")
-    elif isinstance(intersection, LineString):
+    elif isinstance(intersection, LineString) or isinstance(intersection, MultiLineString):
         print("touch!")
+    else:
+        print("No relationship")
 
     print(compute_polygon_touch_length(polygon_1, polygon_2))
 
@@ -266,10 +269,11 @@ def collide_connect_2D(brick_1, brick_2):
             return -1
         else:
             return 0
-    elif isinstance(intersection, LineString):
-        # print("touch!")
+    else:
         return compute_polygon_touch_length(polygon_1, polygon_2)
-    return 0
+    """elif isinstance(intersection, LineString) or isinstance(intersection, MultiLineString):
+            # print("touch!")
+            return compute_polygon_touch_length(polygon_1, polygon_2)"""
 
 
 if __name__ == "__main__":

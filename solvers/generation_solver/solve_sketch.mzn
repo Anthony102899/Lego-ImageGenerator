@@ -53,5 +53,5 @@ var float : La = 1 - 1.0 * (sum_selected_area / sum_area);
 var float : Ls = 1 + 0.005 * (sum_selected_sd / sum_sd);
 var float : Lp = 1 - 100.0 * (sum_selected_perimeter / sum_perimeter);
 
-var float : obj = La * Lp;
+var float : obj = Lp;
 solve minimize obj;

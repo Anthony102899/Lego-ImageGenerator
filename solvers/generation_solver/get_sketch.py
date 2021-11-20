@@ -1,7 +1,7 @@
 import logging
 import os
 from solvers.generation_solver.minizinc_sketch import MinizincSolver
-from solvers.generation_solver.polygon_intersection import plot_polygons
+from solvers.generation_solver.polygon_intersection import plot_polygons, collide_connect_2D
 from util.debugger import MyDebugger
 from bricks_modeling.file_IO.model_writer import write_bricks_to_file
 from bricks_modeling.file_IO.model_reader import read_bricks_from_file
@@ -90,9 +90,17 @@ if __name__ == "__main__":
     solver = MinizincSolver(model_file, "gurobi")
 
     structure_graph = pickle.load(open(path, "rb"))
-    for connect_edge in structure_graph.connect_edges:
-        print(str(connect_edge[0]) + "---" + str(connect_edge[1]))
-        plot_polygons(structure_graph.bricks[connect_edge[0]], structure_graph.bricks[connect_edge[1]])
+    # commented part is to debug
+    for i in range(len(structure_graph.bricks)):
+        if i == 0 or i == 1:
+            continue
+        for j in range(i + 1, len(structure_graph.bricks)):
+            length = collide_connect_2D(structure_graph.bricks[i], structure_graph.bricks[j])
+            if length == -1:
+                print(str(i) + "---" + str(j) + " collide")
+            else:
+                print(str(i) + "---" + str(j) + " " + str(length))
+            plot_polygons(structure_graph.bricks[i], structure_graph.bricks[j])
     plate_set = structure_graph.bricks
     base_count = util.count_base_number(plate_set)
     base_bricks = plate_set[:base_count]
