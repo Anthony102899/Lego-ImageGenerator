@@ -1,7 +1,7 @@
 import logging
 import os
 from solvers.generation_solver.minizinc_sketch import MinizincSolver
-from solvers.generation_solver.polygon_intersection import plot_polygons, collide_connect_2D
+from solvers.generation_solver.polygon_intersection import plot_polygons, collide_connect_2D, group_display
 from util.debugger import MyDebugger
 from bricks_modeling.file_IO.model_writer import write_bricks_to_file
 from bricks_modeling.file_IO.model_reader import read_bricks_from_file
@@ -76,20 +76,7 @@ def ls_from_layout(img, plate_set, base_int):
         node_color.wait()
     return node_sd.get(), node_color.get()
 
-if __name__ == "__main__":
-    graph_name, img_num, layer_names, layer_nums, background_rgb, degree, scale, width_dis, height_dis = show_interface()
-    background_bool = 1
-    if len(background_rgb) == 0:
-        background_bool = 0
-
-    folder_path = os.path.dirname(__file__) + "/connectivity/"
-    path = folder_path + graph_name
-    plate_name = graph_name.split("base=")[0]
-
-    model_file = os.path.dirname(__file__) + "/solve_sketch.mzn"
-    solver = MinizincSolver(model_file, "gurobi")
-
-    structure_graph = pickle.load(open(path, "rb"))
+def inspect(structure_graph=None, bricks_only=False, bricks=None, basenum=8, depictbase=False, base=None):
     # commented part is to debug
     """for i in range(len(structure_graph.bricks)):
         if i == 0 or i == 1:
@@ -114,7 +101,7 @@ if __name__ == "__main__":
             one_node_list.append(structure_graph.bricks[first])
         else:
             one_node_list.append(structure_graph.bricks[connect_edge[1]])"""
-    node_list = []
+    """node_list = []
     for i in range(len(structure_graph.bricks)):
         node_list.append(structure_graph.bricks[i])
         for connect_edge in structure_graph.connect_edges:
@@ -123,7 +110,46 @@ if __name__ == "__main__":
             elif i == connect_edge[1]:
                 node_list.append(structure_graph.bricks[connect_edge[0]])
         plot_polygons(node_list)
-        node_list = []
+        node_list = []"""
+    positive_align = []
+    negative_align = []
+    reverse_positive_align = []
+    reverse_negative_align = []
+    if not bricks_only:
+        bricks = structure_graph.bricks
+    for i in range(basenum, len(bricks)):
+        brick = bricks[i]
+        if round(brick.trans_matrix[0][0], 2) == 1 and round(brick.trans_matrix[2][2], 2) == -1:
+            positive_align.append(brick)
+        if round(brick.trans_matrix[0][0], 2) == -1 and round(brick.trans_matrix[2][2], 2) == 1:
+            negative_align.append(brick)
+        if round(brick.trans_matrix[0][2], 2) == -1 and round(brick.trans_matrix[2][0], 2) == -1:
+            reverse_positive_align.append(brick)
+        if round(brick.trans_matrix[0][2], 2) == 1 and round(brick.trans_matrix[2][0], 2) == 1:
+            reverse_negative_align.append(brick)
+
+    group_display(positive_align, 'r', depict_base=depictbase, base=base)
+    group_display(negative_align, 'k', depict_base=depictbase, base=base)
+    group_display(reverse_positive_align, 'r', depict_base=depictbase, base=base)
+    group_display(reverse_negative_align, 'k', depict_base=depictbase, base=base)
+    print(len(positive_align) + len(negative_align) + len(reverse_positive_align) + len(reverse_negative_align))
+
+
+if __name__ == "__main__":
+    graph_name, img_num, layer_names, layer_nums, background_rgb, degree, scale, width_dis, height_dis = show_interface()
+    background_bool = 1
+    if len(background_rgb) == 0:
+        background_bool = 0
+
+    folder_path = os.path.dirname(__file__) + "/connectivity/"
+    path = folder_path + graph_name
+    plate_name = graph_name.split("base=")[0]
+
+    model_file = os.path.dirname(__file__) + "/solve_sketch.mzn"
+    solver = MinizincSolver(model_file, "gurobi")
+
+    structure_graph = pickle.load(open(path, "rb"))
+    inspect(structure_graph)
 
     plate_set = structure_graph.bricks
     base_count = util.count_base_number(plate_set)

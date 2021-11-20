@@ -10,6 +10,7 @@ from bricks_modeling.database.ldraw_colors import color_phraser
 import util.geometry_util as geo_util
 import itertools as iter
 import json
+
 from util.geometry_util import get_random_transformation
 from bricks_modeling.file_IO.util import to_ldr_format
 from bricks_modeling import config
@@ -93,14 +94,49 @@ class BrickInstance:
             ): # tranformation matrix the same
                 return True
             else:
-                self_c_points = self.get_current_conn_points()
+                """self_c_points = self.get_current_conn_points()
                 other_c_points = other.get_current_conn_points()
                 for i in range(len(self_c_points)):
                     if self_c_points[i] not in other_c_points: # cpoint is not the same
                         return False
                 if len(self_c_points) == 1:
                     return False
+                return True"""
+                """self.template.use_vertices_edges2D()
+                other.template.use_vertices_edges2D()
+                template_peri = self.template.perimeter * 25
+                mesh_size = 25
+                polygon_1 = PolygonInstance(self.trans_matrix, np.multiply(self.template.edges2D, mesh_size))
+                polygon_2 = PolygonInstance(other.trans_matrix, np.multiply(other.template.edges2D, mesh_size))
+                template_peri -= compute_polygon_touch_length(polygon_1, polygon_2)
+                # print(template_peri)
+                if template_peri < 1e-6:
+                    print("Removed")
+                    return True
+                return False"""
+                self.template.use_vertices_edges2D()
+                other.template.use_vertices_edges2D()
+                
+                v_1 = np.multiply(self.template.vertices2D, 25)
+                v_2 = np.multiply(other.template.vertices2D, 25)
+                v_1 = self.trans_matrix.dot(np.insert(v_1, 3, 1, 1).T).T[:, [0, 2]]
+                v_2 = other.trans_matrix.dot(np.insert(v_2, 3, 1, 1).T).T[:, [0, 2]]
+
+                for vec1 in v_1:
+                    flag = False
+                    for vec2 in v_2:
+                        if np.linalg.norm(vec1 - vec2)< 1e-6:
+                            flag = True
+                            break
+                    if flag:
+                        continue
+                    else:
+                        return False
                 return True
+
+
+
+
         else:
             return False
 
@@ -188,6 +224,103 @@ class BrickInstance:
         mesh.rotate(self.get_rotation().tolist(), [0, 0, 0])
         mesh.translate([i for i in self.get_translation().tolist()])
         return mesh
+
+
+def is_parallel(vec1, vec2):
+    vec1 = np.round(vec1 / np.linalg.norm(vec1), 2)
+    vec2 = np.round(vec2 / np.linalg.norm(vec2), 2)
+    if np.equal(vec1, vec2).all() or np.equal(vec1, -1 * vec2).all():
+        return True
+    else:
+        return False
+
+
+def parallel_relative(vec1, vec2):
+    rate = np.linalg.norm(vec1) / np.linalg.norm(vec2)
+    if rate == 0:
+        return 0
+    vec1 = np.round(vec1 / np.linalg.norm(vec1), 2)
+    vec2 = np.round(vec2 / np.linalg.norm(vec2), 2)
+    if np.equal(vec1, vec2).all():
+        return rate
+    else:
+        return -rate
+
+
+def compute_edge_touch_length(edges_1, edges_2):
+    a, b = edges_1
+    c, d = edges_2
+
+    if not is_parallel(b - a, d - c):
+        return 0
+
+    B = b - a
+    C = c - a
+    D = d - a
+    BC = c - b
+    BD = d - b
+    BC_B = parallel_relative(BC, B)
+    BD_B = parallel_relative(BD, B)
+
+    if np.equal(a, c).all():
+        if not is_parallel(D, B):
+            return 0
+    else:
+        if not is_parallel(C, B):
+            return 0
+
+    if BD_B >= 0:
+        if BC_B >= 0:
+            return 0
+
+        if BC_B < 0:
+            if abs(BC_B) <= 1:
+                return np.linalg.norm(BC)
+
+            if abs(BC_B) > 1:
+                return np.linalg.norm(B)
+
+    if BD_B < 0 and abs(BD_B) < 1:
+        if BC_B >= 0:
+            return np.linalg.norm(BD)
+
+        if BC_B < 0:
+            if abs(BC_B) <= 1:
+                return np.linalg.norm(C - D)
+
+            if abs(BC_B) > 1:
+                return np.linalg.norm(D)
+
+    if BD_B < 0 and abs(BD_B) >= 1:
+        if BC_B >= 0:
+            return np.linalg.norm(B)
+
+        if BC_B < 0:
+            if abs(BC_B) <= 1:
+                return np.linalg.norm(C)
+
+            if abs(BC_B) > 1:
+                return 0
+
+
+class PolygonInstance:
+
+    def __init__(self, transform_matrix, edges_list):
+        edges_list = np.insert(edges_list, 3, values=1, axis=2)
+        self.edges = edges_list
+        for i in range(len(edges_list)):
+            self.edges[i] = transform_matrix.dot(edges_list[i].T).T
+        self.edges = self.edges[:, :, [0, 2]]
+        # self.perimeter = np.sum(np.linalg.norm(self.edges[:, 1] - self.edges[:, 0], axis=1))
+
+
+def compute_polygon_touch_length(polygon_1, polygon_2):
+    result = 0
+    for edges_1 in polygon_1.edges:
+        for edges_2 in polygon_2.edges:
+            result += compute_edge_touch_length(edges_1, edges_2)
+    return result
+
 
 if __name__ == "__main__":
     from bricks_modeling.file_IO.model_reader import read_bricks_from_file

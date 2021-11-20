@@ -9,6 +9,8 @@ from bricks_modeling.database.ldraw_colors import color_phraser
 import util.geometry_util as geo_util
 import itertools as iter
 import json
+
+from solvers.generation_solver.polygon_intersection import compute_edge_touch_length, plot_polygons
 from util.geometry_util import get_random_transformation
 from bricks_modeling.file_IO.util import to_ldr_format
 from bricks_modeling import config
@@ -80,6 +82,7 @@ class BrickInstance:
         return {"Origin": origin, "Rotation": np.identity(3), "Dimension": dim}
 
     def __eq__(self, other):
+        print("entered here")
         """Overrides the default implementation"""
         if isinstance(other, BrickInstance) and self.template.id == other.template.id:
             if (
@@ -87,8 +90,10 @@ class BrickInstance:
                     - np.min(self.trans_matrix - other.trans_matrix)
                     < 1e-6
             ):  # transformation matrix the same
+                print("Transform is same")
                 return True
             else:
+                """
                 self_c_points = self.get_current_conn_points()
                 other_c_points = other.get_current_conn_points()
                 for i in range(len(self_c_points)):
@@ -96,7 +101,16 @@ class BrickInstance:
                         return False
                 if len(self_c_points) == 1:
                     return False
-                return True
+                return True"""
+                self.template.use_vertices_edges2D()
+                other.template.use_vertices_edges2D()
+                template_peri = self.template.perimeter
+                for edge_1 in self.template.edges2D:
+                    for edge_2 in other.template.edges2D:
+                        template_peri -= compute_edge_touch_length(edge_1, edge_2)
+                if round(template_peri, 4) < 1e-4:
+                    plot_polygons([self,other])
+                    return True
         else:
             return False
 

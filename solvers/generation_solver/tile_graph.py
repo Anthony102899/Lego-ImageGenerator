@@ -10,6 +10,7 @@ from scipy.spatial.transform import Rotation as R
 from bricks_modeling.bricks.brickinstance import BrickInstance
 from bricks_modeling.connections.connpointtype import ConnPointType, isDoubleOriented
 from bricks_modeling.file_IO.model_writer import write_bricks_to_file
+from solvers.generation_solver.polygon_intersection import group_display
 from util.debugger import MyDebugger
 from util.geometry_util import rot_matrix_from_two_basis
 
@@ -81,11 +82,15 @@ def generate_all_neighbor_tiles(base_brick: BrickInstance, align_tile: BrickInst
         if {cpoint_base.type, cpoint_align.type} in connect_type and condition:  # can connect
             # get all possible rotation matrices
             matrices = get_orient_matrices(cpoint_base, cpoint_align, sketch, base_dim)
+            # picture_list = []
+            # picture_list.append(base_brick)
             for trans_mat in matrices:  # 2 possible orientations consistent with the normal
                 new_tile = BrickInstance(align_tile.template, trans_mat, color)
                 # TODO: detect if new tile collide with the base tile (for concave shape)
                 #if base_brick.connect(new_tile):
                 result_tiles.append(new_tile)
+                # picture_list.append(new_tile)
+            # group_display(picture_list, 'k')
     return result_tiles
 
 def unique_brick_list(bricks: List[BrickInstance]):
@@ -127,9 +132,16 @@ def find_brick_placements(num_rings: int, base_tile, tile_set: list, sketch=Fals
                 neighbour_tiles = generate_all_neighbor_tiles(
                     base_brick=last_brick, align_tile=align_tile, color=i + 1, sketch=sketch, base_num=base_num)
 
-                neighbour_tiles = unique_brick_list(neighbour_tiles)
+                """debug_list = []
+                for brick in neighbour_tiles:
+                    if brick.trans_matrix[0][0] == 1 and brick.trans_matrix[2][2] == -1:
+                        debug_list.append(brick)
+                group_display(debug_list, 'k', True, [last_brick])"""
+                # neighbour_tiles = unique_brick_list(neighbour_tiles)
 
-                for elem in neighbour_tiles:
+                for j in range(len(neighbour_tiles)):
+                    elem = neighbour_tiles[j]
+                    print(j)
                     if elem not in snd_last_ring and elem not in this_ring:
                         result_tiles.append(elem)
                         last_ring.append(elem)

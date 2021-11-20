@@ -1,12 +1,15 @@
+import os
+import pickle
+
 from bricks_modeling.bricks.bricktemplate import BrickTemplate
-from bricks_modeling.bricks.brickinstance import get_corner_pos
-from bricks_modeling.file_IO.model_reader import read_bricks_from_file
+import bricks_modeling.file_IO.model_reader
 from bricks_modeling.connectivity_graph import ConnectivityGraph
 from visualization.model_visualizer import visualize_3D
 import numpy as np
 from matplotlib.patches import Polygon as MatPolygon
 from shapely.geometry import Polygon, LineString, MultiLineString
 import matplotlib.pyplot as plt
+
 
 
 """EDGE_TEMPLATE = np.array([
@@ -57,6 +60,7 @@ def compute_polygon_touch_length(polygon_1, polygon_2):
         for edges_2 in polygon_2.edges:
             result += compute_edge_touch_length(edges_1, edges_2)
     return result
+
 
 def is_parallel(vec1, vec2):
     vec1 = np.round(vec1 / np.linalg.norm(vec1), 2)
@@ -137,8 +141,8 @@ def compute_edge_touch_length(edges_1, edges_2):
 
 def plot_polygons(bricks):
     fig, ax = plt.subplots()
-    first = True
-    for brick in bricks:
+    for i in range(1, len(bricks)):
+        brick = bricks[i]
         brick.template.use_vertices_edges2D()
         mesh_size = 25
         polygon = PolygonInstance(brick.trans_matrix, np.multiply(brick.template.edges2D, mesh_size))
@@ -146,12 +150,20 @@ def plot_polygons(bricks):
             np.insert(np.multiply(brick.template.vertices2D, mesh_size), 3, values=1, axis=1).T).T[:, [0, 2]]
         sorted_vertices = get_sorted_vertices(polygon, vertices)
 
-        if first:
-            p = MatPolygon(sorted_vertices, facecolor='k')
-            first = False
-        else:
-            p = MatPolygon(sorted_vertices, facecolor='r')
+        p = MatPolygon(sorted_vertices, facecolor='r')
         ax.add_patch(p)
+
+    brick = bricks[0]
+    brick.template.use_vertices_edges2D()
+    mesh_size = 25
+    polygon = PolygonInstance(brick.trans_matrix, np.multiply(brick.template.edges2D, mesh_size))
+    vertices = brick.trans_matrix.dot(
+        np.insert(np.multiply(brick.template.vertices2D, mesh_size), 3, values=1, axis=1).T).T[:, [0, 2]]
+    sorted_vertices = get_sorted_vertices(polygon, vertices)
+
+    p = MatPolygon(sorted_vertices, facecolor='k')
+    ax.add_patch(p)
+
     ax.set_xlim([-500, 500])
     ax.set_ylim([0, 1000])
     plt.show()
@@ -159,7 +171,7 @@ def plot_polygons(bricks):
 
 
 def exam():
-    bricks = read_bricks_from_file("./['43723'] base=12 n=290 r=1.ldr")
+    bricks = bricks_modeling.read_bricks_from_file("./['43723'] base=12 n=290 r=1.ldr")
     structure_graph = ConnectivityGraph(bricks)
     # graph = AdjacencyGraph(bricks)
     for brick in bricks:
@@ -273,9 +285,79 @@ def collide_connect_2D(brick_1, brick_2):
             return compute_polygon_touch_length(polygon_1, polygon_2)"""
 
 
+def group_display(bricks, color, depict_base=False, base=None):
+    fig, ax = plt.subplots()
+    """brick = bricks[0]
+    brick.template.use_vertices_edges2D()
+    mesh_size = 25
+    polygon = PolygonInstance(brick.trans_matrix, np.multiply(brick.template.edges2D, mesh_size))
+    vertices = brick.trans_matrix.dot(
+        np.insert(np.multiply(brick.template.vertices2D, mesh_size), 3, values=1, axis=1).T).T[:, [0, 2]]
+    sorted_vertices = get_sorted_vertices(polygon, vertices)
+
+    p = MatPolygon(sorted_vertices, facecolor='b')
+    ax.add_patch(p)"""
+    if depict_base:
+        for brick in base:
+            brick.template.use_vertices_edges2D()
+            mesh_size = 25
+            polygon = PolygonInstance(brick.trans_matrix, np.multiply(brick.template.edges2D, mesh_size))
+            vertices = brick.trans_matrix.dot(
+                np.insert(np.multiply(brick.template.vertices2D, mesh_size), 3, values=1, axis=1).T).T[:, [0, 2]]
+            sorted_vertices = get_sorted_vertices(polygon, vertices)
+
+            p = MatPolygon(sorted_vertices, facecolor='b')
+            ax.add_patch(p)
+
+    for i in range(0, len(bricks)):
+        brick = bricks[i]
+        brick.template.use_vertices_edges2D()
+        mesh_size = 25
+        polygon = PolygonInstance(brick.trans_matrix, np.multiply(brick.template.edges2D, mesh_size))
+        vertices = brick.trans_matrix.dot(
+            np.insert(np.multiply(brick.template.vertices2D, mesh_size), 3, values=1, axis=1).T).T[:, [0, 2]]
+        sorted_vertices = get_sorted_vertices(polygon, vertices)
+
+        p = MatPolygon(sorted_vertices, facecolor=color)
+        ax.add_patch(p)
+
+    """ brick = bricks[1]
+    brick.template.use_vertices_edges2D()
+    mesh_size = 25
+    polygon = PolygonInstance(brick.trans_matrix, np.multiply(brick.template.edges2D, mesh_size))
+    vertices = brick.trans_matrix.dot(
+        np.insert(np.multiply(brick.template.vertices2D, mesh_size), 3, values=1, axis=1).T).T[:, [0, 2]]
+    sorted_vertices = get_sorted_vertices(polygon, vertices)
+
+    p = MatPolygon(sorted_vertices, facecolor='r')
+    ax.add_patch(p)"""
+
+    ax.set_xlim([-500, 500])
+    ax.set_ylim([0, 1000])
+    plt.show()
+
+
+def align_detection():
+    path = os.path.dirname(__file__) + "/connectivity/['43722', '43723'] base=24 t=1281.55.pkl"
+    structure_graph = pickle.load(open(path, "rb"))
+    positive_align = []
+    negative_align = []
+    for brick in structure_graph.bricks:
+        if brick.trans_matrix[0][3] == 1 and brick.trans_matrix[2][3] == 1:
+            positive_align.append(brick)
+        if brick.trans_matrix[0][3] == -1 and brick.trans_matrix[2][3] == -1:
+            negative_align.append(brick)
+    group_display(positive_align, 'r')
+    group_display(negative_align, 'k')
+
+
+
+
+
 if __name__ == "__main__":
     """polygon_1 = PolygonInstance(TRANSFORM_MATRIX_1, EDGE_TEMPLATE)
     polygon_2 = PolygonInstance(TRANSFORM_MATRIX_2, EDGE_TEMPLATE)
     print(compute_polygon_touch_length(polygon_1, polygon_2))
     pass"""
-    exam()
+    #exam()
+    align_detection()
