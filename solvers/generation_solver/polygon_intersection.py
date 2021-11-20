@@ -38,7 +38,7 @@ class PolygonInstance:
         for i in range(len(edges_list)):
             self.edges[i] = transform_matrix.dot(edges_list[i].T).T
         self.edges = self.edges[:, :, [0, 2]]
-        self.perimeter = np.sum(np.linalg.norm(self.edges[:, 1] - self.edges[:, 0], axis=1))
+        # self.perimeter = np.sum(np.linalg.norm(self.edges[:, 1] - self.edges[:, 0], axis=1))
 
 
 class Vertex:
@@ -135,6 +135,32 @@ def compute_edge_touch_length(edges_1, edges_2):
                 return 0
 
 
+def plot_polygons(brick_1, brick_2):
+    if brick_1.trans_matrix[1][3] != brick_2.trans_matrix[1][3]:
+        return 0
+    brick_1.template.use_vertices_edges2D()
+    brick_2.template.use_vertices_edges2D()
+    mesh_size = 25
+    polygon_1 = PolygonInstance(brick_1.trans_matrix, np.multiply(brick_1.template.edges2D, mesh_size))
+    polygon_2 = PolygonInstance(brick_2.trans_matrix, np.multiply(brick_2.template.edges2D, mesh_size))
+    vertices_1 = brick_1.trans_matrix.dot(
+        np.insert(np.multiply(brick_1.template.vertices2D, mesh_size), 3, values=1, axis=1).T).T[:, [0, 2]]
+    vertices_2 = brick_2.trans_matrix.dot(
+        np.insert(np.multiply(brick_2.template.vertices2D, mesh_size), 3, values=1, axis=1).T).T[:, [0, 2]]
+    sorted_vertices_1 = get_sorted_vertices(polygon_1, vertices_1)
+    sorted_vertices_2 = get_sorted_vertices(polygon_2, vertices_2)
+
+    p1 = MatPolygon(sorted_vertices_1, facecolor='k')
+    p2 = MatPolygon(sorted_vertices_2, facecolor='r')
+    fig, ax = plt.subplots()
+    ax.add_patch(p1)
+    ax.add_patch(p2)
+    ax.set_xlim([70, 300])
+    ax.set_ylim([100, 300])
+    plt.show()
+
+
+
 def exam():
     bricks = read_bricks_from_file("./['43723'] base=12 n=290 r=1.ldr")
     structure_graph = ConnectivityGraph(bricks)
@@ -204,6 +230,46 @@ def get_sorted_vertices(polygon, vertices):
             current = neighbor
             break
     return np.array(sorted_vertices)
+
+
+def collide_connect_2D(brick_1, brick_2):
+    if brick_1.trans_matrix[1][3] != brick_2.trans_matrix[1][3]:
+        return 0
+    brick_1.template.use_vertices_edges2D()
+    brick_2.template.use_vertices_edges2D()
+    mesh_size = 25
+    polygon_1 = PolygonInstance(brick_1.trans_matrix, np.multiply(brick_1.template.edges2D, mesh_size))
+    polygon_2 = PolygonInstance(brick_2.trans_matrix, np.multiply(brick_2.template.edges2D, mesh_size))
+    vertices_1 = brick_1.trans_matrix.dot(
+        np.insert(np.multiply(brick_1.template.vertices2D, mesh_size), 3, values=1, axis=1).T).T[:, [0, 2]]
+    vertices_2 = brick_2.trans_matrix.dot(
+        np.insert(np.multiply(brick_2.template.vertices2D, mesh_size), 3, values=1, axis=1).T).T[:, [0, 2]]
+    sorted_vertices_1 = get_sorted_vertices(polygon_1, vertices_1)
+    sorted_vertices_2 = get_sorted_vertices(polygon_2, vertices_2)
+
+    """p1 = MatPolygon(sorted_vertices_1, facecolor='k')
+    p2 = MatPolygon(sorted_vertices_2, facecolor='k')
+    fig, ax = plt.subplots()
+    ax.add_patch(p1)
+    ax.add_patch(p2)
+    ax.set_xlim([70, 300])
+    ax.set_ylim([100, 300])
+    plt.show()"""
+
+    poly1 = Polygon(sorted_vertices_1)
+    poly2 = Polygon(sorted_vertices_2)
+
+    intersection = poly1.intersection(poly2)
+    if isinstance(intersection, Polygon):
+        if not intersection.is_empty:
+            # print("collide!")
+            return -1
+        else:
+            return 0
+    elif isinstance(intersection, LineString):
+        # print("touch!")
+        return compute_polygon_touch_length(polygon_1, polygon_2)
+    return 0
 
 
 if __name__ == "__main__":

@@ -11,7 +11,7 @@ from matplotlib.patches import Polygon
 
 if __name__ == "__main__":
     debugger = MyDebugger("test")
-    bricks = read_bricks_from_file("./debug/2021-11-15_19-49-14_LEGO0/LEGO0 b=24 ['3024', '3020', '3023', '3710', '43722', '43723'] .ldr")
+    bricks = read_bricks_from_file("./debug/2021-11-20_10-33-13_heart/heart b=12 ['43723'] .ldr")
     # bricks = read_bricks_from_file("./data/full_models/cube7.ldr")
     # bricks = read_bricks_from_file("./solvers/generation_solver/['43723'] base=12 n=290 r=1.ldr")
     structure_graph = ConnectivityGraph(bricks)

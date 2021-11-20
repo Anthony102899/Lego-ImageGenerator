@@ -10,6 +10,7 @@ import open3d as o3d
 from pathos.multiprocessing import ProcessingPool as Pool
 
 from bricks_modeling.file_IO.model_reader import read_bricks_from_file
+from solvers.generation_solver.polygon_intersection import collide_connect_2D
 from solvers.generation_solver.tile_graph import unique_brick_list
 from util.json_encoder import NumpyArrayEncoder
 
@@ -33,11 +34,20 @@ class AdjacencyGraph:
         print("#tiles after filtring repeat:", len(self.bricks))
 
     def build(self, b_i, b_j):
-        if self.bricks[b_i].collide(self.bricks[b_j]):
+        """if self.bricks[b_i].collide(self.bricks[b_j]):
             return (b_i, b_j), 1
         elif self.bricks[b_i].connect(self.bricks[b_j]):
             return (b_i, b_j), 0
-        return None, -1
+        return None, -1"""
+        self.bricks[b_i].template.use_vertices_edges2D()
+        self.bricks[b_j].template.use_vertices_edges2D()
+        relationship = collide_connect_2D(self.bricks[b_i], self.bricks[b_j])
+        if relationship == 0:
+            return None, 0
+        elif relationship < 0:
+            return (b_i, b_j), -1
+        elif relationship > 0:
+            return (b_i, b_j, relationship), relationship
 
     def build_graph_from_bricks(self):
         it = np.array(list(itertools.combinations(list(range(0, len(self.bricks))), 2)))
@@ -45,9 +55,9 @@ class AdjacencyGraph:
             a = p.map(self.build, it[:, 0], it[:, 1])
 
         for x in a:
-            if x[1] == 1:
+            if x[1] == -1:
                 self.overlap_edges.extend([x[0]])
-            elif x[1] == 0:
+            elif x[1] > 0:
                 self.connect_edges.extend([x[0]])
 
     def to_json(self):
@@ -101,10 +111,14 @@ class AdjacencyGraph:
 if __name__ == "__main__":
     path = os.path.dirname(__file__) + "/['43723'] base=12 n=290 r=1.ldr"
     bricks = read_bricks_from_file(path)
+    for brick in bricks:
+        brick.template.use_vertices_edges2D()
     _, filename = os.path.split(path)
     filename = (filename.split("."))[0]
     start_time = time.time()
     structure_graph = AdjacencyGraph(bricks)
+    print(structure_graph.overlap_edges)
+    print(structure_graph.connect_edges)
     # print(structure_graph.connect_edges)
     t = round(time.time() - start_time, 2)
     pickle.dump(structure_graph,

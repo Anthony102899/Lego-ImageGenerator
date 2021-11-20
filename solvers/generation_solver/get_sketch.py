@@ -1,6 +1,7 @@
 import logging
 import os
 from solvers.generation_solver.minizinc_sketch import MinizincSolver
+from solvers.generation_solver.polygon_intersection import plot_polygons
 from util.debugger import MyDebugger
 from bricks_modeling.file_IO.model_writer import write_bricks_to_file
 from bricks_modeling.file_IO.model_reader import read_bricks_from_file
@@ -89,6 +90,9 @@ if __name__ == "__main__":
     solver = MinizincSolver(model_file, "gurobi")
 
     structure_graph = pickle.load(open(path, "rb"))
+    for connect_edge in structure_graph.connect_edges:
+        print(str(connect_edge[0]) + "---" + str(connect_edge[1]))
+        plot_polygons(structure_graph.bricks[connect_edge[0]], structure_graph.bricks[connect_edge[1]])
     plate_set = structure_graph.bricks
     base_count = util.count_base_number(plate_set)
     base_bricks = plate_set[:base_count]
