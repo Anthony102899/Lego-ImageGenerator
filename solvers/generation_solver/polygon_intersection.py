@@ -135,28 +135,25 @@ def compute_edge_touch_length(edges_1, edges_2):
                 return 0
 
 
-def plot_polygons(brick_1, brick_2):
-    if brick_1.trans_matrix[1][3] != brick_2.trans_matrix[1][3]:
-        return 0
-    brick_1.template.use_vertices_edges2D()
-    brick_2.template.use_vertices_edges2D()
-    mesh_size = 25
-    polygon_1 = PolygonInstance(brick_1.trans_matrix, np.multiply(brick_1.template.edges2D, mesh_size))
-    polygon_2 = PolygonInstance(brick_2.trans_matrix, np.multiply(brick_2.template.edges2D, mesh_size))
-    vertices_1 = brick_1.trans_matrix.dot(
-        np.insert(np.multiply(brick_1.template.vertices2D, mesh_size), 3, values=1, axis=1).T).T[:, [0, 2]]
-    vertices_2 = brick_2.trans_matrix.dot(
-        np.insert(np.multiply(brick_2.template.vertices2D, mesh_size), 3, values=1, axis=1).T).T[:, [0, 2]]
-    sorted_vertices_1 = get_sorted_vertices(polygon_1, vertices_1)
-    sorted_vertices_2 = get_sorted_vertices(polygon_2, vertices_2)
-
-    p1 = MatPolygon(sorted_vertices_1, facecolor='k')
-    p2 = MatPolygon(sorted_vertices_2, facecolor='r')
+def plot_polygons(bricks):
     fig, ax = plt.subplots()
-    ax.add_patch(p1)
-    ax.add_patch(p2)
-    ax.set_xlim([70, 300])
-    ax.set_ylim([100, 300])
+    first = True
+    for brick in bricks:
+        brick.template.use_vertices_edges2D()
+        mesh_size = 25
+        polygon = PolygonInstance(brick.trans_matrix, np.multiply(brick.template.edges2D, mesh_size))
+        vertices = brick.trans_matrix.dot(
+            np.insert(np.multiply(brick.template.vertices2D, mesh_size), 3, values=1, axis=1).T).T[:, [0, 2]]
+        sorted_vertices = get_sorted_vertices(polygon, vertices)
+
+        if first:
+            p = MatPolygon(sorted_vertices, facecolor='k')
+            first = False
+        else:
+            p = MatPolygon(sorted_vertices, facecolor='r')
+        ax.add_patch(p)
+    ax.set_xlim([-500, 500])
+    ax.set_ylim([0, 1000])
     plt.show()
 
 
@@ -184,8 +181,8 @@ def exam():
     fig, ax = plt.subplots()
     ax.add_patch(p1)
     ax.add_patch(p2)
-    ax.set_xlim([70, 300])
-    ax.set_ylim([100, 300])
+    ax.set_xlim([0, 1000])
+    ax.set_ylim([0, 1000])
     plt.show()
 
     poly1 = Polygon(sorted_vertices_1)
@@ -270,7 +267,7 @@ def collide_connect_2D(brick_1, brick_2):
         else:
             return 0
     else:
-        return compute_polygon_touch_length(polygon_1, polygon_2)
+        return round(compute_polygon_touch_length(polygon_1, polygon_2), 2)
     """elif isinstance(intersection, LineString) or isinstance(intersection, MultiLineString):
             # print("touch!")
             return compute_polygon_touch_length(polygon_1, polygon_2)"""

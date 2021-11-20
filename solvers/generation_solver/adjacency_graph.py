@@ -109,7 +109,7 @@ class AdjacencyGraph:
 
 
 if __name__ == "__main__":
-    path = os.path.dirname(__file__) + "/['43723'] base=12 n=290 r=1.ldr"
+    path = os.path.dirname(__file__) + "/['3024', '3020', '3023', '3710', '43722', '43723'] base=24.ldr"
     bricks = read_bricks_from_file(path)
     for brick in bricks:
         brick.template.use_vertices_edges2D()

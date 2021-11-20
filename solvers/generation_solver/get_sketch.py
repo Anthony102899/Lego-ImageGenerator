@@ -91,7 +91,7 @@ if __name__ == "__main__":
 
     structure_graph = pickle.load(open(path, "rb"))
     # commented part is to debug
-    for i in range(len(structure_graph.bricks)):
+    """for i in range(len(structure_graph.bricks)):
         if i == 0 or i == 1:
             continue
         for j in range(i + 1, len(structure_graph.bricks)):
@@ -100,7 +100,31 @@ if __name__ == "__main__":
                 print(str(i) + "---" + str(j) + " collide")
             else:
                 print(str(i) + "---" + str(j) + " " + str(length))
-            plot_polygons(structure_graph.bricks[i], structure_graph.bricks[j])
+            plot_polygons(structure_graph.bricks[i], structure_graph.bricks[j])"""
+    """first = -1
+    one_node_list = []
+    for connect_edge in structure_graph.connect_edges:
+        if first == -1:
+            first = connect_edge[0]
+            one_node_list.append(structure_graph.bricks[first])
+        if first != connect_edge[0]:
+            plot_polygons(one_node_list)
+            one_node_list = []
+            first = connect_edge[0]
+            one_node_list.append(structure_graph.bricks[first])
+        else:
+            one_node_list.append(structure_graph.bricks[connect_edge[1]])"""
+    node_list = []
+    for i in range(len(structure_graph.bricks)):
+        node_list.append(structure_graph.bricks[i])
+        for connect_edge in structure_graph.connect_edges:
+            if i == connect_edge[0]:
+                node_list.append(structure_graph.bricks[connect_edge[1]])
+            elif i == connect_edge[1]:
+                node_list.append(structure_graph.bricks[connect_edge[0]])
+        plot_polygons(node_list)
+        node_list = []
+
     plate_set = structure_graph.bricks
     base_count = util.count_base_number(plate_set)
     base_bricks = plate_set[:base_count]
