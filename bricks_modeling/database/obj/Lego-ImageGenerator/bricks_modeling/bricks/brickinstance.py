@@ -1,18 +1,18 @@
+import itertools as iter
+import os
+
 import numpy as np
 import open3d as o3d
-import os
 import trimesh
-from bricks_modeling.bricks.bricktemplate import BrickTemplate
-from bricks_modeling.connections.connpoint import CPoint
-from bricks_modeling.connections.conn_type import compute_conn_type
-from bricks_modeling.database.ldraw_colors import color_phraser
-import util.geometry_util as geo_util
-import itertools as iter
-import json
-from util.geometry_util import get_random_transformation
-from bricks_modeling.file_IO.util import to_ldr_format
-from bricks_modeling import config
+
 import util.cuboid_collision as cuboid_col
+import util.geometry_util as geo_util
+from bricks_modeling import config
+from bricks_modeling.bricks.bricktemplate import BrickTemplate
+from bricks_modeling.connections.conn_type import compute_conn_type
+from bricks_modeling.connections.connpoint import CPoint
+from bricks_modeling.database.ldraw_colors import color_phraser
+from bricks_modeling.file_IO.util import to_ldr_format
 
 
 # return a list of bbox corners
@@ -189,8 +189,6 @@ class BrickInstance:
 
 if __name__ == "__main__":
     from bricks_modeling.file_IO.model_reader import read_bricks_from_file
-    from bricks_modeling.file_IO.model_writer import write_bricks_to_file
-    from bricks_modeling.connectivity_graph import ConnectivityGraph
 
     bricks = read_bricks_from_file("")
 

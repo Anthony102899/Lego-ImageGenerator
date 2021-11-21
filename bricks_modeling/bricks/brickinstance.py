@@ -1,20 +1,19 @@
 
+import itertools as iter
+import os
+
 import numpy as np
 import open3d as o3d
-import os
 import trimesh
-from bricks_modeling.bricks.bricktemplate import BrickTemplate
-from bricks_modeling.connections.connpoint import CPoint
-from bricks_modeling.connections.conn_type import compute_conn_type
-from bricks_modeling.database.ldraw_colors import color_phraser
-import util.geometry_util as geo_util
-import itertools as iter
-import json
-from util.geometry_util import get_random_transformation
-from bricks_modeling.file_IO.util import to_ldr_format
-from bricks_modeling import config
-import util.cuboid_collision as cuboid_col
 
+import util.cuboid_collision as cuboid_col
+import util.geometry_util as geo_util
+from bricks_modeling import config
+from bricks_modeling.bricks.bricktemplate import BrickTemplate
+from bricks_modeling.connections.conn_type import compute_conn_type
+from bricks_modeling.connections.connpoint import CPoint
+from bricks_modeling.database.ldraw_colors import color_phraser
+from bricks_modeling.file_IO.util import to_ldr_format
 
 """
     This file is about bricks collision & connectivity & translation & rotation
@@ -93,13 +92,24 @@ class BrickInstance:
             ): # tranformation matrix the same
                 return True
             else:
-                self_c_points = self.get_current_conn_points()
-                other_c_points = other.get_current_conn_points()
-                for i in range(len(self_c_points)):
-                    if self_c_points[i] not in other_c_points: # cpoint is not the same
+                self.template.use_vertices_edges2D()
+                other.template.use_vertices_edges2D()
+
+                v_1 = np.multiply(self.template.vertices2D, 25)
+                v_2 = np.multiply(other.template.vertices2D, 25)
+                v_1 = self.trans_matrix.dot(np.insert(v_1, 3, 1, 1).T).T[:, [0, 2]]
+                v_2 = other.trans_matrix.dot(np.insert(v_2, 3, 1, 1).T).T[:, [0, 2]]
+
+                for vec1 in v_1:
+                    flag = False
+                    for vec2 in v_2:
+                        if np.linalg.norm(vec1 - vec2)< 1e-6:
+                            flag = True
+                            break
+                    if flag:
+                        continue
+                    else:
                         return False
-                if len(self_c_points) == 1:
-                    return False
                 return True
         else:
             return False
@@ -191,9 +201,7 @@ class BrickInstance:
 
 if __name__ == "__main__":
     from bricks_modeling.file_IO.model_reader import read_bricks_from_file
-    from bricks_modeling.file_IO.model_writer import write_bricks_to_file
-    from bricks_modeling.connectivity_graph import ConnectivityGraph
-    
+
     bricks = read_bricks_from_file("")
 
     for i in range(len(bricks)):

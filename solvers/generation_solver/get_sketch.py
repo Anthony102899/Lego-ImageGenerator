@@ -1,6 +1,7 @@
 import logging
 import os
 from solvers.generation_solver.minizinc_sketch import MinizincSolver
+from solvers.generation_solver.polygon_intersection import plot_polygons, collide_connect_2D, group_display
 from util.debugger import MyDebugger
 from bricks_modeling.file_IO.model_writer import write_bricks_to_file
 from bricks_modeling.file_IO.model_reader import read_bricks_from_file
@@ -20,7 +21,7 @@ from scipy import stats
 def crop_ls(rgbs, sd):
     if len(rgbs) == 0:
         if sd:
-            return -0.01
+            return -1;
         return []
     length_rgbs = float(len(rgbs))
     mode, frequency = stats.mode(rgbs)
@@ -32,7 +33,7 @@ def crop_ls(rgbs, sd):
         return float(round(np.prod(sd_rgbs), 4) + 0.0001)"""
         frequency_diff = np.subtract(frequency, length_rgbs)
         frequency_diff_rate = np.divide(frequency_diff, length_rgbs)
-        return float(np.sum(np.square(frequency_diff_rate)) + 0.0001)
+        return float(np.sum(np.square(frequency_diff_rate)))
     return mode
     # return np.average(rgbs, axis = 0)
 
@@ -73,6 +74,51 @@ def ls_from_layout(img, plate_set, base_int):
         node_color.wait()
     return node_sd.get(), node_color.get()
 
+def inspect(structure_graph=None, bricks_only=False, bricks=None, basenum=8, depictbase=False, base=None):
+    positive_align = []
+    negative_align = []
+    reverse_positive_align = []
+    reverse_negative_align = []
+    if not bricks_only:
+        bricks = structure_graph.bricks
+    print("Total number is " + str(len(bricks)))
+    for i in range(basenum, len(bricks)):
+        brick = bricks[i]
+        if round(brick.trans_matrix[0][0], 2) == 1 and round(brick.trans_matrix[2][2], 2) == -1:
+            positive_align.append(brick)
+        if round(brick.trans_matrix[0][0], 2) == -1 and round(brick.trans_matrix[2][2], 2) == 1:
+            negative_align.append(brick)
+        if round(brick.trans_matrix[0][2], 2) == -1 and round(brick.trans_matrix[2][0], 2) == -1:
+            reverse_positive_align.append(brick)
+        if round(brick.trans_matrix[0][2], 2) == 1 and round(brick.trans_matrix[2][0], 2) == 1:
+            reverse_negative_align.append(brick)
+
+    group_display(positive_align, 'r', depict_base=depictbase, base=base)
+    group_display(negative_align, 'k', depict_base=depictbase, base=base)
+    group_display(reverse_positive_align, 'r', depict_base=depictbase, base=base)
+    group_display(reverse_negative_align, 'k', depict_base=depictbase, base=base)
+    print(len(positive_align) + len(negative_align) + len(reverse_positive_align) + len(reverse_negative_align))
+
+
+def pickle_collision_finding(structure_graph):
+    bricks = structure_graph.bricks
+    for i in range(len(bricks)):
+        brick = bricks[i]
+        if brick.template.id == '43722' and brick.trans_matrix[0][3] == 250 \
+                and brick.trans_matrix[2][3] == 400 and brick.trans_matrix[0][2] == -1 \
+                and brick.trans_matrix[2][0] == -1:
+            for j in range(len(bricks)):
+                brick = bricks[j]
+                if brick.template.id == '43723' and brick.trans_matrix[0][3] == 230 \
+                        and brick.trans_matrix[2][3] == 400 and round(brick.trans_matrix[0][2], 2) == 1 \
+                        and round(brick.trans_matrix[2][0], 2) == 1:
+                    for col_edge in structure_graph.connect_edges:
+                        if col_edge[0] == i:
+                            print(col_edge)
+                    result = collide_connect_2D(bricks[i], bricks[j])
+                    print("found")
+
+
 if __name__ == "__main__":
     graph_name, img_num, layer_names, layer_nums, background_rgb, degree, scale, width_dis, height_dis = show_interface()
     background_bool = 1
@@ -87,6 +133,9 @@ if __name__ == "__main__":
     solver = MinizincSolver(model_file, "gurobi")
 
     structure_graph = pickle.load(open(path, "rb"))
+    # inspect(structure_graph)
+    # pickle_collision_finding(structure_graph)
+
     plate_set = structure_graph.bricks
     base_count = util.count_base_number(plate_set)
     base_bricks = plate_set[:base_count]
@@ -119,8 +168,8 @@ if __name__ == "__main__":
         img = cv2.resize(img, (base_int * 20 + 1, base_int * 20 + 1))
 
         node_sd, node_color = ls_from_layout(img, sketch_bricks, base_int)
-        node_sd = [0.0001 for i in range(base_count)] + node_sd
-        node_sd = [1 / i for i in node_sd]
+        node_sd = [0.1 for i in range(base_count)] + node_sd
+        node_sd = [i for i in node_sd]
         sd_max = np.amax(np.array(node_sd))
         if not sd_max == 0:
             sd_normal = [round(i / sd_max, 3)  if i > 0 else i for i in node_sd]

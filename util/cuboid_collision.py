@@ -1,5 +1,4 @@
 import numpy as np
-import math
 from numpy.linalg import norm
 
 def check_ineq(T, L, cub_vec, ref_vec):
