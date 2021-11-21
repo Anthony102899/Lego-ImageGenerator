@@ -149,7 +149,7 @@ if __name__ == "__main__":
     solver = MinizincSolver(model_file, "gurobi")
 
     structure_graph = pickle.load(open(path, "rb"))
-    inspect(structure_graph)
+    # inspect(structure_graph)
 
     plate_set = structure_graph.bricks
     base_count = util.count_base_number(plate_set)

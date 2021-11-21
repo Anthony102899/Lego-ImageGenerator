@@ -50,8 +50,8 @@ float : sum_perimeter = sum(n in NODE) (perimeter[n]);
 var float : sum_selected_perimeter = sum(n in EDGE_CON) (node[from_connect[n]] * node[to_connect[n]] * touch_length[n]);
 
 var float : La = 1 - 1.0 * (sum_selected_area / sum_area);
-var float : Ls = 1 + 0.005 * (sum_selected_sd / sum_sd);
-var float : Lp = 1 - 100.0 * (sum_selected_perimeter / sum_perimeter);
+var float : Ls = 1 + 0.01 * (sum_selected_sd / sum_sd);
+var float : Lp = 1 - 0.002 * (sum_selected_perimeter / sum_perimeter);
 
-var float : obj = La;
+var float : obj = La * Ls * Lp;
 solve minimize obj;
