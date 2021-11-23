@@ -6,7 +6,7 @@ from visualization.model_visualizer import visualize_3D
 
 if __name__ == "__main__":
     debugger = MyDebugger("test")
-    bricks = read_bricks_from_file("./debug/2021-11-21_21-30-38_heart/heart b=24 ['3024', '43722', '43723'] .ldr")
+    bricks = read_bricks_from_file("./debug/2021-11-22_21-20-47_heart/heart b=24 ['3024', '43722', '43723'] .ldr")
     # bricks = read_bricks_from_file("./data/full_models/cube7.ldr")
     structure_graph = ConnectivityGraph(bricks)
     print(structure_graph.to_json())
