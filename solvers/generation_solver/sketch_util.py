@@ -52,7 +52,7 @@ def get_cover_rgb(brick, img, base_int):
                     rgb_color = (bgra[:3])[::-1]
                     if channel == 4 and bgra[3] == 0:
                         return []
-                    # not transparent
+                    # not transparentS
                     else:
                         rgbs.append(rgb_color)
                 except:

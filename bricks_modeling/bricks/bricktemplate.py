@@ -1,4 +1,5 @@
 import numpy as np
+
 import os
 from bricks_modeling.connections.connpoint import CPoint
 from bricks_modeling.connections.connpointtype import ConnPointType
@@ -136,13 +137,10 @@ class BrickTemplate:
 
 
 if __name__ == "__main__":
-    """cpoints = [
+    cpoints = [
         CPoint(np.array([0, 0, -1]), np.array([0, 1, 0]), ConnPointType.AXLE),
         CPoint(np.array([0, 0, 0]), np.array([0, 1, 0]), ConnPointType.AXLE),
         CPoint(np.array([0, 0, 1]), np.array([0, 1, 0]), ConnPointType.AXLE),
     ]
     brick = BrickTemplate(cpoints, ldraw_id="32523.dat")
-    input("")"""
-    brick = BrickTemplate([], ldraw_id="43723")
-
-    print(brick.edges2D)
+    input("")

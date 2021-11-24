@@ -1,17 +1,22 @@
 import os
-from bricks_modeling.file_IO.model_reader import read_bricks_from_file
-from solvers.generation_solver.tile_graph import find_brick_placements
-from util.debugger import MyDebugger
-from bricks_modeling.file_IO.model_writer import write_bricks_to_file
-from bricks_modeling.bricks.brick_factory import get_all_brick_templates
-from bricks_modeling.bricks.brickinstance import BrickInstance
-import numpy as np
-import copy
-import os
 import time
 
+import numpy as np
+
+from bricks_modeling.bricks.brick_factory import get_all_brick_templates
+from bricks_modeling.bricks.brickinstance import BrickInstance
+from bricks_modeling.file_IO.model_reader import read_bricks_from_file
+from bricks_modeling.file_IO.model_writer import write_bricks_to_file
+from solvers.generation_solver.get_sketch import inspect
+from solvers.generation_solver.tile_graph import find_brick_placements
+from util.debugger import MyDebugger
+
 brick_IDs = [# tile
-             # plate
+             # plate 
+             "3024",
+             # "3020",
+             # "3023",
+             # "3710",
              "43722",
              "43723"
              # other
@@ -47,6 +52,7 @@ if __name__ == "__main__":
 
     num_rings = int(input("Enter ring: "))
     bricks = generate_new_plate(brick_set, base=base, num_rings=num_rings, base_num=base_num)
+    # inspect(bricks=bricks, bricks_only=True, basenum=2, depictbase=True, base=bricks[:2])
     write_bricks_to_file(
-        bricks, file_path=debugger.file_path(f"{brick_IDs} base={base_name}.ldr"))
+        bricks, file_path=debugger.file_path(f"{brick_IDs} base={base_name} n={len(bricks)} r={num_rings}.ldr"))
     print("done!")

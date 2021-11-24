@@ -1,16 +1,18 @@
-from bricks_modeling.bricks.brickinstance import BrickInstance
-from bricks_modeling.connections.connpointtype import ConnPointType, typeToBrick, isDoubleOriented
-from util.geometry_util import rot_matrix_from_vec_a_to_b, rot_matrix_from_two_basis
-import numpy as np
 import itertools as iter
-from scipy.spatial.transform import Rotation as R
-from numpy import linalg as LA
-from typing import List
-from util.debugger import MyDebugger
-from bricks_modeling.file_IO.model_writer import write_bricks_to_file
-import time
 import os
 import pickle
+from typing import List
+
+import numpy as np
+from numpy import linalg as LA
+from scipy.spatial.transform import Rotation as R
+
+from bricks_modeling.bricks.brickinstance import BrickInstance
+from bricks_modeling.connections.connpointtype import ConnPointType, isDoubleOriented
+from bricks_modeling.file_IO.model_writer import write_bricks_to_file
+from solvers.generation_solver.polygon_intersection import group_display
+from util.debugger import MyDebugger
+from util.geometry_util import rot_matrix_from_two_basis
 
 connect_type = [
     {ConnPointType.HOLE, ConnPointType.PIN},
@@ -126,9 +128,11 @@ def find_brick_placements(num_rings: int, base_tile, tile_set: list, sketch=Fals
                 neighbour_tiles = generate_all_neighbor_tiles(
                     base_brick=last_brick, align_tile=align_tile, color=i + 1, sketch=sketch, base_num=base_num)
 
-                neighbour_tiles = unique_brick_list(neighbour_tiles)
+                # neighbour_tiles = unique_brick_list(neighbour_tiles)
 
-                for elem in neighbour_tiles:
+                for j in range(len(neighbour_tiles)):
+                    elem = neighbour_tiles[j]
+                    print(j)
                     if elem not in snd_last_ring and elem not in this_ring:
                         result_tiles.append(elem)
                         last_ring.append(elem)

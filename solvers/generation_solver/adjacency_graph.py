@@ -34,11 +34,6 @@ class AdjacencyGraph:
         print("#tiles after filtring repeat:", len(self.bricks))
 
     def build(self, b_i, b_j):
-        """if self.bricks[b_i].collide(self.bricks[b_j]):
-            return (b_i, b_j), 1
-        elif self.bricks[b_i].connect(self.bricks[b_j]):
-            return (b_i, b_j), 0
-        return None, -1"""
         self.bricks[b_i].template.use_vertices_edges2D()
         self.bricks[b_j].template.use_vertices_edges2D()
         relationship = collide_connect_2D(self.bricks[b_i], self.bricks[b_j])
@@ -109,7 +104,7 @@ class AdjacencyGraph:
 
 
 if __name__ == "__main__":
-    path = "./inputs/for sketch/['43722', '43723'] base=24.ldr"
+    path = "./inputs/for sketch/['3024', '43722', '43723'] base=24 n=5072 r=1.ldr"
     bricks = read_bricks_from_file(path)
     for brick in bricks:
         brick.template.use_vertices_edges2D()
@@ -117,8 +112,8 @@ if __name__ == "__main__":
     filename = (filename.split("."))[0]
     start_time = time.time()
     structure_graph = AdjacencyGraph(bricks)
-    print(structure_graph.overlap_edges)
-    print(structure_graph.connect_edges)
+    # print(structure_graph.overlap_edges)
+    # print(structure_graph.connect_edges)
     # print(structure_graph.connect_edges)
     t = round(time.time() - start_time, 2)
     pickle.dump(structure_graph,
