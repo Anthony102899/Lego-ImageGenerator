@@ -19,7 +19,7 @@ import matplotlib.pyplot as plt
     [[0, 1, 1.2], [-0.8, 1, 1.2]],
     [[-0.8, 1, 1.2], [0, 1, -1.2]]
 ])"""
-template = BrickTemplate([], ldraw_id="43723")
+"""template = BrickTemplate([], ldraw_id="43723")
 template.use_vertices_edges2D()
 EDGE_TEMPLATE = np.array(template.edges2D)
 
@@ -31,7 +31,7 @@ TRANSFORM_MATRIX_2 = np.array([
     [0, 1, 0, 0],
     [-0.3162, 0, 0.9487, -0.1914],
     [0, 0, 0, 1]
-])
+])"""
 
 class PolygonInstance:
 
