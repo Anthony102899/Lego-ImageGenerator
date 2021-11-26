@@ -1,4 +1,6 @@
 import logging
+import sys
+sys.path.append("../../../lego-solver")
 import os
 from solvers.generation_solver.minizinc_sketch import MinizincSolver
 from solvers.generation_solver.polygon_intersection import plot_polygons, collide_connect_2D, group_display
