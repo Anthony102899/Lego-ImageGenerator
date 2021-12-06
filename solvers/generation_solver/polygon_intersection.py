@@ -4,6 +4,7 @@ import pickle
 from bricks_modeling.bricks.bricktemplate import BrickTemplate
 import bricks_modeling.file_IO.model_reader
 from bricks_modeling.connectivity_graph import ConnectivityGraph
+from bricks_modeling.file_IO import model_reader
 from visualization.model_visualizer import visualize_3D
 import numpy as np
 from matplotlib.patches import Polygon as MatPolygon
@@ -171,7 +172,9 @@ def plot_polygons(bricks):
 
 
 def exam():
-    bricks = bricks_modeling.read_bricks_from_file("./['43723'] base=12 n=290 r=1.ldr")
+    bricks = model_reader.read_bricks_from_file("./['43723'] base=12 n=290 r=1.ldr")
+    for brick in bricks:
+        bbox = brick.get_col_bbox()
     structure_graph = ConnectivityGraph(bricks)
     # graph = AdjacencyGraph(bricks)
     for brick in bricks:
@@ -189,7 +192,7 @@ def exam():
     sorted_vertices_2 = get_sorted_vertices(polygon_2, vertices_2)
 
     p1 = MatPolygon(sorted_vertices_1, facecolor='k')
-    p2 = MatPolygon(sorted_vertices_2, facecolor='k')
+    p2 = MatPolygon(sorted_vertices_2, facecolor='r')
     fig, ax = plt.subplots()
     ax.add_patch(p1)
     ax.add_patch(p2)
@@ -359,5 +362,5 @@ if __name__ == "__main__":
     polygon_2 = PolygonInstance(TRANSFORM_MATRIX_2, EDGE_TEMPLATE)
     print(compute_polygon_touch_length(polygon_1, polygon_2))
     pass"""
-    #exam()
-    align_detection()
+    exam()
+    # align_detection()
