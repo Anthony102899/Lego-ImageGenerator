@@ -9,11 +9,13 @@ import sys
 import copy
 from shapely.geometry import Polygon, Point
 import cv2
+from sample_constant import *
 from bricks_modeling.bricks.brickinstance import BrickInstance, get_corner_pos
 from shapely.ops import unary_union
 from bricks_modeling.file_IO.model_writer import write_bricks_to_file
 from bricks_modeling.file_IO.model_reader import read_bricks_from_file
 from util.debugger import MyDebugger
+
 
 # get a new brick with the input color
 def color_brick(brick, color, rgb=True):
@@ -24,6 +26,7 @@ def color_brick(brick, color, rgb=True):
         color = RGB_to_Hex(color)
     new_brick = BrickInstance(brick.template, brick.trans_matrix, color)
     return new_brick
+
 
 def count_base_number(plate_set):
     """
@@ -37,6 +40,7 @@ def count_base_number(plate_set):
             break
     return base_count
 
+
 def get_area():
     """
     Get the area dict from the loaded database
@@ -48,18 +52,21 @@ def get_area():
             area.update({brick["id"]: brick["area"]})
     return area
 
+
 # return a list of rgb colors covered by brick *rgbs*
 def get_cover_rgb(brick, img, base_int):
-    #Todo: what is the cover rgb
-    """
-
-    """
+    # Todo: relax the boundary
     polygon = proj_bbox(brick)
     mini, minj, maxi, maxj = polygon.bounds
+    mini = math.floor(mini)
+    maxi = math.ceil(maxi)
+    minj = math.floor(minj)
+    maxj = math.ceil(maxj)
     rgbs = []
     channel = len(img[0][0])
-    for x in range(math.floor(mini), math.ceil(maxi) + 1):
-        for y in range(math.floor(minj), math.ceil(maxj) + 1):
+    lookup_table = np.zeros((maxi - mini + 1, maxj - minj + 1))
+    for x in range(mini, maxi + 1):
+        for y in range(minj, maxj + 1):
             if x < 0 or y < 0 or x > base_int * 20 or y > base_int * 20:
                 return []
             point = Point(x, y)
@@ -68,13 +75,57 @@ def get_cover_rgb(brick, img, base_int):
                     bgra = img[y, x]
                     rgb_color = (bgra[:3])[::-1]
                     if channel == 4 and bgra[3] == 0:
-                        return []
+                        if ACTIVATE_EXTEND_SAMPLE:
+                            continue
+                        else:
+                            return []
                     # not transparent
                     else:
                         rgbs.append(rgb_color)
+                        lookup_table[x-mini, y-minj] = 2
                 except:
                     continue
+            else:
+                lookup_table[x-mini, y-minj] = 1
+
+    if ACTIVATE_EXTEND_SAMPLE:
+        counter = 0
+        for x in range(0, maxi - mini + 1):
+            for y in range(0, maxj - minj + 1):
+                if lookup_table[x, y] == 0:
+                    counter += 1
+                    pass_flag = False
+                    """
+                    left_i = max(0, x - 2)
+                    right_i = min(maxi - mini, x + 2)
+                    left_j = max(0, y - 2)
+                    right_j = min(maxj - minj, y + 2)
+                    for a in range(left_i, right_i):
+                        for b in range(left_j, right_j):
+                            if lookup_table[a, b] == 2:
+                                pass_flag = True
+                                break
+                        if pass_flag:
+                            break
+                    if not pass_flag:
+                        return []"""
+                    for i_offset in range(-EXTEND_SAMPLE_GRANULARITY, EXTEND_SAMPLE_GRANULARITY + 1):
+                        for j_offset in range(-EXTEND_SAMPLE_GRANULARITY, EXTEND_SAMPLE_GRANULARITY + 1):
+                            if abs(i_offset) == abs(j_offset):
+                                continue
+                            a = max(0, min(maxi - mini, x + i_offset))
+                            b = max(0, min(maxj - minj, y + j_offset))
+                            if lookup_table[a, b] == 2:
+                                pass_flag = True
+                                break
+                        if pass_flag:
+                            break
+                    if not pass_flag:
+                        return []
+        if counter > 0 and len(rgbs)/counter < EXTEND_SAMPLE_THRESHOLD:
+            return []
     return rgbs
+
 
 def get_weight():
     data = load_data()
@@ -86,6 +137,7 @@ def get_weight():
             area.update({brick["id"]: 1})
     return area
 
+
 def hex_to_rgb(value):
     if len(value) < 6:
         return np.array([0, 0, 0])
@@ -95,20 +147,24 @@ def hex_to_rgb(value):
     rgb = [int(value[i:i + lv // 3], 16) for i in range(0, lv, lv // 3)]
     return np.array(rgb)
 
+
 def load_data(brick_database=["regular_plate.json"]):
     data = []
     for data_base in brick_database:
-        database_file = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "bricks_modeling", "database", data_base)
+        database_file = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "bricks_modeling",
+                                     "database", data_base)
         with open(database_file) as f:
             temp = json.load(f)
             data.extend(temp)
     return data
+
 
 def move_brickset(brickset, rgb_color, x, z, ldr_color):
     ldr_color = nearest_color(rgb_color, ldr_color)
     new_set = [color_brick(brick, ldr_color, rgb=False) for brick in brickset]
     [brick.translate([x, 0, z]) for brick in new_set]
     return new_set
+
 
 def move_layer(brickset, layer_num):
     # new_set = brickset.copy()
@@ -120,6 +176,7 @@ def move_layer(brickset, layer_num):
             continue
         brick.translate([0, goal - current_y, 0])
     return new_set
+
 
 # return an integer
 def nearest_color(rgb, ldr_color):
@@ -133,17 +190,19 @@ def nearest_color(rgb, ldr_color):
             minn = dif
             result = key["LDR_code"]
     return result
-        
+
+
 # return a polygon obj 
-def proj_bbox(brick:BrickInstance):
+def proj_bbox(brick: BrickInstance):
     bbox_corner = np.array(get_corner_pos(brick, four_point=True))
     bbox_corner = [[coord[0], coord[2]] for coord in bbox_corner]
     polygon_ls = []
     for i in range(0, len(bbox_corner), 4):
-        polygon = Polygon(bbox_corner[i:i+4])
+        polygon = Polygon(bbox_corner[i:i + 4])
         polygon_ls.append(polygon)
     polygon = unary_union(polygon_ls)
     return polygon
+
 
 # return a dictionary
 def read_ldr_color():
@@ -159,6 +218,7 @@ def read_ldr_color():
                 ldr_color.append({"LDR_code": ldr_code, "hex": hex_value})
     return ldr_color
 
+
 def RGB_to_Hex(rgb):
     color = '0x2'
     for i in rgb[:3]:
@@ -166,27 +226,30 @@ def RGB_to_Hex(rgb):
         color += str(hex(num))[-2:].replace('x', '0').upper()
     return color
 
+
 def rotate_image(img, angle):
-  image_center = tuple(np.array(img.shape[1::-1]) / 2)
-  rot_mat = cv2.getRotationMatrix2D(image_center, angle, 1.0)
-  result = cv2.warpAffine(img, rot_mat, img.shape[1::-1], flags=cv2.INTER_LINEAR)
-  return result
+    image_center = tuple(np.array(img.shape[1::-1]) / 2)
+    rot_mat = cv2.getRotationMatrix2D(image_center, angle, 1.0)
+    result = cv2.warpAffine(img, rot_mat, img.shape[1::-1], flags=cv2.INTER_LINEAR)
+    return result
+
 
 def scale_image(img, scale):
     width, height = img.shape[1], img.shape[0]
     dim = (height / scale, width / scale)
-    #process crop width and height for max available dimension
+    # process crop width and height for max available dimension
     crop_width = dim[0] if dim[0] < img.shape[1] else img.shape[1]
-    crop_height = dim[1] if dim[1] < img.shape[0] else img.shape[0] 
+    crop_height = dim[1] if dim[1] < img.shape[0] else img.shape[0]
     mid_x, mid_y = int(width / 2), int(height / 2)
-    cw2, ch2 = int(crop_width / 2), int(crop_height / 2) 
+    cw2, ch2 = int(crop_width / 2), int(crop_height / 2)
     crop_img = img[mid_y - ch2:mid_y + ch2, mid_x - cw2:mid_x + cw2]
     return crop_img
 
+
 def translate_image(img, width_dis, height_dis):
-    height, width = img.shape[:2] 
-    T = np.float32([[1, 0, width_dis], [0, 1, height_dis]]) 
-    img_translation = cv2.warpAffine(img, T, (width, height)) 
+    height, width = img.shape[:2]
+    T = np.float32([[1, 0, width_dis], [0, 1, height_dis]])
+    img_translation = cv2.warpAffine(img, T, (width, height))
     return img_translation
 
 
