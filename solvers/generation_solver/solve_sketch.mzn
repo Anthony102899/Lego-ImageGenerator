@@ -25,7 +25,7 @@ array[NODE] of float : square_root_weight;
 constraint forall(i in 1..base_count) (node[i] = 1);
 
 % discard all bricks surpassing the graph boundary
-constraint forall(i in base_count+1..nodes_num) ((node[i] == 0 /\ node_sd[i] < 0 ) \/ (node_sd[i] >= 0));
+% constraint forall(i in base_count+1..nodes_num) ((node[i] == 0 /\ node_sd[i] < 0 ) \/ (node_sd[i] >= 0));
 
 % get square root of weight
 % constraint forall(n in NODE) (node_weight[n] == square_root_weight[n] * square_root_weight[n] /\ square_root_weight[n] >= 0);
