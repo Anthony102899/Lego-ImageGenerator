@@ -1,3 +1,4 @@
+import copy
 import logging
 import sys
 sys.path.append("../../../lego-solver")
@@ -182,19 +183,55 @@ if __name__ == "__main__":
         # ldr_code = util.nearest_color(node_color, ldr_color)
         ldr_code = [util.nearest_color(color, ldr_color) if len(color) != 0 else 15 for color in node_color]
 
-        results = solver.solve(structure_graph=structure_graph,
-                                node_sd=sd_normal,
-                                node_area=area_normal,
-                                node_weight=weight,
+        # Remove out-of-boundary bricks
+        map_array = np.full(len(node_sd), -1)  # A map mapping old index to new index
+        head = 0
+        filtered_bricks = []
+        filtered_overlap_edges = []
+        filtered_connect_edges = []
+        filtered_node_sd = []
+        filtered_node_area = []
+        filtered_node_weight = []
+        filtered_ldr_code = []
+        for i in range(len(node_sd)):
+            if node_sd[i] < 0 and i not in range(base_count):  # out-of-boundary
+                continue
+            else:  # keep in-boundary
+                filtered_bricks.append(structure_graph.bricks[i])
+                filtered_node_sd.append(sd_normal[i])
+                filtered_node_area.append(area_normal[i])
+                filtered_node_weight.append(weight[i])
+                if i in range(base_count):
+                    filtered_ldr_code.append(15)
+                else:
+                    filtered_ldr_code.append(ldr_code[i-base_count])
+                map_array[i] = head
+                head += 1
+        for overlap_edge in structure_graph.overlap_edges:
+            if map_array[overlap_edge[0]] != -1 and map_array[overlap_edge[1]] != - 1:
+                filtered_overlap_edges.append((map_array[overlap_edge[0]], map_array[overlap_edge[1]]))
+        for connect_edge in structure_graph.connect_edges:
+            if map_array[connect_edge[0]] != -1 and map_array[connect_edge[1]] != - 1:
+                filtered_connect_edges.append((map_array[connect_edge[0]], map_array[connect_edge[1]], connect_edge[2]))
+        # Use temp filtered graph
+        filtered_structure_graph = copy.deepcopy(structure_graph)
+        filtered_structure_graph.bricks = filtered_bricks
+        filtered_structure_graph.connect_edges = filtered_connect_edges
+        filtered_structure_graph.overlap_edges = filtered_overlap_edges
+        # Todo: Create another set to store the original bricks
+        results = solver.solve(structure_graph=filtered_structure_graph,
+                                node_sd=filtered_node_sd,
+                                node_area=filtered_node_area,
+                                node_weight=filtered_node_weight,
                                 base_count=base_count)
         selected_bricks_layer = []
-        for i in range(base_count, len(plate_set)):
+        for i in range(base_count, len(filtered_bricks)):
             if results[i] == 1:
                 # colored_brick = util.color_brick(plate_set[i], ldr_code, rgb=False)
                 if i < base_count:
-                    colored_brick = util.color_brick(plate_set[i], 15, rgb=False)
+                    colored_brick = util.color_brick(filtered_bricks[i], 15, rgb=False)
                 else:
-                    colored_brick = util.color_brick(plate_set[i], ldr_code[i-base_count], rgb=False)
+                    colored_brick = util.color_brick(filtered_bricks[i], filtered_ldr_code[i-base_count], rgb=False)
                 selected_bricks_layer.append(colored_brick)
 
         if background_bool:
