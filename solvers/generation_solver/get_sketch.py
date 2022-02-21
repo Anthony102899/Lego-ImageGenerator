@@ -227,6 +227,7 @@ if __name__ == "__main__":
         selected_bricks_layer = []
         for i in range(base_count, len(filtered_bricks)):
             if results[i] == 1:
+                colored_brick = None
                 # colored_brick = util.color_brick(plate_set[i], ldr_code, rgb=False)
                 if i < base_count:
                     colored_brick = util.color_brick(filtered_bricks[i], 15, rgb=False)
