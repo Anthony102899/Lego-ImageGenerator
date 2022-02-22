@@ -53,6 +53,22 @@ class PrecomputedModel:
         pickle.dump(self,
                     open(os.path.join(os.path.dirname(__file__), f'precompute_models/{filename}.pkl'), "wb"))
 
+    def display_debug_info(self):
+        print(f"Node Standard Deviation Size: {len(self._node_sd)}")
+        print(f"Node Area Size: {len(self._node_area)}")
+        print(f"Node Weight Size: {len(self._node_weight)}")
+        print(f"Base Count: {self._base_count}")
+        print(f"Filtered Bricks Size: {len(self._filtered_bricks)}")
+        print(f"Filtered LDR Code Size: {len(self._filtered_ldr_code)}")
+        print(f"LDR Set: {self.ldr_stat()}")
+
+    def ldr_stat(self):
+        ldr_set = []
+        for ldr in self._filtered_ldr_code:
+            if ldr not in ldr_set:
+                ldr_set.append(ldr)
+        return ldr_set
+
 
 class Precompute:
     def __init__(self):

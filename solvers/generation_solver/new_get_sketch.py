@@ -25,7 +25,7 @@ class SketchLayer:
         for i in range(self._precompute_model.get_base_count(), len(filtered_bricks)):
             if results[i] == 1:
                 colored_brick = util.color_brick(filtered_bricks[i],
-                                                 filtered_ldr_code[i - self._precompute_model.get_base_count()],
+                                                 filtered_ldr_code[i],
                                                  rgb=False)
                 self._selected_bricks_layer.append(colored_brick)
 
@@ -39,7 +39,12 @@ class SketchLayer:
         return self._selected_bricks_layer
 
     def get_base_bricks(self):
-        return self._precompute_model.get_filtered_bricks()[self._precompute_model.get_base_count()]
+        return self._precompute_model.get_filtered_bricks()[:self._precompute_model.get_base_count()]
+
+    def display_debug_info(self):
+        print("-" * 9 + " Model Info " + "-" * 9)
+        self._precompute_model.display_debug_info()
+        print("-" * 30)
 
 
 if __name__ == "__main__":
@@ -48,15 +53,20 @@ if __name__ == "__main__":
     selected_bricks = []
     # Todo: Handle background
     background_bool = 0
+
+    file_names = []
     for i in range(num_of_layer):
-        file_name = input(f"Please enter the {i + 1} file name: ")
-        file_path = os.path.dirname(__file__) + "/precompute_models/" + file_name
+        file_names.append(input(f"Please enter the {i + 1} file name: "))
+
+    for i in range(num_of_layer):
+        file_path = os.path.dirname(__file__) + "/precompute_models/" + file_names[i]
         sketch_layer = SketchLayer(file_path, solver)
         sketch_layer.generate_solutions()
         sketch_layer.move_layer(i + 1)
-        #if i == 0:
-            #selected_bricks += sketch_layer.get_base_bricks()
+        if i == 0:
+            selected_bricks += sketch_layer.get_base_bricks()
         selected_bricks += sketch_layer.get_selected_bricks_layer()
+        sketch_layer.display_debug_info()
 
     # Todo: Handle background color
     """if background_bool:
