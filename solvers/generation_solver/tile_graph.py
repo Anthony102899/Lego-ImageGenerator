@@ -132,7 +132,7 @@ def find_brick_placements(num_rings: int, base_tile, tile_set: list, sketch=Fals
 
                 for j in range(len(neighbour_tiles)):
                     elem = neighbour_tiles[j]
-                    print(j)
+                    # print(j)
                     if elem not in snd_last_ring and elem not in this_ring:
                         result_tiles.append(elem)
                         last_ring.append(elem)

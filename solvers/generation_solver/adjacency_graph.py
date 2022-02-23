@@ -24,14 +24,16 @@ class AdjacencyGraph:
         self.bricks = bricks
         self.connect_edges = []
         self.overlap_edges = []
-        self._remove_redudant_bricks()
 
+        # it seems that filtering has been done in the generation procedure
+        # self._remove_redudant_bricks()
+        print("Start to build bricks")
         self.build_graph_from_bricks()
 
     def _remove_redudant_bricks(self):
-        print("#tiles before filtring repeat:", len(self.bricks))
+        print("#tiles before filtering repeat:", len(self.bricks))
         unique_brick_list(self.bricks)
-        print("#tiles after filtring repeat:", len(self.bricks))
+        print("#tiles after filtering repeat:", len(self.bricks))
 
     def build(self, b_i, b_j):
         self.bricks[b_i].template.use_vertices_edges2D()
@@ -47,8 +49,14 @@ class AdjacencyGraph:
     def build_graph_from_bricks(self):
         it = np.array(list(itertools.combinations(list(range(0, len(self.bricks))), 2)))
         with Pool() as p:
-            a = p.map(self.build, it[:, 0], it[:, 1])
-
+            # Display Process Information
+            print("#" * 19 + " Process Information " + "#" * 20)
+            a = []
+            for i in range(len(it)):
+                if (i % 100 == 0 and i != 0) or i == len(it) - 1:
+                    a += p.map(self.build, it[i - 100 : i, 0], it[i - 100 : i, 1])
+                    print(f"Complete {i}/{len(it)}")
+            print("#" * 24 + " Build End " + "#" * 25)
         for x in a:
             if x[1] == -1:
                 self.overlap_edges.extend([x[0]])
@@ -104,7 +112,7 @@ class AdjacencyGraph:
 
 
 if __name__ == "__main__":
-    path = os.path.dirname(__file__) + "/['3024', '3020', '3023', '3710', '43722', '43723'] base=24.ldr"
+    path = os.path.dirname(__file__) + "/['3024', '3023', '24299', '24307', '43722', '43723'] base=24.ldr"
     bricks = read_bricks_from_file(path)
     for brick in bricks:
         brick.template.use_vertices_edges2D()
