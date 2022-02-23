@@ -13,8 +13,9 @@ class BrickTemplate:
         self.id = ldraw_id
         self.enable_2D = False
         self.perimeter = 0
-        # self.vertices2D = self.get_vertices_2d()
-        # self.edges2D = self.get_edges_2d()
+        self.vertices2D = None
+        self.edges2D = None
+        self.perimeter = None
 
     def use_vertices_edges2D(self):
         if not self.enable_2D:

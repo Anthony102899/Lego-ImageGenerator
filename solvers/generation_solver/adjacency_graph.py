@@ -13,6 +13,7 @@ from bricks_modeling.file_IO.model_reader import read_bricks_from_file
 from solvers.generation_solver.polygon_intersection import collide_connect_2D
 from solvers.generation_solver.tile_graph import unique_brick_list
 from util.json_encoder import NumpyArrayEncoder
+from metrics import Metrics
 
 """
 To use a graph to describe a LEGO structure
@@ -38,7 +39,10 @@ class AdjacencyGraph:
     def build(self, b_i, b_j):
         self.bricks[b_i].template.use_vertices_edges2D()
         self.bricks[b_j].template.use_vertices_edges2D()
-        relationship = collide_connect_2D(self.bricks[b_i], self.bricks[b_j])
+
+        # Add Metrics
+        # relationship = collide_connect_2D(self.bricks[b_i], self.bricks[b_j])
+        relationship = metrics.measure_with_return(collide_connect_2D, self.bricks[b_i], self.bricks[b_j])
         if relationship == 0:
             return None, 0
         elif relationship < 0:
@@ -47,7 +51,14 @@ class AdjacencyGraph:
             return (b_i, b_j, relationship), relationship
 
     def build_graph_from_bricks(self):
-        it = np.array(list(itertools.combinations(list(range(0, len(self.bricks))), 2)))
+        # Todo: Add Metrics
+        # it = np.array(list(itertools.combinations(list(range(0, len(self.bricks))), 2)))
+        def get_combination(bricks):
+            return np.array(list(itertools.combinations(list(range(0, len(bricks))), 2)))
+        it = metrics.measure_with_return(get_combination, self.bricks)
+
+        # Todo: Reconstruct
+        """
         with Pool() as p:
             # Display Process Information
             print("#" * 19 + " Process Information " + "#" * 20)
@@ -57,6 +68,16 @@ class AdjacencyGraph:
                     a += p.map(self.build, it[i - 100 : i, 0], it[i - 100 : i, 1])
                     print(f"Complete {i}/{len(it)}")
             print("#" * 24 + " Build End " + "#" * 25)
+            """
+        a = []
+        # Display Process Information
+        print("#" * 19 + " Process Information " + "#" * 20)
+        for i in range(len(it)):
+            a.append(self.build(it[i, 0], it[i, 1]))
+            if (i % 100 == 0 and i != 0) or i == len(it) - 1:
+                print(f"Complete {i}/{len(it)}")
+        print("#" * 24 + " Build End " + "#" * 25)
+
         for x in a:
             if x[1] == -1:
                 self.overlap_edges.extend([x[0]])
@@ -113,9 +134,22 @@ class AdjacencyGraph:
 
 if __name__ == "__main__":
     path = os.path.dirname(__file__) + "/['3024', '3023', '24299', '24307', '43722', '43723'] base=24.ldr"
-    bricks = read_bricks_from_file(path)
+    metrics = Metrics()
+
+    # Todo: Add metrics
+    # bricks = read_bricks_from_file(path)
+    bricks = metrics.measure_with_return(read_bricks_from_file, path)
+
+    # Todo: Add metrics
+    """
     for brick in bricks:
         brick.template.use_vertices_edges2D()
+        """
+    def get_template_2D(bricks):
+        for brick in bricks:
+            brick.template.use_vertices_edges2D()
+    metrics.measure_without_return(get_template_2D, bricks)
+
     _, filename = os.path.split(path)
     filename = (filename.split("."))[0]
     start_time = time.time()

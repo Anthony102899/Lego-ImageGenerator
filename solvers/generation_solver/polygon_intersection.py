@@ -4,6 +4,7 @@ import pickle
 from bricks_modeling.bricks.bricktemplate import BrickTemplate
 import bricks_modeling.file_IO.model_reader
 from bricks_modeling.connectivity_graph import ConnectivityGraph
+from solvers.generation_solver.metrics import Metrics
 from visualization.model_visualizer import visualize_3D
 import numpy as np
 from matplotlib.patches import Polygon as MatPolygon
@@ -245,6 +246,8 @@ def get_sorted_vertices(polygon, vertices):
 
 
 def collide_connect_2D(brick_1, brick_2):
+    # Add Metrics
+    metrics = Metrics()
     if round(brick_1.trans_matrix[1][3], 4) != round(brick_2.trans_matrix[1][3], 4):
         return 0
     brick_1.template.use_vertices_edges2D()
