@@ -14,9 +14,9 @@ from util.debugger import MyDebugger
 brick_IDs = [# tile
              # plate 
              "3024",
-             "3020",
              "3023",
-             "3710",
+             "24299",
+             "24307"
              "43722",
              "43723"
              # other
