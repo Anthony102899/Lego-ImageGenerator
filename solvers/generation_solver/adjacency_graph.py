@@ -10,7 +10,7 @@ import open3d as o3d
 from pathos.multiprocessing import ProcessingPool as Pool
 
 from bricks_modeling.file_IO.model_reader import read_bricks_from_file
-from solvers.generation_solver.polygon_intersection import collide_connect_2D
+from solvers.generation_solver.polygon_intersection import collide_connect_2D, prune
 from solvers.generation_solver.tile_graph import unique_brick_list
 from util.json_encoder import NumpyArrayEncoder
 from metrics import Metrics
@@ -28,7 +28,7 @@ class AdjacencyGraph:
 
         # it seems that filtering has been done in the generation procedure
         # self._remove_redudant_bricks()
-        print("Start to build bricks")
+
         self.build_graph_from_bricks()
 
     def _remove_redudant_bricks(self):
@@ -42,7 +42,7 @@ class AdjacencyGraph:
 
         # Add Metrics
         # relationship = collide_connect_2D(self.bricks[b_i], self.bricks[b_j])
-        relationship = metrics.measure_with_return(collide_connect_2D, self.bricks[b_i], self.bricks[b_j])
+        relationship = collide_connect_2D(self.bricks[b_i], self.bricks[b_j])
         if relationship == 0:
             return None, 0
         elif relationship < 0:
@@ -51,11 +51,10 @@ class AdjacencyGraph:
             return (b_i, b_j, relationship), relationship
 
     def build_graph_from_bricks(self):
+        # Todo: Prune here
         # Todo: Add Metrics
         # it = np.array(list(itertools.combinations(list(range(0, len(self.bricks))), 2)))
-        def get_combination(bricks):
-            return np.array(list(itertools.combinations(list(range(0, len(bricks))), 2)))
-        it = metrics.measure_with_return(get_combination, self.bricks)
+        it = metrics.measure_with_return(prune, self.bricks, None, False)
 
         # Todo: Reconstruct
         """
@@ -73,7 +72,7 @@ class AdjacencyGraph:
         # Display Process Information
         print("#" * 19 + " Process Information " + "#" * 20)
         for i in range(len(it)):
-            a.append(self.build(it[i, 0], it[i, 1]))
+            a.append(self.build(it[i][0], it[i][1]))
             if (i % 100 == 0 and i != 0) or i == len(it) - 1:
                 print(f"Complete {i}/{len(it)}")
         print("#" * 24 + " Build End " + "#" * 25)

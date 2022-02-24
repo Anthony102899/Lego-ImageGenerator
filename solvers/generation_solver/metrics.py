@@ -10,13 +10,15 @@ class Metrics:
         self._start_time = time.time()
         function(*args, **kwargs)
         self._end_time = time.time()
-        print(f"{'#' * 5} Metric Measure Cost -> function {function.__name__} uses {self._end_time - self._start_time}s")
+        print(f"{'#' * 5} Metric Measure Cost {'#' * 5} function -> \"{function.__name__}\" "
+              f"uses {self._end_time - self._start_time}s")
 
     def measure_with_return(self, function, *args, **kwargs):
         self._start_time = time.time()
         result = function(*args, **kwargs)
         self._end_time = time.time()
-        print(f"{'#' * 5} Metric Measure Cost -> function {function.__name__} uses {self._end_time - self._start_time}s")
+        print(f"{'#' * 5} Metric Measure Cost {'#' * 5} function -> \"{function.__name__}\" "
+              f"uses {self._end_time - self._start_time}s")
         return result
 
 

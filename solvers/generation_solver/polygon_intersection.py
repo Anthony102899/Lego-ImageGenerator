@@ -1,15 +1,16 @@
 import os
 import pickle
+import copy
+import numpy as np
+import matplotlib.pyplot as plt
+import bricks_modeling.file_IO.model_reader
 
 from bricks_modeling.bricks.bricktemplate import BrickTemplate
-import bricks_modeling.file_IO.model_reader
 from bricks_modeling.connectivity_graph import ConnectivityGraph
 from solvers.generation_solver.metrics import Metrics
 from visualization.model_visualizer import visualize_3D
-import numpy as np
 from matplotlib.patches import Polygon as MatPolygon
 from shapely.geometry import Polygon, LineString, MultiLineString
-import matplotlib.pyplot as plt
 
 
 
@@ -338,6 +339,60 @@ def model_piece_to_whole_plot(model_path):
         # group_display(bricks[:i]+bricks[i+1:], 'k', True, [object_brick])
 
 
+def base_and_plate_test(model_path):
+    bricks = bricks_modeling.file_IO.model_reader.read_bricks_from_file(model_path)
+    base_bricks = bricks[:8]
+    plate_bricks = bricks[8:]
+    print(f"total size: {len(plate_bricks)}")
+
+    base_object = base_bricks[0]
+    for i in range(len(plate_bricks)):
+        plate_object = plate_bricks[i]
+        collide_connect_2D(plate_object, base_object)
+        print(i)
+        #group_display([plate_object], 'k', True, [base_object])
+
+
+def prune(bricks=None, model_path=None, use_model_path=False):
+    if use_model_path:
+        bricks = bricks_modeling.file_IO.model_reader.read_bricks_from_file(model_path)
+
+    # Todo: Prune here
+    num_of_base = 0
+    for i in range(len(bricks)):
+        if round(bricks[i].trans_matrix[1][3], 4) != 0:
+            num_of_base = i
+            break
+    base_bricks = copy.deepcopy(bricks[:num_of_base])
+    for base_brick in base_bricks:
+        base_brick.trans_matrix[1][3] += 8.0
+
+    base_search_index = []
+    plate_search_index = []
+    for i in range(len(bricks)):
+        if i < num_of_base:
+            base_search_index.append([])
+        plate_search_index.append([])
+    # print(f"base -> {base_search_index} ; plate -> {plate_search_index}")
+    for i in range(num_of_base):
+        print(f"Now is {i + 1} base ")
+        for j in range(num_of_base, len(bricks)):
+            # Todo: Here use == -1, due to that we will not use contact length feature
+            if collide_connect_2D(base_bricks[i], bricks[j]) == -1:
+                # print(f"i = {i} j = {j}")
+                base_search_index[i].append(j)
+                plate_search_index[j].append(i)
+    it = []
+    for j in range(num_of_base, len(bricks)):
+        print(f"Process to {j} element out of {len(bricks)} elements")
+        for i in plate_search_index[j]:
+            print(f"{'-' * 10} Process to {i}")
+            for index in base_search_index[i]:
+                if index <= j:
+                    continue
+                it.append([j, index])
+    print(len(it))
+    return it
 
 if __name__ == "__main__":
     """polygon_1 = PolygonInstance(TRANSFORM_MATRIX_1, EDGE_TEMPLATE)
@@ -346,4 +401,11 @@ if __name__ == "__main__":
     pass"""
     # exam()
     # align_detection()
-    model_piece_to_whole_plot("../../debug/2021-11-21_21-30-38_heart/heart b=24 ['3024', '43722', '43723'] .ldr")
+
+    metrics = Metrics()
+    metrics.measure_without_return(prune, None, "Bug ['3024', '3020', '3023', '3710', '43722', '43723'] base=24.ldr", True)
+
+    # metrics.measure_without_return(base_and_plate_test, "Bug ['3024', '3020', '3023', '3710', '43722', '43723'] base=24.ldr")
+
+
+    #model_piece_to_whole_plot("../../debug/2021-11-21_21-30-38_heart/heart b=24 ['3024', '43722', '43723'] .ldr")
