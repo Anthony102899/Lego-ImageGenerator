@@ -14,6 +14,7 @@ from bricks_modeling.bricks.brickinstance import BrickInstance, get_corner_pos
 from shapely.ops import unary_union
 from bricks_modeling.file_IO.model_writer import write_bricks_to_file
 from bricks_modeling.file_IO.model_reader import read_bricks_from_file
+from solvers.generation_solver.polygon_intersection import PolygonInstance
 from util.debugger import MyDebugger
 
 
@@ -56,8 +57,10 @@ def get_area():
 # return a list of rgb colors covered by brick *rgbs*
 def get_cover_rgb(brick, img, base_int):
     # Todo: relax the boundary
-    polygon = proj_bbox(brick)
+    # polygon = proj_bbox(brick)
+    polygon = calculate_bound_without_col(brick)
     mini, minj, maxi, maxj = polygon.bounds
+
     mini = math.floor(mini)
     maxi = math.ceil(maxi)
     minj = math.floor(minj)
@@ -82,11 +85,11 @@ def get_cover_rgb(brick, img, base_int):
                     # not transparent
                     else:
                         rgbs.append(rgb_color)
-                        lookup_table[x-mini, y-minj] = 2
+                        lookup_table[x - mini, y - minj] = 2
                 except:
                     continue
             else:
-                lookup_table[x-mini, y-minj] = 1
+                lookup_table[x - mini, y - minj] = 1
 
     if ACTIVATE_EXTEND_SAMPLE:
         counter = 0
@@ -122,7 +125,7 @@ def get_cover_rgb(brick, img, base_int):
                             break
                     if not pass_flag:
                         return []
-        if counter > 0 and len(rgbs)/counter < EXTEND_SAMPLE_THRESHOLD:
+        if counter > 0 and len(rgbs) / counter < EXTEND_SAMPLE_THRESHOLD:
             return []
     return rgbs
 
@@ -251,6 +254,16 @@ def translate_image(img, width_dis, height_dis):
     T = np.float32([[1, 0, width_dis], [0, 1, height_dis]])
     img_translation = cv2.warpAffine(img, T, (width, height))
     return img_translation
+
+
+def calculate_bound_without_col(brick: BrickInstance):
+    mesh_size = 25
+    trans_matrix = brick.trans_matrix
+    vertices = brick.template.vertices2D
+    transformed_vertices = trans_matrix.dot(
+        np.insert(np.multiply(vertices, mesh_size), 3, values=1, axis=1).T).T[:, [0, 2]]
+    polygon = Polygon(transformed_vertices)
+    return polygon
 
 
 if __name__ == "__main__":
