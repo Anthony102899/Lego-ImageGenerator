@@ -55,14 +55,17 @@ if __name__ == "__main__":
     background_bool = 0
 
     file_names = []
+    layers = []
     for i in range(num_of_layer):
         file_names.append(input(f"Please enter the {i + 1} file name: "))
+        layers.append(int(input("Please enter the layer number of the above file: ")))
 
     for i in range(num_of_layer):
-        file_path = os.path.dirname(__file__) + "/precompute_models/" + file_names[i]
+        file_path = os.path.dirname(__file__) + f"/precompute_models/{'_'.join(file_names[i].split('_')[:-1])}/" + \
+                    file_names[i]
         sketch_layer = SketchLayer(file_path, solver)
         sketch_layer.generate_solutions()
-        sketch_layer.move_layer(i + 1)
+        sketch_layer.move_layer(layers[i])
         if i == 0:
             selected_bricks += sketch_layer.get_base_bricks()
         selected_bricks += sketch_layer.get_selected_bricks_layer()

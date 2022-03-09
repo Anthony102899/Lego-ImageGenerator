@@ -25,7 +25,9 @@ def layer_interface(img_num):
         else:
             Button(master, text='Next', command=master.quit).grid(row=2, column=2, sticky=W, pady=4)
 
-        img_path = "inputs/images/"
+        # Todo: Modify the default path
+        # img_path = "inputs/images/"
+        img_path = "new_inputs"
         img_path = os.path.join(os.path.dirname(__file__), img_path)
         path = tkfd.askopenfilename(initialdir = img_path, title = "Select file", filetypes = (("png files","*.png"),("all files","*.*")))
         entry_img.insert('0', os.path.basename(path))

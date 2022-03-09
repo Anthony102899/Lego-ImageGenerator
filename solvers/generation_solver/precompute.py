@@ -50,8 +50,12 @@ class PrecomputedModel:
         return self._background_bool
 
     def dump_to_pickle(self, filename):
+        dir_name = "_".join(filename.split("_")[:-1])
+        folder = os.path.exists(os.path.join(os.path.dirname(__file__), f"precompute_models/{dir_name}"))
+        if not folder:
+            os.makedirs(os.path.join(os.path.dirname(__file__), f"precompute_models/{dir_name}"))
         pickle.dump(self,
-                    open(os.path.join(os.path.dirname(__file__), f'precompute_models/{filename}.pkl'), "wb"))
+                    open(os.path.join(os.path.dirname(__file__), f'precompute_models/{dir_name}/{filename}.pkl'), "wb"))
 
     def display_debug_info(self):
         print(f"Node Standard Deviation Size: {len(self._node_sd)}")
@@ -105,7 +109,9 @@ class Precompute:
             layer = int(layer_nums[k])
             img_name = layer_names[k]
             print("Layer number ", layer, " Image name: ", img_name)
-            img_path = os.path.dirname(__file__) + "/inputs/images/" + img_name
+            # Todo: Here I use new images
+            # img_path = os.path.dirname(__file__) + "/inputs/images/" + img_name
+            img_path = os.path.dirname(__file__) + "/new_inputs/" + "_".join(img_name.split("_")[:-1]) + "/" + img_name
             img_path = os.path.join(os.path.dirname(__file__), img_path)
             img = cv2.imread(img_path, cv2.IMREAD_UNCHANGED)
             img_name = (img_name.split("."))[0]
