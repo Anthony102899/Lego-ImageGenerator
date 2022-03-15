@@ -2,7 +2,6 @@ import copy
 import math
 import os
 import pickle
-import sample_constant
 import cv2
 import numpy as np
 
@@ -11,7 +10,7 @@ from solvers.generation_solver.adjacency_graph import AdjacencyGraph
 from solvers.generation_solver.get_sketch import ls_from_layout
 from solvers.generation_solver.img_interface import show_interface
 from solvers.generation_solver.minizinc_sketch import MinizincSolver
-
+from solvers.generation_solver.sample_constant import *
 
 class PrecomputedModel:
     def __init__(self, structure_graph, node_sd, node_area, node_weight, base_count, filtered_bricks,

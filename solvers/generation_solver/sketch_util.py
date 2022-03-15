@@ -9,7 +9,7 @@ import sys
 import copy
 from shapely.geometry import Polygon, Point
 import cv2
-from sample_constant import *
+from solvers.generation_solver.sample_constant import *
 from bricks_modeling.bricks.brickinstance import BrickInstance, get_corner_pos
 from shapely.ops import unary_union
 from bricks_modeling.file_IO.model_writer import write_bricks_to_file

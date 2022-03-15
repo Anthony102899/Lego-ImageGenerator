@@ -57,7 +57,7 @@ class DistanceMap:
     def dump_to_json(self, map):
         json_list = map.tolist()
         json_path = os.path.dirname(__file__) + f"/json/{self.img_name}.json"
-        json.dump(json_list, codecs.open(json_path, 'w', encoding='utf-8'),
+        json.dump(json_list, open(json_path, 'w', encoding='utf-8'),
                   separators=(',', ':'),
                   sort_keys=True,
                   indent=4)

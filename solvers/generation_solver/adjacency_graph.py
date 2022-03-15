@@ -13,7 +13,7 @@ from bricks_modeling.file_IO.model_reader import read_bricks_from_file
 from solvers.generation_solver.polygon_intersection import collide_connect_2D, prune
 from solvers.generation_solver.tile_graph import unique_brick_list
 from util.json_encoder import NumpyArrayEncoder
-from metrics import Metrics
+from solvers.generation_solver.metrics import Metrics
 
 """
 To use a graph to describe a LEGO structure
