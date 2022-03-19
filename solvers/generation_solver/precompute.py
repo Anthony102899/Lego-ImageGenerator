@@ -175,11 +175,11 @@ class Precompute:
                                                 filtered_node_weight, base_count, filtered_bricks, filtered_ldr_code,
                                                 background_bool)
 
-            if not sample_constant.ACTIVATE_EXTEND_SAMPLE:
+            if not ACTIVATE_EXTEND_SAMPLE:
                 filename = f"{img_name} b={base_count} p={plate_name} No Ext"
             else:
-                filename = f"{img_name} b={base_count} p={plate_name} g={sample_constant.EXTEND_SAMPLE_GRANULARITY} " \
-                           f"t={sample_constant.EXTEND_SAMPLE_THRESHOLD}"
+                filename = f"{img_name} b={base_count} p={plate_name} g={EXTEND_SAMPLE_GRANULARITY} " \
+                           f"t={EXTEND_SAMPLE_THRESHOLD}"
             precompute_model.dump_to_pickle(filename)
 
 
