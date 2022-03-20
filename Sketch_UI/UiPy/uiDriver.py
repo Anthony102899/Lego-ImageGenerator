@@ -10,8 +10,7 @@ from Sketch_UI.UiPy.precPage import *
 from Sketch_UI.UiPy.superSet import *
 from solvers.generation_solver.distance_map import *
 from solvers.generation_solver.precompute import *
-from visualization.model_visualizer import visualize_3D
-from bricks_modeling.file_IO.model_reader import read_bricks_from_file
+from solvers.generation_solver.gen_sketch_placement import *
 
 class parentWindow(QMainWindow):
     def __init__(self):
@@ -52,15 +51,15 @@ class dismapWindow(QDialog):
         img = QtGui.QPixmap(self.fileName)
         self.ui.imglabel.setPixmap(img)
         self.ui.imglabel.setScaledContents(True)
-        self.updateComboBox()
+        self.update_combobox()
 
     def generate_dismap(self):
         file_path = self.fileName
         distance_map = DistanceMap(file_path, 2)
         distance_map.generate_distance_map(2)
-        self.close()
+        self.hide()
 
-    def updateComboBox(self):
+    def update_combobox(self):
         self.ui.comboBox.addItem(self.fileName)
 
 
@@ -70,6 +69,18 @@ class Super_set_window(QDialog):
         self.ui = Super_Set()
         self.ui.setupUi(self)
         self.set_selected = []
+        self.fileName = ""
+        self.fileType = ""
+
+    def open_file(self):
+        fileName, fileType = QtWidgets.QFileDialog.getOpenFileName(self, "选取文件", os.getcwd(),
+                                                                   "LDraw Files(*.ldr)")
+        self.fileName = fileName
+        self.fileType = fileType
+        self.update_combobox()
+
+    def update_combobox(self):
+        self.ui.comboBox.addItem(self.fileName)
 
     def add(self):
         try:
@@ -85,11 +96,14 @@ class Super_set_window(QDialog):
 
     def run(self):
         print(self.set_selected)
-        # TODO: run the get_sketch_placement here
+        try:
+            generate_superset(self.set_selected, self.fileName)
+        except Exception as e:
+            print(e)
+        self.hide()
 
-
-    def visualize(self):
-       # TODO: use open3d.mesh to visualize the 3d model of bricks
+    # def visualize(self):
+    # TODO: use open3d.mesh to visualize the 3d model of bricks
 
 
 if __name__ == '__main__':
@@ -120,11 +134,14 @@ if __name__ == '__main__':
     btn_superset = prec.ui.pushButton_3  # Show the Superset by pushing super set button in precompute page
     btn_superset.clicked.connect(superset.show)
 
+    btn_superset_tb = superset.ui.toolButton  # Select basement file by click the tool button
+    btn_superset_tb.clicked.connect(superset.open_file)
+
     btn_add_brick = superset.ui.pushButton_add  # Add selected brick to selected brick set
     btn_add_brick.clicked.connect(superset.add)
 
     btn_preview = superset.ui.pushButton_preview
-    btn_preview.clicked.connect(superset.visualize)
+    # btn_preview.clicked.connect(superset.visualize)
 
     btn_generate_superset = superset.ui.pushButton
     btn_generate_superset.clicked.connect(superset.run)

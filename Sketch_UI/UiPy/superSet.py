@@ -60,7 +60,7 @@ class Super_Set(object):
         _translate = QtCore.QCoreApplication.translate
         Dialog.setWindowTitle(_translate("Dialog", "Dialog"))
         self.toolButton.setText(_translate("Dialog", "..."))
-        self.label.setText(_translate("Dialog", "Choose the basement file..."))
+        self.label.setText(_translate("Dialog", "Choose the basement_file..."))
         self.label_2.setText(_translate("Dialog", "Choose the brick set..."))
         __sortingEnabled = self.listWidget.isSortingEnabled()
         self.listWidget.setSortingEnabled(False)
