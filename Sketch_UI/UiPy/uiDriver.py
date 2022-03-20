@@ -1,15 +1,17 @@
+import sys
+import os
+import json
+import open3d
+
 from welcomePage import *
 from PyQt6.QtWidgets import QApplication, QMainWindow, QDialog
 from Sketch_UI.UiPy.dismap import *
 from Sketch_UI.UiPy.precPage import *
 from Sketch_UI.UiPy.superSet import *
-import sys
-import os
-import json
-
 from solvers.generation_solver.distance_map import *
 from solvers.generation_solver.precompute import *
-
+from visualization.model_visualizer import visualize_3D
+from bricks_modeling.file_IO.model_reader import read_bricks_from_file
 
 class parentWindow(QMainWindow):
     def __init__(self):
@@ -81,6 +83,13 @@ class Super_set_window(QDialog):
         except Exception as e:
             print(e)
 
+    def run(self):
+        print(self.set_selected)
+        # TODO: run the get_sketch_placement here
+
+
+    def visualize(self):
+       # TODO: use open3d.mesh to visualize the 3d model of bricks
 
 
 if __name__ == '__main__':
@@ -113,6 +122,12 @@ if __name__ == '__main__':
 
     btn_add_brick = superset.ui.pushButton_add  # Add selected brick to selected brick set
     btn_add_brick.clicked.connect(superset.add)
+
+    btn_preview = superset.ui.pushButton_preview
+    btn_preview.clicked.connect(superset.visualize)
+
+    btn_generate_superset = superset.ui.pushButton
+    btn_generate_superset.clicked.connect(superset.run)
 
     window.show()
     sys.exit(app.exec())
