@@ -101,7 +101,7 @@ class Super_set_window(QDialog):
         except Exception as e:
             print(e)
         self.hide()
-
+0
     # def visualize(self):
     # TODO: use open3d.mesh to visualize the 3d model of bricks
 
