@@ -8,7 +8,7 @@ import numpy as np
 
 import solvers.generation_solver.sketch_util as util
 from solvers.generation_solver.adjacency_graph import AdjacencyGraph
-from solvers.generation_solver.get_sketch import ls_from_layout
+from solvers.generation_solver.get_sketch import ls_from_layout, new_ls_from_layout
 from solvers.generation_solver.img_interface import show_interface
 from solvers.generation_solver.minizinc_sketch import MinizincSolver
 
@@ -122,7 +122,7 @@ class Precompute:
                 img = util.translate_image(img, width_dis, height_dis)
             img = cv2.resize(img, (base_int * 20 + 1, base_int * 20 + 1))
 
-            node_sd, node_color = ls_from_layout(img, sketch_bricks, base_int)
+            node_sd, node_color = new_ls_from_layout(img, sketch_bricks, base_int, img_name)
             node_sd = [0.1 for i in range(base_count)] + node_sd
             node_sd = [i for i in node_sd]
             sd_max = np.amax(np.array(node_sd))

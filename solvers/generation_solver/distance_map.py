@@ -19,6 +19,9 @@ class DistanceMap:
         return img
 
     def generate_distance_map(self, base_int):
+        """
+        Generate the distance map in json file format
+        """
         MAX_DIS = base_int * 20 + 2
         channel = len(self.img[0][0])
         map = np.full((base_int * 20 + 1, base_int * 20 + 1), np.inf)
@@ -62,20 +65,30 @@ class DistanceMap:
                   sort_keys=True,
                   indent=4)
 
-        for i in range(len(map)):
-            for j in range(len(map[i])):
-                if map[i][j] == 0:
-                    print(f"\033[31m{0}\33[0m", end='  ')
-                elif map[i][j] <= 1:
-                    print(f"\033[33m{'$'}\033[0m", end='  ')
-                else:
-                    print(f"#", end='  ')
-            print("")
+def display(map_path):
+    """
+    display json format distance map
+    """
+    map = np.array(json.load(open(map_path)))
+    for i in range(len(map)):
+        for j in range(len(map[i])):
+            if map[i][j] == 0:
+                print(f"\033[31m{0}\33[0m", end='  ')
+            elif map[i][j] <= 0:
+                print(f"\033[33m{'$'}\033[0m", end='  ')
+            else:
+                print(f"#", end='  ')
+        print("")
+
 
 if __name__ == "__main__":
-    file_path = os.path.dirname(__file__) + "/new_inputs/snowman/snowman_black.png"
-    distance_map = DistanceMap(file_path, 2)
-    distance_map.generate_distance_map(2)
+    """map_path = "/Users/walter/Documents/FYP/lego-solver/solvers/generation_solver/json/wechat_white.json"
+    display(map_path)"""
+
+    file_path = os.path.dirname(__file__) + "/new_inputs/twitter/twitter_white.png"
+    distance_map = DistanceMap(file_path, 24)
+    distance_map.generate_distance_map(24)
+
 
 
 

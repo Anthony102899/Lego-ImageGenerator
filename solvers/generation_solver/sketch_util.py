@@ -7,6 +7,7 @@ import math
 import json
 import sys
 import copy
+import unusual_brick_vertices
 from shapely.geometry import Polygon, Point
 import cv2
 from sample_constant import *
@@ -55,6 +56,44 @@ def get_area():
 
 
 # return a list of rgb colors covered by brick *rgbs*
+# Todo: Add new parameter here
+def new_get_cover_rgb(brick, img, base_int, map):
+    if brick.template.id in ["3023"]:
+        return []
+    polygon = calculate_bound_without_col(brick)
+    mini, minj, maxi, maxj = polygon.bounds
+
+    mini = math.floor(mini)
+    maxi = math.ceil(maxi)
+    minj = math.floor(minj)
+    maxj = math.ceil(maxj)
+    rgbs = []
+    counter = 0
+    for x in range(mini, maxi + 1):
+        for y in range(minj, maxj + 1):
+            if x < 0 or y < 0 or x > base_int * 20 or y > base_int * 20:
+                return []
+            point = Point(x, y)
+            if polygon.contains(point):
+                if map[y][x] == 0:
+                    try:
+                        bgra = img[y, x]
+                        rgb_color = (bgra[:3])[::-1]
+                        rgbs.append(rgb_color)
+                    except:
+                        continue
+                elif not ACTIVATE_EXTEND_SAMPLE:
+                    return []
+                elif map[y][x] <= EXTEND_SAMPLE_GRANULARITY:
+                    counter += 1
+                else:
+                    return []
+
+    if ACTIVATE_EXTEND_SAMPLE and counter > 0 and len(rgbs) / counter < EXTEND_SAMPLE_THRESHOLD:
+        return []
+    return rgbs
+
+
 def get_cover_rgb(brick, img, base_int):
     # Todo: relax the boundary
     # polygon = proj_bbox(brick)
@@ -259,6 +298,10 @@ def translate_image(img, width_dis, height_dis):
 def calculate_bound_without_col(brick: BrickInstance):
     mesh_size = 25
     trans_matrix = brick.trans_matrix
+    if brick.template.id == "24299":
+        brick.template.vertices2D = unusual_brick_vertices._24299_vertices
+    elif brick.template.id == "24307":
+        brick.template.vertices2D = unusual_brick_vertices._24307_vertices
     vertices = brick.template.vertices2D
     transformed_vertices = trans_matrix.dot(
         np.insert(np.multiply(vertices, mesh_size), 3, values=1, axis=1).T).T[:, [0, 2]]

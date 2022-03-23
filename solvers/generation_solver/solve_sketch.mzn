@@ -46,12 +46,12 @@ var float : sum_selected_area = sum(n in NODE) (node_area[n] * node[n]);
 % float : sum_sd = sum(n in NODE) ((node_weight[n]) * node_sd[n]);
 % var float : sum_selected_sd = sum(n in NODE) (node_sd[n] * (node_weight[n]) * node[n]);
 
-float : sum_perimeter = sum(n in NODE) (perimeter[n]);
-var float : sum_selected_perimeter = sum(n in EDGE_CON) (node[from_connect[n]] * node[to_connect[n]] * touch_length[n]);
+% float : sum_perimeter = sum(n in NODE) (perimeter[n]);
+% var float : sum_selected_perimeter = sum(n in EDGE_CON) (node[from_connect[n]] * node[to_connect[n]] * touch_length[n]);
 
 var float : La = 1 - 1.0 * (sum_selected_area / sum_area);
 % var float : Ls = 1 + 0.01 * (sum_selected_sd / sum_sd);
-var float : Lp = 1 - 0.02 * (sum_selected_perimeter / sum_perimeter);
+% var float : Lp = 1 - 0.02 * (sum_selected_perimeter / sum_perimeter);
 
 var float : obj = La;
 solve minimize obj;
