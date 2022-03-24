@@ -4,7 +4,7 @@ import solvers.generation_solver.sketch_util as util
 from bricks_modeling.file_IO.model_writer import write_bricks_to_file
 
 from solvers.generation_solver.minizinc_sketch import MinizincSolver
-from precompute import PrecomputedModel
+from solvers.generation_solver.precompute import PrecomputedModel
 from util.debugger import MyDebugger
 
 
