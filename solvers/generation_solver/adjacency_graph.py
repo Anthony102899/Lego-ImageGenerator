@@ -131,22 +131,47 @@ class AdjacencyGraph:
         o3d.visualization.draw_geometries([mesh_frame, line_set, spheres])
 
 
+def gen_adjacency_graph(path):
+    metrics = Metrics()
+    bricks = metrics.measure_with_return(read_bricks_from_file, path)
+
+    def get_template_2D(bricks):
+        for brick in bricks:
+            brick.template.use_vertices_edges2D()
+
+    metrics.measure_without_return(get_template_2D, bricks)
+
+    _, filename = os.path.split(path)
+    filename = (filename.split("."))[0]
+    start_time = time.time()
+    structure_graph = AdjacencyGraph(bricks)
+    # print(structure_graph.overlap_edges)
+    # print(structure_graph.connect_edges)
+    # print(structure_graph.connect_edges)
+    t = round(time.time() - start_time, 2)
+    pickle.dump(structure_graph,
+                open(os.path.join(os.path.dirname(__file__), f'connectivity/{filename} t={t}.pkl'), "wb"))
+    print(f"Saved at {filename} t={t}.pkl")
+
+
 if __name__ == "__main__":
     path = os.path.dirname(__file__) + "/['3024', '3023', '24299', '24307', '43722', '43723'] base=24.ldr"
     metrics = Metrics()
-
-    # Todo: Add metrics
     # bricks = read_bricks_from_file(path)
     bricks = metrics.measure_with_return(read_bricks_from_file, path)
 
-    # Todo: Add metrics
+    # Add metrics
     """
     for brick in bricks:
         brick.template.use_vertices_edges2D()
         """
+
+
     def get_template_2D(bricks):
         for brick in bricks:
             brick.template.use_vertices_edges2D()
+
+
     metrics.measure_without_return(get_template_2D, bricks)
 
     _, filename = os.path.split(path)
