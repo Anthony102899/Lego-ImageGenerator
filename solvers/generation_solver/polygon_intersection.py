@@ -1,3 +1,10 @@
+"""
+    This python script provides util methods dealing with polygons and 2D relationship of bricks.
+
+    Author: LYU An, DING Baizeng
+    Last Modified: 2022.04.07 - Add comments and remove redundant codes.
+"""
+
 import os
 import pickle
 import copy
@@ -12,29 +19,6 @@ from visualization.model_visualizer import visualize_3D
 from matplotlib.patches import Polygon as MatPolygon
 from shapely.geometry import Polygon, LineString, MultiLineString
 
-
-
-"""EDGE_TEMPLATE = np.array([
-    [[0, 1, -1.2], [0.8, 1, -1.2]],
-    [[0.8, 1, -1.2], [0.8, 1, 1.2]],
-    [[0.8, 1, 1.2], [0, 1, 1.2]],
-    [[0, 1, 1.2], [-0.8, 1, 1.2]],
-    [[-0.8, 1, 1.2], [0, 1, -1.2]]
-])"""
-"""template = BrickTemplate([], ldraw_id="43723")
-template.use_vertices_edges2D()
-EDGE_TEMPLATE = np.array(template.edges2D)
-
-TRANSFORM_MATRIX_1 = np.identity(4)
-
-# This matrix has been proven correct
-TRANSFORM_MATRIX_2 = np.array([
-    [0.9487, 0, 0.3162, 1.17952],
-    [0, 1, 0, 0],
-    [-0.3162, 0, 0.9487, -0.1914],
-    [0, 0, 0, 1]
-])"""
-
 class PolygonInstance:
 
     def __init__(self, transform_matrix, edges_list):
@@ -43,7 +27,6 @@ class PolygonInstance:
         for i in range(len(edges_list)):
             self.edges[i] = transform_matrix.dot(edges_list[i].T).T
         self.edges = self.edges[:, :, [0, 2]]
-        # self.perimeter = np.sum(np.linalg.norm(self.edges[:, 1] - self.edges[:, 0], axis=1))
 
 
 class Vertex:
@@ -57,6 +40,12 @@ class Vertex:
 
 
 def compute_polygon_touch_length(polygon_1, polygon_2):
+    """
+    This method is to calculate the contact length between two Polygons
+
+    Author: DING Baizeng
+    Last Modified: 2022.04.07 - Add comments
+    """
     result = 0
     for edges_1 in polygon_1.edges:
         for edges_2 in polygon_2.edges:
@@ -65,6 +54,13 @@ def compute_polygon_touch_length(polygon_1, polygon_2):
 
 
 def is_parallel(vec1, vec2):
+    """
+    This method is to check whether two vectors are parallel (but not absolutely). We will round coordinates to 2
+    decimal places.
+
+    Author: DING Baizeng
+    Last Modified: 2022.04.07 - Add comments
+    """
     vec1 = np.round(vec1 / np.linalg.norm(vec1), 2)
     vec2 = np.round(vec2 / np.linalg.norm(vec2), 2)
     if np.equal(vec1, vec2).all() or np.equal(vec1, -1 * vec2).all():
@@ -74,6 +70,12 @@ def is_parallel(vec1, vec2):
 
 
 def parallel_relative(vec1, vec2):
+    """
+    This method is an advanced version of the method "is_parallel", it also computes the rate of vector 1 over vector 2.
+
+    Author: DING Baizeng
+    Last Modified: 2022.04.07 - Add comments
+    """
     rate = np.linalg.norm(vec1) / np.linalg.norm(vec2)
     if rate == 0:
         return 0
@@ -86,6 +88,15 @@ def parallel_relative(vec1, vec2):
 
 
 def compute_edge_touch_length(edges_1, edges_2):
+    """
+    This method computes the contact length between two edges from two polygons. It will used as a subroutine of polygon
+    contact length computation procedure. In this method, we will classify the relative position of two edges into
+    several cases, and compute the contact length corresponding to each one. Such classification will speed up the
+    calculation.
+
+    Author: DING Baizeng
+    Last Modified: 2022.04.07 - Add comments
+    """
     a, b = edges_1
     c, d = edges_2
 
@@ -169,7 +180,6 @@ def plot_polygons(bricks):
     ax.set_xlim([-500, 500])
     ax.set_ylim([0, 1000])
     plt.show()
-
 
 
 def exam():
@@ -350,20 +360,36 @@ def base_and_plate_test(model_path):
         plate_object = plate_bricks[i]
         collide_connect_2D(plate_object, base_object)
         print(i)
-        #group_display([plate_object], 'k', True, [base_object])
+        # group_display([plate_object], 'k', True, [base_object])
 
 
 def prune(bricks=None, model_path=None, use_model_path=False):
+    """
+    :param bricks           : bricks data to be processed
+    :param model_path       : read bricks data from the given path
+    :param use_model_path   : if True, read bricks data from the given path (indicator)
+
+    Prune strategy: Use base bricks as boarders. If one upper brick collides one base brick, it will be added to that
+                    base brick region set. For example, if brick 8 collides with base brick 0, then region_set[0] = [8].
+                    We use this property to speed up the procedure of checking relationship. Only those bricks share
+                    some base bricks will be checked together.
+
+    Author: DING Baizeng
+    Last Modified: 2022.04.07 - Add comments.
+    """
+    # If user want to imports data from the given path
     if use_model_path:
         bricks = bricks_modeling.file_IO.model_reader.read_bricks_from_file(model_path)
 
-    # Todo: Prune here
+    # Pruning starts
+    # Find all base bricks
     num_of_base = 0
     for i in range(len(bricks)):
         if round(bricks[i].trans_matrix[1][3], 4) != 0:
             num_of_base = i
             break
     base_bricks = copy.deepcopy(bricks[:num_of_base])
+    # Because base bricks are 8.0 lower in y-dim, we need to level them up to check collisions.
     for base_brick in base_bricks:
         base_brick.trans_matrix[1][3] += 8.0
 
@@ -373,13 +399,12 @@ def prune(bricks=None, model_path=None, use_model_path=False):
         if i < num_of_base:
             base_search_index.append([])
         plate_search_index.append([])
-    # print(f"base -> {base_search_index} ; plate -> {plate_search_index}")
+
     for i in range(num_of_base):
         print(f"Now is {i + 1} base ")
         for j in range(num_of_base, len(bricks)):
-            # Todo: Here use == -1, due to that we will not use contact length feature
+            # Here use == -1, due to that we will not use contact length feature
             if collide_connect_2D(base_bricks[i], bricks[j]) == -1:
-                # print(f"i = {i} j = {j}")
                 base_search_index[i].append(j)
                 plate_search_index[j].append(i)
     it = []
@@ -394,6 +419,7 @@ def prune(bricks=None, model_path=None, use_model_path=False):
     print(len(it))
     return it
 
+
 if __name__ == "__main__":
     """polygon_1 = PolygonInstance(TRANSFORM_MATRIX_1, EDGE_TEMPLATE)
     polygon_2 = PolygonInstance(TRANSFORM_MATRIX_2, EDGE_TEMPLATE)
@@ -403,9 +429,10 @@ if __name__ == "__main__":
     # align_detection()
 
     metrics = Metrics()
-    metrics.measure_without_return(prune, None, "Bug ['3024', '3020', '3023', '3710', '43722', '43723'] base=24.ldr", True)
+    metrics.measure_without_return(prune, None, "Bug ['3024', '3020', '3023', '3710', '43722', '43723'] base=24.ldr",
+                                   True)
 
-    # metrics.measure_without_return(base_and_plate_test, "Bug ['3024', '3020', '3023', '3710', '43722', '43723'] base=24.ldr")
+    # metrics.measure_without_return(base_and_plate_test, "Bug ['3024', '3020', '3023', '3710', '43722',
+    # '43723'] base=24.ldr")
 
-
-    #model_piece_to_whole_plot("../../debug/2021-11-21_21-30-38_heart/heart b=24 ['3024', '43722', '43723'] .ldr")
+    # model_piece_to_whole_plot("../../debug/2021-11-21_21-30-38_heart/heart b=24 ['3024', '43722', '43723'] .ldr")

@@ -7,10 +7,11 @@ import math
 import json
 import sys
 import copy
-import unusual_brick_vertices
 from shapely.geometry import Polygon, Point
 import cv2
-from sample_constant import *
+
+from solvers.generation_solver import unusual_brick_vertices
+from solvers.generation_solver.sample_constant import *
 from bricks_modeling.bricks.brickinstance import BrickInstance, get_corner_pos
 from shapely.ops import unary_union
 from bricks_modeling.file_IO.model_writer import write_bricks_to_file
@@ -56,7 +57,7 @@ def get_area():
 
 
 # return a list of rgb colors covered by brick *rgbs*
-# Todo: Add new parameter here
+# Add new parameter here
 def new_get_cover_rgb(brick, img, base_int, map):
     if brick.template.id in ["3023"]:
         return []
@@ -95,8 +96,7 @@ def new_get_cover_rgb(brick, img, base_int, map):
 
 
 def get_cover_rgb(brick, img, base_int):
-    # Todo: relax the boundary
-    # polygon = proj_bbox(brick)
+    # relax the boundary
     polygon = calculate_bound_without_col(brick)
     mini, minj, maxi, maxj = polygon.bounds
 

@@ -6,6 +6,12 @@ import cv2
 import numpy as np
 
 class DistanceMap:
+    """
+    DistanceMap Class: Convert a picture into distance of json format.
+
+    Author: DING Baizeng
+    Last Modified: 2022.04.07 - Add comments
+    """
     def __init__(self, img_path, base_int):
         self.img = self.process_img(img_path, base_int)
         self.img_name = img_path.split("/")[-1].split(".")[0]

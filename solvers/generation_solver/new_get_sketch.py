@@ -4,7 +4,7 @@ import solvers.generation_solver.sketch_util as util
 from bricks_modeling.file_IO.model_writer import write_bricks_to_file
 
 from solvers.generation_solver.minizinc_sketch import MinizincSolver
-from precompute import PrecomputedModel
+from solvers.generation_solver.precompute import PrecomputedModel
 from util.debugger import MyDebugger
 
 
@@ -45,6 +45,40 @@ class SketchLayer:
         print("-" * 9 + " Model Info " + "-" * 9)
         self._precompute_model.display_debug_info()
         print("-" * 30)
+
+
+def get_sketch(file_names, layers):
+    # num_of_layer = int(input("Please enter the number of layers: "))
+    solver = MinizincSolver(os.path.dirname(__file__) + "/solve_sketch.mzn", "gurobi")
+    selected_bricks = []
+    # Todo: Handle background
+    background_bool = 0
+    num_of_layer = len(file_names)
+
+    for i in range(num_of_layer):
+        file_path = file_names[i]
+        sketch_layer = SketchLayer(file_path, solver)
+        sketch_layer.generate_solutions()
+        sketch_layer.move_layer(layers[i])
+        if i == 0:
+            selected_bricks += sketch_layer.get_base_bricks()
+        selected_bricks += sketch_layer.get_selected_bricks_layer()
+        sketch_layer.display_debug_info()
+
+    # Todo: Handle background color
+    """if background_bool:
+        background = os.path.dirname(__file__) + "/inputs/" + "back " + graph_name.split(".pkl")[0] + ".ldr"
+        background = read_bricks_from_file(background)
+        selected_bricks += util.move_brickset(background, background_rgb, 0, 0, ldr_color)"""
+    result_name =  "test"  # input("Please enter the image name: ")
+
+    debugger = MyDebugger(f"{result_name}")
+    write_bricks_to_file(
+        selected_bricks,
+        file_path=debugger.file_path(f"{result_name}.ldr"))
+
+    print("done!")
+
 
 
 if __name__ == "__main__":

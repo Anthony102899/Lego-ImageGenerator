@@ -42,7 +42,7 @@ def crop_ls(rgbs, sd):
     # return np.average(rgbs, axis = 0)
 
 # return *node_sd* and *node_color*
-# Todo: Add new parameter here
+# Add new parameter here
 def new_ls_from_layout(img, plate_set, base_int, file_name):
     """rgbs_ls = util.get_cover_rgb(img=img, base_int=base_int, brick=plate_set)
     node_sd = crop_ls(rgbs_ls, sd=True)
@@ -259,7 +259,7 @@ if __name__ == "__main__":
         filtered_structure_graph.bricks = filtered_bricks
         filtered_structure_graph.connect_edges = filtered_connect_edges
         filtered_structure_graph.overlap_edges = filtered_overlap_edges
-        # Todo: Create another set to store the original bricks
+        # Create another set to store the original bricks
         results = solver.solve(structure_graph=filtered_structure_graph,
                                 node_sd=filtered_node_sd,
                                 node_area=filtered_node_area,

@@ -1,8 +1,10 @@
+import sys
+
 import copy
 import math
 import os
 import pickle
-import sample_constant
+from solvers.generation_solver import sample_constant
 import cv2
 import numpy as np
 
@@ -109,7 +111,7 @@ class Precompute:
             layer = int(layer_nums[k])
             img_name = layer_names[k]
             print("Layer number ", layer, " Image name: ", img_name)
-            # Todo: Here I use new images
+            # Todo: Highlight: Here I use new images
             # img_path = os.path.dirname(__file__) + "/inputs/images/" + img_name
             img_path = os.path.dirname(__file__) + "/new_inputs/" + "_".join(img_name.split("_")[:-1]) + "/" + img_name
             img_path = os.path.join(os.path.dirname(__file__), img_path)

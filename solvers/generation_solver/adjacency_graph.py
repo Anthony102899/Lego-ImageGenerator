@@ -13,7 +13,7 @@ from bricks_modeling.file_IO.model_reader import read_bricks_from_file
 from solvers.generation_solver.polygon_intersection import collide_connect_2D, prune
 from solvers.generation_solver.tile_graph import unique_brick_list
 from util.json_encoder import NumpyArrayEncoder
-from metrics import Metrics
+from solvers.generation_solver.metrics import Metrics
 
 """
 To use a graph to describe a LEGO structure
@@ -25,10 +25,6 @@ class AdjacencyGraph:
         self.bricks = bricks
         self.connect_edges = []
         self.overlap_edges = []
-
-        # it seems that filtering has been done in the generation procedure
-        # self._remove_redudant_bricks()
-
         self.build_graph_from_bricks()
 
     def _remove_redudant_bricks(self):
@@ -40,8 +36,6 @@ class AdjacencyGraph:
         self.bricks[b_i].template.use_vertices_edges2D()
         self.bricks[b_j].template.use_vertices_edges2D()
 
-        # Add Metrics
-        # relationship = collide_connect_2D(self.bricks[b_i], self.bricks[b_j])
         relationship = collide_connect_2D(self.bricks[b_i], self.bricks[b_j])
         if relationship == 0:
             return None, 0
@@ -51,25 +45,15 @@ class AdjacencyGraph:
             return (b_i, b_j, relationship), relationship
 
     def build_graph_from_bricks(self):
-        # Todo: Prune here
-        # Todo: Add Metrics
-        # it = np.array(list(itertools.combinations(list(range(0, len(self.bricks))), 2)))
+        """
+        Given bricks data, find relationship of overlap among bricks
+        This method uses pruning to improve the performance
+        """
+        # Prune by using Metrics
         it = metrics.measure_with_return(prune, self.bricks, None, False)
 
-        # Todo: Reconstruct
-        """
-        with Pool() as p:
-            # Display Process Information
-            print("#" * 19 + " Process Information " + "#" * 20)
-            a = []
-            for i in range(len(it)):
-                if (i % 100 == 0 and i != 0) or i == len(it) - 1:
-                    a += p.map(self.build, it[i - 100 : i, 0], it[i - 100 : i, 1])
-                    print(f"Complete {i}/{len(it)}")
-            print("#" * 24 + " Build End " + "#" * 25)
-            """
-        a = []
         # Display Process Information
+        a = []
         print("#" * 19 + " Process Information " + "#" * 20)
         for i in range(len(it)):
             a.append(self.build(it[i][0], it[i][1]))
@@ -131,31 +115,45 @@ class AdjacencyGraph:
         o3d.visualization.draw_geometries([mesh_frame, line_set, spheres])
 
 
-if __name__ == "__main__":
-    path = os.path.dirname(__file__) + "/['3024', '3023', '24299', '24307', '43722', '43723'] base=24.ldr"
+def gen_adjacency_graph(path):
     metrics = Metrics()
-
-    # Todo: Add metrics
-    # bricks = read_bricks_from_file(path)
     bricks = metrics.measure_with_return(read_bricks_from_file, path)
 
-    # Todo: Add metrics
-    """
-    for brick in bricks:
-        brick.template.use_vertices_edges2D()
-        """
     def get_template_2D(bricks):
         for brick in bricks:
             brick.template.use_vertices_edges2D()
+
     metrics.measure_without_return(get_template_2D, bricks)
 
     _, filename = os.path.split(path)
     filename = (filename.split("."))[0]
     start_time = time.time()
     structure_graph = AdjacencyGraph(bricks)
-    # print(structure_graph.overlap_edges)
-    # print(structure_graph.connect_edges)
-    # print(structure_graph.connect_edges)
+    t = round(time.time() - start_time, 2)
+    pickle.dump(structure_graph,
+                open(os.path.join(os.path.dirname(__file__), f'connectivity/{filename} t={t}.pkl'), "wb"))
+    print(f"Saved at {filename} t={t}.pkl")
+
+
+if __name__ == "__main__":
+    path = os.path.dirname(__file__) + "/['3024', '3023', '24299', '24307', '43722', '43723'] base=24.ldr"
+    metrics = Metrics()
+
+    # Use metrics
+    bricks = metrics.measure_with_return(read_bricks_from_file, path)
+
+
+    def get_template_2D(bricks):
+        for brick in bricks:
+            brick.template.use_vertices_edges2D()
+
+
+    metrics.measure_without_return(get_template_2D, bricks)
+
+    _, filename = os.path.split(path)
+    filename = (filename.split("."))[0]
+    start_time = time.time()
+    structure_graph = AdjacencyGraph(bricks)
     t = round(time.time() - start_time, 2)
     pickle.dump(structure_graph,
                 open(os.path.join(os.path.dirname(__file__), f'connectivity/{filename} t={t}.pkl'), "wb"))
