@@ -91,9 +91,9 @@ if __name__ == "__main__":
     """map_path = "/Users/walter/Documents/FYP/lego-solver/solvers/generation_solver/json/wechat_white.json"
     display(map_path)"""
 
-    file_path = os.path.dirname(__file__) + "/new_inputs/twitter/twitter_white.png"
-    distance_map = DistanceMap(file_path, 24)
-    distance_map.generate_distance_map(24)
+    file_path = os.path.dirname(__file__) + "/new_inputs/LEGO_e/LEGO_e_white.png"
+    distance_map = DistanceMap(file_path, base_int=24)
+    distance_map.generate_distance_map(base_int=24)
 
 
 

@@ -68,8 +68,8 @@ class DismapWindow(QDialog):
 
     def generate_dismap(self):
         file_path = self.fileName
-        distance_map = DistanceMap(file_path, 2)
-        distance_map.generate_distance_map(2)
+        distance_map = DistanceMap(file_path, base_int=24)
+        distance_map.generate_distance_map(base_int=24)
         self.hide()
 
     def update_combobox(self):
