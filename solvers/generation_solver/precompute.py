@@ -78,8 +78,20 @@ class PrecomputedModel:
 
 class Precompute:
     def __init__(self):
+        pass
+
+    def init_by_interface(self):
         graph_name, img_num, layer_names, layer_nums, background_rgb, degree, scale, width_dis, height_dis = \
             show_interface()
+
+        self.initialize(graph_name, img_num, layer_names, layer_nums, background_rgb, degree, scale,
+                        width_dis, height_dis)
+
+    def initialize(self, graph_name, img_num, layer_names, layer_nums, background_rgb, degree,
+                   scale, width_dis, height_dis):
+
+        graph_name = (graph_name.split("/"))[-1]
+
         background_bool = 1
         if len(background_rgb) == 0:
             background_bool = 0
@@ -109,7 +121,7 @@ class Precompute:
 
         for k in range(img_num):
             layer = int(layer_nums[k])
-            img_name = layer_names[k]
+            img_name = (layer_names[k].split("/"))[-1]
             print("Layer number ", layer, " Image name: ", img_name)
             # Todo: Highlight: Here I use new images
             # img_path = os.path.dirname(__file__) + "/inputs/images/" + img_name
@@ -185,6 +197,7 @@ class Precompute:
                            f"t={sample_constant.EXTEND_SAMPLE_THRESHOLD}"
             precompute_model.dump_to_pickle(filename)
 
-
 if __name__ == "__main__":
-    precompute_starter = Precompute()
+    # precompute_starter = Precompute().init_by_interface()
+
+    Precompute().initialize('/Users/walter/Documents/FYP/lego-solver/solvers/generation_solver/connectivity/[\'3024\', \'3023\', \'24299\', \'24307\', \'43722\', \'43723\'] base=24 t=31205.38.pkl', 1, ['/Users/walter/Documents/FYP/lego-solver/solvers/generation_solver/new_inputs/LEGO_a/LEGO_a_black.png'], [1], [], 0, 1, 0, 0)
