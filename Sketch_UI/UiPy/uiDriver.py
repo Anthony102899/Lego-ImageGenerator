@@ -5,12 +5,14 @@ import open3d
 
 from welcomePage import *
 from PyQt6.QtWidgets import QApplication, QMainWindow, QDialog
+from multiprocessing import Process
 from Sketch_UI.UiPy.dismap import *
 from Sketch_UI.UiPy.precPage import *
 from Sketch_UI.UiPy.superSet import *
 from Sketch_UI.UiPy.adjacency_graph_ui import *
 from Sketch_UI.UiPy.main_solver import *
 from Sketch_UI.UiPy.main_input import *
+from Sketch_UI.UiPy.precompute_layers_ui import *
 from solvers.generation_solver.distance_map import *
 from solvers.generation_solver.precompute import *
 from solvers.generation_solver.gen_sketch_placement import *
@@ -24,6 +26,7 @@ _CACHE = 0
 
 def store_in_cache(x):
     _CACHE = x
+
 
 class ParentWindow(QMainWindow):
     def __init__(self):
@@ -40,9 +43,51 @@ class PrecWindow(QDialog):
 
     def precompute(self):
         try:
-            Precompute()
+            Precompute().init_by_interface()
         except Exception as e:
             print(e)
+
+
+class PrecomputeLayersWindow(QDialog):
+    def __init__(self):
+        QDialog.__init__(self)
+        self.fileName = ""
+        self.fileType = ""
+        self.ui = PrecumputeLayersUi()
+        self.ui.setupUi(self)
+        img = QtGui.QPixmap('../resource/icon/upload.jpg')
+        self.ui.image_label.setPixmap(img)
+        self.ui.image_label.setScaledContents(True)
+
+    def select_graph_file(self):
+        graph_relative_path = "/../../solvers/generation_solver/connectivity/"
+        graph_file_name, graph_file_type = QtWidgets.QFileDialog.getOpenFileName(self, "选取文件",
+                                                                                 os.getcwd() + graph_relative_path,
+                                                                   "All Files(*);;jpeg Files(*.jpg);;png Files(*.png)")
+        self.graph_file_name = graph_file_name
+        self.graph_file_type = graph_file_type
+        self.update_graph_combobox()
+
+    def open_image_file(self):
+        image_relative_path = "/../../solvers/generation_solver/new_inputs/"
+        image_file_name, image_file_type = QtWidgets.QFileDialog.getOpenFileName(self, "选取文件",
+                                                                                 os.getcwd() + image_relative_path,
+                                                                   "All Files(*);;jpeg Files(*.jpg);;png Files(*.png)")
+        self.image_file_name = image_file_name
+        self.image_file_type = image_file_type
+        img = QtGui.QPixmap(self.image_file_name)
+        self.ui.image_label.setPixmap(img)
+        self.ui.image_label.setScaledContents(True)
+        self.update_image_combobox()
+
+    def update_graph_combobox(self):
+        self.ui.graph_select_box.addItem(self.graph_file_name)
+
+    def update_image_combobox(self):
+        self.ui.image_select_box.addItem(self.image_file_name)
+
+    def precompute_models(self):
+        Precompute().initialize(self.graph_file_name, 1, [self.image_file_name], [1], [], 0, 1, 0, 0)
 
 
 class DismapWindow(QDialog):
@@ -195,6 +240,7 @@ if __name__ == '__main__':
     app = QApplication(sys.argv)
     window = ParentWindow()
     prec = PrecWindow()
+    precompute = PrecomputeLayersWindow()
     dismap = DismapWindow()
     superset = SupersetWindow()
     graph = AdjacencyGraphWindow()
@@ -219,7 +265,17 @@ if __name__ == '__main__':
     btn_prec.clicked.connect(prec.show)
 
     btn_precompute = prec.ui.pushButton_2  # The precompute button on precompute window
-    btn_precompute.clicked.connect(prec.precompute)
+    # btn_precompute.clicked.connect(prec.precompute)
+    btn_precompute.clicked.connect(precompute.show)
+
+    btn_precompute_graph_choose = precompute.ui.open_graph_button
+    btn_precompute_graph_choose.clicked.connect(precompute.select_graph_file)
+
+    btn_precompute_image_choose = precompute.ui.open_image_button
+    btn_precompute_image_choose.clicked.connect(precompute.open_image_file)
+
+    btn_precompute_model = precompute.ui.push_button
+    btn_precompute_model.clicked.connect(precompute.precompute_models)
 
     btn_dismap = prec.ui.pushButton  # The distance map button on precompute window
     btn_dismap.clicked.connect(dismap.show)
